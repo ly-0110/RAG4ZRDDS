@@ -19,6 +19,7 @@ fastapi>=0.115
 uvicorn[standard]>=0.30
 pydantic-settings>=2.4
 python-dotenv>=1.0
+pyyaml>=6.0              # 实验配置加载（scripts/experiment_config.py 直接依赖）
 
 # ===== 实验/评测 =====
 numpy
