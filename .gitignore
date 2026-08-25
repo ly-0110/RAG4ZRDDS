@@ -24,3 +24,6 @@ venv/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# ===== 个人记忆（仅本机，不入库）=====
+AGENTS.md
