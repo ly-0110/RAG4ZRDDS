@@ -1,4 +1,6 @@
 # 版本说明：第一周由成员 B 锁定具体版本后回填精确 pin。
+# 安装建议（团队约定走国内源）：
+#   pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 # ===== 核心编排 =====
 llama-index-core>=0.11,<0.13
 
@@ -26,6 +28,9 @@ numpy
 pandas
 tqdm
 scikit-learn
+
+# ===== 测试 =====
+pytest>=8
 
 # ===== 可选（按需启用）=====
 # openai或其他模型         # LLM API 接入
