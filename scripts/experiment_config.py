@@ -10,7 +10,7 @@
 
 用法：
   from experiment_config import load, index_dirname, nodes_path   # 供 ingest/build_index/run_experiment 共用
-  python scripts/experiment_config.py configs/experiments/struct_v1.yaml   # 冒烟自检
+  python scripts/experiment_config.py configs/experiments/example_v1.yaml   # 冒烟自检
 
 格式规范：configs/experiments/README.md
 """

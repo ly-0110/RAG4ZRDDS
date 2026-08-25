@@ -1,6 +1,6 @@
 .PHONY: setup ingest index experiment serve inspect help
 
-CFG ?= configs/experiments/struct_v1.yaml
+CFG ?= configs/experiments/example_v1.yaml
 
 help:
 	@echo "targets: setup | ingest/index/experiment CFG=... | serve | inspect"

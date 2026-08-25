@@ -7,8 +7,8 @@
 ```bash
 cp .env.example .env      # 填写密钥
 make setup                # 建环境并安装依赖
-make ingest  CFG=configs/experiments/struct_v1.yaml
-make index   CFG=configs/experiments/struct_v1.yaml
+make ingest  CFG=configs/experiments/example_v1.yaml
+make index   CFG=configs/experiments/example_v1.yaml
 make serve                # 启动 API
 ```
 

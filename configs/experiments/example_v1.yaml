@@ -1,18 +1,19 @@
 # =====================================================================
-# RAG4ZRDDS 实验配置 · schema_version 1
-# 格式 Owner：成员 D。填写规则详见同目录 README.md。
-#   * 一次实验一个 yaml；文件名 = 实验 ID，下游命名全部由此派生
-#   * 结构层 key 严格校验（未知 key 直接报错）；各 params 袋内为对应 Owner 自由区
-#   * 本文件入 Git：禁止出现任何密钥明文，只允许引用 .env 的环境变量名
+# RAG4ZRDDS 实验配置 · 示例模板（example_v1）
+# 用法：复制本文件为新实验（如 semantic_v1.yaml），并同步修改 experiment.name。
+# 逐参数说明见同目录 README.md。
+#   * 一次实验一个 yaml；文件名 = 实验 ID，下游产物命名全部由此派生
+#   * 固定字段写错会被校验拦截；各 params: 下为对应 Owner 的自由区
+#   * 本文件入 Git：不要上传你的apikey，只允许引用 .env 的环境变量名
 # =====================================================================
 schema_version: 1
 
-experiment:                        # ── 实验身份（D）
-  name: struct_v1                  # 必须与文件名一致（脚本强制校验）
-  description: 第一周 baseline：结构感知分块 + 向量 Top-K
+experiment:                        # ── 实验身份
+  name: example_v1                 # 必须与文件名一致（脚本强制校验）；复制本模板后改成新实验名
+  description: 示例模板：展示全部配置项的典型填法；复制改名后再开始正式实验
   stage: baseline                  # baseline | ablation | regression | product
 
-sources:                           # ── 知识源注册表（D 维护；第三周起多来源）
+sources:                           # ── 知识源注册表
   - id: user_manual                # metadata.source_name 引用名，全配置唯一
     type: pdf                      # pdf | html
     path: data/raw/manuals/ZRDDS用户手册.pdf
@@ -25,7 +26,7 @@ ingest:                            # ── raw → cleaned 编排（D）
 
 chunking:                          # ── 分块方案（格式 D 定 / 参数 A 填）
   method: struct                   # struct | semantic | hybrid | fixed
-  version: v1                      # Node 集 → data/processed/struct_v1.jsonl
+  version: v1                      # 方案版本号；Node 集 = data/processed/{method}_{version}.jsonl
   params:                          # ◆ 参数袋：原样透传给 A 的 chunker 实现
     unit_level: 3                  #   三级节为知识单元（§15 主方案）
     oversize_threshold: 2500       #   超大节下切阈值（字符）（§6.2：2500 附近）
