@@ -1,0 +1,106 @@
+"""检索/生成的接入缝隙（seam）—— D 只定义协议并接线，不实现算法。
+
+两个协议即两份会签草案：
+  * Retriever   → 成员 B 落地（retrieval/ 包），输入问题返回引用片段
+  * AnswerStream → 成员 C 落地（generation/ 包），基于引用片段产出答案增量
+
+RAG_MODE=mock（默认）时使用本文件的确定性假实现：
+  * 无需 A/B/C 的任何产物即可启动服务，供 E 的前端联调与周五冒烟
+  * 同一问题永远返回相同结果，便于测试断言
+切换 RAG_MODE=live 后由 build_pipeline 加载真实实现（B/C 合入后在此处接上）。
+"""
+
+from __future__ import annotations
+
+import hashlib
+from typing import AsyncIterator, Protocol
+
+MOCK_ANSWER = """【Mock 模式回答】这是集成平台的确定性示例答案，用于前端联调与链路冒烟。
+
+结论
+使用 `create_datawriter()` 前需先创建 Publisher，再由其创建 DataWriter。
+
+示例
+```c
+DDS_DataWriter writer = DDS_Publisher_create_datawriter(pub, topic, dw_qos, NULL, 0);
+```
+
+注意事项
+- 本答案来自 mock 管线，不代表真实知识库内容。
+- 切换 RAG_MODE=live 后将返回真实检索与生成结果。
+
+来源
+[1] 《ZRDDS用户手册》第 {page_print} 页 {section} 节"""
+
+
+class Retriever(Protocol):
+    """成员 B 实现此协议（retrieval/ 包）。"""
+
+    async def retrieve(self, question: str, top_k: int) -> list[dict]:
+        """返回至多 top_k 条引用 dict，字段同 schema.SourceRef。node_id 全局唯一。"""
+        ...  # pragma: no cover
+
+
+class AnswerStream(Protocol):
+    """成员 C 实现此协议（generation/ 包）。"""
+
+    def stream(self, question: str, chunks: list[dict]) -> AsyncIterator[str]:
+        """基于检索结果异步产出答案文本增量。"""
+        ...  # pragma: no cover
+
+
+class MockRetriever:
+    """确定性假检索：结果由问题的哈希决定，双页码演示 print = physical + 6。"""
+
+    async def retrieve(self, question: str, top_k: int) -> list[dict]:
+        digest = hashlib.md5(question.encode("utf-8")).hexdigest()
+        seed = int(digest[:8], 16)
+        physical_page = 42 + seed % 90  # 物理页码落在 42~131
+        results: list[dict] = []
+        for i in range(max(1, top_k)):
+            page = physical_page + i // 2
+            results.append(
+                {
+                    "node_id": f"mock-{digest[:8]}-{i:02d}",
+                    "source_id": "user_manual",
+                    "source_name": "ZRDDS用户手册.pdf",
+                    "section": f"9.{seed % 8 + 1}.{i + 1}",
+                    "page_print": page + 6,
+                    "page_physical": page,
+                    "score": round(max(0.30, 0.95 - i * 0.07), 4),
+                }
+            )
+        return results
+
+
+class MockAnswerStream:
+    """确定性假生成：把固定答案切成小块模拟流式输出。"""
+
+    async def stream(self, question: str, chunks: list[dict]) -> AsyncIterator[str]:
+        page_print = chunks[0]["page_print"] if chunks else 48
+        section = chunks[0]["section"] if chunks else "9.1.1"
+        text = MOCK_ANSWER.format(page_print=page_print, section=section)
+        step = 24
+        for i in range(0, len(text), step):
+            yield text[i : i + step]
+
+
+class Pipeline:
+    """一条问答管线 = 一个检索器 + 一个生成流。D 负责组装，算法归 B/C。"""
+
+    def __init__(self, retriever: Retriever, answer_stream: AnswerStream) -> None:
+        self.retriever = retriever
+        self.answer_stream = answer_stream
+
+
+def build_pipeline(mode: str) -> Pipeline:
+    """按 RAG_MODE 组装管线；live 实现未合入前给出可读错误而非静默降级。"""
+    if mode == "mock":
+        return Pipeline(MockRetriever(), MockAnswerStream())
+    if mode == "live":
+        raise RuntimeError(
+            "RAG_MODE=live 需要真实检索/生成实现："
+            "retrieval 由成员 B 提供（Retriever 协议），generation 由成员 C 提供"
+            "（AnswerStream 协议）——合入后在 server/core/pipeline.py::build_pipeline 接线。"
+        )
+    raise RuntimeError(f"未知 RAG_MODE={mode!r}，可选值：mock | live")
