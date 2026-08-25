@@ -1,0 +1,26 @@
+# ===== 大文件产物（不入库）=====
+data/raw/
+data/cleaned/*
+!data/cleaned/.gitkeep
+indexes/*
+!indexes/.gitkeep
+evaluation/runs/
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# ===== 环境变量（模板除外）=====
+.env
+.env.*
+!.env.example
+
+# ===== IDE / OS =====
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

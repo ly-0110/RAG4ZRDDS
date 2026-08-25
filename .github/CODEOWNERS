@@ -1,0 +1,13 @@
+# 目录 Owner（成员确定 Git 用户名后替换 @handle 并取消注释）
+# 规则见 product_rag_implementation_guide.md §3/§4：谁的域谁 Review 合并。
+
+# /data_pipeline           @member-a
+# /data/processed          @member-a
+# /retrieval               @member-b
+# /generation              @member-c
+# /evaluation/judges       @member-c
+# /server                  @member-d
+# /scripts                 @member-d
+# /configs                 @member-d
+# /web                     @member-e
+# /evaluation/datasets     @member-e

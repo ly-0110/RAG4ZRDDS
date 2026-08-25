@@ -1,0 +1,32 @@
+# 版本说明：第一周由成员 B 锁定具体版本后回填精确 pin。
+# ===== 核心编排 =====
+llama-index-core>=0.11,<0.13
+
+# ===== PDF / HTML 解析 =====
+pymupdf>=1.24
+beautifulsoup4>=4.12
+lxml>=5.2
+
+# ===== 向量库（本地原型，二选一保留）=====
+chromadb>=0.5
+# faiss-cpu>=1.8
+
+# ===== 检索 =====
+rank-bm25>=0.2.2
+
+# ===== 服务 =====
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic-settings>=2.4
+python-dotenv>=1.0
+
+# ===== 实验/评测 =====
+numpy
+pandas
+tqdm
+scikit-learn
+
+# ===== 可选（按需启用）=====
+# openai>=1.40          # LLM API 接入
+# mcp>=1.0              # 第四周 MCP Server 封装
+# sentence-transformers>=3.0   # 本地 Embedding/Reranker
