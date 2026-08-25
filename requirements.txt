@@ -27,6 +27,6 @@ tqdm
 scikit-learn
 
 # ===== 可选（按需启用）=====
-# openai>=1.40          # LLM API 接入
+# openai或其他模型         # LLM API 接入
 # mcp>=1.0              # 第四周 MCP Server 封装
 # sentence-transformers>=3.0   # 本地 Embedding/Reranker
