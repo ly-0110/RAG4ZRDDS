@@ -4,8 +4,8 @@ scripts/ingest.py — raw → cleaned → processed 编排
 
 职责（成员 D · 集成与实验平台）:
   * 调用成员 A 交付物：pdf_loader（提取）、cleaner（清洗）、section_tree（章节树）
-  * 预留 chunker 调用点（待 A 交付 data_pipeline/chunkers/）
-  * 各接缝处执行 pages.jsonl 契约校验
+  * 调用成员 A 分块交付物：chunkers.get_chunker 工厂 + Chunk.to_dict 落盘
+  * 各接缝处执行契约校验（pages.jsonl / Node 集）
   * 失败即停，给出可读错误
 
 用法:
@@ -13,10 +13,12 @@ scripts/ingest.py — raw → cleaned → processed 编排
   python scripts/ingest.py --config configs/experiments/<实验>.yaml
 
 产物:
-  data/cleaned/pages.jsonl     — 逐页清洗文本（含 blocks/toc_entries，供 section_tree 消费）
+  data/cleaned/pages.jsonl     — 逐页清洗文本（落盘版剥离 blocks）
   data/processed/section_tree_v1.jsonl — 章节树（A 的 section_tree 产出）
+  data/processed/{method}_{version}.jsonl — Node 集（A 的 chunker 产出，
+      路径由配置派生；配置含 ingest.quality_check: true 时附跑质检报告）
 
-依赖: scripts/experiment_config.py · data_pipeline/*.py（A 交付物）
+依赖: scripts/experiment_config.py · data_pipeline/*.py（A 交付物）· tiktoken
 """
 
 from __future__ import annotations
@@ -102,6 +104,52 @@ def validate_pages_jsonl(pages: List[dict], label: str = "") -> None:
         raise ValueError(f"pages.jsonl 契约校验失败（{label}）:\n  {summary}")
 
 
+def validate_nodes_jsonl(records: List[dict], label: str = "") -> None:
+    """校验 Node 集（chunker 产物）契约，失败抛 ValueError。
+
+    顶层字段与 metadata 白名单以 A 的交付物为单一事实源：
+    data_pipeline/chunkers/base.py::Chunk / data_pipeline/metadata.py
+    """
+    from data_pipeline.metadata import validate_metadata
+
+    top_fields = ("chunk_id", "text", "metadata", "token_count",
+                  "char_start", "char_end")
+    errors: list[str] = []
+    ids: set[str] = set()
+    delta = None
+    for i, rec in enumerate(records, start=1):
+        missing = [f for f in top_fields if f not in rec]
+        if missing:
+            errors.append(f"第{i}条: 缺顶层字段 {missing}")
+            continue
+        cid = rec["chunk_id"]
+        if not isinstance(cid, str) or not cid:
+            errors.append(f"第{i}条: chunk_id 非法: {cid!r}")
+        elif cid in ids:
+            errors.append(f"第{i}条: chunk_id 重复: {cid}")
+        ids.add(cid)
+        if not isinstance(rec["text"], str) or not rec["text"].strip():
+            errors.append(f"第{i}条 ({cid}): text 为空")
+        miss_meta = validate_metadata(rec["metadata"])
+        if miss_meta:
+            errors.append(f"第{i}条 ({cid}): metadata 缺必填字段 {miss_meta}")
+        # 双页码差值全局一致（抓 PAGE_OFFSET 配置错误）
+        md = rec["metadata"]
+        pp, pr = md.get("physical_page_start"), md.get("printed_page_start")
+        if isinstance(pp, int) and isinstance(pr, int):
+            d = pr - pp
+            if delta is None:
+                delta = d
+            elif d != delta:
+                errors.append(f"第{i}条 ({cid}): 双页码差值 {d} 不一致（之前为 {delta}）")
+                break
+
+    if errors:
+        summary = "\n  ".join(errors[:20])
+        more = f"\n  …（共 {len(errors)} 条，仅显示前 20）" if len(errors) > 20 else ""
+        raise ValueError(f"Node 集契约校验失败（{label}）:\n  {summary}{more}")
+
+
 # ─── 核心编排 ────────────────────────────────────────────────────────
 
 
@@ -145,7 +193,7 @@ def main() -> int:
     print(f"[ingest] PDF 来源: {pdf_src}")
 
     # ── 1. PDF 提取 ──────────────────────────────────────────────
-    print("[ingest] 步骤 1/5: PDF 逐页提取")
+    print("[ingest] 步骤 1/6: PDF 逐页提取")
     try:
         from data_pipeline.pdf_loader import extract_pdf
         result = extract_pdf(pdf_src)
@@ -160,7 +208,7 @@ def main() -> int:
     print(f"  -> {result.total_pages} 页, 书签 {len(result.toc)} 条")
 
     # ── 2. 清洗 ──────────────────────────────────────────────────
-    print("[ingest] 步骤 2/5: 页眉/页码行清洗")
+    print("[ingest] 步骤 2/6: 页眉/页码行清洗")
     try:
         from data_pipeline.cleaner import clean_page_text
         for page in result.pages:
@@ -176,7 +224,7 @@ def main() -> int:
 
     # ── 3. 构建字典列表 & 落盘 pages.jsonl ──────────────────────
     cleaned_output = REPO_ROOT / cfg.ingest.cleaned_output
-    print(f"[ingest] 步骤 3/5: 写入 pages.jsonl → {cleaned_output}")
+    print(f"[ingest] 步骤 3/6: 写入 pages.jsonl → {cleaned_output}")
     cleaned_output.parent.mkdir(parents=True, exist_ok=True)
 
     # full 版（含 blocks，供 section_tree 在内存中使用） —— 不持久化
@@ -203,7 +251,7 @@ def main() -> int:
     print(f"  -> 已写入 {len(pages_compact)} 行（blocks 已剥离）")
 
     # ── 4. 契约校验 ──────────────────────────────────────────────
-    print("[ingest] 步骤 4/5: pages.jsonl 契约校验")
+    print("[ingest] 步骤 4/6: pages.jsonl 契约校验")
     try:
         validate_pages_jsonl(pages_compact, label=str(cleaned_output))
     except ValueError as e:
@@ -212,10 +260,11 @@ def main() -> int:
     print("  -> 校验通过 ✓")
 
     # ── 5. 章节树构建 ────────────────────────────────────────────
+    sec_tree_path = REPO_ROOT / "data/processed" / "section_tree_v1.jsonl"
     if args.skip_section_tree:
-        print("[ingest] 步骤 5/5: [跳过 --skip-section-tree]")
+        print("[ingest] 步骤 5/6: [跳过 --skip-section-tree]")
     else:
-        print("[ingest] 步骤 5/5: 双通道章节树构建")
+        print("[ingest] 步骤 5/6: 双通道章节树构建")
         try:
             from data_pipeline.section_tree import (
                 build_toc_tree,
@@ -234,7 +283,6 @@ def main() -> int:
             # 补全页码范围
             finalize_page_ranges(toc_tree, len(pages_full))
 
-            sec_tree_path = REPO_ROOT / "data/processed" / "section_tree_v1.jsonl"
             dump_section_tree(toc_tree, sec_tree_path)
 
             # 统计节点数
@@ -253,33 +301,88 @@ def main() -> int:
             traceback.print_exc(file=sys.stderr)
             return 1
 
-    # ── [预留] 6. 分块构建 ────────────────────────────────────────
-    chunker_dir = REPO_ROOT / "data_pipeline" / "chunkers"
-    if chunker_dir.is_dir():
-        print("[ingest] [预留] 检测到 chunkers/ 目录，尝试分块 …")
+    # ── 6. 分块构建（A 的 chunkers 交付物）────────────────────────
+    print("[ingest] 步骤 6/6: 分块构建")
+    STRATEGY_MAP = {"struct": "structure", "semantic": "semantic",
+                    "hybrid": "hybrid"}
+    method = cfg.chunking.method
+    if method not in STRATEGY_MAP:
+        print(f"[ingest] 错误: chunking.method={method} 无对应 chunker 实现"
+              f"（当前支持: {', '.join(STRATEGY_MAP)}）", file=sys.stderr)
+        return 1
+    strategy = STRATEGY_MAP[method]
+
+    if not sec_tree_path.exists():
+        print(f"[ingest] 错误: 章节树不存在: {sec_tree_path}"
+              f"（分块依赖章节树，请去掉 --skip-section-tree 重跑）",
+              file=sys.stderr)
+        return 1
+
+    try:
+        from data_pipeline.chunkers.base import get_chunker
+    except ImportError as e:
+        print(f"[ingest] 错误: data_pipeline.chunkers 无法导入（{e}）。"
+              f"检查 A 交付物是否已合并、tiktoken 是否已安装。",
+              file=sys.stderr)
+        return 1
+
+    strategy_file = REPO_ROOT / "data_pipeline" / "chunkers" / f"{strategy}.py"
+    if not strategy_file.exists():
+        print(f"[ingest] 错误: data_pipeline/chunkers/{strategy}.py 尚未交付"
+              f"（chunking.method={method}）", file=sys.stderr)
+        return 1
+
+    # 章节树扁平 JSONL —— A 的 chunker 消费 List[dict]
+    with sec_tree_path.open(encoding="utf-8") as f:
+        tree_records = [json.loads(line) for line in f if line.strip()]
+
+    nodes_out = nodes_path(cfg)
+    try:
+        chunker = get_chunker(strategy, dict(cfg.chunking.params))
+        chunks = chunker.chunk(pages_compact, tree_records)
+    except Exception as e:
+        print(f"[ingest] 分块器运行失败: {e}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+        return 1
+
+    if not chunks:
+        print(f"[ingest] 错误: 分块器产出 0 个 chunk"
+              f"（输入 {len(pages_compact)} 页 / {len(tree_records)} 个树节点）",
+              file=sys.stderr)
+        return 1
+
+    node_records = [c.to_dict() for c in chunks]
+    nodes_out.parent.mkdir(parents=True, exist_ok=True)
+    with nodes_out.open("w", encoding="utf-8") as f:
+        for rec in node_records:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+    try:
+        validate_nodes_jsonl(node_records, label=str(nodes_out))
+    except ValueError as e:
+        print(f"[ingest] {e}", file=sys.stderr)
+        return 1
+
+    lens = [len(rec["text"]) for rec in node_records]
+    print(f"  -> {len(node_records)} 个 chunk → {nodes_out}")
+    print(f"  -> 长度: min={min(lens)}, max={max(lens)}, "
+          f"avg={sum(lens) // len(lens)}；契约校验通过 ✓")
+
+    # 质检（指南 §16 清单；配置 ingest.quality_check 开关）
+    if cfg.ingest.quality_check:
         try:
-            # 动态探查：看 structure.py 是否存在
-            if (chunker_dir / "structure.py").exists():
-                nodes_out = nodes_path(cfg)
-                nodes_out.parent.mkdir(parents=True, exist_ok=True)
-                print(f"  -> structure chunker 可用 → 输出 {nodes_out}")
-                # TODO: 待 A 会签 chunker 接口签名后取消注释
-                # from data_pipeline.chunkers.structure import chunk
-                # chunk(pages=pages_full, tree=toc_tree, output=nodes_out)
-            else:
-                print("  -> chunkers/ 目录存在但未找到 structure.py, 跳过")
+            from data_pipeline.quality_check import check_nodes
+            check_nodes(chunks, verbose=True)
         except Exception as e:
-            print(f"  -> 分块调用异常: {e}", file=sys.stderr)
-            # 不阻断 —— 分块尚在开发
-    else:
-        print("[ingest] [预留] chunkers/ 未就绪（A 尚未交付），跳过分块")
+            print(f"[ingest] 警告: 质检未能执行（不影响产物落盘）: {e}",
+                  file=sys.stderr)
 
     # ── 完成 ──────────────────────────────────────────────────────
     print(f"\n[ingest] ✓ 完成。产物:")
     print(f"   pages.jsonl   → {cleaned_output}")
-    sec_p = REPO_ROOT / "data/processed/section_tree_v1.jsonl"
-    if sec_p.exists():
-        print(f"   section_tree  → {sec_p}")
+    if sec_tree_path.exists():
+        print(f"   section_tree  → {sec_tree_path}")
+    print(f"   Node 集       → {nodes_path(cfg)}")
     print(f"   配置          → {args.config}")
     return 0
 

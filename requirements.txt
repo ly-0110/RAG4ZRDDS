@@ -8,6 +8,7 @@ llama-index-core>=0.11,<0.13
 pymupdf>=1.24
 beautifulsoup4>=4.12
 lxml>=5.2
+tiktoken>=0.7              # 分块 token 计数（data_pipeline/chunkers/base.py 硬依赖）
 
 # ===== 向量库（本地原型，二选一保留）=====
 chromadb>=0.5
