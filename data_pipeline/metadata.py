@@ -14,6 +14,7 @@ from datetime import datetime
 REQUIRED_FIELDS = [
     "source_file",          # 来源文件名
     "source_type",          # "pdf" | "html"
+    "source_url",           # HTML 才有；PDF 留空
     "part",                 # PART 级标题
     "chapter",              # 章级标题
     "section_path",         # 完整路径 "PART1 / 第1章 / 1.1 节"
@@ -35,7 +36,6 @@ OPTIONAL_FIELDS = [
     "content_type",         # "api" | "guide" | "faq" | "error" | "tutorial"
     "api_name",             # 具体 API 名（如 "create_datawriter"）
     "error_code",           # 错误码（如 "E1003"）
-    "source_url",           # HTML 才有；PDF 留空
 ]
 
 ALL_FIELDS = REQUIRED_FIELDS + OPTIONAL_FIELDS
