@@ -271,6 +271,7 @@ def main() -> int:
                 extract_text_titles,
                 match_toc_with_text,
                 finalize_page_ranges,
+                attach_heading_offsets,
                 dump_section_tree,
             )
 
@@ -282,6 +283,8 @@ def main() -> int:
             match_toc_with_text(toc_tree, text_cands)
             # 补全页码范围
             finalize_page_ranges(toc_tree, len(pages_full))
+            # 标题页内偏移（页内切分依据；pages_full 文本此时已清洗）
+            heading_miss = attach_heading_offsets(toc_tree, pages_full)
 
             dump_section_tree(toc_tree, sec_tree_path)
 
@@ -293,7 +296,8 @@ def main() -> int:
                     c += _count(n.children)
                 return c
             total_nodes = _count(toc_tree)
-            print(f"  -> 章节树写入 {sec_tree_path} ({total_nodes} 节点)")
+            print(f"  -> 章节树写入 {sec_tree_path} ({total_nodes} 节点，"
+                  f"标题偏移未定位 {heading_miss})")
         except ImportError:
             print("  -> data_pipeline.section_tree 未就绪（A 交付物缺失），跳过")
         except Exception as e:

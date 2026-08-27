@@ -85,6 +85,9 @@ def validate_metadata(meta: Dict[str, Any]) -> List[str]:
 
 # ========== CLI 自测 ==========
 if __name__ == "__main__":
+    import sys
+    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
+
     # 示例
     m = build_chunk_metadata(
         source_file="ZRDDS用户手册.pdf",

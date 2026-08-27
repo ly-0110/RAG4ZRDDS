@@ -129,3 +129,38 @@ n.physical_page_end = nxt.physical_page_start - 1   # nxt = 下一个 level≤�
 
 - **双页码偏移**：`pdf_loader.py`/`section_tree.py` 的 `PAGE_OFFSET=7` 与指南 §16"相差 6"冲突；只影响 Citation 展示不影响分块文本，需三方会签定真值后全链路统一。
 - **PART/章引言未参与分块**：chunker 只处理三级节，PART/章级引言文本未入库；D1/D2 修复后重新实测覆盖率缺口，再决定是否纳入。
+
+---
+
+## 修复记录（2026-08-27 · 已合入）
+
+> 执行人：成员 D（经 A 授权代为修复）· 分支：`feature/server-platform`
+> 原则：只用结构信号（书签/编号正则/标题文本定位），未引入任何语义切分，方案 A 与 B/C 的互斥性不受影响。
+
+### 修复方案
+
+| # | 方案 |
+|---|---|
+| D1 | `section_tree.py` 新增 `attach_heading_offsets`：归一化整标题匹配（编号前缀+剩余首段字符兜底）定位每个节点标题在**清洗后页文本**中的字符偏移，写入新字段 `heading_physical_page` / `heading_char_offset`（ingest 步骤 5 落盘前计算）。`structure.py` 的文本提取改为"起于自身标题偏移、止于下一边界节点标题偏移"，页内章节边界可表达 |
+| D2 | `finalize_page_ranges` 末页改为 `max(start, 下一节点起始页)`：标题偏移口径下节点内容延伸到下一节标题所在页（页内截断），同时恒有 `end >= start`，同页兄弟不再颠倒/零产出 |
+| D3 | `build_toc_tree` 四级及以下 `section_path` 沿父级路径逐级嵌套，`_is_descendant` 前缀判定恢复成立；`_split_by_subsections` 只迭代直接子节点（修复重复产出）、新增节首引导段、超长非原子段按段落/换行/句末结构兜底切分 |
+| D4 | `HEADER_RE` 改为 `^\s*…\s*$`（multiline）逐行整行锚定；重复判定同步改为全文精确匹配（原前 200 字符字符集 Jaccard 对代码无区分度，误报原文笔误示例为重复） |
+| D5 | `metadata.py` / `structure.py` / `section_tree.py` 的 `__main__` 入口 `sys.stdout.reconfigure(encoding="utf-8")` |
+
+### 实测验收（`make ingest` 全链路，2026-08-27）
+
+| 验收项 | 修复前 | 修复后 |
+|---|---|---|
+| 三级节产出 | 105/127（22 缺失） | **127/127** |
+| 串色（首块不含本节标题） | 76/105 | **0/116**（1.2 中间件等抽查正确） |
+| 超 `max_chunk_chars` 非原子块 | 37 个（最大 28,180） | **0**（最大 2,499） |
+| 质检：空节点/重复/页眉残留/页码映射 | 0/0/2.9%/0 | **0/0/0.0%/0** |
+| chunk 数 / 覆盖率 | 105 / 93%（含重复计数虚高） | 301 / 92%（无重叠；缺口=目录页+前言+PART/章引言，见关联待决项） |
+| 标题偏移定位 | — | 405/405 全部命中 |
+
+### 回归测试
+
+`tests/unit/data_pipeline/test_chunking_defects.py`（8 用例，合成语料，不依赖 PDF）：
+D1 同页零串色、D2 区间不倒置且同页兄弟双产出、D3 路径嵌套+超大节下切+引导段保留、
+D4 正则行锚定（含质检端到端）、D5 GBK 控制台子进程实跑（`PYTHONIOENCODING=gbk`）。
+`python -m pytest tests/` 14/14 通过。
