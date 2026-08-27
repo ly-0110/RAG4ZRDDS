@@ -12,9 +12,9 @@ from datetime import datetime
 # ========== 字段白名单 ==========
 # 必填字段（缺一不可）
 REQUIRED_FIELDS = [
-    "source_id",            # 来源注册 ID，对齐实验配置 sources[].id（如 "user_manual"）
     "source_file",          # 来源文件名
     "source_type",          # "pdf" | "html"
+    "source_url",           # HTML 才有；PDF 留空
     "part",                 # PART 级标题
     "chapter",              # 章级标题
     "section_path",         # 完整路径 "PART1 / 第1章 / 1.1 节"
@@ -36,7 +36,6 @@ OPTIONAL_FIELDS = [
     "content_type",         # "api" | "guide" | "faq" | "error" | "tutorial"
     "api_name",             # 具体 API 名（如 "create_datawriter"）
     "error_code",           # 错误码（如 "E1003"）
-    "source_url",           # HTML 才有；PDF 留空
 ]
 
 ALL_FIELDS = REQUIRED_FIELDS + OPTIONAL_FIELDS
@@ -44,7 +43,6 @@ ALL_FIELDS = REQUIRED_FIELDS + OPTIONAL_FIELDS
 # ========== 构建函数 ==========
 def build_chunk_metadata(
     *,
-    source_id: str = "user_manual",
     source_file: str,
     source_type: str,
     section_path: str,
@@ -87,9 +85,6 @@ def validate_metadata(meta: Dict[str, Any]) -> List[str]:
 
 # ========== CLI 自测 ==========
 if __name__ == "__main__":
-    import sys
-    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]
-
     # 示例
     m = build_chunk_metadata(
         source_file="ZRDDS用户手册.pdf",
@@ -98,8 +93,8 @@ if __name__ == "__main__":
         section_level=3,
         printed_page_start=13,
         printed_page_end=14,
-        physical_page_start=19,
-        physical_page_end=20,
+        physical_page_start=6,
+        physical_page_end=7,
         node_ids=["s_PART1_ch1_1_1"],
         chunk_id="struct_v1_s_PART1_ch1_1_1_00000",
         part="PART1 背景介绍",
