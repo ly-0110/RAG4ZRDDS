@@ -1,6 +1,6 @@
 # =====================================================================
-# RAG4ZRDDS 实验配置 · 示例模板（example_v1）
-# 用法：复制本文件为新实验（如 semantic_v1.yaml），并同步修改 experiment.name。
+# RAG4ZRDDS 实验配置 · 第一周正式基线（struct_v1）
+# 由 example_v1.yaml 复制而来：结构感知分块(struct/v1) + bge-m3 向量检索 Top-5。
 # 逐参数说明见同目录 README.md。
 #   * 一次实验一个 yaml；文件名 = 实验 ID，下游产物命名全部由此派生
 #   * 固定字段写错会被校验拦截；各 params: 下为对应 Owner 的自由区
@@ -17,7 +17,7 @@ sources:                           # ── 知识源注册表
   - id: user_manual                # metadata.source_name 引用名，全配置唯一
     type: pdf                      # pdf | html
     path: data/raw/manuals/ZRDDS用户手册.pdf
-    version: "2.4"                 # 进 metadata.version，供版本过滤检索（§8.3）
+    version: "2.0"                 # 文档版本＝A 的 metadata.version 真值（手册标 2.0；2.4 留给第三周 HTML 源）
     # url: https://...             # type: html 时必填；PDF 留空
 
 ingest:                            # ── raw → cleaned 编排（D）
@@ -28,10 +28,11 @@ chunking:                          # ── 分块方案（格式 D 定 / 参数
   method: struct                   # struct | semantic | hybrid | fixed
   version: v1                      # 方案版本号；Node 集 = data/processed/{method}_{version}.jsonl
   params:                          # ◆ 参数袋：原样透传给 A 的 chunker 实现
-    unit_level: 3                  #   三级节为知识单元（§15 主方案）
-    oversize_threshold: 2500       #   超大节下切阈值（字符）（§6.2：2500 附近）
-    sub_split: heading             #   none | heading | semantic（C 方案二次切分）
-    atomic_blocks: [table, code]   #   表格/代码块原子保护开关
+    max_chunk_chars: 2500          #   单块字符上限（§6.2：2500 附近）
+    overlap_chars: 200             #   超长段兜底切分的重叠窗口
+    large_section_thresh: 2500     #   超大节下切阈值（缺省=max_chunk_chars）
+    # 注：以三级节为知识单元、表格/代码块原子保护是 struct 方案内置行为，
+    #     无独立开关；勿再加 example 模板里的 unit_level/sub_split 等键（A 不消费）。
 
 embedding:                         # ── Embedding（B）
   provider: local                  # local | api
