@@ -13,10 +13,17 @@ from pathlib import Path
 
 MODEL_DIR = Path(__file__).resolve().parents[1] / "models"
 
+# 配置允许用短名（也参与索引目录命名）；联网拉取时必须换成 HF 全 repo id。
+HF_REPO_ALIASES = {
+    "bge-m3": "BAAI/bge-m3",
+}
+
 
 def _resolve_model(name: str) -> str:
     local = MODEL_DIR / name
-    return str(local) if local.exists() else name
+    if local.exists():
+        return str(local)
+    return HF_REPO_ALIASES.get(name, name)
 
 
 def build_embedding(cfg) -> Callable[[list[str]], list[list[float]]]:
