@@ -1,6 +1,6 @@
 .PHONY: setup ingest index experiment serve inspect help
 
-CFG ?= configs/experiments/example_v1.yaml
+CFG ?= configs/experiments/struct_v1.yaml
 APP_HOST ?= 127.0.0.1
 APP_PORT ?= 8000
 # pip 国内镜像源（团队约定默认走国内源；可按网络环境替换为阿里云等）
