@@ -12,6 +12,7 @@ from datetime import datetime
 # ========== 字段白名单 ==========
 # 必填字段（缺一不可）
 REQUIRED_FIELDS = [
+    "source_id",            # 来源注册 ID，对齐实验配置 sources[].id（如 "user_manual"）
     "source_file",          # 来源文件名
     "source_type",          # "pdf" | "html"
     "part",                 # PART 级标题
@@ -43,6 +44,7 @@ ALL_FIELDS = REQUIRED_FIELDS + OPTIONAL_FIELDS
 # ========== 构建函数 ==========
 def build_chunk_metadata(
     *,
+    source_id: str = "user_manual",
     source_file: str,
     source_type: str,
     section_path: str,

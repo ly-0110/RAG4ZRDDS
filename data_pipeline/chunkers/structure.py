@@ -185,6 +185,7 @@ class StructureChunker(BaseChunker):
 
         # 预构建基础 metadata（不含 chunk_id）
         base_meta = build_chunk_metadata(
+            source_id="user_manual",
             source_file="ZRDDS用户手册.pdf",
             source_type="pdf",
             part=node.get("part", ""),
