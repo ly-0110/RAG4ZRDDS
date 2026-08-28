@@ -5,6 +5,7 @@ data/cleaned/*
 indexes/*
 !indexes/.gitkeep
 evaluation/runs/
+models/
 
 # ===== Python =====
 __pycache__/
