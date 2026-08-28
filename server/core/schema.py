@@ -1,7 +1,8 @@
 """API 契约模型 —— 请求/响应/引用字段的单一事实源。
 
 字段变更规则：新增可选字段随时可以；修改/删除既有字段须同步更新 docs/api.md
-并知会前端（成员 E）。Citation 的双页码约定：page_print = page_physical + 6。
+并知会前端（成员 E）。Citation 的双页码约定：page_print = page_physical + 7
+（2026-08-28 会签定值，以 pages.jsonl/struct_v1.jsonl 实测为准）。
 """
 
 from __future__ import annotations

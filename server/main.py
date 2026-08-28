@@ -31,7 +31,7 @@ _BODY_PARSE_HINT = (
 
 def create_app(cfg: Settings | None = None) -> FastAPI:
     cfg = cfg or app_settings
-    pipeline = build_pipeline(cfg.rag_mode)  # 配置非法时在此处给出可读错误并拒绝启动
+    pipeline = build_pipeline(cfg.rag_mode, cfg.rag_experiment_config)  # 配置非法时在此处给出可读错误并拒绝启动
 
     app = FastAPI(
         title="RAG4ZRDDS API",

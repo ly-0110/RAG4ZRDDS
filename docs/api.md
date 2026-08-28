@@ -1,7 +1,7 @@
 # RAG4ZRDDS API 契约（v0.1 · 骨架阶段）
 
 > 维护人：成员 D。前端（成员 E）以此文档对接；字段变更会同步更新本页。
-> 当前为 mock 模式：返回确定性假数据，用于前端联调与链路冒烟；`RAG_MODE=live` 后接口形状不变，仅数据变真。
+> 模式现状（2026-08-28）：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索已真实**（B 交付，需先 `make index`），生成待 C 合入——live 下 `sources` 事件为真实引用，随后 `error` 事件给出"生成未合入"的可读缺口。接口形状两模式不变。
 
 ## 启动
 
@@ -10,7 +10,7 @@ make serve                       # 默认 127.0.0.1:8000；可用 APP_HOST/APP_P
 curl http://127.0.0.1:8000/healthz
 ```
 
-模式由 `.env` 的 `RAG_MODE` 控制：`mock`=假数据（默认）｜`live`=真实检索与生成（B/C 实现合入后启用）。
+模式由 `.env` 的 `RAG_MODE` 控制：`mock`=假数据（默认）｜`live`=真实检索（需先 `make index`；生成待 C 合入）。live 模式按 `RAG_EXPERIMENT_CONFIG`（默认 `configs/experiments/struct_v1.yaml`）定位索引目录与 embedding，找不到索引时启动即报可读错误。
 
 ## 通用约定
 
@@ -75,7 +75,7 @@ data: {"request_id":"a1b2c3d4e5f6","answer":"…完整答案…","sources":[…]
 | source_name | 来源显示名，如 `ZRDDS用户手册.pdf` |
 | section | 章节号，如 `3.4.2` |
 | page_print | 印刷页码（手册纸面上印的数字） |
-| page_physical | PDF 物理页码；**约定 page_print = page_physical + 6** |
+| page_physical | PDF 物理页码；**约定 page_print = page_physical + 7**（2026-08-28 会签定值，以实测产物为准） |
 | score | 相关性得分，越高越相关 |
 
 > 展示建议（指南 §20）：来源卡片形如"《ZRDDS用户手册》，第 54 页，9.3.1 节"，优先展示 `page_print` 与 `section`。
@@ -127,6 +127,7 @@ curl -N -X POST http://127.0.0.1:8000/query \
 
 | 版本 | 变更 |
 |---|---|
+| v0.2 | 2026-08-28：live 接线 B 检索（真实 sources）；双页码约定定为 +7；新增 `RAG_EXPERIMENT_CONFIG`；生成待 C（PendingAnswerStream 可读缺口） |
 | v0.1 | 骨架：/healthz、/query(SSE)、/sources 回查；mock/live 双模式 |
 
 ## 已知边界（后续版本）
