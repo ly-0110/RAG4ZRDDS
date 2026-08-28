@@ -7,7 +7,8 @@
 RAG_MODE=mock（默认）时使用本文件的确定性假实现：
   * 无需 A/B/C 的任何产物即可启动服务，供 E 的前端联调与周五冒烟
   * 同一问题永远返回相同结果，便于测试断言
-切换 RAG_MODE=live 后由 build_pipeline 加载真实实现（B/C 合入后在此处接上）。
+RAG_MODE=live 加载 B 的真实检索（retrieval/，按 RAG_EXPERIMENT_CONFIG 定位索引）；
+生成侧待成员 C 的 generation/ 包合入，当前以 PendingAnswerStream 给出可读缺口。
 """
 
 from __future__ import annotations
@@ -50,7 +51,7 @@ class AnswerStream(Protocol):
 
 
 class MockRetriever:
-    """确定性假检索：结果由问题的哈希决定，双页码演示 print = physical + 6。"""
+    """确定性假检索：结果由问题的哈希决定，双页码演示 print = physical + 7。"""
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
         digest = hashlib.md5(question.encode("utf-8")).hexdigest()
@@ -65,7 +66,7 @@ class MockRetriever:
                     "source_id": "user_manual",
                     "source_name": "ZRDDS用户手册.pdf",
                     "section": f"9.{seed % 8 + 1}.{i + 1}",
-                    "page_print": page + 6,
+                    "page_print": page + 7,
                     "page_physical": page,
                     "score": round(max(0.30, 0.95 - i * 0.07), 4),
                 }
@@ -93,14 +94,38 @@ class Pipeline:
         self.answer_stream = answer_stream
 
 
-def build_pipeline(mode: str) -> Pipeline:
-    """按 RAG_MODE 组装管线；live 实现未合入前给出可读错误而非静默降级。"""
+class PendingAnswerStream:
+    """C 的 generation/ 包合入前的占位：检索引用照常下发，答案通道给可读缺口。"""
+
+    async def stream(self, question: str, chunks: list[dict]) -> AsyncIterator[str]:
+        raise RuntimeError(
+            "生成实现尚未合入：等待成员 C 的 generation/ 包实现 AnswerStream 协议"
+            f"（本次已下发 {len(chunks)} 条真实检索引用，见 sources 事件）"
+        )
+        yield ""  # pragma: no cover  # 使本函数成为 async generator
+
+
+def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
+    """按 RAG_MODE 组装管线；接线问题一律给出可读错误而非静默降级。"""
     if mode == "mock":
         return Pipeline(MockRetriever(), MockAnswerStream())
     if mode == "live":
-        raise RuntimeError(
-            "RAG_MODE=live 需要真实检索/生成实现："
-            "retrieval 由成员 B 提供（Retriever 协议），generation 由成员 C 提供"
-            "（AnswerStream 协议）——合入后在 server/core/pipeline.py::build_pipeline 接线。"
-        )
+        # B 已交付 retrieval/；生成侧暂挂 PendingAnswerStream（C 第二周接入）
+        from pathlib import Path
+
+        from retrieval._bootstrap import experiment_config as ec
+        from retrieval.retriever import build_retriever
+
+        repo_root = Path(__file__).resolve().parents[2]
+        cfg_path = repo_root / (experiment_config or "configs/experiments/struct_v1.yaml")
+        if not cfg_path.exists():
+            raise RuntimeError(
+                f"RAG_MODE=live 启动失败：实验配置不存在 {cfg_path}"
+                "（检查 RAG_EXPERIMENT_CONFIG）"
+            )
+        try:
+            retriever = build_retriever(ec.load(cfg_path))
+        except (FileNotFoundError, NotImplementedError) as e:
+            raise RuntimeError(f"RAG_MODE=live 启动失败：{e}") from e
+        return Pipeline(retriever, PendingAnswerStream())
     raise RuntimeError(f"未知 RAG_MODE={mode!r}，可选值：mock | live")

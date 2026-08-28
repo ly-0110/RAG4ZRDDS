@@ -28,7 +28,8 @@ class Settings(BaseSettings):
 
     app_host: str = "127.0.0.1"
     app_port: int = 8000
-    rag_mode: str = "mock"  # mock | live；live 需 B/C 实现合入（pipeline.build_pipeline 接线）
+    rag_mode: str = "mock"  # mock | live；live 需先 make index（pipeline.build_pipeline 按配置接线 B 检索）
+    rag_experiment_config: str = "configs/experiments/struct_v1.yaml"  # live 模式的实验配置（相对仓库根）
     default_top_k: int = Field(default=5, ge=1, le=20, validation_alias="QUERY_TOP_K")
     cors_origins: str = "*"  # 逗号分隔；上线前收紧为前端实际来源
     sources_cache_size: int = 100  # 引用回查内存容量（第二周日志设施落地后移除）
