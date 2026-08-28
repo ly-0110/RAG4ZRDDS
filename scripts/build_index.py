@@ -15,14 +15,17 @@ scripts/build_index.py — processed + config → indexes/ 索引构建门面
   python scripts/build_index.py --list
 
 依赖: scripts/experiment_config.py · retrieval/*（B 交付物）· chromadb
-      真实 embedding 首次运行需联网下载模型（HF_ENDPOINT=https://hf-mirror.com）
+      真实 embedding 首次运行需联网下载模型（直连 huggingface.co；
+      本机 huggingface_hub 走 hf-mirror 拉文件必失败，勿设 HF_ENDPOINT）
 """
 
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -33,6 +36,36 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 import experiment_config as ec  # noqa: E402
 
 MANIFEST_NAME = "manifest.json"
+
+# 实测基线（本机 CPU，2026-08-28）：bge-m3 编码 301 节点约 12 分钟
+_LIVE_BUILD_NOTE = (
+    "[index] 真实 embedding 在 CPU 上约需 10~15 分钟（301 节点实测 712s），"
+    "进度条可能不可见属正常；本脚本每 30 秒打印一次心跳以示存活。\n"
+    "[index] 警告：重建语义=先删旧集合再写入，中途 Ctrl+C 会清空既有索引。"
+)
+
+
+class _Heartbeat:
+    """长耗时编码任务的心跳线程：无进度显示时防止误判卡死。"""
+
+    def __init__(self, interval: float = 30.0) -> None:
+        self._stop = threading.Event()
+        self._t0 = time.monotonic()
+        self._interval = interval
+
+    def __enter__(self) -> None:
+        self._thread = threading.Thread(target=self._loop, daemon=True)
+        self._thread.start()
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self._stop.set()
+        self._thread.join(timeout=2)
+
+    def _loop(self) -> None:
+        while not self._stop.wait(self._interval):
+            print(f"[index] 编码进行中… 已耗时 {time.monotonic() - self._t0:.0f}s",
+                  flush=True)
 
 
 def _fake_embed(texts: list[str]) -> list[list[float]]:
@@ -94,8 +127,12 @@ def cmd_build(config_path: str, fake: bool) -> int:
     target = ec.index_dir(cfg)
     print(f"[index] 实验={cfg.experiment.name} hash8={ec.config_hash8(cfg)} "
           f"→ {target.relative_to(REPO_ROOT)}")
+    if not fake:
+        print(_LIVE_BUILD_NOTE, flush=True)
     t0 = time.monotonic()
-    index_path = build_index(cfg, embed_fn=_fake_embed if fake else None)
+    ctx = _Heartbeat() if not fake else contextlib.nullcontext()
+    with ctx:
+        index_path = build_index(cfg, embed_fn=_fake_embed if fake else None)
     elapsed = time.monotonic() - t0
     n = _count_nodes(cfg)
     manifest = _write_manifest(Path(index_path), cfg, n, elapsed, fake)
