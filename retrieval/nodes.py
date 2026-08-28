@@ -2,13 +2,14 @@
 
 预期输入 jsonl（data/processed/{method}_{version}.jsonl），每行：
     {"node_id": str, "text": str, "metadata": {...}}
+顶层 ID 兼容 A 的 struct_v1 产物命名：node_id 缺失时回退 chunk_id。
 
 metadata 中 B 依赖的字段（A 的 Metadata Schema 冻结前允许命名差异，宽容映射）：
     source_id      ← source_id
     source_name    ← source_name / source_file
     section        ← section / section_path
-    page_print     ← page_print / printed_page / page
-    page_physical  ← page_physical / physical_page
+    page_print     ← page_print / printed_page / printed_page_start / page
+    page_physical  ← page_physical / physical_page / physical_page_start
 """
 from __future__ import annotations
 
@@ -68,11 +69,17 @@ def load_nodes(path: str | Path) -> list[NodeRecord]:
                 rec = json.loads(line)
             except json.JSONDecodeError as e:
                 raise ValueError(f"{path} 第 {lineno} 行 JSON 解析失败: {e}") from e
+            metadata = rec.get("metadata") or {}
             nodes.append(
                 NodeRecord(
-                    node_id=rec.get("node_id", ""),
+                    node_id=(
+                        rec.get("node_id")
+                        or rec.get("chunk_id")
+                        or metadata.get("chunk_id")
+                        or ""
+                    ),
                     text=rec.get("text", ""),
-                    metadata=rec.get("metadata") or {},
+                    metadata=metadata,
                 )
             )
     return nodes

@@ -141,6 +141,112 @@ def test_sample_nodes_fixture_is_loadable_and_complete():
         assert n.page_print is not None
 
 
+def test_load_nodes_falls_back_to_top_level_chunk_id(tmp_path: Path):
+    # A 的 struct_v1 产物顶层键是 chunk_id（无 node_id）——曾导致 301 条
+    # 节点 ID 全空、建索引抛 DuplicateIDError。此测试锁死回退行为。
+    p = tmp_path / "struct.jsonl"
+    p.write_text(
+        json.dumps(
+            {"chunk_id": "struct_v1_c00001", "text": "内容A",
+             "metadata": {"printed_page_start": 13, "physical_page_start": 6}},
+            ensure_ascii=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    nodes = load_nodes(p)
+
+    assert nodes[0].node_id == "struct_v1_c00001"
+
+
+def test_load_nodes_node_id_takes_precedence_over_chunk_id(tmp_path: Path):
+    p = tmp_path / "both.jsonl"
+    p.write_text(
+        json.dumps({"node_id": "n_top", "chunk_id": "c_top", "text": "t"}) + "\n",
+        encoding="utf-8",
+    )
+
+    nodes = load_nodes(p)
+
+    assert nodes[0].node_id == "n_top"
+
+
+def test_load_nodes_falls_back_to_metadata_chunk_id(tmp_path: Path):
+    p = tmp_path / "meta.jsonl"
+    p.write_text(
+        json.dumps({"text": "t", "metadata": {"chunk_id": "c_in_meta"}}) + "\n",
+        encoding="utf-8",
+    )
+
+    nodes = load_nodes(p)
+
+    assert nodes[0].node_id == "c_in_meta"
+
+
+def test_real_struct_v1_artifact_loads_with_unique_nonempty_ids():
+    # 直接对 A 的入库产物做契约校验：夹具与本文件其它用例的 schema 是
+    # 「理想契约」，只有真实数据能暴露命名偏差。
+    artifact = Path(__file__).resolve().parents[2] / "data" / "processed" / "struct_v1.jsonl"
+    if not artifact.exists():
+        pytest.skip("struct_v1.jsonl 未生成（先运行 make ingest）")
+
+    nodes = load_nodes(artifact)
+
+    assert nodes, "真实产物不应为空"
+    ids = [n.node_id for n in nodes]
+    assert all(ids), "存在空 node_id：顶层 ID 命名与 load_nodes 契约脱节"
+    assert len(set(ids)) == len(ids), "真实产物存在重复 node_id"
+    for n in nodes:
+        assert n.page_print is not None and n.page_physical is not None
+
+
+def test_real_struct_v1_artifact_builds_and_queries_index():
+    # 复现周五验收路径（make index 的核心步骤）：真实产物 → Chroma 写入。
+    # 曾在此抛 DuplicateIDError（全空 ID）。假向量注入，不依赖真实模型。
+    artifact = Path(__file__).resolve().parents[2] / "data" / "processed" / "struct_v1.jsonl"
+    if not artifact.exists():
+        pytest.skip("struct_v1.jsonl 未生成（先运行 make ingest）")
+
+    def embed(texts: list[str]) -> list[list[float]]:
+        return [
+            [((len(t) * 3 + i) % 11) / 11 + 0.1, ((len(t) + 5 * i) % 7) / 7 + 0.1]
+            for i, t in enumerate(texts)
+        ]
+
+    nodes = load_nodes(artifact)
+    store = VectorStore(
+        embed_fn=embed, collection_name=f"real_probe_{uuid.uuid4().hex}"
+    )
+    store.add_nodes(nodes)
+
+    assert store._collection.count() == len(nodes)
+    results = store.query("如何创建 DataWriter？", top_k=5)
+    assert len(results) == 5
+    assert all(r["node_id"] for r in results)
+
+
+# ---------------------------------------------------------------- 模型名解析
+
+
+def test_resolve_model_maps_short_name_to_hf_repo(tmp_path, monkeypatch):
+    # 干净环境（无 models/ 本地目录）时短名必须解析为 HF 全 repo id；
+    # 曾原样透传 "bge-m3" 导致 make index 联网 401 失败。
+    from retrieval import embeddings
+
+    monkeypatch.setattr(embeddings, "MODEL_DIR", tmp_path)
+    assert embeddings._resolve_model("bge-m3") == "BAAI/bge-m3"
+    assert embeddings._resolve_model("some/other-model") == "some/other-model"
+
+
+def test_resolve_model_prefers_local_dir(tmp_path, monkeypatch):
+    from retrieval import embeddings
+
+    (tmp_path / "bge-m3").mkdir()
+    monkeypatch.setattr(embeddings, "MODEL_DIR", tmp_path)
+    assert embeddings._resolve_model("bge-m3") == str(tmp_path / "bge-m3")
+
+
 # ---------------------------------------------------------------- 向量库
 
 
