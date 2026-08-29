@@ -1,8 +1,9 @@
 """API 契约模型 —— 请求/响应/引用字段的单一事实源。
 
 字段变更规则：新增可选字段随时可以；修改/删除既有字段须同步更新 docs/api.md
-并知会前端（成员 E）。Citation 的双页码约定：page_print = page_physical + 7
-（2026-08-28 会签定值，以 pages.jsonl/struct_v1.jsonl 实测为准）。
+并知会前端（成员 E）。Citation 的双页码约定：page_print = page_physical − 6
+（2026-08-29 以 PDF 页眉印刷页码逐页核对定值；手册前 6 页为封面/罗马数字
+前言不编页码，印刷第 1 页 = 物理第 7 页。旧约定 +7 为方向错误，已作废）。
 """
 
 from __future__ import annotations

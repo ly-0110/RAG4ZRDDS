@@ -80,8 +80,8 @@ cfg = load(config_path)
 
 | 产物 | 说明 |
 |---|---|
-| `PageRecord.physical_page` | PDF 物理页码，0-based |
-| `PageRecord.printed_page` | 印刷页码，`physical_page + 7`（A 模块 `PAGE_OFFSET` 取值；**2026-08-28 会签定值 +7，全链路已统一**） |
+| `PageRecord.physical_page` | PDF 物理页码，**1 基**（与阅读器页码一致；2026-08-29 前曾为 0 基，已修正） |
+| `PageRecord.printed_page` | 印刷页码：优先解析页眉印刷数字（地面真值），解析不到按 `physical_page + PAGE_OFFSET` 兜底（`PAGE_OFFSET = −6`，2026-08-29 页眉逐页核对定值；前 6 页封面/罗马数字前言为 `None`）。旧 `+7` 为方向错误，已作废 |
 | `PageRecord.text` | 页全文（含页眉页码，步骤 2 清洗） |
 | `PageRecord.blocks` | PyMuPDF `get_text("dict")` 原始块结构：bbox、字体、字号、加粗——章节树正文标题候选所需 |
 | `PageRecord.toc_entries` | 本页涉及的书签条目（`[{level, title, physical_page}]`） |
@@ -209,7 +209,7 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 
 | 边界 | 影响 | 状态 |
 |---|---|---|
-| `finalize_page_ranges` 中的 `PAGE_OFFSET=7` 硬编码 | 曾与指南旧约定 +6 冲突 | **已销项**（2026-08-28 会签定值 +7；schema.py/api.md/test_api/指南已统一） |
+| `finalize_page_ranges` 中的 `PAGE_OFFSET` 硬编码 | 曾与指南旧约定 +6 冲突 | **已销项**（2026-08-29 页眉真值核对：`printed = physical − 6`，常量统一走 `pdf_loader.PAGE_OFFSET`；**旧 +7 为方向错误**——2026-08-28 会签值使全部 Citation 页码偏移 +12/物理页差 1，用户前端验收时发现，已修复并新增：页眉解析地面真值、1 基物理页、ingest 偏离公式告警、`tests/unit/data_pipeline/test_page_numbering.py` 真值回归） |
 | **D1 整页抓取、页内章节边界不切分**：76/105 三级节 chunk（72%）头部串色，文本与标题不符 | 检索命中率与 Citation 可信度的根本风险 | **已修复**（6c0e6e3 标题页内偏移切分；实测 127/127 零串色，回归测试锁定） |
 | **D2 同页兄弟节点区间颠倒**：22/127 三级节零产出（1.3、2.1、10.6 等），内容被相邻节吞并 | 覆盖率仅 93%（301,449 / 323,708 字符）；缺节且归属错 | **已修复**（6c0e6e3 与 D1 同根；实测 127/127 零缺失，覆盖率 92%→缺口为目录/引言类文本，见下行） |
 | **D3 四/五级 `section_path` 未嵌套父级标题**：`_is_descendant` 恒 False，超大节下切完全失效（37/105 超 2500 字符，最大 28,180 字符/12,606 token） | 超 embedding 截断上限，检索质量风险 | **已修复**（6c0e6e3 路径嵌套+子节点迭代+超长段兜底；实测非原子块全 ≤2500） |

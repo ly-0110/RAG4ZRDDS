@@ -51,7 +51,7 @@ class AnswerStream(Protocol):
 
 
 class MockRetriever:
-    """确定性假检索：结果由问题的哈希决定，双页码演示 print = physical + 7。"""
+    """确定性假检索：结果由问题的哈希决定，双页码演示 print = physical − 6。"""
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
         digest = hashlib.md5(question.encode("utf-8")).hexdigest()
@@ -66,7 +66,7 @@ class MockRetriever:
                     "source_id": "user_manual",
                     "source_name": "ZRDDS用户手册.pdf",
                     "section": f"9.{seed % 8 + 1}.{i + 1}",
-                    "page_print": page + 7,
+                    "page_print": page - 6,
                     "page_physical": page,
                     "score": round(max(0.30, 0.95 - i * 0.07), 4),
                 }

@@ -13,7 +13,7 @@
         <p>正在检索...</p>
       </div>
 
-      <!-- 来源引用卡片（docs/api.md：sources 事件，双页码 +7 约定） -->
+      <!-- 来源引用卡片（docs/api.md v0.3：sources 事件，双页码约定 印刷页=物理页−6） -->
       <div v-if="sources.length" class="sources-block">
         <h3 class="sources-title">来源引用（{{ sources.length }}）</h3>
         <div

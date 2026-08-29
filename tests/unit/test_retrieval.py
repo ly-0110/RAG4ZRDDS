@@ -55,13 +55,13 @@ def make_store() -> tuple[VectorStore, dict[str, list[float]]]:
     store.add_nodes([
         make_node("n_alpha", "alpha 的正文",
                   source_id="user_manual", source_name="ZRDDS用户手册.pdf",
-                  section="3.4", page_print=42, page_physical=36),
+                  section="3.4", page_print=36, page_physical=42),
         make_node("n_beta", "beta 的正文",
                   source_id="user_manual", source_name="ZRDDS用户手册.pdf",
-                  section="4.1", page_print=50, page_physical=44),
+                  section="4.1", page_print=44, page_physical=50),
         make_node("n_gamma", "gamma 的正文",
                   source_id="user_manual", source_name="ZRDDS用户手册.pdf",
-                  section="5.2", page_print=60, page_physical=54),
+                  section="5.2", page_print=54, page_physical=60),
     ])
     return store, vecs
 
@@ -97,9 +97,9 @@ def test_load_nodes_tolerates_missing_metadata(tmp_path: Path):
 def test_node_record_maps_page_field_variants():
     # A 的元数据里页码命名可能不同：统一 schema 用 page（印刷页），
     # 章节树用 printed_page/physical_page——都应收敛到同一字段。
-    n = make_node("a", "t", page=42, physical_page=36)
-    assert n.page_print == 42
-    assert n.page_physical == 36
+    n = make_node("a", "t", page=36, physical_page=42)
+    assert n.page_print == 36
+    assert n.page_physical == 42
 
     n2 = make_node("b", "t", printed_page=10)
     assert n2.page_print == 10
@@ -114,9 +114,9 @@ def test_node_record_source_name_falls_back_to_source_file():
 
 def test_node_record_maps_page_range_start_variants():
     # A 的章节树产物使用 printed_page_start / physical_page_start（区间起点）
-    n = make_node("a", "t", printed_page_start=13, physical_page_start=6)
-    assert n.page_print == 13
-    assert n.page_physical == 6
+    n = make_node("a", "t", printed_page_start=7, physical_page_start=13)
+    assert n.page_print == 7
+    assert n.page_physical == 13
 
 
 def test_load_nodes_reports_bad_json_with_line_number(tmp_path: Path):
@@ -357,8 +357,8 @@ def test_retriever_returns_source_ref_contract():
     assert results[0]["source_id"] == "user_manual"
     assert results[0]["source_name"] == "ZRDDS用户手册.pdf"
     assert results[0]["section"] == "3.4"
-    assert results[0]["page_print"] == 42
-    assert results[0]["page_physical"] == 36
+    assert results[0]["page_print"] == 36
+    assert results[0]["page_physical"] == 42
     assert isinstance(results[0]["score"], float)
 
 
@@ -576,7 +576,7 @@ def test_cli_build_and_query_roundtrip(tmp_path, monkeypatch, capsys):
     nodes_file.write_text(
         json.dumps({"node_id": "n1", "text": "t1", "metadata": {
             "source_id": "user_manual", "source_name": "ZRDDS用户手册.pdf",
-            "section": "1.1", "page_print": 13, "page_physical": 6}},
+            "section": "1.1", "page_print": 7, "page_physical": 13}},
             ensure_ascii=False) + "\n",
         encoding="utf-8",
     )

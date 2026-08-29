@@ -74,8 +74,8 @@ data: {"request_id":"a1b2c3d4e5f6","answer":"…完整答案…","sources":[…]
 | source_id | 来源短名（对应实验配置 `sources[].id`），如 `user_manual` |
 | source_name | 来源显示名，如 `ZRDDS用户手册.pdf` |
 | section | 章节号，如 `3.4.2` |
-| page_print | 印刷页码（手册纸面上印的数字） |
-| page_physical | PDF 物理页码；**约定 page_print = page_physical + 7**（2026-08-28 会签定值，以实测产物为准） |
+| page_print | 印刷页码（手册纸面上印的数字；前言罗马数字页无印刷页码时为空） |
+| page_physical | PDF 物理页码（1 基，与阅读器页码一致）；**约定 page_print = page_physical − 6**（2026-08-29 以 PDF 页眉印刷数字逐页核对定值；旧 +7 约定为方向错误，已作废） |
 | score | 相关性得分，越高越相关 |
 
 > 展示建议（指南 §20）：来源卡片形如"《ZRDDS用户手册》，第 54 页，9.3.1 节"，优先展示 `page_print` 与 `section`。
@@ -127,6 +127,7 @@ curl -N -X POST http://127.0.0.1:8000/query \
 
 | 版本 | 变更 |
 |---|---|
+| v0.3 | 2026-08-29：双页码真值修正——`page_print = page_physical − 6`（页眉印刷数字逐页核对；手册前 6 页为封面/罗马数字前言），物理页码统一 1 基；v0.2 的 +7 约定作废。字段无增删，前端无需改解析，仅展示数值变化 |
 | v0.2 | 2026-08-28：live 接线 B 检索（真实 sources）；双页码约定定为 +7；新增 `RAG_EXPERIMENT_CONFIG`；生成待 C（PendingAnswerStream 可读缺口） |
 | v0.1 | 骨架：/healthz、/query(SSE)、/sources 回查；mock/live 双模式 |
 

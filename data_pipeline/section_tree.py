@@ -13,6 +13,8 @@ from dataclasses import dataclass, asdict
 from typing import List, Dict, Optional, Tuple
 from collections import defaultdict
 
+from data_pipeline.pdf_loader import PAGE_OFFSET
+
 # ========= 可调参数 =========
 FONT_SIZE_TOL = 0.5       # 字号容差（pt）
 SIM_THRESHOLD = 0.8       # 标题相似度阈值
@@ -91,12 +93,14 @@ def build_toc_tree(pages: List[dict]) -> List[SectionNode]:
         for e in p.get("toc_entries", []):
             nodes_by_page[e["physical_page"]].append(e)
 
+    printed_by_page = {p["physical_page"]: p.get("printed_page") for p in pages}
+
     # 书签是扁平列表，按 level 还原父子关系
     root = SectionNode(node_id="root", level=0, title="ROOT")
     stack: List[Tuple[int, SectionNode]] = [(0, root)]  # (level, node)
 
     for phys_page in sorted(nodes_by_page.keys()):
-        printed = pages[phys_page]["printed_page"]
+        printed = printed_by_page.get(phys_page)
         for e in sorted(nodes_by_page[phys_page], key=lambda x: x["level"]):
             lvl, title = e["level"], e["title"].strip()
             if lvl < 1 or lvl > 5:
@@ -237,8 +241,8 @@ def finalize_page_ranges(nodes: List[SectionNode], total_pages: int):
                 n.physical_page_end = max(n.physical_page_start,
                                           nxt.physical_page_start)
             else:
-                n.physical_page_end = total_pages - 1
-            n.printed_page_end = n.physical_page_end + 7  # PAGE_OFFSET=7
+                n.physical_page_end = total_pages  # 1 基：最后一页即总页数
+            n.printed_page_end = n.physical_page_end + PAGE_OFFSET
 
 # ---------- 标题页内偏移定位（D1 修复：页内切分依据） ----------
 # 编号前缀：PART N / 第N章 / x.y(.z)…，用于全标题匹配失败时的兜底锚点
