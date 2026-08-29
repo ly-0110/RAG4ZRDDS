@@ -127,5 +127,28 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
             retriever = build_retriever(ec.load(cfg_path))
         except (FileNotFoundError, NotImplementedError) as e:
             raise RuntimeError(f"RAG_MODE=live 启动失败：{e}") from e
+        _warmup_retriever(retriever)
         return Pipeline(retriever, PendingAnswerStream())
     raise RuntimeError(f"未知 RAG_MODE={mode!r}，可选值：mock | live")
+
+
+def _warmup_retriever(retriever) -> None:
+    """启动期一次性预热：触发 embedding 模型加载并跑通 Chroma 查询路径。
+
+    bge-m3 权重冷加载需数~数十秒；不预热则该开销落在第一个真实请求上，
+    且同步 CPU 推理会阻塞事件循环（期间 healthz 都无响应）。预热失败即拒绝
+    启动——把接线/索引/模型问题暴露在启动阶段，而非首个用户请求。
+    """
+    import asyncio
+    import time
+
+    t0 = time.perf_counter()
+    print("[server] live 模式预热：加载 embedding 模型（启动一次性）…", flush=True)
+    try:
+        asyncio.run(retriever.retrieve("warmup", top_k=1))
+    except Exception as e:
+        raise RuntimeError(
+            f"RAG_MODE=live 预热失败，无法保证首问正常响应："
+            f"{type(e).__name__}: {e}"
+        ) from e
+    print(f"[server] live 模式预热完成，耗时 {time.perf_counter() - t0:.1f}s", flush=True)
