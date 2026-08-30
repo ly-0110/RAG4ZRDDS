@@ -1,32 +1,14 @@
-"""GET /sources/{request_id} —— 引用回查（供前端渲染来源卡片 / 排障）。"""
+"""GET /sources/{request_id} —— 引用回查（供前端渲染来源卡片 / 排障）。
+
+存储实现为 server/core/request_log.py 的 PersistentSourcesStore
+（第二周日志设施：持久化到 {log_dir}/sources.jsonl，重启后可回查）。
+"""
 
 from __future__ import annotations
-
-from collections import OrderedDict
-from threading import Lock
 
 from fastapi import APIRouter, HTTPException, Request
 
 router = APIRouter()
-
-
-class SourcesCache:
-    """request_id → 引用明细 的有界缓存；满后淘汰最早条目。"""
-
-    def __init__(self, capacity: int) -> None:
-        self._capacity = capacity
-        self._data: OrderedDict[str, dict] = OrderedDict()
-        self._lock = Lock()
-
-    def put(self, request_id: str, record: dict) -> None:
-        with self._lock:
-            self._data[request_id] = record
-            while len(self._data) > self._capacity:
-                self._data.popitem(last=False)
-
-    def get(self, request_id: str) -> dict | None:
-        with self._lock:
-            return self._data.get(request_id)
 
 
 @router.get("/sources/{request_id}")

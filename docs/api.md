@@ -1,4 +1,4 @@
-# RAG4ZRDDS API 契约（v0.1 · 骨架阶段）
+# RAG4ZRDDS API 契约（v0.4 · 第二周日志设施）
 
 > 维护人：成员 D。前端（成员 E）以此文档对接；字段变更会同步更新本页。
 > 模式现状（2026-08-28）：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索已真实**（B 交付，需先 `make index`），生成待 C 合入——live 下 `sources` 事件为真实引用，随后 `error` 事件给出"生成未合入"的可读缺口。接口形状两模式不变。
@@ -110,7 +110,7 @@ curl -N -X POST http://127.0.0.1:8000/query \
 
 ## GET /sources/{request_id} —— 引用回查
 
-回看某次问答的完整记录（问题 + 答案 + 引用），供来源卡片渲染与排障。数据保存在内存环形缓存（最近 100 条），第二周日志设施落地后替换为持久化存储——路径与响应形状不变。
+回看某次问答的完整记录（问题 + 答案 + 引用），供来源卡片渲染与排障。v0.4 起记录持久化到 `{LOG_DIR}/sources.jsonl`（默认 `logs/`，不入 Git），**服务重启后仍可回查**；内存仅保留最近 `SOURCES_CACHE_SIZE` 条作为读取窗口——路径与响应形状不变。
 
 ```json
 {
@@ -121,12 +121,13 @@ curl -N -X POST http://127.0.0.1:8000/query \
 }
 ```
 
-未命中：HTTP 404，`detail` 说明可能不存在或已超出缓存范围。
+未命中：HTTP 404，`error` 说明可能不存在或已超出缓存范围。
 
 ## 变更记录
 
 | 版本 | 变更 |
 |---|---|
+| v0.4 | 2026-08-30：第二周日志设施（骨架）——请求级 JSONL 日志 `{LOG_DIR}/requests.jsonl`（request_id/method/path/status/耗时）；`/sources` 由内存环形缓存改为持久化 `{LOG_DIR}/sources.jsonl`（重启可回查）；新增 `LOG_DIR`、`SOURCES_CACHE_SIZE` 环境变量。响应形状与路径均不变，前端无需改动；检索/回答级日志字段待 B/C 会签 |
 | v0.3 | 2026-08-29：双页码真值修正——`page_print = page_physical − 6`（页眉印刷数字逐页核对；手册前 6 页为封面/罗马数字前言），物理页码统一 1 基；v0.2 的 +7 约定作废。字段无增删，前端无需改解析，仅展示数值变化 |
 | v0.2 | 2026-08-28：live 接线 B 检索（真实 sources）；双页码约定定为 +7；新增 `RAG_EXPERIMENT_CONFIG`；生成待 C（PendingAnswerStream 可读缺口） |
 | v0.1 | 骨架：/healthz、/query(SSE)、/sources 回查；mock/live 双模式 |

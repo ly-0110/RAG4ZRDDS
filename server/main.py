@@ -2,11 +2,15 @@
 
 骨架阶段职责：组装管线（mock/live）、挂路由、CORS、每请求 request_id。
 真实检索（B）与生成（C）经 server/core/pipeline.py 的协议接入。
+第二周日志设施：请求级 JSONL 日志 + /sources 引用回查持久化（见
+server/core/request_log.py；检索/回答级字段待 B/C 会签后接线）。
 """
 
 from __future__ import annotations
 
+import time
 import uuid
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -15,9 +19,9 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from server.api import query, sources
-from server.api.sources import SourcesCache
 from server.core.pipeline import build_pipeline
-from server.core.settings import Settings, settings as app_settings
+from server.core.request_log import JsonlLog, PersistentSourcesStore
+from server.core.settings import REPO_ROOT, Settings, settings as app_settings
 
 # FastAPI/Starlette 在请求体无法解码（典型：中文 Windows 终端按 GBK 发送）时的原始报错
 _BODY_PARSE_MSG = "There was an error parsing the body"
@@ -35,9 +39,15 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
 
     app = FastAPI(
         title="RAG4ZRDDS API",
-        version="0.1.0",
+        version="0.4.0",
         description="ZRDDS 产品知识库问答服务（第一阶段骨架）",
     )
+
+    log_dir = Path(cfg.log_dir)
+    if not log_dir.is_absolute():
+        log_dir = REPO_ROOT / log_dir
+    request_log = JsonlLog(log_dir / "requests.jsonl")
+    sources_store = PersistentSourcesStore(log_dir / "sources.jsonl", cfg.sources_cache_size)
 
     app.add_middleware(
         CORSMiddleware,
@@ -52,8 +62,17 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
     async def attach_request_id(request: Request, call_next):
         rid = uuid.uuid4().hex[:12]
         request.state.request_id = rid
+        t0 = time.perf_counter()
         response = await call_next(request)
         response.headers["X-Request-ID"] = rid
+        request_log.append({
+            "type": "request",
+            "request_id": rid,
+            "method": request.method,
+            "path": request.url.path,
+            "status": response.status_code,
+            "duration_ms": round((time.perf_counter() - t0) * 1000, 1),
+        })
         return response
 
     @app.exception_handler(RequestValidationError)
@@ -105,7 +124,8 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
 
     app.state.settings = cfg
     app.state.pipeline = pipeline
-    app.state.sources_cache = SourcesCache(cfg.sources_cache_size)
+    app.state.request_log = request_log
+    app.state.sources_cache = sources_store
     return app
 
 
