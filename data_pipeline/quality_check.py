@@ -12,6 +12,7 @@ from collections import Counter
 from typing import List, Dict, Any
 from data_pipeline.chunkers.base import Chunk
 from data_pipeline.metadata import validate_metadata, REQUIRED_FIELDS
+from data_pipeline.pdf_loader import PAGE_OFFSET
 
 # ---------- 正则 ----------
 # D4 修复：逐行整行锚定（与 cleaner 判定口径一致），正文内合法提及不再误判
@@ -81,8 +82,8 @@ def check_nodes(chunks: List[Chunk], verbose: bool = True) -> Dict[str, Any]:
             report["nodes_without_page"] += 1
             _add_sample(report, i, "NO_PAGE", c.chunk_id)
         else:
-            # 印刷页码 = 物理页码 + 7（按项目约定）
-            if meta["printed_page_start"] - meta["physical_page_start"] != 7:
+            # 印刷页码 = 物理页码 + PAGE_OFFSET（−6；以页眉印刷数字为地面真值）
+            if meta["printed_page_start"] - meta["physical_page_start"] != PAGE_OFFSET:
                 report["page_mapping_errors"] += 1
                 _add_sample(report, i, "PAGE_OFFSET_ERR", c.chunk_id)
 

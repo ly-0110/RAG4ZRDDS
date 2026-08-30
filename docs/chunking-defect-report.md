@@ -127,7 +127,7 @@ n.physical_page_end = nxt.physical_page_start - 1   # nxt = 下一个 level≤�
 
 ## 关联待决项（非分块缺陷，修复时顺带确认）
 
-- **双页码偏移**：`pdf_loader.py`/`section_tree.py` 的 `PAGE_OFFSET=7` 与指南 §16"相差 6"冲突；只影响 Citation 展示不影响分块文本，需三方会签定真值后全链路统一。
+- **双页码偏移**：`pdf_loader.py`/`section_tree.py` 的 `PAGE_OFFSET=7` 与指南 §16"相差 6"冲突；只影响 Citation 展示不影响分块文本，需三方会签定真值后全链路统一。**已决（2026-08-29）**：以 PDF 页眉印刷数字为地面真值逐页核对，真值 `印刷页 = 物理页 − 6`（前 6 页封面/罗马数字前言不编号）；2026-08-28 会签的 `+7` 为方向错误（致全部 Citation 印刷页 +12、物理页差 1），已全链路修复并加真值回归测试（`tests/unit/data_pipeline/test_page_numbering.py`）。
 - **PART/章引言未参与分块**：chunker 只处理三级节，PART/章级引言文本未入库；D1/D2 修复后重新实测覆盖率缺口，再决定是否纳入。
 
 ---

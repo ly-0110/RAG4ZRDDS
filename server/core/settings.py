@@ -32,7 +32,8 @@ class Settings(BaseSettings):
     rag_experiment_config: str = "configs/experiments/struct_v1.yaml"  # live 模式的实验配置（相对仓库根）
     default_top_k: int = Field(default=5, ge=1, le=20, validation_alias="QUERY_TOP_K")
     cors_origins: str = "*"  # 逗号分隔；上线前收紧为前端实际来源
-    sources_cache_size: int = 100  # 引用回查内存容量（第二周日志设施落地后移除）
+    log_dir: str = "logs"  # 三级日志 JSONL 落盘目录（相对仓库根或绝对路径；不入 Git）
+    sources_cache_size: int = 100  # /sources 持久化存储的内存读取窗口上限（全量记录在 {log_dir}/sources.jsonl）
 
     @property
     def cors_origin_list(self) -> list[str]:

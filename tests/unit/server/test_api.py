@@ -87,8 +87,8 @@ def test_query_sse_flow_and_dual_page_numbers():
 
     sources = sources_ev["sources"]
     assert len(sources) == 3
-    for s in sources:  # 双页码约定：印刷页码 = 物理页码 + 7（2026-08-28 会签定值）
-        assert s["page_print"] == s["page_physical"] + 7
+    for s in sources:  # 双页码约定：印刷页码 = 物理页码 − 6（2026-08-29 页眉真值核对定值）
+        assert s["page_print"] == s["page_physical"] - 6
         assert s["node_id"] and s["source_name"]
 
     token_text = "".join(data["text"] for n, data in events if n == "token")

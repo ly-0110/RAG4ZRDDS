@@ -31,43 +31,44 @@ from data_pipeline.section_tree import (
 )
 
 # ---------- 合成语料 ----------
-# 页 6：1.1 与 1.2 同页（D1 串色 / D2 同页兄弟场景）
-# 页 7：1.3 大节开头 + 四级子节 1.3.1（超长文本，D3 场景）
-# 页 8：四级子节 1.3.2
-# 页码从物理页 6 起，与真实手册口径一致（printed = physical + 7）
+# 页 7：1.1 与 1.2 同页（D1 串色 / D2 同页兄弟场景）
+# 页 8：1.3 大节开头 + 四级子节 1.3.1（超长文本，D3 场景）
+# 页 9：四级子节 1.3.2
+# 物理页 1 基（与阅读器一致）；印刷页码 = 物理页码 − 6（页眉真值口径），
+# 前 6 页为封面/罗马数字前言，无阿拉伯印刷页码（None）
 _SEC1_BODY = "这是1.1节正文，讲述阿尔法内容。"
 _SEC2_BODY = "这是1.2节正文，讲述贝塔内容。"
 _SUB1_BODY = "子节X的内容句子。" * 300  # ≈4200 字符 > max_chunk_chars
 
 PAGES = [
-    # 页 0–5：正文前的封面/目录占位页（真实文档页码自 0 连续）
+    # 页 1–6：正文前的封面/前言占位页（真实文档物理页自 1 连续）
     *[
-        {"physical_page": i, "printed_page": i + 7, "text": "", "toc_entries": []}
-        for i in range(6)
+        {"physical_page": i, "printed_page": None, "text": "", "toc_entries": []}
+        for i in range(1, 7)
     ],
     {
-        "physical_page": 6,
-        "printed_page": 13,
+        "physical_page": 7,
+        "printed_page": 1,
         "text": f"1.1 分布式系统\n{_SEC1_BODY}\n1.2 中间件\n{_SEC2_BODY}",
         "toc_entries": [
-            {"level": 1, "title": "PART 1 测试", "physical_page": 6},
-            {"level": 2, "title": "第1章 概述", "physical_page": 6},
-            {"level": 3, "title": "1.1 分布式系统", "physical_page": 6},
-            {"level": 3, "title": "1.2 中间件", "physical_page": 6},
-            {"level": 3, "title": "1.3 大节", "physical_page": 7},
-            {"level": 4, "title": "1.3.1 子节X", "physical_page": 7},
-            {"level": 4, "title": "1.3.2 子节Y", "physical_page": 8},
+            {"level": 1, "title": "PART 1 测试", "physical_page": 7},
+            {"level": 2, "title": "第1章 概述", "physical_page": 7},
+            {"level": 3, "title": "1.1 分布式系统", "physical_page": 7},
+            {"level": 3, "title": "1.2 中间件", "physical_page": 7},
+            {"level": 3, "title": "1.3 大节", "physical_page": 8},
+            {"level": 4, "title": "1.3.1 子节X", "physical_page": 8},
+            {"level": 4, "title": "1.3.2 子节Y", "physical_page": 9},
         ],
     },
     {
-        "physical_page": 7,
-        "printed_page": 14,
+        "physical_page": 8,
+        "printed_page": 2,
         "text": f"1.3 大节\n这是1.3节的引导段文字。\n1.3.1 子节X\n{_SUB1_BODY}",
         "toc_entries": [],
     },
     {
-        "physical_page": 8,
-        "printed_page": 15,
+        "physical_page": 9,
+        "printed_page": 3,
         "text": "1.3.2 子节Y\n子节Y的收尾内容。",
         "toc_entries": [],
     },
@@ -175,7 +176,7 @@ def test_d4_quality_check_no_false_positive():
         source_file="t.pdf", source_type="pdf",
         section_path="PART 1 测试 / 第1章 概述 / 1.1 分布式系统",
         section_level=3, printed_page_start=7, printed_page_end=7,
-        physical_page_start=0, physical_page_end=0,
+        physical_page_start=13, physical_page_end=13,
         node_ids=["n1"], chunk_id="t_00000",
         part="PART 1 测试", chapter="第1章 概述",
     )

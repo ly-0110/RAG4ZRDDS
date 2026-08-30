@@ -6,6 +6,8 @@ indexes/*
 !indexes/.gitkeep
 evaluation/runs/
 models/
+logs/*
+!logs/.gitkeep
 
 # ===== Python =====
 __pycache__/

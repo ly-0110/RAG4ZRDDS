@@ -40,15 +40,15 @@ sys.path.insert(0, str(REPO_ROOT))  # 让 from scripts / data_pipeline import �
 
 def validate_page_record(rec: dict, line_no: int, errors: list[str]) -> None:
     """校验单条 pages.jsonl 记录的必填字段与类型。"""
-    # physical_page: int >= 0
+    # physical_page: int >= 1（1 基，与 PDF 阅读器一致）
     pp = rec.get("physical_page")
-    if not isinstance(pp, int) or pp < 0:
-        errors.append(f"第{line_no}行: physical_page 应为非负整数，收到 {pp!r}")
+    if not isinstance(pp, int) or pp < 1:
+        errors.append(f"第{line_no}行: physical_page 应为 >=1 的整数，收到 {pp!r}")
 
-    # printed_page: int >= 1
+    # printed_page: int >= 1 或 None（前言罗马数字页无阿拉伯印刷页码）
     pr = rec.get("printed_page")
-    if not isinstance(pr, int) or pr < 1:
-        errors.append(f"第{line_no}行: printed_page 应为正整数，收到 {pr!r}")
+    if pr is not None and (not isinstance(pr, int) or pr < 1):
+        errors.append(f"第{line_no}行: printed_page 应为正整数或 None，收到 {pr!r}")
 
     # text: str
     txt = rec.get("text")
@@ -206,6 +206,12 @@ def main() -> int:
         traceback.print_exc(file=sys.stderr)
         return 1
     print(f"  -> {result.total_pages} 页, 书签 {len(result.toc)} 条")
+    if getattr(result, "printed_page_anomalies", None):
+        anom = result.printed_page_anomalies
+        print(f"[ingest] 警告: {len(anom)} 页的页眉印刷页码偏离 "
+              f"printed = physical + PAGE_OFFSET 公式: {anom[:10]}"
+              f"{'…' if len(anom) > 10 else ''}（以页眉真值为准）",
+              file=sys.stderr)
 
     # ── 2. 清洗 ──────────────────────────────────────────────────
     print("[ingest] 步骤 2/6: 页眉/页码行清洗")
