@@ -16,13 +16,15 @@ from retrieval._bootstrap import experiment_config
 from retrieval.index import build_index
 from retrieval.nodes import NodeRecord, load_nodes
 from retrieval.embeddings import build_embedding
-from retrieval.retriever import VectorRetriever, build_retriever
+from retrieval.retriever import VectorRetriever, build_retriever, to_source_refs
 from retrieval.vector_store import VectorStore
 
-SOURCE_REF_KEYS = {
+WIRE_SOURCE_KEYS = {
     "node_id", "source_id", "source_name", "section",
     "page_print", "page_physical", "score",
 }
+# 检索器返回富引用（含 text 正文，供生成侧）；wire 字段为其投影（不含 text）。
+RETRIEVED_CHUNK_KEYS = WIRE_SOURCE_KEYS | {"text"}
 
 
 class FakeEmbedder:
@@ -352,14 +354,28 @@ def test_retriever_returns_source_ref_contract():
 
     assert len(results) == 3
     for r in results:
-        assert set(r.keys()) == SOURCE_REF_KEYS
+        assert set(r.keys()) == RETRIEVED_CHUNK_KEYS
     assert results[0]["node_id"] == "n_alpha"
+    assert results[0]["text"] == "alpha 的正文"
     assert results[0]["source_id"] == "user_manual"
     assert results[0]["source_name"] == "ZRDDS用户手册.pdf"
     assert results[0]["section"] == "3.4"
     assert results[0]["page_print"] == 36
     assert results[0]["page_physical"] == 42
     assert isinstance(results[0]["score"], float)
+
+
+def test_to_source_refs_projects_away_text():
+    rich = [
+        {"node_id": "n1", "text": "正文", "source_id": "user_manual",
+         "source_name": "ZRDDS用户手册.pdf", "section": "3.4",
+         "page_print": 36, "page_physical": 42, "score": 0.9},
+    ]
+
+    lean = to_source_refs(rich)
+
+    assert set(lean[0].keys()) == WIRE_SOURCE_KEYS
+    assert "text" not in lean[0]
 
 
 def test_retriever_honors_top_k_argument():

@@ -1,13 +1,31 @@
 """Top-K 检索器：实现 server/core/pipeline.py 的 Retriever 协议。
 
-返回字段与 server/core/schema.py 的 SourceRef 一致：
-node_id / source_id / source_name / section / page_print / page_physical / score。
+retrieve 返回富引用（含 text 正文，供生成侧组装 context）：
+node_id / text / source_id / source_name / section / page_print / page_physical / score。
+
+下发/落盘前用 to_source_refs 投影为 SourceRef 7 字段（不含 text，与
+server/core/schema.py 的 SourceRef 一致），避免把整段正文塞进 sources 事件与报告。
 """
 from __future__ import annotations
 
 from retrieval._bootstrap import experiment_config
 from retrieval.nodes import NodeRecord
 from retrieval.vector_store import VectorStore, sanitize_collection_name
+
+SOURCE_REF_FIELDS = (
+    "node_id",
+    "source_id",
+    "source_name",
+    "section",
+    "page_print",
+    "page_physical",
+    "score",
+)
+
+
+def to_source_refs(chunks: list[dict]) -> list[dict]:
+    """把富引用（含 text）投影为 SourceRef 7 字段（下发/落盘用，不含正文）。"""
+    return [{k: c[k] for k in SOURCE_REF_FIELDS if k in c} for c in chunks]
 
 
 class VectorRetriever:
@@ -26,6 +44,7 @@ class VectorRetriever:
         rec = NodeRecord(r["node_id"], r["text"], r["metadata"])
         return {
             "node_id": r["node_id"],
+            "text": r["text"],
             "source_id": rec.source_id,
             "source_name": rec.source_name,
             "section": rec.section,

@@ -17,6 +17,7 @@ from typing import AsyncIterator
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
+from retrieval.retriever import to_source_refs
 from server.core.schema import QueryRequest
 
 router = APIRouter()
@@ -44,7 +45,10 @@ async def query(req: QueryRequest, request: Request) -> StreamingResponse:
     async def event_stream() -> AsyncIterator[str]:
         try:
             chunks = await pipeline.retriever.retrieve(question, top_k)
-            yield _sse("sources", {"request_id": rid, "sources": chunks})
+            # 检索器返回富引用（含 text 正文，供生成侧）；下发前端前投影为
+            # SourceRef 7 字段，避免把整段正文塞进 sources 事件与 sources.jsonl。
+            wire_sources = to_source_refs(chunks)
+            yield _sse("sources", {"request_id": rid, "sources": wire_sources})
 
             parts: list[str] = []
             async for token in pipeline.answer_stream.stream(question, chunks):
@@ -52,8 +56,8 @@ async def query(req: QueryRequest, request: Request) -> StreamingResponse:
                 yield _sse("token", {"request_id": rid, "text": token})
 
             answer = "".join(parts)
-            yield _sse("done", {"request_id": rid, "answer": answer, "sources": chunks})
-            cache.put(rid, {"question": question, "answer": answer, "sources": chunks})
+            yield _sse("done", {"request_id": rid, "answer": answer, "sources": wire_sources})
+            cache.put(rid, {"question": question, "answer": answer, "sources": wire_sources})
         except Exception as exc:  # noqa: BLE001 —— 流中任何错误都必须以事件形式告知客户端
             yield _sse("error", {"request_id": rid, "error": f"{type(exc).__name__}: {exc}"})
 
