@@ -1,7 +1,7 @@
-# RAG4ZRDDS API 契约（v0.4 · 第二周日志设施）
+# RAG4ZRDDS API 契约（v0.5 · 生成接线 C）
 
 > 维护人：成员 D。前端（成员 E）以此文档对接；字段变更会同步更新本页。
-> 模式现状（2026-08-28）：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索已真实**（B 交付，需先 `make index`），生成待 C 合入——live 下 `sources` 事件为真实引用，随后 `error` 事件给出"生成未合入"的可读缺口。接口形状两模式不变。
+> 模式现状（2026-08-31）：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索与生成均已真实**（B 检索 + C 生成，需先 `make index` 并在 `.env` 填好 `LLM_BASE_URL`/`LLM_API_KEY`/`LLM_MODEL`）。`sources` 事件为真实引用（SourceRef 7 字段；正文 text 仅生成侧使用，下发前由服务端投影剥离），随后 `token` 流式回答。接口形状两模式不变。
 
 ## 启动
 
@@ -10,7 +10,7 @@ make serve                       # 默认 127.0.0.1:8000；可用 APP_HOST/APP_P
 curl http://127.0.0.1:8000/healthz
 ```
 
-模式由 `.env` 的 `RAG_MODE` 控制：`mock`=假数据（默认）｜`live`=真实检索（需先 `make index`；生成待 C 合入）。live 模式按 `RAG_EXPERIMENT_CONFIG`（默认 `configs/experiments/struct_v1.yaml`）定位索引目录与 embedding，找不到索引时启动即报可读错误。
+模式由 `.env` 的 `RAG_MODE` 控制：`mock`=假数据（默认）｜`live`=真实检索 + 生成（需先 `make index`，并在 `.env` 填好 `LLM_BASE_URL`/`LLM_API_KEY`/`LLM_MODEL`）。live 模式按 `RAG_EXPERIMENT_CONFIG`（默认 `configs/experiments/struct_v1.yaml`）定位索引目录与 embedding；找不到索引或 LLM 未配置时启动即报可读错误。
 
 ## 通用约定
 
@@ -127,6 +127,7 @@ curl -N -X POST http://127.0.0.1:8000/query \
 
 | 版本 | 变更 |
 |---|---|
+| v0.5 | 2026-08-31：live 接线 C 生成（`generation/` 包，OpenAI 兼容流式）。live 模式需 `.env` 填 `LLM_*`；检索器改返富引用（含 text 正文供生成组装 context），`/query` 下发前投影回 SourceRef 7 字段——**接口形状不变，前端无需改动**。Prompt v0 落地两条硬规则（仅依据检索作答 / 给出来源） |
 | v0.4 | 2026-08-30：第二周日志设施（骨架）——请求级 JSONL 日志 `{LOG_DIR}/requests.jsonl`（request_id/method/path/status/耗时）；`/sources` 由内存环形缓存改为持久化 `{LOG_DIR}/sources.jsonl`（重启可回查）；新增 `LOG_DIR`、`SOURCES_CACHE_SIZE` 环境变量。响应形状与路径均不变，前端无需改动；检索/回答级日志字段待 B/C 会签 |
 | v0.3 | 2026-08-29：双页码真值修正——`page_print = page_physical − 6`（页眉印刷数字逐页核对；手册前 6 页为封面/罗马数字前言），物理页码统一 1 基；v0.2 的 +7 约定作废。字段无增删，前端无需改解析，仅展示数值变化 |
 | v0.2 | 2026-08-28：live 接线 B 检索（真实 sources）；双页码约定定为 +7；新增 `RAG_EXPERIMENT_CONFIG`；生成待 C（PendingAnswerStream 可读缺口） |
@@ -135,4 +136,4 @@ curl -N -X POST http://127.0.0.1:8000/query \
 ## 已知边界（后续版本）
 
 - `/v1/chat/completions`（OpenAI 兼容门面）与 MCP 工具：第三周交付
-- 回答的 Grounding/拒答行为：依赖 C 的 Prompt 实现，当前 mock 文本仅演示目标格式（结论/示例/注意事项/来源）
+- 回答的 Grounding/拒答行为：C 的 Prompt v0 已落地两条硬规则（仅依据检索作答 / 给出来源）；正式 Grounding/Abstention 细化与 Citation 字段定版在第二周（指南 §6.3 / §6.4）

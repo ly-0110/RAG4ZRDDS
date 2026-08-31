@@ -7,8 +7,8 @@
 RAG_MODE=mock（默认）时使用本文件的确定性假实现：
   * 无需 A/B/C 的任何产物即可启动服务，供 E 的前端联调与周五冒烟
   * 同一问题永远返回相同结果，便于测试断言
-RAG_MODE=live 加载 B 的真实检索（retrieval/，按 RAG_EXPERIMENT_CONFIG 定位索引）；
-生成侧待成员 C 的 generation/ 包合入，当前以 PendingAnswerStream 给出可读缺口。
+RAG_MODE=live 加载 B 的真实检索（retrieval/，按 RAG_EXPERIMENT_CONFIG 定位索引）
+与 C 的真实生成（generation/，LLM 配置来自 .env）。
 """
 
 from __future__ import annotations
@@ -46,7 +46,11 @@ class AnswerStream(Protocol):
     """成员 C 实现此协议（generation/ 包）。"""
 
     def stream(self, question: str, chunks: list[dict]) -> AsyncIterator[str]:
-        """基于检索结果异步产出答案文本增量。"""
+        """基于检索结果异步产出答案文本增量。
+
+        chunks 为富引用（含 text 正文与 SourceRef 字段），供组装 context；
+        下发前端前由 query 层投影去掉 text（见 retrieval.retriever.to_source_refs）。
+        """
         ...  # pragma: no cover
 
 
@@ -94,25 +98,14 @@ class Pipeline:
         self.answer_stream = answer_stream
 
 
-class PendingAnswerStream:
-    """C 的 generation/ 包合入前的占位：检索引用照常下发，答案通道给可读缺口。"""
-
-    async def stream(self, question: str, chunks: list[dict]) -> AsyncIterator[str]:
-        raise RuntimeError(
-            "生成实现尚未合入：等待成员 C 的 generation/ 包实现 AnswerStream 协议"
-            f"（本次已下发 {len(chunks)} 条真实检索引用，见 sources 事件）"
-        )
-        yield ""  # pragma: no cover  # 使本函数成为 async generator
-
-
 def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
     """按 RAG_MODE 组装管线；接线问题一律给出可读错误而非静默降级。"""
     if mode == "mock":
         return Pipeline(MockRetriever(), MockAnswerStream())
     if mode == "live":
-        # B 已交付 retrieval/；生成侧暂挂 PendingAnswerStream（C 第二周接入）
         from pathlib import Path
 
+        from generation.query_engine import build_answer_stream
         from retrieval._bootstrap import experiment_config as ec
         from retrieval.retriever import build_retriever
 
@@ -123,12 +116,16 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
                 f"RAG_MODE=live 启动失败：实验配置不存在 {cfg_path}"
                 "（检查 RAG_EXPERIMENT_CONFIG）"
             )
+        cfg = ec.load(cfg_path)
         try:
-            retriever = build_retriever(ec.load(cfg_path))
+            retriever = build_retriever(cfg)
         except (FileNotFoundError, NotImplementedError) as e:
             raise RuntimeError(f"RAG_MODE=live 启动失败：{e}") from e
+        # 生成侧：读 .env 的 LLM 配置；缺失时在此拒绝启动（可读错误），
+        # 而非等首个请求才报错（与 D 的"接线问题在启动期暴露"一致）。
+        answer_stream = build_answer_stream(cfg)
         _warmup_retriever(retriever)
-        return Pipeline(retriever, PendingAnswerStream())
+        return Pipeline(retriever, answer_stream)
     raise RuntimeError(f"未知 RAG_MODE={mode!r}，可选值：mock | live")
 
 

@@ -167,10 +167,13 @@ def question_metric_values(retrieved: list[dict], expected_list: list[dict],
 
 async def _run_queries(retriever, questions: list[dict], top_k: int) -> dict[str, list[dict]]:
     """顺序执行（CPU 单用户演示口径）；保持确定性顺序便于复现与排错。"""
+    from retrieval.retriever import to_source_refs
+
     results: dict[str, list[dict]] = {}
     for q in questions:
         refs = await retriever.retrieve(q["question"], top_k)
-        results[q["id"]] = refs
+        # 报告只落盘 SourceRef 7 字段（检索器返回富引用含 text，正文不随报告入库）
+        results[q["id"]] = to_source_refs(refs)
         print(f"[experiment]   检索 {q['id']} → {len(refs)} 条引用", flush=True)
     return results
 
