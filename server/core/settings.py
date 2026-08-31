@@ -3,17 +3,30 @@
 约定：
   * 字段名即环境变量名（不区分大小写），如 RAG_MODE / APP_HOST；
   * default_top_k 经 validation_alias 映射到 QUERY_TOP_K；
-  * .env 不存在时全部使用默认值；.env 不入 Git（见 .env.example 模板）。
+  * .env 不存在时全部使用默认值；.env 不入 Git（见 .env.example 模板）；
+  * 模块加载时额外把 .env 导出进 os.environ：pydantic-settings 只填充
+    自身声明字段，而 generation/llm.py 等模块经 os.getenv 读 LLM_*，
+    不导出则这些键永远是空的（2026-08-31 live 接线 C 后暴露）。
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def load_env_file(env_file: Path | None = None) -> None:
+    """把 .env 键值导出进 os.environ；已存在的进程环境变量优先（与
+    pydantic-settings 的取值优先级一致），避免测试/容器注入被文件覆盖。"""
+    load_dotenv(env_file or REPO_ROOT / ".env", override=False)
+
+
+load_env_file()
 
 
 class Settings(BaseSettings):
