@@ -182,6 +182,9 @@ class StructureChunker(BaseChunker):
         return all_chunks
 
     def _is_descendant(self, child: dict, ancestor: dict) -> bool:
+        # 必须严格是后代：排除自身（否则 level4 节点会把自己选为子节点 → 无限递归）
+        if child is ancestor or child["node_id"] == ancestor["node_id"]:
+            return False
         return (child["physical_page_start"] >= ancestor["physical_page_start"] and
                 child["physical_page_end"]   <= ancestor["physical_page_end"] and
                 child["section_path"].startswith(ancestor["section_path"]))
