@@ -36,6 +36,8 @@ FROZEN_SINCE = "2026-W2"   # 冻结周次；v2.0 升级时必须提供迁移映�
 # ========== 字段白名单 ==========
 # 必填字段（缺一不可）—— Week 2 冻结，Week 3 复用
 REQUIRED_FIELDS = [
+    "source_id",            # 知识源注册名（=实验配置 sources[].id，如 "user_manual"；
+                            # 2026-08-28 会签必填，B 检索日志/Citation 依赖，勿删）
     "source_file",          # 来源文件标识（PDF 文件名 / HTML 文档名）＝§7.2 document_id
     "source_type",          # "pdf" | "html"
     "part",                 # PART 级标题（HTML 可为 ""，section_path 仍完整）
@@ -73,6 +75,7 @@ PLATFORMS = ("linux", "windows", "macos")
 
 # 字段说明（Week 3 HTML Loader / 检索过滤 / 前端渲染共用）
 FIELD_DOCS: Dict[str, str] = {
+    "source_id": "知识源注册名（=实验配置 sources[].id，如 user_manual）；跨 chunk 相同",
     "source_file": "来源文件标识（PDF 文件名 / HTML 文档名）；文档级唯一，跨 chunk 相同",
     "source_type": "来源类型：pdf | html",
     "part": "PART 级标题（一级分区）",
@@ -100,6 +103,7 @@ FIELD_DOCS: Dict[str, str] = {
 # ========== 构建函数 ==========
 def build_chunk_metadata(
     *,
+    source_id: str = "",
     source_file: str,
     source_type: str,
     section_path: str,
@@ -216,16 +220,19 @@ def get_field_docs() -> Dict[str, str]:
 
 # ========== CLI 自测 ==========
 if __name__ == "__main__":
-    # PDF 示例（Week 2 产物同款）
+    import sys as _sys
+    _sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]  # GBK 控制台防崩（D5 同款）
+    # PDF 示例（Week 2 产物同款；页码真值：印刷页 = 物理页 − 6，物理页 1 基）
     m = build_chunk_metadata(
+        source_id="user_manual",
         source_file="ZRDDS用户手册.pdf",
         source_type="pdf",
         section_path="PART1 背景介绍 / 第1章 概述 / 1.1 分布式系统",
         section_level=3,
-        printed_page_start=13,
-        printed_page_end=14,
-        physical_page_start=6,
-        physical_page_end=7,
+        printed_page_start=1,
+        printed_page_end=2,
+        physical_page_start=7,
+        physical_page_end=8,
         node_ids=["s_PART1_ch1_1_1"],
         chunk_id="struct_v1_s_PART1_ch1_1_1_00000",
         part="PART1 背景介绍",
@@ -237,6 +244,7 @@ if __name__ == "__main__":
 
     # HTML 示例（Week 3 复用同一 Schema）
     h = build_chunk_metadata(
+        source_id="zrdds_dev_guide",
         source_file="zrdds-dev-guide.html",
         source_type="html",
         section_path="ZRDDS Developer Guide / 实体 API / DataWriter / create_datawriter",

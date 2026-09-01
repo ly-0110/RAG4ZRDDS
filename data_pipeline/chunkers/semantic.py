@@ -141,17 +141,20 @@ class SemanticChunker(BaseChunker):
         sec = self._infer_section_from_page(phys, tree_map) if phys is not None \
             else self._empty_section(phys, printed)
 
+        # 块级页码：LlamaIndex node 元数据只含（起始）页，跨页块的止页未知，
+        # 故双页码取块起始页单页口径——Citation 精度优于整节区间近似
         meta = build_chunk_metadata(
+            source_id="user_manual",
             source_file=node.metadata.get("source_file", "ZRDDS用户手册.pdf"),
             source_type=node.metadata.get("source_type", "pdf"),
             part=sec["part"],
             chapter=sec["chapter"],
             section_path=sec["section_path"],
             section_level=sec["section_level"],
-            printed_page_start=sec["printed_page_start"],
-            printed_page_end=sec["printed_page_end"],
-            physical_page_start=sec["physical_page_start"],
-            physical_page_end=sec["physical_page_end"],
+            printed_page_start=printed,
+            printed_page_end=printed,
+            physical_page_start=phys,
+            physical_page_end=phys,
             node_ids=sec["node_ids"],
             chunk_id=f"semantic_v1_{idx:05d}",
             version="2.0",
