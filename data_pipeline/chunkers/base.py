@@ -78,7 +78,9 @@ class BaseChunker(ABC):
                     char_start=start,
                     char_end=end,
                 ))
-            start = end - self.overlap
+            # 防死循环：尾部剩余不足 overlap 时直接到末尾，避免 start 不前进
+            next_start = end - self.overlap
+            start = next_start if next_start > start else end
         return chunks
 
     def _protect_code_tables(self, text: str) -> List[Tuple[str, bool]]:
