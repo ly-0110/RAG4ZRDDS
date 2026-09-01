@@ -3,8 +3,8 @@
   "experiment": "struct_v1",
   "stage": "baseline",
   "config_hash8": "7e0264df",
-  "generated_at": "2026-08-30T22:18:49+0800",
-  "duration_seconds": 16.9,
+  "generated_at": "2026-09-01T16:40:44+0800",
+  "duration_seconds": 10.0,
   "index": {
     "dirname": "struct_bge-m3_7e0264df",
     "backend": "chroma",
