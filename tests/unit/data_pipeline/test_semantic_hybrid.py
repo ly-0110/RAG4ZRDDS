@@ -107,6 +107,37 @@ def test_hybrid_mock_smoke_and_cap():
         assert "chunk_prefix" not in c.metadata
 
 
+def test_hybrid_nested_levels_no_duplicate_ids():
+    """5 级节点只由 4 级递归产出，不因同时出现在两级候选中而重复（PR #11 缺陷）。"""
+    pages = [{
+        "physical_page": 7, "printed_page": 1,
+        "text": "臻融数据分发服务DDS 系统软件\n5.1.4.1 QoS策略的缺省值\n"
+                + "缺省值说明。" * 300,  # ~2400 字符，触发子节下切
+        "blocks": [], "toc_entries": [],
+    }]
+    l3 = {"node_id": "s_l3", "level": 3, "title": "5.1.4 QoS策略",
+          "part": "PART 2", "chapter": "第5章 实体",
+          "section_path": "PART 2 / 第5章 实体 / 5.1.4 QoS策略",
+          "physical_page_start": 7, "physical_page_end": 7,
+          "printed_page_start": 1, "printed_page_end": 1,
+          "heading_physical_page": 7, "heading_char_offset": 0}
+    l4 = dict(l3, node_id="s_l4", level=4, title="5.1.4.1 缺省值",
+              section_path="PART 2 / 第5章 实体 / 5.1.4 QoS策略 / 5.1.4.1 缺省值")
+    l5 = dict(l4, node_id="s_l5", level=5, title="5.1.4.1.x 细则",
+              section_path="PART 2 / 第5章 实体 / 5.1.4 QoS策略 / 5.1.4.1 缺省值 / 5.1.4.1.x 细则")
+    l3["children"], l4["children"], l5["children"] = [l4], [l5], []
+
+    chunker = HybridChunker({
+        "max_chunk_chars": 800, "overlap_chars": 100, "large_section_thresh": 800,
+        "breakpoint_percentile_threshold": 95, "buffer_size": 1,
+        "embed_model": "mock",
+    })
+    chunks = chunker.chunk(pages, [l3])
+    ids = [c.chunk_id for c in chunks]
+    assert len(ids) == len(set(ids)), f"chunk_id 碰撞: {[i for i in ids if ids.count(i) > 1]}"
+    assert len(chunks) > 0
+
+
 def test_factory_supports_all_three_strategies():
     cfg = {"max_chunk_chars": 100, "overlap_chars": 10, "embed_model": "mock"}
     for name, cls in (("structure", "StructureChunker"),
