@@ -109,6 +109,11 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
         from retrieval._bootstrap import experiment_config as ec
         from retrieval.retriever import build_retriever
 
+        # 直接调用（脚本/外部集成）不经过 server.main 的模块级 create_app，
+        # 必须在此保证 .env 已导出，否则 generation 侧 os.getenv 读不到 LLM_*
+        from server.core.settings import load_env_file
+        load_env_file()
+
         repo_root = Path(__file__).resolve().parents[2]
         cfg_path = repo_root / (experiment_config or "configs/experiments/struct_v1.yaml")
         if not cfg_path.exists():

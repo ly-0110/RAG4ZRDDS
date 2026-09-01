@@ -220,6 +220,14 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 | `extract_text_titles` 仅从已命名的 blocks 里提取 | PDF 中图片截断的文本行不会进入候选 | 属预期行为 |
 | pages.jsonl 不含 blocks | 后续消费若需 blocks 需重走 extract_pdf | 按需实现 |
 | chunkers 依赖 `tiktoken`，首次运行需联网下载 cl100k_base 词表 | 干净环境 `make setup` 后首次 `make ingest` 略慢 | 已列入 requirements |
+| **R1 PR #11 合入导致管线回退（2026-09-01）**：A 的 feature/pdf-parser 基于未含 D1~D5/source_id/页码真值修复的旧基线开发，合入后 `pdf_loader`（0 基物理页+`printed=physical+7`）、`section_tree`（D1/D2/D3/D5 丢失）、`quality_check`（页眉正则与判重回退、页码校验按 +7 假绿）、`structure`（超长段兜底丢失，产物 max 28180）、`metadata`（会签字段 `source_id` 被移除）整体回退；三方案产物页码全错（printed 13–301） | 全部 Citation 页码错误；B 的 `SourceRef.source_id` 退化为 unknown；struct 覆盖率退回 105 块 | **已修复**（D 代修：四文件恢复修复版；metadata 超集保留 A 的冻结声明/HTML 对照表并恢复 `source_id` 必填；semantic 块页码改块起始页口径；hybrid 清除 Schema 外 `chunk_prefix` 泄漏；`metadata.__main__` 补 D5 同款 UTF-8；三方案产物全量重跑：struct 301 / semantic 1059 / hybrid 906（bge-m3 真实跑），质检页码映射 0 错，live 检索 DurabilityQosPolicy 复测 印刷127/物理133 正确） |
+| **R2 索引复用不含产物指纹（run_experiment/build_index）**：hash8 仅由配置派生，产物重跑而配置未变时旧索引被静默复用 → 索引向量与磁盘产物脱节 | 脏索引上出的实验指标全部失真且不可察觉 | **已修复**（manifest 新增 `nodes_file_sha12` 指纹；`_ensure_index` 复用前硬校验，不符拒绝并提示 --rebuild；旧 manifest 无指纹时警告放行） |
+| **R3 hybrid 子节下切重复产出（2026-09-01）**：A 复制 structure 的 `_split_by_subsections` 时丢失 `_has_intermediary` 中间祖先过滤，5 级节点同时被父级候选与递归候选产出 → 真实产物 223 个 chunk_id 碰撞（446 行涉及），建索引必炸 DuplicateIDError | 索引构建失败 | **已修复**（b595f09 补过滤；mock 复跑 452 块零重复；真实复跑 906 块零重复；嵌套树回归测试锁定） |
+| **A 入库的 semantic/hybrid 产物疑似 mock 嵌入生成**（288/220 条，bge-m3 真实重跑为 1059/906 条） | mock 向量无语义区分度 → 断点稀少块数差 3-4 倍，A 提交版不可用于真实对比 | 已用真实 bge-m3 重跑替换（本仓库产物为真值） |
+| semantic 方案碎块：bge-m3 真实切分下 166/1059 块 <50 字符（62 块 <10 字符，图号/节号/省略号碎片） | 噪声块进索引，可能干扰检索 | 待 A 在 `_node_to_chunk` 加最短长度过滤（建议 ≥20 字符）并复测；属 A 调参域，未代改 |
+| semantic 方案生成耗时：逐页 Document 调 splitter（约 300 次独立调用），bge-m3 CPU 全文档 ~25 分钟 | 实验迭代效率 | 待 A 改为全文档拼接一次调用；属 A 实现域，未代改 |
+| semantic 方案双页码为"块起始页"单页口径（LlamaIndex node 元数据仅含起始页，跨页块止页未知） | 跨页语义块 Citation 止页可能差 1~2 页 | 已知近似，C/E 展示时以"起页"为准；如需精确止页待 A 在 Node 元数据补止页信息 |
+| semantic/hybrid 方案 section_path 按页粒度回填（页内跨节时归入最深层节点） | 页内含多小节时路径近似 | 已知近似，与三方案公平对比口径一致（A 原设计） |
 
 ## 变更记录
 
@@ -227,6 +235,7 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 |---|---|---|
 | v1 | 第一周 | 骨架定稿：配置加载 → PDF 提取 → 清洗 → pages.jsonl + 契约校验 → 章节树 → 分块预留点 |
 | v1.1 | 2026-08-27 | 分块步骤接入 A 的 StructureChunker（`get_chunker` 工厂）；新增 `validate_nodes_jsonl` Node 集契约校验与 `quality_check` 质检挂接；A 交付物经实测登记上表 9 条边界 |
+| v1.2 | 2026-09-01 | A 第二周三方案交付（PR #11）检验与回退修复（R1/R2）：struct 301 条复现、semantic 288 / hybrid 220 重跑（bge-m3）；metadata 升至 15 必填 + 7 可选（恢复 source_id）；实验配置 `semantic_v1.yaml` / `hybrid_v1.yaml` 入库 |
 
 ## 依赖模块清单
 
@@ -235,7 +244,7 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 | `scripts/experiment_config.py` | D | ✅ | 配置加载与校验 |
 | `data_pipeline/pdf_loader.py` | A | ✅ | PDF 逐页提取 |
 | `data_pipeline/cleaner.py` | A | ✅ | 页眉/页码行清洗 |
-| `data_pipeline/section_tree.py` | A | ✅ | 双通道章节树（页码区间颠倒问题待修） |
-| `data_pipeline/chunkers/` | A | ✅ | base + structure 已交付并接入；semantic/hybrid 第二周 |
-| `data_pipeline/metadata.py` | A | ✅ | 20 字段 Schema 单一事实源 |
-| `data_pipeline/quality_check.py` | A | ✅ | §16 清单自动化；页眉正则待修正 |
+| `data_pipeline/section_tree.py` | A | ✅ | 双通道章节树（2026-08-29 页码真值修复版；PR #11 回退后已恢复） |
+| `data_pipeline/chunkers/` | A | ✅ | structure/semantic/hybrid 三策略已交付并接入（PR #11 + D 修复） |
+| `data_pipeline/metadata.py` | A | ✅ | 15 必填 + 7 可选 Schema 单一事实源（含会签字段 source_id） |
+| `data_pipeline/quality_check.py` | A | ✅ | §16 清单自动化（页眉正则/精确判重/页码真值校验已恢复） |

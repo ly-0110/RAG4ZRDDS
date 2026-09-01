@@ -76,6 +76,20 @@ def _fake_embed(texts: list[str]) -> list[list[float]]:
     ]
 
 
+def _nodes_file_sha12(cfg) -> str:
+    """Node 集文件 sha256 前 12 位——索引与产物一致性的指纹。
+
+    背景（2026-09-01 事故）：hash8 只由配置内容派生，产物重跑而配置未变时
+    旧索引会被静默复用 → 索引向量与磁盘产物脱节。指纹供复用侧校验。
+    """
+    import hashlib
+    h = hashlib.sha256()
+    with ec.nodes_path(cfg).open("rb") as f:
+        for blk in iter(lambda: f.read(1 << 20), b""):
+            h.update(blk)
+    return h.hexdigest()[:12]
+
+
 def _write_manifest(index_path: Path, cfg, nodes_count: int, build_seconds: float,
                     fake: bool) -> Path:
     manifest = {
@@ -89,6 +103,7 @@ def _write_manifest(index_path: Path, cfg, nodes_count: int, build_seconds: floa
         ),
         "index": {"backend": cfg.index.backend, "metric": cfg.index.metric},
         "nodes_file": str(ec.nodes_path(cfg).relative_to(REPO_ROOT)),
+        "nodes_file_sha12": _nodes_file_sha12(cfg),
         "nodes_count": nodes_count,
         "built_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "build_seconds": round(build_seconds, 1),

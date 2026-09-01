@@ -256,7 +256,9 @@ def _compare_baseline(cfg, agg: dict[str, float | None]) -> dict | None:
     name = cfg.report.compare_baseline
     if not name:
         return None
-    base_path = REPO_ROOT / cfg.report.dir / name
+    # 兼容两种写法：报告名（struct_v1）或文件名（struct_v1.json）
+    fname = name if name.endswith(".json") else f"{name}.json"
+    base_path = REPO_ROOT / cfg.report.dir / fname
     if not base_path.exists():
         print(f"[experiment] 警告：基准报告不存在，跳过对比: {base_path}", file=sys.stderr)
         return None
@@ -296,6 +298,43 @@ def _read_manifest_fake_flag(target: Path) -> bool | None:
         return None
 
 
+def _nodes_file_sha12(cfg) -> str | None:
+    """当前 Node 集文件 sha256 前 12 位；文件缺失返回 None。"""
+    import hashlib
+    p = ec.nodes_path(cfg)
+    if not p.exists():
+        return None
+    h = hashlib.sha256()
+    with p.open("rb") as f:
+        for blk in iter(lambda: f.read(1 << 20), b""):
+            h.update(blk)
+    return h.hexdigest()[:12]
+
+
+def _check_fingerprint(target: Path, cfg) -> str | None:
+    """复用前校验索引与 Node 集一致性。返回 None=可复用，否则返回拒绝原因。
+
+    manifest 带 nodes_file_sha12（新版）→ 硬校验，不匹配即拒绝（防脏索引：
+    产物重跑而配置未变时 hash8 不变，静默复用会用旧向量配新产物）；
+    旧版 manifest 无指纹字段 → 提示一次但不阻断。
+    """
+    m = target / "manifest.json"
+    try:
+        manifest = json.loads(m.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+    recorded = manifest.get("nodes_file_sha12")
+    if recorded is None:
+        print("[experiment] 警告: 既有索引 manifest 无 Node 集指纹（旧版构建），"
+              "无法校验产物一致性；建议择机 --rebuild 重建以获得指纹保护")
+        return None
+    current = _nodes_file_sha12(cfg)
+    if current != recorded:
+        return (f"Node 集已变（索引指纹 {recorded} ≠ 当前产物 {current}），"
+                "复用会拿旧向量配新产物。请加 --rebuild 重建索引")
+    return None
+
+
 def _ensure_index(config_path: str, cfg, rebuild: bool, fake_embed: bool) -> int:
     """索引不存在 → 自动构建；已存在 → 复用（hash8 保证同目录同配置）。
 
@@ -316,6 +355,11 @@ def _ensure_index(config_path: str, cfg, rebuild: bool, fake_embed: bool) -> int
             )
             return 1
         if not rebuild and not (fake_embed != (was_fake if was_fake is not None else fake_embed)):
+            stale = _check_fingerprint(target, cfg)
+            if stale:
+                print(f"[experiment] 错误: 索引 {target.relative_to(REPO_ROOT)} 与当前产物不一致: "
+                      f"{stale}", file=sys.stderr)
+                return 1
             print(f"[experiment] 索引已存在，复用: {target.relative_to(REPO_ROOT)}"
                   f"（--rebuild 可强制重建）")
             return 0

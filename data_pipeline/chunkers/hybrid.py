@@ -139,6 +139,7 @@ class HybridChunker(BaseChunker):
                 for j, sub in enumerate(self._split_long_text(text, meta)):
                     sub.metadata = dict(meta)
                     sub.metadata["chunk_id"] = f"{base_id}_p{j:03d}"
+                    sub.metadata.pop("chunk_prefix", None)  # 非Schema字段，防泄漏落盘
                     out.append(sub)
             else:
                 meta["chunk_id"] = base_id
@@ -172,6 +173,7 @@ class HybridChunker(BaseChunker):
             if not text:
                 continue
             meta = build_chunk_metadata(
+                source_id="user_manual",
                 source_file="ZRDDS用户手册.pdf",
                 source_type="pdf",
                 part=node.get("part", ""),
@@ -194,6 +196,7 @@ class HybridChunker(BaseChunker):
                 for j, sub in enumerate(self._split_long_text(text, meta)):
                     sub.metadata = dict(meta)
                     sub.metadata["chunk_id"] = f"{base_id}_p{j:03d}"
+                    sub.metadata.pop("chunk_prefix", None)  # 非Schema字段，防泄漏落盘
                     out.append(sub)
             else:
                 meta["chunk_id"] = base_id
@@ -238,6 +241,7 @@ class HybridChunker(BaseChunker):
         chunk_seq = 0
 
         base_meta = build_chunk_metadata(
+            source_id="user_manual",
             source_file="ZRDDS用户手册.pdf",
             source_type="pdf",
             part=node.get("part", ""),
@@ -304,6 +308,13 @@ class HybridChunker(BaseChunker):
                      if n["level"] in (4, 5) and self._is_descendant(n, node)]
         if not sub_nodes:
             return []
+
+        # 只取直接子节点：候选中存在中间祖先层的后代交给递归处理，
+        # 否则 5 级节点会同时被父级递归与本层直接处理 → chunk_id 碰撞（与 structure 一致）
+        def _has_intermediary(d: dict) -> bool:
+            return any(o["node_id"] != d["node_id"] and self._is_descendant(d, o)
+                       for o in sub_nodes)
+        sub_nodes = [d for d in sub_nodes if not _has_intermediary(d)]
 
         sub_nodes.sort(key=lambda x: x["physical_page_start"])
         all_chunks = []

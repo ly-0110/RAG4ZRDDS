@@ -12,9 +12,11 @@ from collections import Counter
 from typing import List, Dict, Any
 from data_pipeline.chunkers.base import Chunk
 from data_pipeline.metadata import validate_metadata, REQUIRED_FIELDS
+from data_pipeline.pdf_loader import PAGE_OFFSET
 
 # ---------- 正则 ----------
-HEADER_RE = re.compile(r"臻融数据分发服务DDS 系统软件")
+# D4 修复：逐行整行锚定（与 cleaner 判定口径一致），正文内合法提及不再误判
+HEADER_RE = re.compile(r"^\s*臻融数据分发服务DDS 系统软件\s*$", re.MULTILINE)
 PAGE_NUM_RE = re.compile(r"^\s*(\d+|第\s*\d+\s*页|\d+\s*/\s*\d+)\s*$")
 CODE_BLOCK_RE = re.compile(r"```[\s\S]*?```")
 TABLE_RE = re.compile(r"\|.*?\|(?:\n\|.*?\|)+")
@@ -24,7 +26,6 @@ IMG_PLACEHOLDER_RE = re.compile(r"\[图\s*\d+\]|\[Figure\s*\d+\]|!\[.*?\]\(.*?\)
 MIN_CHARS = 50          # 过短判定
 MAX_CHARS = 10000       # 过长判定（未切分的超大节）
 MAX_TOKENS = 1200       # Embedding 截断参考
-DUP_THRESHOLD = 0.95    # 文本相似度去重阈值（简化用前 200 字符 Jaccard）
 
 def check_nodes(chunks: List[Chunk], verbose: bool = True) -> Dict[str, Any]:
     """
@@ -81,21 +82,21 @@ def check_nodes(chunks: List[Chunk], verbose: bool = True) -> Dict[str, Any]:
             report["nodes_without_page"] += 1
             _add_sample(report, i, "NO_PAGE", c.chunk_id)
         else:
-            # 印刷页码 = 物理页码 + 7（按项目约定）
-            if meta["printed_page_start"] - meta["physical_page_start"] != 7:
+            # 印刷页码 = 物理页码 + PAGE_OFFSET（−6；以页眉印刷数字为地面真值）
+            if meta["printed_page_start"] - meta["physical_page_start"] != PAGE_OFFSET:
                 report["page_mapping_errors"] += 1
                 _add_sample(report, i, "PAGE_OFFSET_ERR", c.chunk_id)
 
-    # 3. 重复节点（简化：前 200 字符 Jaccard）
+    # 3. 重复节点（全文精确匹配；分块器重复产出必为精确副本。
+    #    字符集 Jaccard 对代码类内容无区分度，会把原文中仅差笔误的
+    #    两段示例代码误判为重复，故不做近似判重）
     dup_count = 0
-    seen = []
+    seen = set()
     for i, t in enumerate(texts):
-        prefix = t[:200]
-        is_dup = any(_jaccard(prefix, s) > DUP_THRESHOLD for s in seen)
-        if is_dup:
+        if t in seen:
             dup_count += 1
             _add_sample(report, i, "DUPLICATE", chunks[i].chunk_id)
-        seen.append(prefix)
+        seen.add(t)
     report["duplicated_nodes"] = dup_count
 
     # 4. 页眉残留比例
@@ -152,10 +153,6 @@ def check_nodes(chunks: List[Chunk], verbose: bool = True) -> Dict[str, Any]:
 
 
 # ---------- 内部工具 ----------
-def _jaccard(a: str, b: str) -> float:
-    sa, sb = set(a), set(b)
-    return len(sa & sb) / len(sa | sb) if sa | sb else 0.0
-
 def _add_sample(report: dict, idx: int, issue: str, chunk_id: str):
     if len(report["sample_issues"]) < 5:
         report["sample_issues"].append({
