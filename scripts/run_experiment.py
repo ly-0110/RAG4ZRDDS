@@ -256,7 +256,9 @@ def _compare_baseline(cfg, agg: dict[str, float | None]) -> dict | None:
     name = cfg.report.compare_baseline
     if not name:
         return None
-    base_path = REPO_ROOT / cfg.report.dir / name
+    # 兼容两种写法：报告名（struct_v1）或文件名（struct_v1.json）
+    fname = name if name.endswith(".json") else f"{name}.json"
+    base_path = REPO_ROOT / cfg.report.dir / fname
     if not base_path.exists():
         print(f"[experiment] 警告：基准报告不存在，跳过对比: {base_path}", file=sys.stderr)
         return None
