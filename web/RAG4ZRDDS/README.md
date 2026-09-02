@@ -1,66 +1,74 @@
-# RAG4ZRDDS
+# RAG4ZRDDS 前端
 
-This template should help get you started developing with Vue 3 in Vite.
+## 启动步骤
 
-## Recommended IDE Setup
+### 1. 安装依赖（首次）
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```bash
+npm install --registry=https://registry.npmmirror.com
 ```
 
-### Compile and Hot-Reload for Development
+### 2. 启动后端服务
 
-```sh
+在另一个终端窗口运行：
+
+```bash
+make serve
+# 或
+uvicorn server.main:app --host 127.0.0.1 --port 8000
+```
+
+### 3. 启动前端开发服务器
+
+```bash
 npm run dev
 ```
 
-### Compile and Minify for Production
+浏览器打开 http://localhost:5173
 
-```sh
-npm run build
+## 常见问题
+
+### Q: 提示"后端服务未启动"？
+
+**原因：**
+- 后端服务（`make serve`）没有运行
+- 后端端口不是默认的 8000
+- 环境变量 `RAG_BACKEND_URL` 配置错误
+
+**解决方法：**
+
+1. **确认后端已启动**：在另一个终端运行 `make serve`，看到类似输出：
+   ```
+   INFO:     Started server process [12345]
+   INFO:     Waiting for application startup.
+   INFO:     Application startup complete.
+   ```
+
+2. **检查端口**：访问 http://localhost:8000/healthz 应该返回 `{"status":"ok","mode":"mock"}`
+
+3. **修改后端端口**（如果需要）：
+   ```bash
+   RAG_BACKEND_URL=http://127.0.0.1:9000 npm run dev
+   ```
+
+4. **检查 Makefile**：确保 `make serve` 命令正确配置
+
+### Q: 如何启动 mock 模式？
+
+直接运行 `make serve` 即可，不需要先运行 `make index`。
+
+### Q: 如何启动 live 模式（真实检索）？
+
+```bash
+# 先建索引
+make index
+
+# 再启动后端
+RAG_MODE=live make serve
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+## 架构说明
 
-```sh
-npm run test:unit
-```
-
-### Run End-to-End Tests with [Cypress](https://www.cypress.io/)
-
-```sh
-npm run test:e2e:dev
-```
-
-This runs the end-to-end tests against the Vite development server.
-It is much faster than the production build.
-
-But it's still recommended to test the production build with `test:e2e` before deploying (e.g. in CI environments):
-
-```sh
-npm run build
-npm run test:e2e
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+- 前端：Vue 3 + Vite，运行在 http://localhost:5173
+- 后端：FastAPI，运行在 http://localhost:8000（默认）
+- 代理配置：`vite.config.js` 中的 `server.proxy` 将 `/query`、`/sources`、`/healthz` 转发到后端
