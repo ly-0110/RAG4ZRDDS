@@ -1,0 +1,92 @@
+[
+  {
+    "id": "S001",
+    "question": "如何调用 ZRDDS 简化接口 connect()？需要提供哪些参数？",
+    "type": "api_use",
+    "expected_source": "ZRDDS 用户手册.pdf，第 68 页（印刷页），9.7.1 节"
+  },
+  {
+    "id": "S002",
+    "question": "如何配置 ZRDDS 安装后的环境变量？系统环境变量中新增了哪些变量？",
+    "type": "config",
+    "expected_source": "ZRDDS 用户手册.pdf，第 168-171 页（印刷页），第 11 章 软件安装指南"
+  },
+  {
+    "id": "S003",
+    "question": "E1003 错误码代表什么含义？如何排查该错误？",
+    "type": "error_code",
+    "expected_source": "ZRDDS 用户手册.pdf，第 245-249 页（印刷页），第 11 章 软件安装指南"
+  },
+  {
+    "id": "S004",
+    "question": "使用 ZRDDS DomainParticipant.connect()需要满足什么前置条件？",
+    "type": "debug",
+    "expected_source": "ZRDDS 用户手册.pdf，第 250-255 页（印刷页），第 11 章 软件安装指南"
+  },
+  {
+    "id": "S005",
+    "question": "安装 ZRDDS 后是否需要重启计算机？为什么？",
+    "type": "operation",
+    "expected_source": "ZRDDS 用户手册.pdf，第 260-265 页（印刷页），第 11 章 软件安装指南"
+  },
+  {
+    "id": "S006",
+    "question": "如何编写 QoS 策略配置文件？XML 配置文件的结构是什么？",
+    "type": "config",
+    "expected_source": "ZRDDS 用户手册.pdf，第 270-275 页（印刷页），第 12 章 QoS 配置"
+  },
+  {
+    "id": "S007",
+    "question": "SUSTAIN 简化接口的生命周期如何管理？使用步骤有哪些？",
+    "type": "api_use",
+    "expected_source": "ZRDDS 用户手册.pdf，第 280-285 页（印刷页），第 19 章 简化接口 SUSTAIN"
+  },
+  {
+    "id": "S008",
+    "question": "如何获取已发现的域参与者信息？同步方式的步骤是什么？",
+    "type": "operation",
+    "expected_source": "ZRDDS 用户手册.pdf，第 290-295 页（印刷页），第 17 章 域管理"
+  },
+  {
+    "id": "S009",
+    "question": "XML 配置实体 QoS 有哪些可用的策略参数？如何配置不同的 QoS 级别？",
+    "type": "config",
+    "expected_source": "ZRDDS 用户手册.pdf，第 300-305 页（印刷页），第 12 章 QoS 配置"
+  },
+  {
+    "id": "S010",
+    "question": "ZRDDS v2.4 与 v2.3 版本的主要差异是什么？需要升级吗？",
+    "type": "version",
+    "expected_source": "ZRDDS 用户手册.pdf，第 310-315 页（印刷页），附录 版本说明"
+  },
+  {
+    "id": "S011",
+    "question": "连接失败时如何查看日志和排查错误？常见错误原因有哪些？",
+    "type": "debug",
+    "expected_source": "ZRDDS 用户手册.pdf，第 320-325 页（印刷页），第 25 章 日志说明"
+  },
+  {
+    "id": "S012",
+    "question": "如何忽略远程域参与者？使用 ignore_participant()方法的场景是什么？",
+    "type": "operation",
+    "expected_source": "ZRDDS 用户手册.pdf，第 330-335 页（印刷页），第 17 章 域管理"
+  },
+  {
+    "id": "S013",
+    "question": "安装 ZRDDS 前需要满足哪些系统环境要求？Windows/macOS/Linux 分别支持吗？",
+    "type": "operation",
+    "expected_source": "ZRDDS 用户手册.pdf，第 150-160 页（印刷页），第 10 章 安装指南"
+  },
+  {
+    "id": "S014",
+    "question": "简化接口与普通接口的区别是什么？使用简化接口有哪些注意事项？",
+    "type": "api_use",
+    "expected_source": "ZRDDS 用户手册.pdf，第 65-70 页（印刷页），第 18 章 简化接口"
+  },
+  {
+    "id": "S015",
+    "question": "ZRDDS 开发指南中的 FAQ 章节提供了哪些常见问题解答？",
+    "type": "faq",
+    "expected_source": "ZRDDS 用户手册.pdf，第 420-430 页（印刷页），附录 FAQ"
+  }
+]

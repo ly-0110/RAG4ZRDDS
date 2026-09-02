@@ -1,0 +1,831 @@
+{
+  "schema": "rag4zrdds.report/v1",
+  "experiment": "struct_v1",
+  "stage": "baseline",
+  "config_hash8": "7e0264df",
+  "generated_at": "2026-09-02T17:39:30+0800",
+  "duration_seconds": 10.7,
+  "index": {
+    "dirname": "struct_bge-m3_7e0264df",
+    "backend": "chroma",
+    "metric": "cosine"
+  },
+  "retrieval": {
+    "mode": "vector",
+    "top_k": 5
+  },
+  "dataset": {
+    "questions": "evaluation/datasets/questions.jsonl",
+    "expected_sources": "evaluation/datasets/expected_sources.jsonl",
+    "total": 15,
+    "evaluated": 0,
+    "skipped_no_expected": [
+      "Q001",
+      "Q002",
+      "Q003",
+      "Q004",
+      "Q005",
+      "Q006",
+      "Q007",
+      "Q008",
+      "Q009",
+      "Q010",
+      "Q011",
+      "Q012",
+      "Q013",
+      "Q014",
+      "Q015"
+    ]
+  },
+  "metrics": {
+    "hit_rate@5": null,
+    "mrr@5": null
+  },
+  "per_question": [
+    {
+      "id": "Q001",
+      "question": "如何调用 ZRDDS 简化接口 connect()？需要提供哪些参数？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第18章_简化接口_18_1_简化接口的使用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用",
+          "page_print": 242,
+          "page_physical": 248,
+          "score": 0.6585
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第19章_简化接口SUSTAIN_19_1_简化接口SUSTAIN的使用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用",
+          "page_print": 247,
+          "page_physical": 253,
+          "score": 0.6567
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_2_日志接口_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第25章 日志说明 / 25.4 日志API / 25.4.2 日志接口",
+          "page_print": 281,
+          "page_physical": 287,
+          "score": 0.6486
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_9参数配置_第23章_可配置性_22_2_DDS应用配置_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 9参数配置 / 第23章 可配置性 / 22.2 DDS应用配置",
+          "page_print": 263,
+          "page_physical": 269,
+          "score": 0.6459
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第13章_TCP并发传输_13_2_配置说明_13_2_1_发送端配置说明_00001",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 4 深入理解 / 第13章  TCP并发传输 / 13.2 配置说明 / 13.2.1 发送端配置说明",
+          "page_print": 198,
+          "page_physical": 204,
+          "score": 0.6145
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q002",
+      "question": "如何配置 ZRDDS 安装后的环境变量？系统环境变量中新增了哪些变量？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_2_软件安装指南_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.2 软件安装指南",
+          "page_print": 168,
+          "page_physical": 174,
+          "score": 0.6389
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_9参数配置_第23章_可配置性_22_2_DDS应用配置_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 9参数配置 / 第23章 可配置性 / 22.2 DDS应用配置",
+          "page_print": 263,
+          "page_physical": 269,
+          "score": 0.6383
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_5_在Linux平台配置ZRDDS应用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.5 在Linux平台配置ZRDDS应用",
+          "page_print": 177,
+          "page_physical": 183,
+          "score": 0.6197
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_3_使用步骤_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.3 使用步骤",
+          "page_print": 276,
+          "page_physical": 282,
+          "score": 0.6175
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_4_在Windows平台上配置ZRDDS应用_11_3_2_使用zrddsgen编译器_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.4 在Windows平台上配置ZRDDS应用 / 11.3.2 使用zrddsgen编译器",
+          "page_print": 172,
+          "page_physical": 178,
+          "score": 0.6121
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q003",
+      "question": "E1003 错误码代表什么含义？如何排查该错误？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_1_日志级别_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第25章 日志说明 / 25.1 日志级别",
+          "page_print": 278,
+          "page_physical": 284,
+          "score": 0.5152
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第26章_交互式调试日志_26_3_调试文件示例_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第26章 交互式调试日志 / 26.3 调试文件示例",
+          "page_print": 287,
+          "page_physical": 293,
+          "score": 0.5049
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_4_深入理解_第13章_TCP并发传输_13_1_掩码值说明_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 4 深入理解 / 第13章  TCP并发传输 / 13.1 掩码值说明",
+          "page_print": 197,
+          "page_physical": 203,
+          "score": 0.4673
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第13章_TCP并发传输_13_3_配置示例_13_3_2_TCP多网卡传输配置示例_00001",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 4 深入理解 / 第13章  TCP并发传输 / 13.3 配置示例 / 13.3.2 TCP多网卡传输配置示例",
+          "page_print": 206,
+          "page_physical": 212,
+          "score": 0.4627
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第13章_TCP并发传输_13_3_配置示例_13_3_1_TCP多核传输配置示例_00001",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 4 深入理解 / 第13章  TCP并发传输 / 13.3 配置示例 / 13.3.1 TCP多核传输配置示例",
+          "page_print": 202,
+          "page_physical": 208,
+          "score": 0.4619
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q004",
+      "question": "使用 ZRDDS DomainParticipant.connect()需要满足什么前置条件？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_1_创建DomainParticipant_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.1 创建DomainParticipant",
+          "page_print": 49,
+          "page_physical": 55,
+          "score": 0.6668
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_1_Domain和DomainParticipant的基本概念_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.1 Domain和DomainParticipant的基本概念",
+          "page_print": 43,
+          "page_physical": 49,
+          "score": 0.6537
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_5_设置DomainParticipant的Listener_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.5 设置DomainParticipant的Listener",
+          "page_print": 54,
+          "page_physical": 60,
+          "score": 0.6506
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_6_2_2_获取及设置缺省的DomainParticipantQoS_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.2 DomainParticipantFactory / 6.2.2 获取及设置缺省的DomainParticipantQoS",
+          "page_print": 47,
+          "page_physical": 53,
+          "score": 0.64
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant",
+          "page_print": 48,
+          "page_physical": 54,
+          "score": 0.6329
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q005",
+      "question": "安装 ZRDDS 后是否需要重启计算机？为什么？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_2_软件安装指南_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.2 软件安装指南",
+          "page_print": 168,
+          "page_physical": 174,
+          "score": 0.625
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_3_使用步骤_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.3 使用步骤",
+          "page_print": 276,
+          "page_physical": 282,
+          "score": 0.5971
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_4_DDS介绍_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+          "page_print": 3,
+          "page_physical": 9,
+          "score": 0.5934
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_9参数配置_第23章_可配置性_22_2_DDS应用配置_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 9参数配置 / 第23章 可配置性 / 22.2 DDS应用配置",
+          "page_print": 263,
+          "page_physical": 269,
+          "score": 0.5916
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART8RapidIO使用_第21章_RapidIO处理规程_21_3_零拷贝内置数据类型_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART8RapidIO使用 / 第21章 RapidIO处理规程 / 21.3 零拷贝内置数据类型",
+          "page_print": 259,
+          "page_physical": 265,
+          "score": 0.5887
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q006",
+      "question": "如何编写 QoS 策略配置文件？XML 配置文件的结构是什么？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_1_XML配置说明_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.1 XML配置说明",
+          "page_print": 248,
+          "page_physical": 254,
+          "score": 0.6958
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_2_编写QoS配置文件_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.2 编写QoS配置文件",
+          "page_print": 248,
+          "page_physical": 254,
+          "score": 0.6844
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_4_设置Publisher的QoS策略_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.2 Publisher / 8.2.4 设置Publisher的QoS策略",
+          "page_print": 76,
+          "page_physical": 82,
+          "score": 0.6573
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_2_编写QoS配置文件_00001",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.2 编写QoS配置文件",
+          "page_print": 248,
+          "page_physical": 254,
+          "score": 0.6521
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_4_设置Subscriber的QoS策略_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.2 Subscriber / 9.2.4 设置Subscriber的QoS策略",
+          "page_print": 94,
+          "page_physical": 100,
+          "score": 0.6387
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q007",
+      "question": "SUSTAIN 简化接口的生命周期如何管理？使用步骤有哪些？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第19章_简化接口SUSTAIN_19_1_简化接口SUSTAIN的使用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用",
+          "page_print": 247,
+          "page_physical": 253,
+          "score": 0.7124
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第18章_简化接口_18_1_简化接口的使用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用",
+          "page_print": 242,
+          "page_physical": 248,
+          "score": 0.5914
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第17章_扩展接口_17_1_扩展接口的使用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第17章 扩展接口 / 17.1 扩展接口的使用",
+          "page_print": 236,
+          "page_physical": 242,
+          "score": 0.5544
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第18章_简化接口_18_2_简化接口代码示例_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.2 简化接口代码示例",
+          "page_print": 246,
+          "page_physical": 252,
+          "score": 0.5486
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第16章_标准协议接口_16_1_标准协议接口的使用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第16章 标准协议接口 / 16.1 标准协议接口的使用",
+          "page_print": 231,
+          "page_physical": 237,
+          "score": 0.5457
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q008",
+      "question": "如何获取已发现的域参与者信息？同步方式的步骤是什么？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_11_域信息查询_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.11 域信息查询",
+          "page_print": 57,
+          "page_physical": 63,
+          "score": 0.7776
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant",
+          "page_print": 48,
+          "page_physical": 54,
+          "score": 0.6108
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_10_通信管理_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.10 通信管理",
+          "page_print": 57,
+          "page_physical": 63,
+          "score": 0.6096
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_7_获取Subscriber的关联实体_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.2.7 获取Subscriber的关联实体",
+          "page_print": 97,
+          "page_physical": 103,
+          "score": 0.6065
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART1_背景介绍_第2章_以数据为中心的发布_订阅通信模型_2_3_域_域参与者_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第2章 以数据为中心的发布/订阅通信模型 / 2.3 域/域参与者",
+          "page_print": 7,
+          "page_physical": 13,
+          "score": 0.6049
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q009",
+      "question": "XML配置实体 QoS有哪些可用的策略参数？如何配置不同的 QoS级别？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_1_XML配置说明_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.1 XML配置说明",
+          "page_print": 248,
+          "page_physical": 254,
+          "score": 0.7359
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_4_设置及获取QoS策略_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第5章 实体 / 5.1 实体的相关操作 / 5.1.4 设置及获取QoS策略",
+          "page_print": 28,
+          "page_physical": 34,
+          "score": 0.6992
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_4_设置及获取QoS策略_5_1_4_2_在创建实体前修改QoS策略的缺省值_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第5章 实体 / 5.1 实体的相关操作 / 5.1.4 设置及获取QoS策略 / 5.1.4.2 在创建实体前修改QoS策略的缺省值",
+          "page_print": 29,
+          "page_physical": 35,
+          "score": 0.6748
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_2_编写QoS配置文件_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.2 编写QoS配置文件",
+          "page_print": 248,
+          "page_physical": 254,
+          "score": 0.6685
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_4_设置及获取QoS策略_5_1_4_4_在创建实体后设置QoS策略_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第5章 实体 / 5.1 实体的相关操作 / 5.1.4 设置及获取QoS策略 / 5.1.4.4 在创建实体后设置QoS策略",
+          "page_print": 30,
+          "page_physical": 36,
+          "score": 0.6666
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q010",
+      "question": "ZRDDS v2.4与v2.3版本的主要差异是什么？需要升级吗？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_5_ZRDDS概述_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+          "page_print": 4,
+          "page_physical": 10,
+          "score": 0.6055
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_2_日志接口_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第25章 日志说明 / 25.4 日志API / 25.4.2 日志接口",
+          "page_print": 281,
+          "page_physical": 287,
+          "score": 0.601
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第26章_交互式调试日志_26_2_参数介绍_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第26章 交互式调试日志 / 26.2 参数介绍",
+          "page_print": 285,
+          "page_physical": 291,
+          "score": 0.5842
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_4_DDS介绍_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+          "page_print": 3,
+          "page_physical": 9,
+          "score": 0.5672
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第25章 日志说明 / 25.3 日志风格",
+          "page_print": 279,
+          "page_physical": 285,
+          "score": 0.5584
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q011",
+      "question": "连接失败时如何查看日志和排查错误？常见错误原因有哪些？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第27章_分布式日志_27_2_日志信息_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第27章 分布式日志 / 27.2 日志信息",
+          "page_print": 288,
+          "page_physical": 294,
+          "score": 0.5725
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_2_日志接口_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第25章 日志说明 / 25.4 日志API / 25.4.2 日志接口",
+          "page_print": 281,
+          "page_physical": 287,
+          "score": 0.5609
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_6_查找DataReader的Status_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.6 查找DataReader的Status",
+          "page_print": 107,
+          "page_physical": 113,
+          "score": 0.556
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_1_日志级别_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第25章 日志说明 / 25.1 日志级别",
+          "page_print": 278,
+          "page_physical": 284,
+          "score": 0.5535
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_s_PART_9参数配置_第23章_可配置性_23_2_可配置参数_23_2_1_全局配置_23_2_1_1_可配置项_00001",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 9参数配置 / 第23章 可配置性 / 23.2 可配置参数 / 23.2.1 全局配置 / 23.2.1.1 可配置项",
+          "page_print": 264,
+          "page_physical": 270,
+          "score": 0.5535
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q012",
+      "question": "如何忽略远程域参与者？使用 ignore_participant()方法的场景是什么？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_10_通信管理_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.10 通信管理",
+          "page_print": 57,
+          "page_physical": 63,
+          "score": 0.7606
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_11_域信息查询_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.11 域信息查询",
+          "page_print": 57,
+          "page_physical": 63,
+          "score": 0.5842
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant",
+          "page_print": 48,
+          "page_physical": 54,
+          "score": 0.5812
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_1_创建DomainParticipant_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.1 创建DomainParticipant",
+          "page_print": 49,
+          "page_physical": 55,
+          "score": 0.5704
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_5_设置DomainParticipant的Listener_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.5 设置DomainParticipant的Listener",
+          "page_print": 54,
+          "page_physical": 60,
+          "score": 0.5654
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q013",
+      "question": "安装 ZRDDS 前需要满足哪些系统环境要求？Windows/macOS/Linux分别支持吗？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_5_在Linux平台配置ZRDDS应用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.5 在Linux平台配置ZRDDS应用",
+          "page_print": 177,
+          "page_physical": 183,
+          "score": 0.6606
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_3_使用步骤_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.3 使用步骤",
+          "page_print": 276,
+          "page_physical": 282,
+          "score": 0.6466
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_2_软件安装指南_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.2 软件安装指南",
+          "page_print": 168,
+          "page_physical": 174,
+          "score": 0.6409
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_2_Licence授权方式_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.2 Licence授权方式",
+          "page_print": 276,
+          "page_physical": 282,
+          "score": 0.6262
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_4_在Windows平台上配置ZRDDS应用_11_3_2_使用zrddsgen编译器_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.4 在Windows平台上配置ZRDDS应用 / 11.3.2 使用zrddsgen编译器",
+          "page_print": 172,
+          "page_physical": 178,
+          "score": 0.6248
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q014",
+      "question": "简化接口与普通接口的区别是什么？使用简化接口有哪些注意事项？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第19章_简化接口SUSTAIN_19_1_简化接口SUSTAIN的使用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用",
+          "page_print": 247,
+          "page_physical": 253,
+          "score": 0.6379
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第18章_简化接口_18_1_简化接口的使用_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用",
+          "page_print": 242,
+          "page_physical": 248,
+          "score": 0.6213
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART5_C语言接口_第15章_C接口_15_3_C接口使用的注意事项_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART5 C语言接口 / 第15章 C接口 / 15.3 C接口使用的注意事项",
+          "page_print": 230,
+          "page_physical": 236,
+          "score": 0.5538
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第18章_简化接口_18_2_简化接口代码示例_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.2 简化接口代码示例",
+          "page_print": 246,
+          "page_physical": 252,
+          "score": 0.5519
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第13章_TCP并发传输_13_2_配置说明_13_2_2_接收端配置说明_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 4 深入理解 / 第13章  TCP并发传输 / 13.2 配置说明 / 13.2.2 接收端配置说明",
+          "page_print": 200,
+          "page_physical": 206,
+          "score": 0.5478
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q015",
+      "question": "ZRDDS开发指南中的FAQ章节提供了哪些常见问题解答？",
+      "retrieved": [
+        {
+          "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_5_ZRDDS概述_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+          "page_print": 4,
+          "page_physical": 10,
+          "score": 0.6257
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_2_日志接口_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第25章 日志说明 / 25.4 日志API / 25.4.2 日志接口",
+          "page_print": 281,
+          "page_physical": 287,
+          "score": 0.6247
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_9参数配置_第23章_可配置性_22_2_DDS应用配置_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 9参数配置 / 第23章 可配置性 / 22.2 DDS应用配置",
+          "page_print": 263,
+          "page_physical": 269,
+          "score": 0.6147
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_3_使用步骤_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.3 使用步骤",
+          "page_print": 276,
+          "page_physical": 282,
+          "score": 0.601
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_3_生成自定义数据类型文件_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.3 生成自定义数据类型文件",
+          "page_print": 171,
+          "page_physical": 177,
+          "score": 0.6002
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    }
+  ],
+  "compare_baseline": null,
+  "notes": [
+    "评测口径为占位：页码按印刷页匹配（印刷页 = 物理页 − 6），最终判对口径待成员 C 定版（指南 §6 任务分解）。",
+    "本次无期望来源标注（expected_sources 缺失）：仅记录检索结果，指标为空；正式标注由成员 E 随问题集交付、成员 C 定口径（见 evaluation/datasets/README.md）。"
+  ]
+}

@@ -4,11 +4,13 @@
 
 ## 快速开始（第一周脚本落地后生效）
 
+> Windows 前置：需安装一次 GNU Make 并保证 `make --version` 可用（如 `choco install make`、winget，或 [GnuWin32](https://sourceforge.net/projects/ezwinports/)）；macOS/Linux 自带。
+
 ```bash
 cp .env.example .env      # 填写密钥
 make setup                # 建环境并安装依赖
-make ingest  CFG=configs/experiments/struct_v1.yaml
-make index   CFG=configs/experiments/struct_v1.yaml
+make ingest  CFG=configs/experiments/example_v1.yaml
+make index   CFG=configs/experiments/example_v1.yaml
 make serve                # 启动 API
 ```
 

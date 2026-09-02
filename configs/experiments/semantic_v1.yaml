@@ -1,0 +1,67 @@
+# =====================================================================
+# RAG4ZRDDS 实验配置 · semantic_v1（A 第二周交付：纯语义分块）
+# 与 struct_v1.yaml 唯一差异在 chunking: 段；其余字段保持可比性
+# （sources/embedding/retrieval/evaluation 全同基线）。
+# Node 集生成：python -m data_pipeline.chunkers.semantic <pages> <tree> <out> bge-m3
+#   或 make ingest CFG=configs/experiments/semantic_v1.yaml
+# =====================================================================
+schema_version: 1
+
+experiment:
+  name: semantic_v1
+  description: A 第二周方案B：SemanticSplitterNodeParser 语义分块（breakpoint 95 / buffer 1）+ bge-m3 向量检索（Top-K）
+  stage: baseline
+
+sources:
+  - id: user_manual
+    type: pdf
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"
+
+ingest:
+  cleaned_output: data/cleaned/pages.jsonl
+  quality_check: true
+
+chunking:
+  method: semantic
+  version: v1
+  params:
+    max_chunk_chars: 2500
+    overlap_chars: 200
+    breakpoint_percentile_threshold: 95   # 指南 §6.2 建议起点
+    buffer_size: 1
+    embed_model: bge-m3                   # bge-m3 真实语义 | mock 冒烟
+
+embedding:
+  provider: local
+  model: bge-m3
+  batch_size: 32
+  device: cpu
+
+index:
+  backend: chroma
+  metric: cosine
+
+retrieval:
+  mode: vector
+  top_k: 5
+  candidate_top_k: 30
+  filters: {}
+  source_priority: []
+  params: {}
+
+generation:
+  enabled: false
+  prompt_version: v0
+  llm_env_prefix: LLM_
+
+evaluation:
+  dataset: evaluation/datasets/questions.jsonl
+  expected_sources: evaluation/datasets/expected_sources.jsonl
+  retrieval_metrics: [hit_rate@5, mrr@5]
+  response_metrics: []
+  sample_size: null
+
+report:
+  dir: evaluation/reports
+  compare_baseline: struct_v1

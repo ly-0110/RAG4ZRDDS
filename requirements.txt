@@ -1,32 +1,50 @@
-# 版本说明：第一周由成员 B 锁定具体版本后回填精确 pin。
+# 版本锁定：成员 B 于第一周在 Windows / Python 3.12 / CPU 环境实测锁定。
+# 安装建议（团队约定走国内源）：
+#   pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+# 说明：bge-m3 等模型首次运行需从 HuggingFace 下载（约 2.2GB），国内可先设：
+#   HF_ENDPOINT=https://hf-mirror.com
+
 # ===== 核心编排 =====
-llama-index-core>=0.11,<0.13
+llama-index-core==0.12.52.post1
 
 # ===== PDF / HTML 解析 =====
-pymupdf>=1.24
-beautifulsoup4>=4.12
-lxml>=5.2
+pymupdf==1.28.2
+beautifulsoup4==4.15.0
+lxml==6.1.2
 
 # ===== 向量库（本地原型，二选一保留）=====
-chromadb>=0.5
+chromadb==1.5.9
 # faiss-cpu>=1.8
 
 # ===== 检索 =====
-rank-bm25>=0.2.2
+rank-bm25==0.2.2
+
+# ===== 本地 Embedding（bge-m3）=====
+llama-index-embeddings-huggingface==0.5.5
+sentence-transformers==6.0.0
+torch==2.13.0
+transformers==5.16.1
+huggingface-hub==1.29.0
 
 # ===== 服务 =====
-fastapi>=0.115
-uvicorn[standard]>=0.30
-pydantic-settings>=2.4
-python-dotenv>=1.0
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+pydantic==2.13.4
+pydantic-settings==2.15.0
+python-dotenv==1.2.3
+pyyaml==6.0.3            # 实验配置加载（scripts/experiment_config.py 直接依赖）
 
 # ===== 实验/评测 =====
-numpy
-pandas
-tqdm
-scikit-learn
+numpy==2.5.2
+pandas==3.0.5
+tqdm==4.70.0
+scikit-learn==1.9.0
+
+# ===== 测试 =====
+pytest==9.1.1
+
+# ===== LLM（OpenAI 兼容 · 成员 C 第一周）=====
+openai==2.46.0           # 生成侧流式调用，任何 OpenAI 兼容服务通用
 
 # ===== 可选（按需启用）=====
-# openai或其他模型         # LLM API 接入
 # mcp>=1.0              # 第四周 MCP Server 封装
-# sentence-transformers>=3.0   # 本地 Embedding/Reranker

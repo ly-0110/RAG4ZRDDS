@@ -1,0 +1,68 @@
+# =====================================================================
+# RAG4ZRDDS 实验配置 · hybrid_v1（A 第二周交付：结构+语义混合分块）
+# 结构感知为主（同 struct_v1），超阈值子节内容用语义二次切分；
+# 预期主推方案（既定决策 §6.2/§15）。
+# Node 集生成：python -m data_pipeline.chunkers.hybrid <pages> <tree> <out> bge-m3
+#   或 make ingest CFG=configs/experiments/hybrid_v1.yaml
+# =====================================================================
+schema_version: 1
+
+experiment:
+  name: hybrid_v1
+  description: A 第二周方案C：结构感知 + 超限语义二次切分（breakpoint 95 / buffer 1）+ bge-m3 向量检索（Top-K）
+  stage: baseline
+
+sources:
+  - id: user_manual
+    type: pdf
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"
+
+ingest:
+  cleaned_output: data/cleaned/pages.jsonl
+  quality_check: true
+
+chunking:
+  method: hybrid
+  version: v1
+  params:
+    max_chunk_chars: 2500
+    overlap_chars: 200
+    large_section_thresh: 2500
+    breakpoint_percentile_threshold: 95
+    buffer_size: 1
+    embed_model: bge-m3                   # bge-m3 真实语义 | mock 冒烟
+
+embedding:
+  provider: local
+  model: bge-m3
+  batch_size: 32
+  device: cpu
+
+index:
+  backend: chroma
+  metric: cosine
+
+retrieval:
+  mode: vector
+  top_k: 5
+  candidate_top_k: 30
+  filters: {}
+  source_priority: []
+  params: {}
+
+generation:
+  enabled: false
+  prompt_version: v0
+  llm_env_prefix: LLM_
+
+evaluation:
+  dataset: evaluation/datasets/questions.jsonl
+  expected_sources: evaluation/datasets/expected_sources.jsonl
+  retrieval_metrics: [hit_rate@5, mrr@5]
+  response_metrics: []
+  sample_size: null
+
+report:
+  dir: evaluation/reports
+  compare_baseline: struct_v1
