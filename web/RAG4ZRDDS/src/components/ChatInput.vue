@@ -6,27 +6,27 @@
         v-model="userInput"
         :placeholder="placeholder"
         rows="3"
-        @keydown.enter.prevent="handleEnterKey"
+        @keydown.enter="handleEnterKey"
         @input="updateLength"
-        :disabled="isLoading"
+        :disabled="loading"
       ></textarea>
-      
+
       <!-- 提交按钮区域 -->
       <div class="submit-area">
-        <span class="word-count">{{ userInput.length }}/200</span>
-        <button 
-          :disabled="!isValidSubmit || isLoading" 
+        <span class="word-count">{{ userInput.length }}/{{ MAX_LENGTH }}</span>
+        <button
+          :disabled="!canSubmit"
           @click="handleSubmit"
           class="submit-btn"
         >
-          {{ submitButtonText }}
-          <span v-if="isLoading" class="loading-icon">⏳</span>
+          {{ loading ? '回答中...' : '提问' }}
+          <span v-if="loading" class="loading-icon">⏳</span>
         </button>
       </div>
     </div>
-    
-    <!-- 提示信息区域 -->
-    <div v-if="!hasAnswer && !isLoading" class="tip-box">
+
+    <!-- 提示信息区域（尚无回答且空闲时显示） -->
+    <div v-if="!hasAnswer && !loading" class="tip-box">
       <p class="tip-title">💡 提问示例：</p>
       <ul class="tips-list">
         <li>如何调用 DataWriter API?</li>
@@ -35,96 +35,56 @@
         <li>v2.4 版本新增了哪些功能</li>
       </ul>
     </div>
-    
-    <!-- 空状态占位 -->
-    <div v-if="!hasAnswer && !isLoading" class="empty-state">
-      <p>输入问题后按 Enter 或点击「提问」按钮</p>
-    </div>
   </div>
 </template>
 
 <script setup>
+// 纯输入组件（2026-08-29 接线修复）：只负责输入交互，提问动作通过
+// submit 事件交给父组件（App.vue）统一走 /query SSE——组件内不再自发请求。
 import { ref, computed } from 'vue'
 
-// API 接口地址（根据项目第 5 节 /query SSE）<source id="6">
-const API_URL = '/query'
+const props = defineProps({
+  loading: { type: Boolean, default: false },   // 后端是否正在回答
+  hasAnswer: { type: Boolean, default: false }, // 是否已有回答/引用（隐藏示例提示）
+})
+const emit = defineEmits(['submit'])
 
-// 响应式数据
 const userInput = ref('')
-const hasAnswer = ref(false)
-const isLoading = ref(false)
-let abortController = null
-let debounceTimer = null
 
-// 字数限制（第一周核心：200字符）<source id="1">
+// 字数限制（前端先行约束；后端 QueryRequest 上限 2000）
 const MAX_LENGTH = 200
 
-// 按钮文本
-const submitButtonText = computed(() => isLoading.value ? '提问中...' : '提问')
-
-// 是否可提交
-const isValidSubmit = computed(() => userInput.value.trim().length > 0 && !isLoading.value)
-
-// 占位符
-const placeholder = computed(() => 
-  userInput.value.length >= MAX_LENGTH 
-    ? '请精简问题内容' 
-    : '请输入问题，例如：ZRDDS用户手册.pdf第42页关于API调用的说明...'
+const canSubmit = computed(
+  () => userInput.value.trim().length > 0 && !props.loading,
 )
 
-// 更新字符数
+const placeholder = computed(() =>
+  userInput.value.length >= MAX_LENGTH
+    ? '请精简问题内容'
+    : '请输入问题，例如：ZRDDS 用户手册.pdf 第 42 页关于 API 调用的说明...',
+)
+
+// 超过上限即截断
 const updateLength = () => {
-  if (userInput.value.length >= MAX_LENGTH) {
+  if (userInput.value.length > MAX_LENGTH) {
     userInput.value = userInput.value.slice(0, MAX_LENGTH)
   }
 }
 
-// 处理 Enter 键提交（需 Ctrl/Cmd + Enter）<source id="6">
+// Enter 提交；Shift+Enter 换行（与占位提示"按 Enter 提交"一致）
 const handleEnterKey = (e) => {
-  if (e.ctrlKey || e.metaKey) {
-    handleSubmit()
-  }
+  if (e.shiftKey) return
+  e.preventDefault()
+  handleSubmit()
 }
 
-// 提交查询
-const handleSubmit = async () => {
-  if (!userInput.value.trim()) return
-  
+const handleSubmit = () => {
   const question = userInput.value.trim()
-  hasAnswer.value = false
-  
-  // 创建新的 AbortController 支持取消前一次请求
-  abortController?.abort()
-  abortController = new AbortController()
-  
-  try {
-    isLoading.value = true
-    
-    // 调用 SSE 接口（实际使用时修改为真实 API_URL）<source id="6">
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question }),
-      signal: abortController.signal
-    })
-
-    if (!response.ok) throw new Error(response.statusText)
-
-    // 开始流式接收回答（这里只提交，实际 SSE 处理在 StreamingResponse 组件）
-    console.log('问题已提交:', question)
-  } catch (error) {
-    console.error('提问失败:', error)
-    alert('请求异常，请检查后端服务是否启动（make serve）')
-  } finally {
-    isLoading.value = false
-  }
+  if (!question || props.loading) return
+  emit('submit', question)
 }
 
-// 暴露给父组件的 props<source id="6">
-defineExpose({
-  question: userInput,
-  submitQuestion: handleSubmit
-})
+defineExpose({ question: userInput })
 </script>
 
 <style scoped>
@@ -209,7 +169,7 @@ textarea:focus {
 }
 
 .loading-icon {
-  font-size: 16px;
+  font-size: 14px;
   animation: spin 1s linear infinite;
 }
 
@@ -228,7 +188,7 @@ textarea:focus {
 }
 
 .tip-title {
-  font-weight: 600;
+  font-weight: bold;
   margin-bottom: 8px;
 }
 
@@ -238,14 +198,7 @@ textarea:focus {
 }
 
 .tips-list li {
-  margin-bottom: 6px;
+  margin: 4px 0;
   color: #555;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 30px;
-  color: #999;
-  font-size: 14px;
 }
 </style>
