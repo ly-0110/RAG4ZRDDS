@@ -21,7 +21,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from server.api import query, sources
 from server.core.pipeline import build_pipeline
 from server.core.request_log import JsonlLog, PersistentSourcesStore
-from server.core.settings import Settings, settings as app_settings
+from server.core.settings import REPO_ROOT, Settings, settings as app_settings
 
 # FastAPI/Starlette 在请求体无法解码（典型：中文 Windows 终端按 GBK 发送）时的原始报错
 _BODY_PARSE_MSG = "There was an error parsing the body"
@@ -45,7 +45,7 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
 
     log_dir = Path(cfg.log_dir)
     if not log_dir.is_absolute():
-        log_dir = Path.cwd() / log_dir
+        log_dir = REPO_ROOT / log_dir
     request_log = JsonlLog(log_dir / "requests.jsonl")
     sources_store = PersistentSourcesStore(log_dir / "sources.jsonl", cfg.sources_cache_size)
 
