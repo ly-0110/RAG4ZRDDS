@@ -61,7 +61,7 @@ const canSubmit = computed(
 const placeholder = computed(() =>
   userInput.value.length >= MAX_LENGTH
     ? '请精简问题内容'
-    : '请输入问题，例如：ZRDDS 用户手册.pdf 第 42 页关于 API 调用的说明...',
+    : '请输入问题，例如：ZRDDS用户手册.pdf第42页关于API调用的说明...',
 )
 
 // 超过上限即截断

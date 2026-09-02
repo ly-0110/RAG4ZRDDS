@@ -1,0 +1,73 @@
+# =====================================================================
+# RAG4ZRDDS 实验配置 · 第一周正式基线（struct_v1）
+# 由 example_v1.yaml 复制而来：结构感知分块(struct/v1) + bge-m3 向量检索 Top-5。
+# 逐参数说明见同目录 README.md。
+#   * 一次实验一个 yaml；文件名 = 实验 ID，下游产物命名全部由此派生
+#   * 固定字段写错会被校验拦截；各 params: 下为对应 Owner 的自由区
+#   * 本文件入 Git：不要上传你的apikey，只允许引用 .env 的环境变量名
+# =====================================================================
+schema_version: 1
+
+experiment:                        # ── 实验身份
+  name: struct_v1                 # 必须与文件名一致（脚本强制校验）；复制本模板后改成新实验名
+  description: 第一周基线：结构感知分块 + bge-m3 向量检索（Top-K）
+  stage: baseline                  # baseline | ablation | regression | product
+
+sources:                           # ── 知识源注册表
+  - id: user_manual                # metadata.source_name 引用名，全配置唯一
+    type: pdf                      # pdf | html
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"                 # 文档版本＝A 的 metadata.version 真值（手册标 2.0；2.4 留给第三周 HTML 源）
+    # url: https://...             # type: html 时必填；PDF 留空
+
+ingest:                            # ── raw → cleaned 编排（D）
+  cleaned_output: data/cleaned/pages.jsonl
+  quality_check: true              # 流水线内执行 A 的质量检查（指南 §16 清单）
+
+chunking:                          # ── 分块方案（格式 D 定 / 参数 A 填）
+  method: struct                   # struct | semantic | hybrid | fixed
+  version: v1                      # 方案版本号；Node 集 = data/processed/{method}_{version}.jsonl
+  params:                          # ◆ 参数袋：原样透传给 A 的 chunker 实现
+    max_chunk_chars: 2500          #   单块字符上限（§6.2：2500 附近）
+    overlap_chars: 200             #   超长段兜底切分的重叠窗口
+    large_section_thresh: 2500     #   超大节下切阈值（缺省=max_chunk_chars）
+    # 注：以三级节为知识单元、表格/代码块原子保护是 struct 方案内置行为，
+    #     无独立开关；勿再加 example 模板里的 unit_level/sub_split 等键（A 不消费）。
+
+embedding:                         # ── Embedding（B）
+  provider: local                  # local | api
+  model: bge-m3
+  batch_size: 32
+  device: cpu
+  # api_key_env: EMBED_API_KEY     # provider: api 时必填（值从 .env 读）
+
+index:                             # ── 索引生命周期（D）
+  backend: chroma                  # chroma | faiss
+  metric: cosine                   # cosine | ip | l2
+  # 子目录自动命名 = {chunking.method}_{embedding.model}_{hash8}
+  # hash8 = sha256(本配置规范化内容) 前 8 位 —— 一键重建与回切的基础
+
+retrieval:                         # ── 检索（B）
+  mode: vector                     # vector | bm25 | hybrid | hybrid_rerank
+  top_k: 5                         # 各对比方案间必须一致（§6.2 公平性约束）
+  candidate_top_k: 30              # 仅 mode=hybrid_rerank 生效（§8.2 Top30→Top5）
+  # rerank_model: bge-reranker-v2-m3   # mode=hybrid_rerank 时必填
+  filters: {}                      # metadata 过滤条件，如 {version: "2.4"}
+  source_priority: []              # 来源优先级，高在前（§8.4）
+  params: {}                       # ◆ 参数袋：B 自由区（bm25 k1/b、融合权重…）
+
+generation:                        # ── 生成（C）
+  enabled: false                   # 第一周只评检索；第二周置 true
+  prompt_version: v0               # 对应 generation/prompts/v0
+  llm_env_prefix: LLM_             # 读 .env 中 LLM_PROVIDER/BASE_URL/API_KEY/MODEL
+
+evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）
+  dataset: evaluation/datasets/questions.jsonl
+  expected_sources: evaluation/datasets/expected_sources.jsonl
+  retrieval_metrics: [hit_rate@5, mrr@5]   # 另支持 precision@K / recall@K
+  response_metrics: []             # 第二周起：faithfulness / answer_relevance 等
+  sample_size: null                # null=全集；联调冒烟可设 10
+
+report:                            # ── 回归落盘（D，§10 机制的载体）
+  dir: evaluation/reports          # 报告 = {dir}/{experiment.name}.json
+  compare_baseline: null           # 回归对比基准报告名，如 baseline.json

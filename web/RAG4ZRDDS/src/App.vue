@@ -25,7 +25,7 @@
             [{{ i + 1 }}] {{ s.source_name }} · {{ s.section }}
           </div>
           <div class="source-meta">
-            第 {{ s.page_print }} 页（物理页 {{ s.page_physical }}）·
+            第 {{ s.page_print }} 页（物理页 {{ s.page_physical }}） ·
             相关度 {{ Number(s.score).toFixed(3) }} · {{ s.source_id }}
           </div>
         </div>
@@ -47,9 +47,9 @@
 
 <script setup>
 // 问答页面主控（2026-08-29 接线修复）：
-//   * 请求走相对路径 /query，由 vite dev server 代理到后端（见 vite.config.js）
-//   * 按 docs/api.md 的事件协议解析 SSE 四种事件：sources / token / done / error
-//   * sources → 渲染引用卡片；token → 增量拼答案；done → 收尾；error → 可读错误框
+//  * 请求走相对路径 /query，由 vite dev server 代理到后端（见 vite.config.js）
+//  * 按 docs/api.md 的事件协议解析 SSE 四种事件：sources / token / done / error
+//  * sources → 渲染引用卡片；token → 增量拼答案；done → 收尾；error → 可读错误框
 import { ref, computed } from 'vue'
 import ChatInput from './components/ChatInput.vue'
 

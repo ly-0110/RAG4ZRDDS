@@ -1,0 +1,834 @@
+{
+  "schema": "rag4zrdds.report/v1",
+  "experiment": "semantic_v1",
+  "stage": "baseline",
+  "config_hash8": "7cea7efc",
+  "generated_at": "2026-09-01T17:13:46+0800",
+  "duration_seconds": 10.8,
+  "index": {
+    "dirname": "semantic_bge-m3_7cea7efc",
+    "backend": "chroma",
+    "metric": "cosine"
+  },
+  "retrieval": {
+    "mode": "vector",
+    "top_k": 5
+  },
+  "dataset": {
+    "questions": "evaluation/datasets/questions.jsonl",
+    "expected_sources": "evaluation/datasets/expected_sources.jsonl",
+    "total": 15,
+    "evaluated": 0,
+    "skipped_no_expected": [
+      "Q001",
+      "Q002",
+      "Q003",
+      "Q004",
+      "Q005",
+      "Q006",
+      "Q007",
+      "Q008",
+      "Q009",
+      "Q010",
+      "Q011",
+      "Q012",
+      "Q013",
+      "Q014",
+      "Q015"
+    ]
+  },
+  "metrics": {
+    "hit_rate@5": null,
+    "mrr@5": null
+  },
+  "per_question": [
+    {
+      "id": "Q001",
+      "question": "如何调用 ZRDDS 简化接口 connect()？需要提供哪些参数？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00890",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用 / 18.1.1 开发流程",
+          "page_print": 242,
+          "page_physical": 248,
+          "score": 0.7139
+        },
+        {
+          "node_id": "semantic_v1_00889",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用 / 18.1.1 开发流程",
+          "page_print": 242,
+          "page_physical": 248,
+          "score": 0.6845
+        },
+        {
+          "node_id": "semantic_v1_00862",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第16章 标准协议接口 / 16.2 标准协议接口代码示例 / 16.1.2 主要接口介绍",
+          "page_print": 235,
+          "page_physical": 241,
+          "score": 0.6536
+        },
+        {
+          "node_id": "semantic_v1_00966",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART8RapidIO使用 / 第22章  华睿2号+SylixOS系统上RapidIO使用 / 22.1 运行代理程序",
+          "page_print": 263,
+          "page_physical": 269,
+          "score": 0.6397
+        },
+        {
+          "node_id": "semantic_v1_00947",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART8RapidIO使用 / 第21章 RapidIO处理规程 / 21.2 RapidIO通信配置模块",
+          "page_print": 257,
+          "page_physical": 263,
+          "score": 0.6397
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q002",
+      "question": "如何配置 ZRDDS 安装后的环境变量？系统环境变量中新增了哪些变量？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00638",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.2 软件安装指南",
+          "page_print": 170,
+          "page_physical": 176,
+          "score": 0.7605
+        },
+        {
+          "node_id": "semantic_v1_00637",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.2 软件安装指南",
+          "page_print": 170,
+          "page_physical": 176,
+          "score": 0.7107
+        },
+        {
+          "node_id": "semantic_v1_00633",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.37 PropertyQosPolicy(DDS Extension) / 10.37.3 数据压缩特性 / 10.37.3.2 代码示例",
+          "page_print": 168,
+          "page_physical": 174,
+          "score": 0.6366
+        },
+        {
+          "node_id": "semantic_v1_00966",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART8RapidIO使用 / 第22章  华睿2号+SylixOS系统上RapidIO使用 / 22.1 运行代理程序",
+          "page_print": 263,
+          "page_physical": 269,
+          "score": 0.6249
+        },
+        {
+          "node_id": "semantic_v1_00967",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART8RapidIO使用 / 第22章  华睿2号+SylixOS系统上RapidIO使用 / 22.1 运行代理程序",
+          "page_print": 263,
+          "page_physical": 269,
+          "score": 0.6184
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q003",
+      "question": "E1003 错误码代表什么含义？如何排查该错误？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00503",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.13 LogQosPolicy",
+          "page_print": 136,
+          "page_physical": 142,
+          "score": 0.5476
+        },
+        {
+          "node_id": "semantic_v1_00751",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 4 深入理解 / 第13章  TCP并发传输 / 13.3 配置示例 / 13.3.1 TCP多核传输配置示例",
+          "page_print": 204,
+          "page_physical": 210,
+          "score": 0.5297
+        },
+        {
+          "node_id": "semantic_v1_00908",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 247,
+          "page_physical": 253,
+          "score": 0.5279
+        },
+        {
+          "node_id": "semantic_v1_00240",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第7章 主题 / 7.3 ContentFilteredTopic / 7.3.1 ContentFilteredTopic介绍",
+          "page_print": 66,
+          "page_physical": 72,
+          "score": 0.5278
+        },
+        {
+          "node_id": "semantic_v1_00502",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.12 LivelinessQosPolicy",
+          "page_print": 135,
+          "page_physical": 141,
+          "score": 0.5223
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q004",
+      "question": "使用 ZRDDS DomainParticipant.connect()需要满足什么前置条件？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00857",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第16章 标准协议接口 / 16.1 标准协议接口的使用 / 16.1.1 开发流程",
+          "page_print": 233,
+          "page_physical": 239,
+          "score": 0.6623
+        },
+        {
+          "node_id": "semantic_v1_00197",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.5 设置DomainParticipant的Listener / 6.3.4.3 获取及设置子实体的缺省QoS策略",
+          "page_print": 55,
+          "page_physical": 61,
+          "score": 0.6597
+        },
+        {
+          "node_id": "semantic_v1_00873",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第17章 扩展接口 / 17.1 扩展接口的使用 / 17.1.2 主要接口介绍",
+          "page_print": 238,
+          "page_physical": 244,
+          "score": 0.659
+        },
+        {
+          "node_id": "semantic_v1_00176",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.1 创建DomainParticipant",
+          "page_print": 50,
+          "page_physical": 56,
+          "score": 0.6557
+        },
+        {
+          "node_id": "semantic_v1_00153",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第5章 实体 / 5.5 Condition与WaitSets / 5.5.8 同时使用Listeners和WaitSets",
+          "page_print": 43,
+          "page_physical": 49,
+          "score": 0.6557
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q005",
+      "question": "安装 ZRDDS 后是否需要重启计算机？为什么？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00638",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.2 软件安装指南",
+          "page_print": 170,
+          "page_physical": 176,
+          "score": 0.7186
+        },
+        {
+          "node_id": "semantic_v1_00637",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.2 软件安装指南",
+          "page_print": 170,
+          "page_physical": 176,
+          "score": 0.6543
+        },
+        {
+          "node_id": "semantic_v1_01014",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.1 适用范围 / 24.1.2 宿主机操作系统",
+          "page_print": 276,
+          "page_physical": 282,
+          "score": 0.6251
+        },
+        {
+          "node_id": "semantic_v1_00728",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 4 深入理解 / 第12章 可靠通信模型 / 12.3 QoS策略对通信模型的影响 / 12.3.5 实例管理",
+          "page_print": 197,
+          "page_physical": 203,
+          "score": 0.6244
+        },
+        {
+          "node_id": "semantic_v1_00955",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART8RapidIO使用 / 第21章 RapidIO处理规程 / 21.2 RapidIO通信配置模块",
+          "page_print": 259,
+          "page_physical": 265,
+          "score": 0.6241
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q006",
+      "question": "如何编写 QoS 策略配置文件？XML 配置文件的结构是什么？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00913",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 248,
+          "page_physical": 254,
+          "score": 0.7258
+        },
+        {
+          "node_id": "semantic_v1_00878",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第17章 扩展接口 / 17.2 标准协议接口代码示例",
+          "page_print": 239,
+          "page_physical": 245,
+          "score": 0.7188
+        },
+        {
+          "node_id": "semantic_v1_00925",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.2 编写QoS配置文件",
+          "page_print": 251,
+          "page_physical": 257,
+          "score": 0.6844
+        },
+        {
+          "node_id": "semantic_v1_00911",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 248,
+          "page_physical": 254,
+          "score": 0.6772
+        },
+        {
+          "node_id": "semantic_v1_00915",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.2 编写QoS配置文件",
+          "page_print": 249,
+          "page_physical": 255,
+          "score": 0.666
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q007",
+      "question": "SUSTAIN 简化接口的生命周期如何管理？使用步骤有哪些？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00907",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 247,
+          "page_physical": 253,
+          "score": 0.7053
+        },
+        {
+          "node_id": "semantic_v1_00909",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 247,
+          "page_physical": 253,
+          "score": 0.6933
+        },
+        {
+          "node_id": "semantic_v1_00889",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用 / 18.1.1 开发流程",
+          "page_print": 242,
+          "page_physical": 248,
+          "score": 0.5702
+        },
+        {
+          "node_id": "semantic_v1_00927",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.2 编写QoS配置文件",
+          "page_print": 251,
+          "page_physical": 257,
+          "score": 0.5691
+        },
+        {
+          "node_id": "semantic_v1_00894",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用 / 18.1.1 开发流程",
+          "page_print": 243,
+          "page_physical": 249,
+          "score": 0.5667
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q008",
+      "question": "如何获取已发现的域参与者信息？同步方式的步骤是什么？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00206",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.11 域信息查询",
+          "page_print": 58,
+          "page_physical": 64,
+          "score": 0.7224
+        },
+        {
+          "node_id": "semantic_v1_00207",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.11 域信息查询",
+          "page_print": 58,
+          "page_physical": 64,
+          "score": 0.6924
+        },
+        {
+          "node_id": "semantic_v1_00205",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.9 内置实体管理",
+          "page_print": 57,
+          "page_physical": 63,
+          "score": 0.6807
+        },
+        {
+          "node_id": "semantic_v1_00174",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.1 创建DomainParticipant",
+          "page_print": 49,
+          "page_physical": 55,
+          "score": 0.6551
+        },
+        {
+          "node_id": "semantic_v1_00212",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.12 其他DomainParticipant操作",
+          "page_print": 59,
+          "page_physical": 65,
+          "score": 0.6388
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q009",
+      "question": "XML配置实体 QoS有哪些可用的策略参数？如何配置不同的 QoS级别？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00878",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第17章 扩展接口 / 17.2 标准协议接口代码示例",
+          "page_print": 239,
+          "page_physical": 245,
+          "score": 0.7591
+        },
+        {
+          "node_id": "semantic_v1_00911",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 248,
+          "page_physical": 254,
+          "score": 0.7553
+        },
+        {
+          "node_id": "semantic_v1_00913",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 248,
+          "page_physical": 254,
+          "score": 0.7409
+        },
+        {
+          "node_id": "semantic_v1_00925",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.2 编写QoS配置文件",
+          "page_print": 251,
+          "page_physical": 257,
+          "score": 0.7175
+        },
+        {
+          "node_id": "semantic_v1_00191",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.4 设置DomainParticipant的QoS策略 / 6.3.4.1 在创建DomainParticipant时配置QoS策略",
+          "page_print": 54,
+          "page_physical": 60,
+          "score": 0.6817
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q010",
+      "question": "ZRDDS v2.4与v2.3版本的主要差异是什么？需要升级吗？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00995",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 9参数配置 / 第23章 可配置性 / 23.2 可配置参数 / 23.2.2 域参与者参数 / 23.2.2.2 配置示例",
+          "page_print": 270,
+          "page_physical": 276,
+          "score": 0.5877
+        },
+        {
+          "node_id": "semantic_v1_00011",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+          "page_print": 4,
+          "page_physical": 10,
+          "score": 0.579
+        },
+        {
+          "node_id": "semantic_v1_00001",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第1章 概述 / 1.1 分布式系统",
+          "page_print": 1,
+          "page_physical": 7,
+          "score": 0.5741
+        },
+        {
+          "node_id": "semantic_v1_00900",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用 / 18.1.2 零拷贝/非零拷贝数据类型 / 18.1.2.1 非零拷贝数据类型",
+          "page_print": 245,
+          "page_physical": 251,
+          "score": 0.5727
+        },
+        {
+          "node_id": "semantic_v1_01019",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.4 常见问题",
+          "page_print": 278,
+          "page_physical": 284,
+          "score": 0.5549
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q011",
+      "question": "连接失败时如何查看日志和排查错误？常见错误原因有哪些？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00908",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 247,
+          "page_physical": 253,
+          "score": 0.6194
+        },
+        {
+          "node_id": "semantic_v1_00119",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第5章 实体 / 5.2 QoS策略 / 5.1.5 设置及获取Listener",
+          "page_print": 34,
+          "page_physical": 40,
+          "score": 0.5977
+        },
+        {
+          "node_id": "semantic_v1_00841",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART5 C语言接口 / 第15章 C接口 / 15.2 C接口使用方式",
+          "page_print": 229,
+          "page_physical": 235,
+          "score": 0.5848
+        },
+        {
+          "node_id": "semantic_v1_00682",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.6 创建ZRDDS应用程序 / 11.6.3 订阅端应用程序",
+          "page_print": 184,
+          "page_physical": 190,
+          "score": 0.5844
+        },
+        {
+          "node_id": "semantic_v1_01028",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 11ZRDDS日志使用 / 第25章 日志说明 / 25.4 日志API / 25.4.1 日志QoS / 25.4.1.1 配置示例",
+          "page_print": 281,
+          "page_physical": 287,
+          "score": 0.5843
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q012",
+      "question": "如何忽略远程域参与者？使用 ignore_participant()方法的场景是什么？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00205",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.9 内置实体管理",
+          "page_print": 57,
+          "page_physical": 63,
+          "score": 0.7496
+        },
+        {
+          "node_id": "semantic_v1_00173",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.1 创建DomainParticipant",
+          "page_print": 49,
+          "page_physical": 55,
+          "score": 0.7143
+        },
+        {
+          "node_id": "semantic_v1_00206",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.11 域信息查询",
+          "page_print": 58,
+          "page_physical": 64,
+          "score": 0.6125
+        },
+        {
+          "node_id": "semantic_v1_00663",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.6 创建ZRDDS应用程序 / 11.6.1 ZRDDS的头文件",
+          "page_print": 179,
+          "page_physical": 185,
+          "score": 0.592
+        },
+        {
+          "node_id": "semantic_v1_00684",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.6 创建ZRDDS应用程序 / 11.6.3 订阅端应用程序",
+          "page_print": 185,
+          "page_physical": 191,
+          "score": 0.591
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q013",
+      "question": "安装 ZRDDS 前需要满足哪些系统环境要求？Windows/macOS/Linux分别支持吗？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00638",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.2 软件安装指南",
+          "page_print": 170,
+          "page_physical": 176,
+          "score": 0.7078
+        },
+        {
+          "node_id": "semantic_v1_00633",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.37 PropertyQosPolicy(DDS Extension) / 10.37.3 数据压缩特性 / 10.37.3.2 代码示例",
+          "page_print": 168,
+          "page_physical": 174,
+          "score": 0.6847
+        },
+        {
+          "node_id": "semantic_v1_01014",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.1 适用范围 / 24.1.2 宿主机操作系统",
+          "page_print": 276,
+          "page_physical": 282,
+          "score": 0.6545
+        },
+        {
+          "node_id": "semantic_v1_00637",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.2 软件安装指南",
+          "page_print": 170,
+          "page_physical": 176,
+          "score": 0.6532
+        },
+        {
+          "node_id": "semantic_v1_01013",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.1 适用范围 / 24.1.2 宿主机操作系统",
+          "page_print": 276,
+          "page_physical": 282,
+          "score": 0.6418
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q014",
+      "question": "简化接口与普通接口的区别是什么？使用简化接口有哪些注意事项？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00889",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用 / 18.1.1 开发流程",
+          "page_print": 242,
+          "page_physical": 248,
+          "score": 0.6688
+        },
+        {
+          "node_id": "semantic_v1_00909",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 247,
+          "page_physical": 253,
+          "score": 0.6297
+        },
+        {
+          "node_id": "semantic_v1_00890",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用 / 18.1.1 开发流程",
+          "page_print": 242,
+          "page_physical": 248,
+          "score": 0.6276
+        },
+        {
+          "node_id": "semantic_v1_00907",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用 / 19.1.1 主要接口介绍",
+          "page_print": 247,
+          "page_physical": 253,
+          "score": 0.6208
+        },
+        {
+          "node_id": "semantic_v1_00927",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART7 XML使用 / 第20章 XML配置实体QoS / 20.2 编写QoS配置文件",
+          "page_print": 251,
+          "page_physical": 257,
+          "score": 0.6199
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    },
+    {
+      "id": "Q015",
+      "question": "ZRDDS开发指南中的FAQ章节提供了哪些常见问题解答？",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00040",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第2章 以数据为中心的发布/订阅通信模型 / 2.7 键、实例、样本",
+          "page_print": 12,
+          "page_physical": 18,
+          "score": 0.6378
+        },
+        {
+          "node_id": "semantic_v1_00011",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+          "page_print": 4,
+          "page_physical": 10,
+          "score": 0.6298
+        },
+        {
+          "node_id": "semantic_v1_00890",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第18章 简化接口 / 18.1 简化接口的使用 / 18.1.1 开发流程",
+          "page_print": 242,
+          "page_physical": 248,
+          "score": 0.6252
+        },
+        {
+          "node_id": "semantic_v1_00849",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 6 多种接口风格及开发流程 / 第16章 标准协议接口 / 16.1 标准协议接口的使用 / 16.1.1 开发流程",
+          "page_print": 231,
+          "page_physical": 237,
+          "score": 0.6248
+        },
+        {
+          "node_id": "semantic_v1_00001",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART1 背景介绍 / 第1章 概述 / 1.1 分布式系统",
+          "page_print": 1,
+          "page_physical": 7,
+          "score": 0.6233
+        }
+      ],
+      "note": "无期望来源标注（不计入指标分母）"
+    }
+  ],
+  "compare_baseline": {
+    "baseline": "struct_v1",
+    "delta": {}
+  },
+  "notes": [
+    "评测口径为占位：页码按印刷页匹配（印刷页 = 物理页 − 6），最终判对口径待成员 C 定版（指南 §6 任务分解）。",
+    "本次无期望来源标注（expected_sources 缺失）：仅记录检索结果，指标为空；正式标注由成员 E 随问题集交付、成员 C 定口径（见 evaluation/datasets/README.md）。"
+  ]
+}
