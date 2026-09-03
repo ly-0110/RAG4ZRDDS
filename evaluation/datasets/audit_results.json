@@ -1,0 +1,254 @@
+[
+  {
+    "question_id": "Q001",
+    "status": "FOUND",
+    "message": "找到 131 个相关节点",
+    "suggested_pages": [
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.3 发布/订阅模型",
+        "title": "订阅模型",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_3_发布_订阅模型_00000..."
+      },
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+        "title": "1.4 DDS介绍",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_4_DDS介绍_00000..."
+      },
+      {
+        "printed_page": "4",
+        "physical_page": "10",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+        "title": "1.5 ZRDDS概述",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_5_ZRDDS概述_00000..."
+      }
+    ]
+  },
+  {
+    "question_id": "Q002",
+    "status": "FOUND",
+    "message": "找到 131 个相关节点",
+    "suggested_pages": [
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.3 发布/订阅模型",
+        "title": "订阅模型",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_3_发布_订阅模型_00000..."
+      },
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+        "title": "1.4 DDS介绍",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_4_DDS介绍_00000..."
+      },
+      {
+        "printed_page": "4",
+        "physical_page": "10",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+        "title": "1.5 ZRDDS概述",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_5_ZRDDS概述_00000..."
+      }
+    ]
+  },
+  {
+    "question_id": "Q003",
+    "status": "NO_MATCH",
+    "message": "在 struct_v1.jsonl 中未找到相关内容",
+    "suggested_pages": []
+  },
+  {
+    "question_id": "Q004",
+    "status": "FOUND",
+    "message": "找到 226 个相关节点",
+    "suggested_pages": [
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.3 发布/订阅模型",
+        "title": "订阅模型",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_3_发布_订阅模型_00000..."
+      },
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+        "title": "1.4 DDS介绍",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_4_DDS介绍_00000..."
+      },
+      {
+        "printed_page": "4",
+        "physical_page": "10",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+        "title": "1.5 ZRDDS概述",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_5_ZRDDS概述_00000..."
+      }
+    ]
+  },
+  {
+    "question_id": "Q005",
+    "status": "FOUND",
+    "message": "找到 132 个相关节点",
+    "suggested_pages": [
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.3 发布/订阅模型",
+        "title": "订阅模型",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_3_发布_订阅模型_00000..."
+      },
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+        "title": "1.4 DDS介绍",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_4_DDS介绍_00000..."
+      },
+      {
+        "printed_page": "4",
+        "physical_page": "10",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+        "title": "1.5 ZRDDS概述",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_5_ZRDDS概述_00000..."
+      }
+    ]
+  },
+  {
+    "question_id": "Q006",
+    "status": "FOUND",
+    "message": "找到 174 个相关节点",
+    "suggested_pages": [
+      {
+        "printed_page": "4",
+        "physical_page": "10",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+        "title": "1.5 ZRDDS概述",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_5_ZRDDS概述_00000..."
+      },
+      {
+        "printed_page": "9",
+        "physical_page": "15",
+        "section": "PART1 背景介绍 / 第2章 以数据为中心的发布/订阅通信模型 / 2.6 服务质量（QoS）",
+        "title": "2.6 服务质量（QoS）",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第2章_以数据为中心的发布_订阅通信模型_2_6_服务质量_QoS_00000..."
+      },
+      {
+        "printed_page": "9",
+        "physical_page": "15",
+        "section": "PART1 背景介绍 / 第2章 以数据为中心的发布/订阅通信模型 / 2.7 键、实例、样本",
+        "title": "2.7 键、实例、样本",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第2章_以数据为中心的发布_订阅通信模型_2_7_键_实例_样本_00000..."
+      }
+    ]
+  },
+  {
+    "question_id": "Q007",
+    "status": "FOUND",
+    "message": "找到 1 个相关节点",
+    "suggested_pages": [
+      {
+        "printed_page": "247",
+        "physical_page": "253",
+        "section": "PART 6 多种接口风格及开发流程 / 第19章 简化接口SUSTAIN / 19.1 简化接口SUSTAIN的使用",
+        "title": "19.1 简化接口SUSTAIN的使用",
+        "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第19章_简化接口SUSTAIN_19_1_简化接口SUSTAIN的使用_00000..."
+      }
+    ]
+  },
+  {
+    "question_id": "Q008",
+    "status": "NO_MATCH",
+    "message": "在 struct_v1.jsonl 中未找到相关内容",
+    "suggested_pages": []
+  },
+  {
+    "question_id": "Q009",
+    "status": "NO_MATCH",
+    "message": "在 struct_v1.jsonl 中未找到相关内容",
+    "suggested_pages": []
+  },
+  {
+    "question_id": "Q010",
+    "status": "FOUND",
+    "message": "找到 131 个相关节点",
+    "suggested_pages": [
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.3 发布/订阅模型",
+        "title": "订阅模型",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_3_发布_订阅模型_00000..."
+      },
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+        "title": "1.4 DDS介绍",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_4_DDS介绍_00000..."
+      },
+      {
+        "printed_page": "4",
+        "physical_page": "10",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+        "title": "1.5 ZRDDS概述",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_5_ZRDDS概述_00000..."
+      }
+    ]
+  },
+  {
+    "question_id": "Q011",
+    "status": "NO_MATCH",
+    "message": "在 struct_v1.jsonl 中未找到相关内容",
+    "suggested_pages": []
+  },
+  {
+    "question_id": "Q012",
+    "status": "NO_MATCH",
+    "message": "在 struct_v1.jsonl 中未找到相关内容",
+    "suggested_pages": []
+  },
+  {
+    "question_id": "Q013",
+    "status": "FOUND",
+    "message": "找到 132 个相关节点",
+    "suggested_pages": [
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.3 发布/订阅模型",
+        "title": "订阅模型",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_3_发布_订阅模型_00000..."
+      },
+      {
+        "printed_page": "3",
+        "physical_page": "9",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.4 DDS介绍",
+        "title": "1.4 DDS介绍",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_4_DDS介绍_00000..."
+      },
+      {
+        "printed_page": "4",
+        "physical_page": "10",
+        "section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+        "title": "1.5 ZRDDS概述",
+        "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_5_ZRDDS概述_00000..."
+      }
+    ]
+  },
+  {
+    "question_id": "Q014",
+    "status": "NO_MATCH",
+    "message": "在 struct_v1.jsonl 中未找到相关内容",
+    "suggested_pages": []
+  },
+  {
+    "question_id": "Q015",
+    "status": "NO_MATCH",
+    "message": "在 struct_v1.jsonl 中未找到相关内容",
+    "suggested_pages": []
+  }
+]
