@@ -13,23 +13,11 @@
         <p>正在检索...</p>
       </div>
 
-      <!-- 来源引用卡片（docs/api.md v0.3：sources 事件，双页码约定 印刷页=物理页−6） -->
-      <div v-if="sources.length" class="sources-block">
-        <h3 class="sources-title">来源引用（{{ sources.length }}）</h3>
-        <div
-          v-for="(s, i) in sources"
-          :key="s.node_id"
-          class="source-card"
-        >
-          <div class="source-title">
-            [{{ i + 1 }}] {{ s.source_name }} · {{ s.section }}
-          </div>
-          <div class="source-meta">
-            第 {{ s.page_print }} 页（物理页 {{ s.page_physical }}） ·
-            相关度 {{ Number(s.score).toFixed(3) }} · {{ s.source_id }}
-          </div>
-        </div>
-      </div>
+      <!-- 来源引用卡片（使用 CitationsCard 组件） -->
+      <CitationsCard
+        :sources="sources"
+        :request-id="requestId"
+      />
 
       <!-- 流式答案正文 -->
       <pre v-if="answer" class="streaming-response">{{ answer }}</pre>
@@ -47,11 +35,12 @@
 
 <script setup>
 // 问答页面主控（2026-08-29 接线修复）：
-//  * 请求走相对路径 /query，由 vite dev server 代理到后端（见 vite.config.js）
-//  * 按 docs/api.md 的事件协议解析 SSE 四种事件：sources / token / done / error
-//  * sources → 渲染引用卡片；token → 增量拼答案；done → 收尾；error → 可读错误框
+//   * 请求走相对路径 /query，由 vite dev server 代理到后端（见 vite.config.js）
+//   * 按 docs/api.md 的事件协议解析 SSE 四种事件：sources / token / done / error
+//   * sources → 渲染引用卡片；token → 增量拼答案；done → 收尾；error → 可读错误框
 import { ref, computed } from 'vue'
 import ChatInput from './components/ChatInput.vue'
+import CitationsCard from './components/CitationsCard.vue'
 
 const API_URL = '/query' // dev 代理 → http://localhost:8000（vite.config.js）
 
@@ -60,6 +49,7 @@ const sources = ref([])
 const errorMsg = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
+const requestId = ref('') // SSE stream 会推送 request_id
 const hasContent = computed(() => answer.value !== '' || sources.value.length > 0)
 let abortController = null
 
@@ -80,11 +70,13 @@ function handleFrame(frame) {
   }
   if (eventName === 'sources') {
     sources.value = payload.sources || []
+    requestId.value = payload.request_id || ''
   } else if (eventName === 'token') {
     answer.value += payload.text
   } else if (eventName === 'done') {
     answer.value = payload.answer
     sources.value = payload.sources || sources.value
+    requestId.value = payload.request_id || requestId.value
   } else if (eventName === 'error') {
     errorMsg.value = payload.error
   }
@@ -99,6 +91,7 @@ const handleQuery = async (question) => {
   answer.value = ''
   sources.value = []
   errorMsg.value = ''
+  requestId.value = ''
   isStreaming.value = true
   isLoading.value = true
 
@@ -113,7 +106,7 @@ const handleQuery = async (question) => {
     if (!response.ok) {
       // 流开始前的错误：HTTP 4xx/5xx + JSON 体 {error}（docs/api.md 双通道约定）
       const body = await response.json().catch(() => null)
-      throw new Error(body?.error || `HTTP ${response.status} ${response.statusText}`)
+      throw new Error(body?.error || `请求失败：${response.status} ${response.statusText}`)
     }
 
     const reader = response.body.getReader()
