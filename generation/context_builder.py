@@ -6,21 +6,31 @@
   * 片段按检索器返回顺序传入（已按 score 降序），本模块不排序。
 
 示例：
-  [1] 来源：ZRDDS用户手册.pdf · 第 42 页 · 3.4 节
+  [1] 来源：ZRDDS用户手册.pdf（用户手册）· 第 42 页 · 3.4 节
   <正文…>
 
-  [2] 来源：ZRDDS用户手册.pdf · 第 47 页 · 3.5 节
+  [2] 来源：ZRDDS开发指南.html（开发者指南）· 3.4 节
   <正文…>
 """
 
 from __future__ import annotations
 
+from generation.source_labels import SOURCE_CATEGORY
+
 _SEPARATOR = "\n\n"
 
 
 def _format_source(chunk: dict) -> str:
-    """把一条富引用格式化为可读来源行；缺页/缺节时优雅降级。"""
-    parts = [chunk.get("source_name") or "未知来源"]
+    """把一条富引用格式化为可读来源行；缺页/缺节时优雅降级。
+
+    第三周多来源：文件名后追加文档类别标签（source_id → SOURCE_CATEGORY），
+    供 LLM 做冲突披露与来源优先级判断；缺 source_id 时回退到 source_type
+    （PDF/HTML），都缺则不追加，保持第一周单源格式不变。
+    """
+    name = chunk.get("source_name") or "未知来源"
+    tag = SOURCE_CATEGORY.get(chunk.get("source_id")) or _type_label(chunk.get("source_type"))
+    head = f"{name}（{tag}）" if tag else name
+    parts = [head]
     page = chunk.get("page_print")
     if page is not None:
         parts.append(f"第 {page} 页")
@@ -28,6 +38,11 @@ def _format_source(chunk: dict) -> str:
     if section:
         parts.append(section)
     return " · ".join(parts)
+
+
+def _type_label(source_type: str | None) -> str | None:
+    """source_type（'pdf'/'html'）→ 大写标签；无则 None。"""
+    return (source_type or "").upper() or None
 
 
 def build_context(chunks: list[dict]) -> str:
