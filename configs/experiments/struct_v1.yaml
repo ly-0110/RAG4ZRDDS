@@ -55,12 +55,12 @@ retrieval:                         # ── 检索（B）
   candidate_top_k: 30              # 仅 mode=hybrid_rerank 生效（§8.2 Top30→Top5）
   # rerank_model: bge-reranker-v2-m3   # mode=hybrid_rerank 时必填
   filters: {}                      # metadata 过滤条件，如 {version: "2.4"}
-  source_priority: []              # 来源优先级，高在前（§8.4）
+  source_priority: []              # 优先级草案见 docs/source-priority-draft.md（A 接入 HTML 后填 [zrdds_dev_guide, user_manual]）
   params: {}                       # ◆ 参数袋：B 自由区（bm25 k1/b、融合权重…）
 
 generation:                        # ── 生成（C）
   enabled: true                    # 第二周：接入生成与评测
-  prompt_version: v1               # 对应 generation/prompts/v1（§6.4 Grounding/Abstention）
+  prompt_version: v2               # 对应 generation/prompts/v2（§7 多来源 + §8.4 冲突披露/优先级）
   llm_env_prefix: LLM_             # 读 .env 中 LLM_PROVIDER/BASE_URL/API_KEY/MODEL
 
 evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）

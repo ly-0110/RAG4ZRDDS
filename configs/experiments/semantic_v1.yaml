@@ -47,12 +47,12 @@ retrieval:
   top_k: 5
   candidate_top_k: 30
   filters: {}
-  source_priority: []
+  source_priority: []  # 优先级草案见 docs/source-priority-draft.md
   params: {}
 
 generation:
   enabled: true
-  prompt_version: v1
+  prompt_version: v2
   llm_env_prefix: LLM_
 
 evaluation:
