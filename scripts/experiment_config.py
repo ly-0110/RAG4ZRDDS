@@ -258,12 +258,39 @@ def load(path: str | Path) -> ExperimentConfig:
 
 
 def canonical_json(cfg: ExperimentConfig) -> str:
-    """规范化序列化：键排序、紧凑分隔符。任何语义改动都会改变 hash。"""
+    """整份配置的规范化序列化：键排序、紧凑分隔符。任何语义改动都会改变结果。"""
     return json.dumps(cfg.model_dump(mode="json"), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
+# 索引身份只由「决定索引产物内容」的段派生：
+#   chunking   → Node 集（data/processed/{method}_{version}.jsonl）
+#   embedding  → 向量本身（model/provider/device/batch_size）
+#   index      → 后端与度量
+#   retrieval.mode/params/filters → mode 决定产物类型（chroma 集合 vs bm25.json），
+#                bm25 的 k1/b 会被 save 落进产物，filters 影响入库范围
+# generation / evaluation / report / experiment 与索引产物无关：改它们不该触发
+# 十分钟级别的重建（2026-09-07 实测：C 把三个 yaml 的 generation 段置 v1 后，
+# 三个真实 bge-m3 索引全部孤儿化、live 服务启动失败）。
+_INDEX_IDENTITY_SECTIONS = ("chunking", "embedding", "index")
+_INDEX_IDENTITY_RETRIEVAL_KEYS = ("mode", "params", "filters")
+
+
+def index_identity_json(cfg: ExperimentConfig) -> str:
+    """索引产物身份的规范化序列化——config_hash8 的唯一输入。"""
+    data = cfg.model_dump(mode="json")
+    identity = {k: data[k] for k in _INDEX_IDENTITY_SECTIONS if k in data}
+    retrieval = data.get("retrieval") or {}
+    identity["retrieval"] = {k: retrieval.get(k) for k in _INDEX_IDENTITY_RETRIEVAL_KEYS}
+    return json.dumps(identity, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
 def config_hash8(cfg: ExperimentConfig) -> str:
-    return hashlib.sha256(canonical_json(cfg).encode("utf-8")).hexdigest()[:8]
+    """索引目录名后缀：sha256(index_identity_json) 前 8 位。
+
+    语义＝「索引产物身份」，不是「整份配置身份」。同 chunking/embedding/index/
+    retrieval(mode,params,filters) 的实验共用同一索引目录，改生成或评测段不触发重建。
+    """
+    return hashlib.sha256(index_identity_json(cfg).encode("utf-8")).hexdigest()[:8]
 
 
 def nodes_path(cfg: ExperimentConfig) -> Path:

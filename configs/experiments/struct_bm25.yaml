@@ -63,4 +63,4 @@ evaluation:                        # ── 评测（数据集 E / 口径 C / �
 
 report:                            # ── 回归落盘（D）
   dir: evaluation/reports
-  compare_baseline: null
+  compare_baseline: struct_v1      # 「同分块、异检索」对照的基准（与 semantic/hybrid 同约定）

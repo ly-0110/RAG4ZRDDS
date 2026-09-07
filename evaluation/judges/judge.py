@@ -40,15 +40,22 @@ class JudgeResult:
 
 
 def _parse(text: str) -> tuple[int, str]:
-    """从模型输出稳健提取 (score, rationale)：先 JSON，失败退化为正则/原文。"""
+    """从模型输出稳健提取 (score, rationale)：先 JSON，失败退化为正则/原文。
+
+    LLM 输出是不可信的边界数据：顶层可能是数组/字符串/null 而非对象，
+    一律走正则兜底，不允许异常穿透中断整批评测。
+    """
     text = (text or "").strip()
     text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text).strip()
     try:
         data = json.loads(text)
-        score = int(data.get("score"))
-        return _clamp(score), str(data.get("rationale", "")).strip()
-    except (json.JSONDecodeError, TypeError, ValueError):
-        pass
+    except json.JSONDecodeError:
+        data = None
+    if isinstance(data, dict):
+        try:
+            return _clamp(int(data.get("score"))), str(data.get("rationale", "")).strip()
+        except (TypeError, ValueError):
+            pass
     m = _SCORE_RE.search(text)
     if m:
         return _clamp(int(m.group(1))), text

@@ -219,3 +219,80 @@ class TestReport:
         path = rx.write_report(cfg, report)
         assert path == tmp_path / "reports" / "struct_v1.json"
         assert json.loads(path.read_text(encoding="utf-8"))["experiment"] == "struct_v1"
+
+
+# ------------------------------------------------- R5/R6/D3 回归（2026-09-07）
+# 三条修复都必须有测试锁定：R1 事故的教训是「修复会被基于旧基线的 PR 静默覆盖」。
+
+
+class TestIndexIdentity:
+    def test_hash8_ignores_sections_irrelevant_to_index(self, cfg):
+        """R5：改生成/评测/报告段不得改变索引目录名，否则真实索引被孤儿化。"""
+        before = ec.config_hash8(cfg)
+        cfg.generation.enabled = not cfg.generation.enabled
+        cfg.generation.prompt_version = "v0" if cfg.generation.prompt_version == "v1" else "v1"
+        cfg.evaluation.response_metrics = ["faithfulness"]
+        cfg.report.compare_baseline = "anything"
+        cfg.experiment.description = "改了描述也不该触发重建"
+        assert ec.config_hash8(cfg) == before
+
+    @pytest.mark.parametrize("section,attr,value", [
+        ("embedding", "model", "bge-large-zh-v1.5"),
+        ("index", "metric", "ip"),
+        ("retrieval", "mode", "bm25"),
+    ])
+    def test_hash8_tracks_index_relevant_sections(self, cfg, section, attr, value):
+        before = ec.config_hash8(cfg)
+        setattr(getattr(cfg, section), attr, value)
+        assert ec.config_hash8(cfg) != before
+
+    def test_hash8_tracks_bm25_params_baked_into_artifact(self, cfg):
+        """k1/b 被 BM25Store.save 落进产物，属索引身份的一部分。"""
+        cfg.retrieval.mode = "bm25"
+        before = ec.config_hash8(cfg)
+        cfg.retrieval.params = {"k1": 2.0, "b": 0.5}
+        assert ec.config_hash8(cfg) != before
+
+    def test_nodes_fingerprint_ignores_line_endings(self, cfg, tmp_path, monkeypatch):
+        """R6：.gitattributes 的 `*.jsonl text eol=lf` 不得让指纹失效。"""
+        import build_index as bi
+
+        monkeypatch.setattr(ec, "REPO_ROOT", tmp_path)
+        nodes_dir = tmp_path / "data" / "processed"
+        nodes_dir.mkdir(parents=True)
+        p = nodes_dir / "struct_v1.jsonl"
+        line = '{"node_id":"n1","text":"连接失败","metadata":{}}\n'
+
+        p.write_bytes(line.encode("utf-8"))
+        as_lf = bi._nodes_file_sha12(cfg)
+        p.write_bytes(line.replace("\n", "\r\n").encode("utf-8"))
+        as_crlf = bi._nodes_file_sha12(cfg)
+
+        assert as_lf is not None
+        assert as_lf == as_crlf
+
+    def test_fingerprint_has_single_source_of_truth(self, cfg, tmp_path, monkeypatch):
+        """R6 的另一半：写入侧与校验侧必须同值，否则索引复用恒被拒绝。"""
+        import build_index as bi
+
+        monkeypatch.setattr(ec, "REPO_ROOT", tmp_path)
+        nodes_dir = tmp_path / "data" / "processed"
+        nodes_dir.mkdir(parents=True)
+        (nodes_dir / "struct_v1.jsonl").write_bytes(b'{"node_id":"n1"}\r\n')
+
+        assert rx._nodes_file_sha12(cfg) == bi._nodes_file_sha12(cfg)
+
+    def test_manifest_records_retrieval_mode(self, cfg, tmp_path):
+        """D3：bm25 索引的 manifest 不得照抄 embedding=bge-m3 / backend=chroma。"""
+        import build_index as bi
+
+        cfg.retrieval.mode = "bm25"
+        cfg.retrieval.params = {"k1": 2.0, "b": 0.5}
+        m = json.loads(
+            bi._write_manifest(tmp_path, cfg, 3, 0.1, fake=False)
+            .read_text(encoding="utf-8")
+        )
+        assert m["retrieval_mode"] == "bm25"
+        assert m["embedding"]["model"] is None
+        assert m["index"]["backend"] == "bm25-json"
+        assert m["index"]["params"] == {"k1": 2.0, "b": 0.5}

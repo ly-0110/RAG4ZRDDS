@@ -84,7 +84,9 @@ python scripts/experiment_config.py configs/experiments/semantic_v1.yaml
 | `backend` | 向量库软件 | `chroma` 或 `faiss`，本地原型二选一 |
 | `metric` | 相似度算法 | 一般 `cosine`，不用动 |
 
-索引目录名自动生成：`{方案}_{模型}_{hash8}`，例如 `struct_bge-m3_88e38bf8`。hash8 是这份配置内容的指纹前 8 位——**配置不变则目录名不变**（重复重建覆盖同一目录，旧目录保留可回退）；**配置一改就是新目录**，不会污染旧索引。
+索引目录名自动生成：`{方案}_{模型}_{hash8}`，例如 `struct_bge-m3_0a7830b7`。hash8 是**索引产物身份**的指纹前 8 位，只由决定索引内容的段派生：`chunking`（Node 集）、`embedding`（向量）、`index`（后端与度量）、`retrieval` 的 `mode`/`params`/`filters`（mode 决定产物类型，bm25 的 k1/b 会落进产物）。这些段不变则目录名不变（重复重建覆盖同一目录，旧目录保留可回退）；改这些段才是新目录，不会污染旧索引。
+
+`generation` / `evaluation` / `report` / `experiment` 与索引产物无关，改它们**不触发重建**。（2026-09-07 修正：此前 hash8 对整份配置取值，C 把三个 yaml 的 `generation` 段置 `enabled: true`/`v1` 就改掉了全部派生目录名，三个真实 bge-m3 索引当场孤儿化、live 服务启动失败——重建代价 CPU 上 12~40 分钟/个。）
 
 ### retrieval —— 检索时怎么取片段
 
