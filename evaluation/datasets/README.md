@@ -8,8 +8,10 @@
 | `expected_sources.jsonl` | **尚无（占位版已于 2026-08-30 移除）** | 期望来源标注。占位版按 `smoke.json` 页码派生，经 Node 产物实证不可用（见下）；缺失时 `run_experiment.py` 只记录检索结果、不计算指标 |
 | `expected_sources.draft.jsonl` | **草稿（E 初版重标，数据未核实，勿接入）** | 格式符合本 README 草案、`run_experiment.py` 可直接消费，保留作格式样例；但页码经 Node 产物抽查不合格——S001 称 9.7.1 在印刷 68（实为 7.3 SQL 过滤）、S003~S006 区间与第 11 章标注自相矛盾，仅 S002 与审计真值一致（2026-09-02，详见 AGENTS 当日记录）；且 id 为 S001~S015，与 `questions.jsonl` 的 Q001~Q015 不对应。**接入条件**：E 逐题对 PDF 核对（页码地面真值=页眉印刷数字）、id 与问题集对齐、C 定口径后，方可改名 `expected_sources.jsonl` 接入 |
 | `smoke.json` | 第一周原始冒烟集（E 于 PR #13 重写，S001~S015 带自由文本页码） | 保留为来源依据，不直接参与评测（无任何脚本/配置引用）；页码主张同样未经核实 |
-| `error_cases.jsonl` | **草案（成员 C 第三周，20 例）** | 可靠性错误案例集：混版本（冲突披露）+ 错来源（拒答不臆造）各 10 例；格式见下 |
-| `error_cases.py` | 加载/校验模块 | `load()` / `validate()` / `counts()`，供 run_experiment 或可靠性评测消费 |
+| `error_cases.jsonl` | **第三周夹具（成员 C，20 例，不计入验收项 5）** | 可靠性错误案例：混版本 + 错来源各 10 例，格式见下。**2026-09-07 会签决议**：经真值核对全部为手写虚构场景（引用第三周才接入的 `zrdds_dev_guide` 源、EC-MV-003 印刷页 300 超出手册最大 289、chunk 正文在真实产物中零命中、E1003 已证语料中不存在），按「宁缺毋滥」先例不计入验收项 5；其结构（question+chunks+gold_behavior）适合 HTML 接入后验证冲突披露，保留为多来源通路测试夹具 |
+| `error_cases.py` | 加载/校验模块 | `load()` / `validate()` / `counts()`，供 run_experiment 或可靠性评测消费（**尚无管线消费，接线归属随 X2 议题定**） |
+| `error_cases_real.jsonl` | **真实案例（D 补采，37 例，验收项 5 载体）** | 2026-09-07 由 `collect_real_error_cases.py` 从四份真实实验报告 + `audit-2026-08-30.md` 人工真值提取：`no_evidence_signal_missing` 20 例（审计判定「知识库无答案」的 5 题 × 4 配置，检索层仍自信返回证据）、`verified_wrong_top1` 8 例（top1 超出人工真值区间 ±1 页容差）、`cross_config_disagreement` 9 例（同题四配置 top1 页码不一致）。每条证据经机器校验：node_id 存在于对应产物、双页码差恒为 6 |
+| `collect_real_error_cases.py` | 真实案例提取脚本 | 从 `evaluation/reports/*.json` 与审计真值生成 `error_cases_real.jsonl`；报告重跑（如索引重建后）需重新执行；`tests/unit/test_real_error_cases.py` 锁定真实性承诺 |
 
 ## questions.jsonl 字段（指南 §6.1）
 

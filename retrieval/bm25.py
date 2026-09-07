@@ -7,8 +7,13 @@
   * 其余字符（标点/空白）作分隔符
 
 接口对齐 retrieval/vector_store.py 的 VectorStore（add_nodes/query/save/load），
-query 返回 {node_id,text,metadata,score}；score 为原始 BM25 分数
-（不做归一化——hit_rate/mrr 只依赖排名）。
+query 返回 {node_id,text,metadata,score}；score 为原始 BM25 分数，**不做归一化**
+（hit_rate/mrr 只依赖排名）。注意 score 量纲与向量检索的 cosine 相似度（0~1）
+不可比——实测 301 块语料上 BM25 落在 7.7~56.4，跨模式比较无意义，任何基于
+score 的阈值（如「弱证据」判定）必须按 retrieval.mode 分别定标。
+
+零分候选（与查询零词面重叠）会被过滤，故返回条数可能少于 top_k；
+返回空列表即「知识库无词面证据」信号，下游据此走拒答路径。
 """
 from __future__ import annotations
 
@@ -92,7 +97,11 @@ class BM25Store:
                 self._tokens, k1=self._k1, b=self._b
             )
         scores = self._bm25.get_scores(q_tokens)
-        ranked = sorted(idxs, key=lambda i: scores[i], reverse=True)[:top_k]
+        # score == 0 ＝ 与查询零词面重叠，不构成证据。保留会把无关块按插入顺序
+        # 填进 top_k 喂给生成侧；过滤后「空结果」成为天然的无证据信号，
+        # 下游 query_engine 对空检索有确定性拒答路径。
+        matched = [i for i in idxs if scores[i] > 0]
+        ranked = sorted(matched, key=lambda i: scores[i], reverse=True)[:top_k]
         return [
             {
                 "node_id": self._nodes[i].node_id,
@@ -106,6 +115,8 @@ class BM25Store:
     def save(self, path: str | Path) -> Path:
         path = Path(path)
         path.mkdir(parents=True, exist_ok=True)
+        # tokens 不落盘：可由 text 经 tokenize 确定性重算，存下来纯属冗余
+        # （301 节点产物 2.4MB，semantic 的 1059 节点会到约 9MB）
         data = {
             "k1": self._k1,
             "b": self._b,
@@ -113,7 +124,6 @@ class BM25Store:
                 {"node_id": n.node_id, "text": n.text, "metadata": n.metadata}
                 for n in self._nodes
             ],
-            "tokens": self._tokens,
         }
         (path / INDEX_FILE).write_text(
             json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -130,5 +140,5 @@ class BM25Store:
         data = json.loads(p.read_text(encoding="utf-8"))
         store = cls(k1=data.get("k1", 1.5), b=data.get("b", 0.75))
         store._nodes = [NodeRecord(**n) for n in data["nodes"]]
-        store._tokens = data["tokens"]
+        store._tokens = [tokenize(n.text) for n in store._nodes]
         return store

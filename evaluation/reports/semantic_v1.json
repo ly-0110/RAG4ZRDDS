@@ -2,11 +2,11 @@
   "schema": "rag4zrdds.report/v1",
   "experiment": "semantic_v1",
   "stage": "baseline",
-  "config_hash8": "7cea7efc",
-  "generated_at": "2026-09-01T17:13:46+0800",
-  "duration_seconds": 10.8,
+  "config_hash8": "7415d375",
+  "generated_at": "2026-09-07T17:01:54+0800",
+  "duration_seconds": 10.1,
   "index": {
-    "dirname": "semantic_bge-m3_7cea7efc",
+    "dirname": "semantic_bge-m3_7415d375",
     "backend": "chroma",
     "metric": "cosine"
   },
@@ -655,12 +655,12 @@
           "score": 0.592
         },
         {
-          "node_id": "semantic_v1_00684",
+          "node_id": "semantic_v1_00669",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.6 创建ZRDDS应用程序 / 11.6.3 订阅端应用程序",
-          "page_print": 185,
-          "page_physical": 191,
+          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.6 创建ZRDDS应用程序 / 11.6.2 发布端应用程序",
+          "page_print": 181,
+          "page_physical": 187,
           "score": 0.591
         }
       ],

@@ -6,6 +6,10 @@
     event: done     完整答案 + 引用汇总（正常结束标志）
     event: error    流中途出错（HTTP 已 200，错误只能走事件通道）
 
+引用一经 sources 事件下发即持久化（answer 暂为 None），此后生成侧失败客户端
+已拿到的引用仍可经 /sources/{rid} 回查；成功路径在 done 后二次 put 覆盖为最终
+答案（JSONL 保留两条生命周期记录，回读取最后一条）。检索失败时无引用可下发，
+不落记录。
 流开始前的失败（如问题为空白）返回普通 HTTP 4xx JSON 错误。
 """
 
@@ -49,6 +53,11 @@ async def query(req: QueryRequest, request: Request) -> StreamingResponse:
             # SourceRef 7 字段，避免把整段正文塞进 sources 事件与 sources.jsonl。
             wire_sources = to_source_refs(chunks)
             yield _sse("sources", {"request_id": rid, "sources": wire_sources})
+            # X3（2026-09-07 会签）：引用一经下发即持久化——之后生成侧失败
+            # （如 LLM 不可达），客户端已拿到的 sources 仍可经 /sources/{rid} 回查。
+            # put 每次追加序列化副本且回读取最后一条，成功路径下方二次 put
+            # 覆盖为最终答案，JSONL 中保留「引用下发→答案完成」两条生命周期。
+            cache.put(rid, {"question": question, "answer": None, "sources": wire_sources})
 
             parts: list[str] = []
             async for token in pipeline.answer_stream.stream(question, chunks):

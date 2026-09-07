@@ -150,6 +150,38 @@ def test_error_becomes_sse_error_event_not_silent_drop():
     assert errors[0]["request_id"]
 
 
+def test_error_path_sources_still_queryable_after_generation_failure():
+    """X3（2026-09-07 会签）：引用一经下发即持久化——生成侧失败时已下发的引用仍可回查。"""
+
+    class BoomAnswerStream:
+        async def stream(self, question: str, chunks: list[dict]):
+            raise RuntimeError("生成侧故障（测试注入）")
+            yield  # noqa: unreachable —— 使本函数成为异步生成器
+
+    app = create_app(_mock_settings())
+    app.state.pipeline.answer_stream = BoomAnswerStream()
+
+    async def go():
+        async with _client(app) as c:
+            r = await c.post("/query", json={"question": "QoS 配置方法"})
+            events = _parse_sse(r.text)
+            rid = events[0][1]["request_id"]
+            lookup = await c.get(f"/sources/{rid}")
+        return events, lookup
+
+    events, lookup = asyncio.run(go())
+    names = [name for name, _ in events]
+    assert names == ["sources", "error"]  # 检索成功、生成失败
+    errors = [data for n, data in events if n == "error"]
+    assert "生成侧故障" in errors[0]["error"]
+
+    assert lookup.status_code == 200  # 修复前：404（引用未持久化）
+    body = lookup.json()
+    assert body["request_id"] == events[0][1]["request_id"]
+    assert body["answer"] is None  # 失败路径无答案
+    assert body["sources"] == events[0][1]["sources"]  # 与下发内容一致
+
+
 def test_sources_lookup_roundtrip_and_404():
     async def go():
         async with _client(create_app(_mock_settings())) as c:

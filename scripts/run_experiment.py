@@ -18,7 +18,8 @@ scripts/run_experiment.py — 实验流水线门面（成员 D · 第二周核�
   * 判对 = expected_sources.jsonl 中该题的任一期望记录与检索结果匹配
     （来源 id / 印刷页区间 / 章节关键词，非空条件需同时满足）
   * hit_rate@K / mrr@K / precision@K / recall@K 为经典 IR 定义
-  * response_metrics 非空时报可读错误——生成侧评测待 C 的 judges 落地
+  * response_metrics 非空时报可读错误——judges 已落地（evaluation/judges），
+    缺的是「逐题生成答案 → 调用 judges」的 runner（落点 evaluation/runners/answer_eval.py）
 
 用法:
   make experiment                                # 默认配置（struct_v1 基线）
@@ -299,16 +300,14 @@ def _read_manifest_fake_flag(target: Path) -> bool | None:
 
 
 def _nodes_file_sha12(cfg) -> str | None:
-    """当前 Node 集文件 sha256 前 12 位；文件缺失返回 None。"""
-    import hashlib
-    p = ec.nodes_path(cfg)
-    if not p.exists():
-        return None
-    h = hashlib.sha256()
-    with p.open("rb") as f:
-        for blk in iter(lambda: f.read(1 << 20), b""):
-            h.update(blk)
-    return h.hexdigest()[:12]
+    """当前 Node 集内容指纹；委托 build_index 的唯一实现（含 CRLF 归一化）。
+
+    曾经这里是第二份副本：写入侧（build_index）与校验侧（本文件）各算各的，
+    一旦算法漂移就会让指纹恒不匹配、索引复用被无条件拒绝。指纹算法只允许一处。
+    """
+    import build_index as bi
+
+    return bi._nodes_file_sha12(cfg)
 
 
 def _check_fingerprint(target: Path, cfg) -> str | None:
@@ -396,9 +395,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if cfg.evaluation.response_metrics:
         print(
-            "[experiment] response_metrics 评测暂未接入："
-            "生成侧判分（Faithfulness / Answer Relevance）待成员 C 的 judges 落地"
-            "（指南 §6 任务分解）。请先将 response_metrics 置空。",
+            "[experiment] response_metrics 评测暂未接入。判分模块本身已就绪"
+            "（evaluation/judges：judge_faithfulness / judge_answer_relevance），"
+            "缺的是调用它的前置通路：本脚本只跑检索、不生成回答，而判分需要"
+            "「逐题生成答案 → 对答案调用 judges」的 runner（C 在 evaluation/__init__.py "
+            "已把落点写为 evaluation/runners/answer_eval.py，尚未实现，归属待会签）。"
+            "接入前请将 response_metrics 置空。",
             file=sys.stderr,
         )
         return 1
