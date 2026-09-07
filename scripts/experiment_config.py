@@ -32,6 +32,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 METRIC_RE = re.compile(r"^(hit_rate|mrr|precision|recall)@\d+$")
 
+# 回答质量指标（成员 C 口径，第二周起）：与检索指标不同，无 @K 后缀。
+# judges 落地见 evaluation/judges/（faithfulness / answer_relevance）。
+RESPONSE_METRICS = {"faithfulness", "answer_relevance", "correctness", "citation_accuracy"}
+
 
 class _Strict(BaseModel):
     """结构层一律禁止未知 key；params 袋所在模型对袋子本身用普通 dict 放行。"""
@@ -128,13 +132,23 @@ class EvaluationCfg(_Strict):
     response_metrics: list[str] = []
     sample_size: int | None = Field(default=None, ge=1)
 
-    @field_validator("retrieval_metrics", "response_metrics")
+    @field_validator("retrieval_metrics")
     @classmethod
-    def _metric_format(cls, v: list[str]) -> list[str]:
+    def _retrieval_metric_format(cls, v: list[str]) -> list[str]:
         bad = [m for m in v if not METRIC_RE.match(m)]
         if bad:
             allowed = "hit_rate / mrr / precision / recall，格式 名称@K"
-            raise ValueError(f"指标名不合法: {bad}；允许 {allowed}")
+            raise ValueError(f"检索指标名不合法: {bad}；允许 {allowed}")
+        return v
+
+    @field_validator("response_metrics")
+    @classmethod
+    def _response_metric_names(cls, v: list[str]) -> list[str]:
+        bad = [m for m in v if m not in RESPONSE_METRICS]
+        if bad:
+            raise ValueError(
+                f"回答质量指标不合法: {bad}；允许 {sorted(RESPONSE_METRICS)}"
+            )
         return v
 
 
