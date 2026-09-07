@@ -17,12 +17,31 @@
           第 
           <span class="page-print">{{ s.page_print }}</span> 页（物理页 {{ s.page_physical }}）
         </span>
+        
+        <span v-if="s.source_type" :class="[
+          'source-badge',
+          s.source_type === 'PDF' ? 'badge-pdf' : 'badge-html'
+        ]">
+          <span class="source-badge-icon">
+            {{ s.source_type === 'PDF' ? '📕' : '📘' }}
+          </span>
+          <span>{{ s.source_type === 'PDF' ? 'ZRDDS 用户手册' : 'Developer Guide' }}</span>
+        </span>
+        
         <span class="score-info">
           · 相关度 {{ Number(s.score).toFixed(3) }}
         </span>
-        <span class="source-id" v-if="s.source_id">
-          · {{ s.source_id }}
-        </span>
+        
+        <a 
+          v-if="s.source_type === 'HTML'" 
+          :href="s.url" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="source-id"
+          style="color: #1565c0; text-decoration: none;"
+        >
+          → 查看原文
+        </a>
       </div>
         
       <!-- 查看详情按钮 -->
@@ -135,7 +154,7 @@ const fetchAndShowDetails = async (source) => {
 
 .source-card {
   border: 1px solid #dbe7f3;
-  background: #fff;
+  background: #fafafa; /* 柔和的浅灰背景 */
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 8px;
@@ -143,13 +162,13 @@ const fetchAndShowDetails = async (source) => {
 }
 
 .source-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 增强阴影 */
   transform: translateY(-1px);
 }
 
 .source-title {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 600; /* 加粗标题 */
   color: #1a5276;
   margin-bottom: 4px;
 }
@@ -183,6 +202,30 @@ const fetchAndShowDetails = async (source) => {
 .source-id {
   opacity: 0.6;
   font-size: 11px;
+}
+
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-pdf {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.badge-html {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.source-badge-icon {
+  font-size: 14px;
 }
 
 .action-area {
