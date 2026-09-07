@@ -1,5 +1,6 @@
-"""建索引入口：节点 jsonl → Chroma 索引目录。
+"""建索引入口：节点 jsonl → 索引目录（按 retrieval.mode 分派）。
 
+vector → Chroma 向量索引；bm25 → bm25.json 词袋索引（不碰 embedding 模型）。
 供 D 的 scripts/build_index.py 与 B 的 CLI 共用；产物路径由
 configs/experiments 派生命名决定（scripts/experiment_config.py）。
 同一配置重复构建 = 覆盖重建（保证幂等）。
@@ -9,20 +10,30 @@ from __future__ import annotations
 from pathlib import Path
 
 from retrieval._bootstrap import experiment_config
+from retrieval.bm25 import BM25Store
 from retrieval.nodes import load_nodes
 from retrieval.vector_store import VectorStore, sanitize_collection_name
 
 
 def build_index(cfg, embed_fn=None) -> Path:
-    if cfg.index.backend != "chroma":
-        raise NotImplementedError(
-            f"第一周仅支持 chroma 向量库，收到 backend={cfg.index.backend!r}"
-            "（faiss 等后端待后续接入）"
-        )
     nodes_file = experiment_config.nodes_path(cfg)
     if not nodes_file.exists():
         raise FileNotFoundError(
             f"节点文件不存在: {nodes_file}（请先运行 ingest 生成分块产物）"
+        )
+    if cfg.retrieval.mode == "bm25":
+        params = cfg.retrieval.params or {}
+        store = BM25Store(
+            k1=params.get("k1", 1.5),
+            b=params.get("b", 0.75),
+        )
+        store.add_nodes(load_nodes(nodes_file))
+        store.save(experiment_config.index_dir(cfg))
+        return experiment_config.index_dir(cfg)
+    if cfg.index.backend != "chroma":
+        raise NotImplementedError(
+            f"第一周仅支持 chroma 向量库，收到 backend={cfg.index.backend!r}"
+            "（faiss 等后端待后续接入）"
         )
     nodes = load_nodes(nodes_file)
     if embed_fn is None:
