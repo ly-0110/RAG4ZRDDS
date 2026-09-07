@@ -538,7 +538,7 @@ def test_build_index_rejects_unsupported_backend(tmp_path, monkeypatch):
 
 def test_build_retriever_rejects_unsupported_mode(tmp_path, monkeypatch):
     monkeypatch.setattr(experiment_config, "REPO_ROOT", tmp_path)
-    cfg = experiment_config.load(_write_config(tmp_path, retrieval_mode="bm25"))
+    cfg = experiment_config.load(_write_config(tmp_path, retrieval_mode="hybrid"))
     index_path = experiment_config.index_dir(cfg)
     index_path.mkdir(parents=True, exist_ok=True)
 

@@ -72,3 +72,34 @@ async def stream_chat(
                 yield content
     finally:
         await client.close()
+
+
+async def complete_chat(
+    config: LLMConfig, messages: list[dict[str, str]], *, max_tokens: int = 512
+) -> str:
+    """OpenAI 兼容 /chat/completions 非流式调用，返回完整回答文本。
+
+    供评测判分（evaluation/judges/）使用：judge 需要一次性拿到完整回答再解析，
+    流式增量不适合；与 stream_chat 共用同一 LLM 配置。
+    """
+    try:
+        from openai import AsyncOpenAI
+    except ImportError as e:  # pragma: no cover —— 依赖缺失时给可读错误
+        raise RuntimeError(
+            "缺少 openai SDK：请先 pip install openai（或 make setup）；"
+            "requirements.txt 已锁定 openai==2.46.0"
+        ) from e
+
+    client = AsyncOpenAI(base_url=config.base_url, api_key=config.api_key)
+    try:
+        resp = await client.chat.completions.create(
+            model=config.model,
+            messages=messages,
+            stream=False,
+            max_tokens=max_tokens,
+        )
+        if not resp.choices:
+            return ""
+        return (resp.choices[0].message.content or "").strip()
+    finally:
+        await client.close()

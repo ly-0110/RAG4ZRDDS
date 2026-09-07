@@ -12,7 +12,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator, Callable
 
 from generation.context_builder import build_context
-from generation.prompts import v0
+from generation.prompts import v0, v1
 
 ChatStream = Callable[[list[dict[str, str]]], AsyncIterator[str]]
 
@@ -22,11 +22,18 @@ _NO_EVIDENCE = "当前知识库没有检索到相关内容，无法给出有依�
 class AnswerStream:
     """依赖注入 chat_stream（已绑定 LLM 配置），便于单测不联网、不依赖真实模型。"""
 
+    _PROMPTS = {
+        "v0": v0.build_messages,
+        "v1": v1.build_messages,
+    }
+
     def __init__(self, chat_stream: ChatStream, prompt_version: str = "v0") -> None:
         self._chat_stream = chat_stream
-        if prompt_version != "v0":
-            raise ValueError(f"未知 prompt_version={prompt_version!r}（第一周仅支持 v0）")
-        self._build_messages = v0.build_messages
+        if prompt_version not in self._PROMPTS:
+            raise ValueError(
+                f"未知 prompt_version={prompt_version!r}，可选 {sorted(self._PROMPTS)}"
+            )
+        self._build_messages = self._PROMPTS[prompt_version]
 
     async def stream(self, question: str, chunks: list[dict]) -> AsyncIterator[str]:
         if not chunks:

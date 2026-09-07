@@ -1,0 +1,66 @@
+# =====================================================================
+# RAG4ZRDDS 实验配置 · 第二周对照实验（struct_bm25）
+# 由 struct_v1.yaml 复制而来：结构感知分块(struct/v1) + BM25 词袋检索 Top-5。
+# 与 struct_v1（bge-m3 向量检索）构成「同分块、异检索」对照；
+# embedding 段保留但 BM25 通路不消费（索引命名沿用 D 的派生命名约定）。
+# =====================================================================
+schema_version: 1
+
+experiment:                        # ── 实验身份
+  name: struct_bm25                # 必须与文件名一致（脚本强制校验）
+  description: 第二周对照：结构分块 + BM25 词袋检索（Top-K）
+  stage: ablation                  # baseline | ablation | regression | product
+
+sources:                           # ── 知识源注册表
+  - id: user_manual                # metadata.source_name 引用名，全配置唯一
+    type: pdf                      # pdf | html
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"                 # 文档版本＝A 的 metadata.version 真值
+
+ingest:                            # ── raw → cleaned 编排（D）
+  cleaned_output: data/cleaned/pages.jsonl
+  quality_check: true
+
+chunking:                          # ── 分块方案（与 struct_v1 完全一致）
+  method: struct
+  version: v1
+  params:
+    max_chunk_chars: 2500
+    overlap_chars: 200
+    large_section_thresh: 2500
+
+embedding:                         # ── Embedding（bm25 不消费；命名/校验需要保留）
+  provider: local
+  model: bge-m3
+  batch_size: 32
+  device: cpu
+
+index:                             # ── 索引生命周期（D）
+  backend: chroma                  # bm25 模式实际落 bm25.json，backend/metric 仅参与命名
+  metric: cosine
+
+retrieval:                         # ── 检索（B）
+  mode: bm25                       # vector | bm25 | hybrid | hybrid_rerank
+  top_k: 5                         # 各对比方案间必须一致（§6.2 公平性约束）
+  candidate_top_k: 30
+  filters: {}
+  source_priority: []
+  params:                          # ◆ B 自由区：Okapi BM25 平滑参数
+    k1: 1.5
+    b: 0.75
+
+generation:                        # ── 生成（C）
+  enabled: false
+  prompt_version: v0
+  llm_env_prefix: LLM_
+
+evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）
+  dataset: evaluation/datasets/questions.jsonl
+  expected_sources: evaluation/datasets/expected_sources.jsonl
+  retrieval_metrics: [hit_rate@5, mrr@5]
+  response_metrics: []
+  sample_size: null
+
+report:                            # ── 回归落盘（D）
+  dir: evaluation/reports
+  compare_baseline: null

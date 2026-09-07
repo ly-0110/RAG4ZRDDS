@@ -57,8 +57,8 @@ retrieval:                         # ── 检索（B）
   params: {}                       # ◆ 参数袋：B 自由区（bm25 k1/b、融合权重…）
 
 generation:                        # ── 生成（C）
-  enabled: false                   # 第一周只评检索；第二周置 true
-  prompt_version: v0               # 对应 generation/prompts/v0
+  enabled: true                    # 第二周：接入生成与评测
+  prompt_version: v1               # 对应 generation/prompts/v1（§6.4 Grounding/Abstention）
   llm_env_prefix: LLM_             # 读 .env 中 LLM_PROVIDER/BASE_URL/API_KEY/MODEL
 
 evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）

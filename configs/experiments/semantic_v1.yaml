@@ -51,8 +51,8 @@ retrieval:
   params: {}
 
 generation:
-  enabled: false
-  prompt_version: v0
+  enabled: true
+  prompt_version: v1
   llm_env_prefix: LLM_
 
 evaluation:
