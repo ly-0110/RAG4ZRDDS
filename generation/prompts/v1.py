@@ -21,8 +21,13 @@ SYSTEM_PROMPT = (
 USER_TEMPLATE = "问题：{question}\n\n检索内容：\n{context}"
 
 
-def build_messages(question: str, context: str) -> list[dict[str, str]]:
-    """组装一轮对话消息：system=四条硬规则，user=问题 + 检索上下文。"""
+def build_messages(
+    question: str, context: str, source_priority: list[str] | None = None
+) -> list[dict[str, str]]:
+    """组装一轮对话消息：system=四条硬规则，user=问题 + 检索上下文。
+
+    source_priority 仅第三周 v2 使用；v1 忽略（统一签名便于 AnswerStream 调用）。
+    """
     return [
         {"role": "system", "content": SYSTEM_PROMPT},
         {

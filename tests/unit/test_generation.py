@@ -33,7 +33,8 @@ def _chunk(node_id="n1", text="正文", **kw) -> dict:
 
 def _fake_cfg() -> SimpleNamespace:
     return SimpleNamespace(
-        generation=SimpleNamespace(llm_env_prefix="LLM_", prompt_version="v0")
+        generation=SimpleNamespace(llm_env_prefix="LLM_", prompt_version="v0"),
+        retrieval=SimpleNamespace(source_priority=[]),
     )
 
 
@@ -52,8 +53,8 @@ def test_build_context_formats_numbered_blocks():
 
     ctx = build_context(chunks)
 
-    assert "[1] 来源：ZRDDS用户手册.pdf · 第 42 页 · 3.4" in ctx
-    assert "[2] 来源：ZRDDS用户手册.pdf · 第 47 页 · 3.5" in ctx
+    assert "[1] 来源：ZRDDS用户手册.pdf（用户手册） · 第 42 页 · 3.4" in ctx
+    assert "[2] 来源：ZRDDS用户手册.pdf（用户手册） · 第 47 页 · 3.5" in ctx
     assert "第一段正文" in ctx
     assert "第二段正文" in ctx
 

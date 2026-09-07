@@ -12,7 +12,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator, Callable
 
 from generation.context_builder import build_context
-from generation.prompts import v0, v1
+from generation.prompts import v0, v1, v2
 
 ChatStream = Callable[[list[dict[str, str]]], AsyncIterator[str]]
 
@@ -25,15 +25,22 @@ class AnswerStream:
     _PROMPTS = {
         "v0": v0.build_messages,
         "v1": v1.build_messages,
+        "v2": v2.build_messages,
     }
 
-    def __init__(self, chat_stream: ChatStream, prompt_version: str = "v0") -> None:
+    def __init__(
+        self,
+        chat_stream: ChatStream,
+        prompt_version: str = "v0",
+        source_priority: list[str] | None = None,
+    ) -> None:
         self._chat_stream = chat_stream
         if prompt_version not in self._PROMPTS:
             raise ValueError(
                 f"未知 prompt_version={prompt_version!r}，可选 {sorted(self._PROMPTS)}"
             )
         self._build_messages = self._PROMPTS[prompt_version]
+        self._source_priority = list(source_priority) if source_priority else []
 
     async def stream(self, question: str, chunks: list[dict]) -> AsyncIterator[str]:
         if not chunks:
@@ -43,7 +50,7 @@ class AnswerStream:
         if not context.strip():
             yield _NO_EVIDENCE
             return
-        messages = self._build_messages(question, context)
+        messages = self._build_messages(question, context, self._source_priority)
         async for token in self._chat_stream(messages):
             yield token
 
@@ -64,4 +71,8 @@ def build_answer_stream(cfg, chat_stream: ChatStream | None = None) -> AnswerStr
                 yield token
 
         chat_stream = _stream
-    return AnswerStream(chat_stream, prompt_version=cfg.generation.prompt_version)
+    return AnswerStream(
+        chat_stream,
+        prompt_version=cfg.generation.prompt_version,
+        source_priority=cfg.retrieval.source_priority,
+    )
