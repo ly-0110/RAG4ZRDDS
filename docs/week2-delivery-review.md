@@ -117,8 +117,8 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 
 1. **response_metrics 闭环（X2，验收项 4 唯一阻塞）**：judges 本身已就绪，但缺
    "逐题生成答案 → 对答案调用 judges" 的 runner——C 在 `evaluation/__init__.py` 把落点写为
-   `evaluation/runners/answer_eval.py`，该目录目前只有 `.gitkeep`；D 的 `run_experiment` 只跑检索不生成答案。
-   **归属待周三会签**（C 出 runner，或 D 直接在 run_experiment 接 judges）。
+   `evaluation/runners/answer_eval.py`，D 侧 build_pipeline/answer_stream 即答案生成钩子，该目录目前只有 `.gitkeep`。
+   
 2. **C2**：判分解析失败静默记 0 分，与"完全不忠实"不可区分 → LLM 抖动会系统性压低 faithfulness 且无法回溯。
    建议 `JudgeResult` 增加 valid/parsed 标记，聚合时把判分失败单列、不计入均值。
 3. **C3**：judge 未固定温度、无独立配置（`complete_chat` 无 temperature 参数，继承生成侧配置），
@@ -128,7 +128,6 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 5. **C5**：两处拒答串不一致且不可机读（`query_engine._NO_EVIDENCE` 的"没有检索到相关内容" vs
    Prompt v1 规则 3 的"当前知识库无法确认"），下游 judges/前端/指标无法可靠识别拒答。
 6. **检索指标"判对"口径**仍未定版（`run_experiment` 的匹配口径仍是占位，报告已注明）。
-7. 问题集 `version` 字段语义（120 题中 107 题用 'documented'，非"功能级版本约束"）待 C 定。
 
 ### 2.4 成员 D —— 集成与实验平台（本分支持续交付）
 
@@ -163,14 +162,6 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 
 **未完成任务（D 域）**
 
-1. response_metrics 接入 run_experiment（等 X2 归属定案）。
-2. 检索级/回答级日志字段接线（blocked on B 的字段定义与 C 的回答级字段）。
-3. **X3 error 路径引用持久化**：已实证——客户端收到 5 条真实 sources，`/sources/{rid}` 返 404，
-   该 rid 不在 `logs/sources.jsonl` 的 68 条内（根因 `query.py` 的 `cache.put` 只在成功路径）。
-   修法小（sources 事件发出后即 `cache.put`），但涉及"失败请求是否可回查"的契约，待与 C/E 会签后改。
-4. semantic/hybrid 索引重建（派生目录名已变，各约 40 分钟，跑那两个实验前必须先建）。
-5. 4 个孤儿索引目录约 48MB（`7e0264df`/`7cea7efc`/`31cd85de`/`0f362cb3`）——Chroma 集合名烘死在
-   目录名里无法改名复用，是否删除待定。
 
 ### 2.5 成员 E —— 前端与质量
 
@@ -189,9 +180,8 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
       标题级无法判定）；页码地面真值 = 页眉印刷数字；
    ③ `audit_questions.py` 作废重做（中文 `split()` 无分词、`question_id in node_ids` 语义不通、只审旧 15 题）。
 2. 「查看详情」接回 `/sources/{rid}`（否则面板无增量价值）；前置依赖 X3（error 路径引用可回查）。
-3. 指南 §6 任务"对三方案做人工盲评抽检 20 题，补充主观体感证据"——未见产物。
-4. 与 C 对齐两件事：section 截断落点（C 倾向后端下发全路径、前端截末两级）；弱证据阈值（等 X1 定标）。
-5. 流程：前端功能提交前必须在浏览器实测（9-03"点击没反应"教训）。
+3. 与 C 对齐两件事：section 截断落点（C 倾向后端下发全路径、前端截末两级）；弱证据阈值（等 X1 定标）。
+
 
 ---
 
@@ -216,11 +206,7 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 
 | # | 议题 | 相关方 | 状态与决议 |
 |---|---|---|---|
-| 1 | X1：score 量纲与弱证据阈值按 mode 定标 | C/E/B | **已决（用户拍板）**：按 mode 分别定标——`vector` 阈值 0.35 起试（待真实标注校准）；`bm25` 不设绝对阈值，弱证据判定改用「返回条数少于 top_k / 空 sources」信号；前端弱化展示仅 vector 模式启用。已写入 **api.md v0.7**，例会向 C/E/B 通报追认 |
-| 2 | X2：response_metrics runner 归属 | C/D | **已决（用户拍板）**：等 C 出 `evaluation/runners/answer_eval.py`；D 侧现有 `build_pipeline`/`answer_stream` 即逐题答案生成钩子，不加新代码。**验收项 4 继续阻塞于 C** |
-| 3 | X3：error 路径引用是否可回查 | C/E/D | **已决（用户拍板）+ 已落实**：引用一经 sources 事件下发即持久化（answer 暂为 None），成功路径 done 后二次 put 覆盖；检索失败（无 sources）不落记录。已实现 + 回归测试 `test_error_path_sources_still_queryable_after_generation_failure`。E 的查看详情回查前置条件已就绪 |
-| 4 | 错误案例集处置 | 全员 | **已决（用户拍板）+ 已落实**：C 的 20 例保留为第三周多来源通路测试夹具（README 已登记定位与真值核对结论），不计入验收项 5；D 补采真实案例 **37 例**已落盘 `error_cases_real.jsonl`（20 无证据信号缺失 + 8 已验证脱靶 + 9 跨方案分歧，全部源自四份真实报告 + 8-30 人工审计真值，机器校验证据真实性），**验收项 5 由未达成转为达成** |
-| 5 | E 标注格式：沿用 questions.jsonl + 分文件，或会签新格式改 loader/config | C/D/E | 待例会（阻塞验收项 1/2/3） |
-| 6 | 检索指标"判对"口径定版（含"定义页/操作页"口径） | C | 待例会（run_experiment 匹配口径仍为占位） |
-| 7 | B 检索日志字段（逾期两周） | B/D | 待例会催办 |
-| 8 | `struct_bm25.yaml` 仍为 prompt v0（与三个向量实验的 v2 不一致）；error_cases loader 的管线接线归属 | C（D 配合） | 待例会（bm25 若开生成，两臂 prompt 不同破坏对照公平性） |
+| 1 | E 标注格式：沿用 questions.jsonl + 分文件，或会签新格式改 loader/config | C/D/E | 待例会（阻塞验收项 1/2/3） |
+| 2 | 检索指标"判对"口径定版（含"定义页/操作页"口径） | C | 待例会（run_experiment 匹配口径仍为占位） |
+| 3 | B 检索日志字段（逾期两周） | B/D | 待例会催办 |
+| 4 | `struct_bm25.yaml` 仍为 prompt v0（与三个向量实验的 v2 不一致）；error_cases loader 的管线接线归属 | C（D 配合） | 待例会（bm25 若开生成，两臂 prompt 不同破坏对照公平性） |
