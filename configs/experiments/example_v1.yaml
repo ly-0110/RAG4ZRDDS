@@ -44,7 +44,9 @@ index:                             # ── 索引生命周期（D）
   backend: chroma                  # chroma | faiss
   metric: cosine                   # cosine | ip | l2
   # 子目录自动命名 = {chunking.method}_{embedding.model}_{hash8}
-  # hash8 = sha256(本配置规范化内容) 前 8 位 —— 一键重建与回切的基础
+  # hash8 = sha256(索引身份段) 前 8 位 —— 一键重建与回切的基础
+  #   索引身份段 = chunking / embedding / index / retrieval(mode,params,filters)
+  #   改 generation / evaluation / report 不触发重建（2026-09-07 修正）
 
 retrieval:                         # ── 检索（B）
   mode: vector                     # vector | bm25 | hybrid | hybrid_rerank

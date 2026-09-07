@@ -2,11 +2,11 @@
   "schema": "rag4zrdds.report/v1",
   "experiment": "hybrid_v1",
   "stage": "baseline",
-  "config_hash8": "31cd85de",
-  "generated_at": "2026-09-01T17:38:31+0800",
-  "duration_seconds": 10.8,
+  "config_hash8": "ade09e39",
+  "generated_at": "2026-09-07T17:02:06+0800",
+  "duration_seconds": 9.9,
   "index": {
-    "dirname": "hybrid_bge-m3_31cd85de",
+    "dirname": "hybrid_bge-m3_ade09e39",
     "backend": "chroma",
     "metric": "cosine"
   },

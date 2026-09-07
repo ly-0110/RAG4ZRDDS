@@ -2,11 +2,11 @@
   "schema": "rag4zrdds.report/v1",
   "experiment": "struct_v1",
   "stage": "baseline",
-  "config_hash8": "7e0264df",
-  "generated_at": "2026-09-02T17:39:30+0800",
-  "duration_seconds": 10.7,
+  "config_hash8": "0a7830b7",
+  "generated_at": "2026-09-07T12:23:31+0800",
+  "duration_seconds": 9.5,
   "index": {
-    "dirname": "struct_bge-m3_7e0264df",
+    "dirname": "struct_bge-m3_0a7830b7",
     "backend": "chroma",
     "metric": "cosine"
   },

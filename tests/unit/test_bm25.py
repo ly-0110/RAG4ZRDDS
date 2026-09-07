@@ -70,10 +70,31 @@ def test_store_query_ranks_by_term_overlap():
     store = make_store()
     results = store.query("连接失败如何排查", top_k=3)
     assert results[0]["node_id"] == "n_conn"
-    # 与查询零重叠的文档 BM25 分数为 0
     scores = {r["node_id"]: r["score"] for r in results}
-    assert scores["n_qos"] == 0.0
     assert scores["n_conn"] > 0
+    # 2026-09-07 D 代修 B1：零词面重叠（旧行为是 score==0 仍返回）不再作为证据
+    assert "n_qos" not in scores
+    assert all(s > 0 for s in scores.values())
+
+
+def test_store_query_returns_empty_when_no_lexical_overlap():
+    # 无证据信号：语料里没有词面重叠时返回空列表，下游据此走拒答路径
+    store = make_store()
+    assert store.query("区块链共识机制", top_k=5) == []
+
+
+def test_store_save_omits_tokens_and_load_recomputes(tmp_path: Path):
+    # B2：tokens 可由 text 确定性重算，不该落盘（301 节点产物曾达 2.4MB）
+    store = make_store()
+    store.save(tmp_path / "idx")
+    data = json.loads((tmp_path / "idx" / "bm25.json").read_text(encoding="utf-8"))
+    assert "tokens" not in data
+
+    loaded = BM25Store.load(tmp_path / "idx")
+    orig = store.query("QoS 策略配置 XML", top_k=5)
+    restored = loaded.query("QoS 策略配置 XML", top_k=5)
+    assert [(r["node_id"], r["score"]) for r in orig] == \
+           [(r["node_id"], r["score"]) for r in restored]
 
 
 def test_store_query_respects_top_k():

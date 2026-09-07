@@ -76,32 +76,50 @@ def _fake_embed(texts: list[str]) -> list[list[float]]:
     ]
 
 
-def _nodes_file_sha12(cfg) -> str:
-    """Node 集文件 sha256 前 12 位——索引与产物一致性的指纹。
+def _nodes_file_sha12(cfg) -> str | None:
+    """Node 集内容指纹（sha256 前 12 位，CRLF 归一化为 LF 后计算）；缺失返回 None。
 
     背景（2026-09-01 事故）：hash8 只由配置内容派生，产物重跑而配置未变时
     旧索引会被静默复用 → 索引向量与磁盘产物脱节。指纹供复用侧校验。
+
+    归一化背景（2026-09-07 事故）：.gitattributes 的「*.jsonl text eol=lf」把产物
+    规范成 LF，而建索引时工作树是 CRLF——内容语义完全相同、原始字节哈希却不同，
+    三个真实索引的指纹全部误判为「产物已变」而拒绝复用。指纹只应反映语义内容。
     """
     import hashlib
+    p = ec.nodes_path(cfg)
+    if not p.exists():
+        return None
     h = hashlib.sha256()
-    with ec.nodes_path(cfg).open("rb") as f:
+    with p.open("rb") as f:
         for blk in iter(lambda: f.read(1 << 20), b""):
-            h.update(blk)
+            h.update(blk.replace(b"\r\n", b"\n"))
     return h.hexdigest()[:12]
 
 
 def _write_manifest(index_path: Path, cfg, nodes_count: int, build_seconds: float,
                     fake: bool) -> Path:
+    mode = cfg.retrieval.mode
+    if fake:
+        embedding = {"model": "FAKE-embed (结构冒烟，不可用于服务)"}
+    elif mode == "bm25":
+        embedding = {"model": None, "note": "bm25 词袋检索不消费 embedding（配置段仅参与命名）"}
+    else:
+        embedding = {"model": cfg.embedding.model, "provider": cfg.embedding.provider,
+                     "device": cfg.embedding.device}
+    if mode == "bm25":
+        # k1/b 被 BM25Store.save 落进产物，属索引身份的一部分，必须可审计
+        index_info = {"backend": "bm25-json", "artifact": "bm25.json",
+                      "params": dict(cfg.retrieval.params or {})}
+    else:
+        index_info = {"backend": cfg.index.backend, "metric": cfg.index.metric}
     manifest = {
         "experiment": cfg.experiment.name,
         "config_hash8": ec.config_hash8(cfg),
+        "retrieval_mode": mode,
         "chunking": f"{cfg.chunking.method}_{cfg.chunking.version}",
-        "embedding": (
-            {"model": cfg.embedding.model, "provider": cfg.embedding.provider,
-             "device": cfg.embedding.device}
-            if not fake else {"model": "FAKE-embed (结构冒烟，不可用于服务)"}
-        ),
-        "index": {"backend": cfg.index.backend, "metric": cfg.index.metric},
+        "embedding": embedding,
+        "index": index_info,
         "nodes_file": str(ec.nodes_path(cfg).relative_to(REPO_ROOT)),
         "nodes_file_sha12": _nodes_file_sha12(cfg),
         "nodes_count": nodes_count,
@@ -139,13 +157,16 @@ def cmd_build(config_path: str, fake: bool) -> int:
 
     from retrieval.index import build_index
 
+    mode = cfg.retrieval.mode
     target = ec.index_dir(cfg)
-    print(f"[index] 实验={cfg.experiment.name} hash8={ec.config_hash8(cfg)} "
-          f"→ {target.relative_to(REPO_ROOT)}")
-    if not fake:
+    print(f"[index] 实验={cfg.experiment.name} mode={mode} "
+          f"hash8={ec.config_hash8(cfg)} → {target.relative_to(REPO_ROOT)}")
+    # 耗时警告与心跳只对真实 embedding 通路有意义：bm25 建库是秒级、不碰模型也没有集合
+    slow_build = not fake and mode != "bm25"
+    if slow_build:
         print(_LIVE_BUILD_NOTE, flush=True)
     t0 = time.monotonic()
-    ctx = _Heartbeat() if not fake else contextlib.nullcontext()
+    ctx = _Heartbeat() if slow_build else contextlib.nullcontext()
     with ctx:
         index_path = build_index(cfg, embed_fn=_fake_embed if fake else None)
     elapsed = time.monotonic() - t0
@@ -174,7 +195,9 @@ def cmd_list(config_path: str | None) -> int:
         if m.exists():
             try:
                 info = json.loads(m.read_text(encoding="utf-8"))
-                desc = (f"{info.get('experiment', '?')} nodes={info.get('nodes_count')}"
+                desc = (f"{info.get('experiment', '?')}"
+                        f" mode={info.get('retrieval_mode', '?')}"
+                        f" nodes={info.get('nodes_count')}"
                         f" built={info.get('built_at', '?')[:10]}"
                         + (" [FAKE]" if info.get("fake_embed") else ""))
             except json.JSONDecodeError:

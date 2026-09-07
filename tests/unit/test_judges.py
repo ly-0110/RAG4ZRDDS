@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import asyncio
 
+import pytest
+
 from evaluation.judges.judge import (
     FAITHFULNESS_SYSTEM,
     RELEVANCE_SYSTEM,
@@ -55,3 +57,21 @@ def test_judge_faithfulness_empty_chunks_skips_llm():
     r = asyncio.run(judge_faithfulness(_cfg(), "问题", [], "回答"))
     assert r.score == 0.0
     assert r.rationale == "无检索内容可供对照"
+
+
+# ------------------------------------------------- 回归：非对象 JSON 不得抛异常
+# 2026-09-07 D 代修 C1：data.get 在非 dict 上抛 AttributeError，而 except 只接了
+# JSONDecodeError/TypeError/ValueError → 一条畸形 judge 响应中断整批评测。
+
+
+@pytest.mark.parametrize("raw", ['[1,2,3]', '"just a string"', "null", "true", "123"])
+def test_parse_non_object_json_does_not_raise(raw):
+    score, rationale = _parse(raw)
+    assert score == 0
+    assert rationale == raw
+
+
+def test_parse_array_with_embedded_score_recovers_via_regex():
+    # 顶层是数组但内部含 score：正则兜底应捞回分数，而非直接判 0
+    score, _ = _parse('[{"score": 4, "rationale": "基本忠实"}]')
+    assert score == 4
