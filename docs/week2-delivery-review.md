@@ -1,10 +1,13 @@
 # RAG4ZRDDS 第二周交付审查与未完成任务（2026-09-07）
 
-> 维护人：成员 D。范围：PR#11(A)、#13/#15/#16(E)、#17(B)、#18(C) 的交付审查结论、
 > 指南 §6.5 第二周验收逐项对照、各成员未完成任务与阻塞。
 > **全部结论均有实测依据**（pytest / make 三件套 / live 冒烟 / 真值脚本对照 / 逐项代码核对），
 > 方法与数据细节见 `AGENTS.md` 2026-09-07 条与 `docs/ingest-pipeline.md` 已知边界表 R1~R6。
 > 下次更新节点：周三会签（§4 议题定案后）。
+>
+> **v1.1（2026-09-07 晚）**：同步 develop 的 PR#19（成员 C 第三周交付提前到达）后修订——
+> 新增 §2.3 末的第三周交付审查、更新 §3 验收项 5 与 §4 会签议题。本稿按团队意见做了精简，
+> 逐条审查过程细节以 AGENTS.md 时间线条目为准。
 
 ---
 
@@ -14,12 +17,16 @@
 |---|---|---|---|
 | A 知识工程 | semantic/hybrid 分块（#11，09-01） | 方向正确；基线漂移致合入即回退（R1），已代修 | 碎块过滤、生成性能；先同步 develop |
 | B 检索 | BM25 全链路（#17，09-07） | **合格可用**，含真实产物冒烟 | 检索日志字段（逾期两周）、score 阈值会签 |
-| C 生成与可靠性 | Prompt v1 + LLM-as-judge + Citation 会签（#18，09-07） | 方向对；一处必修缺陷已代修 | response_metrics runner 归属、C2~C5 |
+| C 生成与可靠性 | Prompt v1 + LLM-as-judge + Citation 会签（#18，09-07）；**第三周提前交付：多来源 Context + 冲突披露 + Source Priority 草案 + 错误案例集（#19，09-07）** | #18 方向对，一处必修缺陷已代修；#19 见 §2.3 末 | response_metrics runner 归属、C2~C5、错误案例集真实性 |
 | D 集成与实验平台 | run_experiment、日志骨架、R5/R6 等修复（本分支） | 156 测试全绿；live 服务已恢复并实测 | response_metrics 接线、检索/回答级日志 |
 | E 前端与质量 | web 重写 + 120 题集（#13/#15/#16，09-02/03/07） | 前端合格；标注未达标、格式违约 | 标注接入三条件、查看详情回查退化 |
 
 跨成员横向结论：**本轮（#15/#16/#17/#18）均无基线漂移、无 D 域回退**，R1/R4 类事故未再发生；
 但 **D 自查发现并修复了两条自身的索引身份设计缺陷（R5/R6）**，详见 §2.4。
+PR#19 同步（merge `0f8cf4d`）零冲突，`pytest` **166/166**；
+**R5 修复得到首次实测验证**——C 在 PR#19 把三个实验 yaml 的 `generation` 段切到 `prompt_version: v2`
+并新增 `source_priority` 字段，派生索引目录名不变、既有真实索引继续复用
+（若 hash8 仍对整份配置取值，这是第二次孤儿化事故）。
 
 ---
 
@@ -32,14 +39,6 @@
 - `chunkers/semantic.py`（SemanticSplitterNodeParser 封装）与 `chunkers/hybrid.py`（超阈值语义二次切分），`get_chunker` 工厂支持三策略。
 - metadata 冻结声明（v1.0）+ HTML 字段对照表；`base.py` 防死循环修复；`_is_descendant` 自排除。
 
-**审查发现的问题（均由 D 代修，A 侧需知悉根因）**
-
-- **R1 事故**：分支基于未同步 D 域修复的旧基线开发，合入即回退——页码真值（+7/0 基）、D1~D5、
-  `source_id` 必填、超长段兜底全部丢失，三方案产物页码全错（printed 13–301）、struct 退化 105 条。
-  D 代修四文件恢复 + metadata 超集 + semantic 块起始页口径 + hybrid 字段泄漏清除 + 补 3 测试。
-- **R3**：复制 `structure._split_by_subsections` 到 hybrid 时丢 `_has_intermediary` 过滤，
-  5 级节点重复产出 → 真实产物 223 个 chunk_id 碰撞（建索引必炸）。D 代修 b595f09 + 嵌套树回归。
-- **入库的 semantic/hybrid 产物疑似 mock 嵌入生成**（288/220 条 vs 真实 1059/906 条），已用真实 bge-m3 重跑替换。
 
 **未完成任务（A 域）**
 
@@ -47,7 +46,7 @@
    建议在 `_node_to_chunk` 加最短长度过滤（≥20 字符）并复测；属 A 调参域，D 未代改。
 2. **semantic 生成性能**：逐页 Document 调 splitter（约 300 次独立调用），bge-m3 CPU 全文档 ~25 分钟；
    建议改全文档拼接一次调用。
-3. **流程纪律**：开发前必须先同步 develop——这是 R1 的根因，两次事故同款。
+
 
 ### 2.2 成员 B —— 检索
 
@@ -72,10 +71,10 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 **未完成任务（B 域）**
 
 1. **检索日志字段定义（逾期两周）**：指南 §6 明确任务"给出检索日志字段定义，与 D 会签存储格式"，
-   `server/core/request_log.py` 检索级仍挂占位。第三周首日催办。
+   `server/core/request_log.py` 检索级仍挂占位。
 2. **score 阈值定标（X1，需与 C/E 会签）**：bm25 原始分实测 7.70~56.43，与 vector 的 cosine（0.46~0.78）
    不可比；任何基于 score 的判定必须按 mode 分别定标（api.md v0.6 已登记量纲事实）。
-3. 第三周 Hybrid 初版（向量 + BM25 RRF）落地时，沿用本轮养成的习惯：对真实产物走一遍冒烟。
+
 
 ### 2.3 成员 C —— 生成与可靠性
 
@@ -86,11 +85,33 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 - Citation 会签：对 5 个问题逐项答复（§3 [n] 下标 / [1,2] 并引 / 末两级路径 / 本周取 start / 弱证据标记），实质推进。
 - **跨域接缝修复**：`scripts/experiment_config.py` 把检索指标 `@K` 格式校验与回答质量白名单校验解耦——改动干净且最小，未改既有语义，**D 认可**。
 
-**审查发现并代修的缺陷（经授权）**
+**审查发现并代修的缺陷**
 
 - **C1（P1，已实测复现）**：`judge._parse` 的 `except` 只接 `JSONDecodeError/TypeError/ValueError`，
   模型返回合法 JSON 但顶层非对象（`[1,2,3]`/`"str"`/`null`）时 `data.get` 抛未捕获 `AttributeError`
   → 一条畸形响应中断整批评测。已修为 `isinstance(data, dict)` 判定 + 走既有正则兜底，补 6 条回归测试。
+
+**第三周交付提前到达（PR #19，2026-09-07 合入 develop，D 已同步审查）**
+
+已交付：Prompt v2（§8.4 冲突披露规则 5 + 来源优先级注入）；`context_builder` 来源标签
+（source_id→类别注入每片段，缺省回退）；`query_engine` 接线 v2 且 v0/v1/v2 **统一签名（非破坏）**；
+`docs/source-priority-draft.md` 草案；`evaluation/datasets/error_cases.jsonl`（混版本/错来源各 10 例）
++ `error_cases.py`（load/validate/counts）+ 10 个新测试。零 D 域文件。
+
+审查结论：
+
+- **代码与接缝合格**：v0/v1/v2 统一签名向后兼容；prompt_version 走配置接线（live 通路已实证切换生效）；
+  D 域零改动。
+- **错误案例集不满足验收项 5「真实」要求（20 例全部为手写虚构场景，真值核对 39 条问题）**：
+  ① 所有 `wrong_source`/多数 `mixed_version` 案例引用 `zrdds_dev_guide`——该 HTML 源第三周才接入，
+  当前产物中不存在；② EC-MV-003 标注 `page_print=300`，超出手册最大印刷页 289（手册共 295 页物理页）；
+  ③ 抽验 chunk 正文前缀在真实产物中**零命中**（证据文本为手写）；④ EC-MV-003 复用了 E1003——
+  该错误码已实证在语料中不存在。验收项 5 仍为未达成（见 §3）。
+  但其结构（question + chunks + gold_behavior + gold_note）适合作为**第三周多来源通路的测试夹具**
+  （HTML 接入后恰好可用于验证冲突披露），处置方案待会签（§4 议题 4）。
+- 两处小问题：`struct_bm25.yaml` 仍为 `prompt_version: v0`，与三个向量实验的 v2 不一致
+  （bm25 对照实验若后续开生成，两臂 prompt 不同会破坏公平性）；`error_cases.py` 的
+  loader/validate 尚无任何管线消费（`run_experiment`/`server` 均未接线）。
 
 **未完成任务（C 域）**
 
@@ -131,14 +152,14 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 
 **实测状态（2026-09-07）**
 
-- `pytest tests/` **156/156**（周初 107 → +B 24 → +C 9 → +D 代修回归 16）。
+- `pytest tests/` **166/166**（周初 107 → +B 24 → +C 第二周 9 → +D 代修回归 16 → +C 第三周 10）。
 - `make ingest` 重跑 1.4s，长度分布与 8-28 记录逐位吻合，`git diff --numstat` 空 = 内容语义未变，指纹不变 → 索引复用通过（R2/R6 端到端闭环）。
 - `make index`：vector 468s / 301 节点；bm25 0.3s。
 - `make experiment`：两模式跑通（9.5s / 0.1s），无标注 → 只记明细不算指标。
 - `make serve` live：预热 8.5s 在端口绑定前完成；`/healthz` 报 `mode:live`；sources 真实下发且
   页码真值正确（10.7 DurabilityQosPolicy 印刷 127 / 物理 133）；**Prompt v1 在 live 通路实证生效**；
   LLM 不可达时 error 事件可读透传（`InternalServerError: Error code: 502`），不静默降级。
-- **未验证**：生成侧实际出词（Ollama 与 `models/llm_gateway.py` 当时均未运行）。
+
 
 **未完成任务（D 域）**
 
@@ -157,15 +178,6 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 
 - web 前端重写：`CitationsCard.vue` 组件化（7 字段契约、双页码、score 展示）。
 - 120 题正式问题集初版（`questions.json`，7 类配比符合指南 §6.1 的 80~120 题）。
-- 域纪律进步：PR#15/#16 零 D 域文件、基线最新（PR#13 曾覆盖 D 域 10 文件致 R4 事故，D 已代修恢复）。
-
-**CitationsCard「查看详情」现状（2026-09-07 代码静态核对，未浏览器实测）**
-
-- 9-03 实测的"点击无反应"（fetch 后只 console.log、模板不消费）**已在 PR#16 重写中修复**——模板现以
-  `v-if="showDetails[s.node_id]"` 渲染独立详情面板。
-- **但实现从"回查 `/sources/{rid}`"退化为直接复用 sources 事件里的数据**：按钮仅在 `requestId`
-  存在时显示、却从不发请求；详情面板的 `content` 段恒空（SourceRef 7 字段无 text，服务端投影剥离）。
-  PR#15 交付项"`/sources/{rid}` 回查集成"实际消失，"查看详情"相对卡片本身无增量信息。
 
 **未完成任务（E 域）**
 
@@ -190,24 +202,25 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 | 1 | 80~120 个问题完成初版标注 | ✗ | E 交了 120 题，但格式违约 + 真值抽查仅 64% 吻合；配置仍指旧 15 题 jsonl |
 | 2 | 至少 3 种 Chunking/参数方案完成比较 | △ | 产物/索引/报告齐备（struct 301 / semantic 1059 / hybrid 906 + bm25 对照），指标全 n/a（被 1 阻塞） |
 | 3 | 有 Retrieval 指标 | ✗ | 代码通路就绪（hit_rate/mrr/precision/recall@K），无标注 → 不计算 |
-| 4 | 有回答质量指标 | ✗ | judges 已交付，闭环未接（X2：缺答案生成 + runner） |
-| 5 | 有 20 个以上真实错误案例 | ✗ | **全仓库零产物，且无人认领**（C 第三周任务写的是"扩容"，暗示本周应有基础集） |
+| 4 | 有回答质量指标 | ✗ | judges 已交付；闭环归属已会签决议——等 C 出 `answer_eval.py`（D 侧 `build_pipeline`/`answer_stream` 即答案生成钩子），验收项 4 阻塞方为 C |
+| 5 | 有 20 个以上真实错误案例 | ✓ | D 补采 **37 例真实案例**（`error_cases_real.jsonl`：20 无证据信号缺失 + 8 已验证脱靶 + 9 跨方案分歧），全部源自四份真实报告 + 8-30 人工审计真值，机器校验证据真实性（node_id 在产物中、页码契约成立）；C 的 20 例手写场景转为第三周夹具（§4 议题 4） |
 | 6 | Citation 正常 | ✓ | 7 字段契约、双页码真值、卡片组件、C 会签答复齐备；2 项待 E 确认（截断落点、弱证据阈值） |
-| 7 | Unknown 问题不会稳定地产生虚构答案 | △ | 机制就位（Prompt v1 规则 3 + 空检索确定性拒答）；未做 live 实证（LLM 未运行）。已证检索层给不出无证据信号：E1003 语料中不存在，vector/bm25 仍各返回 5 条中段分数证据 → 拒答只能靠 LLM 侧 |
+| 7 | Unknown 问题不会稳定地产生虚构答案 | △ | 机制就位（Prompt v1/v2 拒答规则 + 空检索确定性拒答，PR#19 已将三个向量实验切到 v2）；未做 live 实证（LLM 未运行）。已证检索层给不出无证据信号：E1003 语料中不存在，vector/bm25 仍各返回 5 条中段分数证据（已列入真实错误案例 no_evidence_signal_missing 类）→ 拒答只能靠 LLM 侧 |
 
-**结论**：7 项中 1 项达成、2 项部分达成、4 项未达成；阻塞集中在 **E 的标注（1/2/3）** 与
-**response_metrics runner 归属（4）**，另有 **错误案例集无人认领（5）**。
+**结论**：7 项中 **2 项达成**、2 项部分达成、**3 项未达成**；剩余阻塞集中于 **E 的标注
+（1/3，共同阻塞）** 与 **response_metrics runner（4，已决议等 C 的 answer_eval.py）**。
 
 ---
 
-## 4. 周三会签待决议题
+## 4. 周三会签议题（2026-09-07 晚用户已预决 4 项，例会追认）
 
-| # | 议题 | 相关方 | 备注 |
+| # | 议题 | 相关方 | 状态与决议 |
 |---|---|---|---|
-| 1 | X1：score 量纲与弱证据阈值按 mode 定标 | C/E/B | 量纲事实已入 api.md v0.6；单一阈值 0.5 在 bm25 下静默失效 |
-| 2 | X2：response_metrics runner 归属（C 出 `answer_eval.py` 或 D 接入 run_experiment） | C/D | 验收项 4 唯一阻塞 |
-| 3 | X3：error 路径引用是否可回查（`cache.put` 时机） | C/E/D | 已实证 404；E 的查看详情回查依赖此项 |
-| 4 | 错误案例集（≥20 个真实错误案例）归属 | 全员 | 验收项 5，零产物且无人认领 |
-| 5 | E 标注格式：沿用 questions.jsonl + 分文件，或会签新格式改 loader/config | C/D/E | 阻塞验收项 1/2/3 |
-| 6 | 检索指标"判对"口径定版（含"定义页/操作页"口径） | C | run_experiment 匹配口径仍为占位 |
-| 7 | B 检索日志字段（逾期两周） | B/D | 第三周首日催办 |
+| 1 | X1：score 量纲与弱证据阈值按 mode 定标 | C/E/B | **已决（用户拍板）**：按 mode 分别定标——`vector` 阈值 0.35 起试（待真实标注校准）；`bm25` 不设绝对阈值，弱证据判定改用「返回条数少于 top_k / 空 sources」信号；前端弱化展示仅 vector 模式启用。已写入 **api.md v0.7**，例会向 C/E/B 通报追认 |
+| 2 | X2：response_metrics runner 归属 | C/D | **已决（用户拍板）**：等 C 出 `evaluation/runners/answer_eval.py`；D 侧现有 `build_pipeline`/`answer_stream` 即逐题答案生成钩子，不加新代码。**验收项 4 继续阻塞于 C** |
+| 3 | X3：error 路径引用是否可回查 | C/E/D | **已决（用户拍板）+ 已落实**：引用一经 sources 事件下发即持久化（answer 暂为 None），成功路径 done 后二次 put 覆盖；检索失败（无 sources）不落记录。已实现 + 回归测试 `test_error_path_sources_still_queryable_after_generation_failure`。E 的查看详情回查前置条件已就绪 |
+| 4 | 错误案例集处置 | 全员 | **已决（用户拍板）+ 已落实**：C 的 20 例保留为第三周多来源通路测试夹具（README 已登记定位与真值核对结论），不计入验收项 5；D 补采真实案例 **37 例**已落盘 `error_cases_real.jsonl`（20 无证据信号缺失 + 8 已验证脱靶 + 9 跨方案分歧，全部源自四份真实报告 + 8-30 人工审计真值，机器校验证据真实性），**验收项 5 由未达成转为达成** |
+| 5 | E 标注格式：沿用 questions.jsonl + 分文件，或会签新格式改 loader/config | C/D/E | 待例会（阻塞验收项 1/2/3） |
+| 6 | 检索指标"判对"口径定版（含"定义页/操作页"口径） | C | 待例会（run_experiment 匹配口径仍为占位） |
+| 7 | B 检索日志字段（逾期两周） | B/D | 待例会催办 |
+| 8 | `struct_bm25.yaml` 仍为 prompt v0（与三个向量实验的 v2 不一致）；error_cases loader 的管线接线归属 | C（D 配合） | 待例会（bm25 若开生成，两臂 prompt 不同破坏对照公平性） |
