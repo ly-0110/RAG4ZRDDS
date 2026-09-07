@@ -31,6 +31,10 @@ chunking:
     breakpoint_percentile_threshold: 95   # 指南 §6.2 建议起点
     buffer_size: 1
     embed_model: bge-m3                   # bge-m3 真实语义 | mock 冒烟
+    # min_chunk_chars: 20  # 碎块过滤（docs/week2-delivery-review.md §2.1 遗留修复）：
+    #                      # <20 字符的图号/节号碎片不进索引（默认 20；0=关闭过滤）。
+    #                      # 注意：该参数写进 params 会改变索引身份 hash8 → 派生新索引目录；
+    #                      # 默认值下无需显式声明（保持既有 semantic 索引目录可原地重建）。
 
 embedding:
   provider: local
