@@ -8,6 +8,8 @@
 | `expected_sources.jsonl` | **尚无（占位版已于 2026-08-30 移除）** | 期望来源标注。占位版按 `smoke.json` 页码派生，经 Node 产物实证不可用（见下）；缺失时 `run_experiment.py` 只记录检索结果、不计算指标 |
 | `expected_sources.draft.jsonl` | **草稿（E 初版重标，数据未核实，勿接入）** | 格式符合本 README 草案、`run_experiment.py` 可直接消费，保留作格式样例；但页码经 Node 产物抽查不合格——S001 称 9.7.1 在印刷 68（实为 7.3 SQL 过滤）、S003~S006 区间与第 11 章标注自相矛盾，仅 S002 与审计真值一致（2026-09-02，详见 AGENTS 当日记录）；且 id 为 S001~S015，与 `questions.jsonl` 的 Q001~Q015 不对应。**接入条件**：E 逐题对 PDF 核对（页码地面真值=页眉印刷数字）、id 与问题集对齐、C 定口径后，方可改名 `expected_sources.jsonl` 接入 |
 | `smoke.json` | 第一周原始冒烟集（E 于 PR #13 重写，S001~S015 带自由文本页码） | 保留为来源依据，不直接参与评测（无任何脚本/配置引用）；页码主张同样未经核实 |
+| `error_cases.jsonl` | **草案（成员 C 第三周，20 例）** | 可靠性错误案例集：混版本（冲突披露）+ 错来源（拒答不臆造）各 10 例；格式见下 |
+| `error_cases.py` | 加载/校验模块 | `load()` / `validate()` / `counts()`，供 run_experiment 或可靠性评测消费 |
 
 ## questions.jsonl 字段（指南 §6.1）
 
@@ -32,6 +34,22 @@
 页码与真实分布严重不符——如"安装/环境变量"实际位于印刷页 168~171（第11章 软件安装指南），
 冒烟集却标注"第 3-5 页"；按印刷页或物理页解释均无法自洽。用不可靠标注算指标会误导结论，
 故宁缺毋滥：正式标注由成员 E 随问题集对 PDF 逐题核对后重写，成员 C 审核口径。
+
+## error_cases.jsonl 字段（成员 C 第三周草案）
+
+```json
+{"id": "EC-MV-001", "category": "mixed_version", "question": "...",
+ "chunks": [{"source_id": "user_manual", "source_name": "...", "source_type": "pdf",
+             "version": "2.0", "section": "...", "page_print": 245, "text": "..."}],
+ "gold_behavior": "conflict_disclosure", "gold_note": "..."}
+```
+
+- `id`：`EC-<类别>-<序号>`，唯一（`MV`=混版本、`WS`=错来源）。
+- `category`：`mixed_version`（混版本/来源冲突）| `wrong_source`（错来源）。
+- `chunks`：命中片段（含来源元数据与正文），供生成侧组装 context 后做行为回归。
+- `gold_behavior`：理想行为——`conflict_disclosure`（披露冲突）| `abstention`（拒答不臆造）| `source_priority`（按优先级采信）。
+- `gold_note`：人工核对说明。
+- 硬性要求（`error_cases.py` 的 `validate()` 校验）：混版本、错来源各 ≥10 例。
 
 ## 与配置的对应关系
 
