@@ -1,37 +1,71 @@
-@import './base.css';
-@import './modern-theme.css';
+:root {
+  --bg: #e8f1f6;
+  --bg-soft: #f5f9fb;
+  --panel: rgba(255, 255, 255, 0.86);
+  --panel-strong: #ffffff;
+  --surface-soft: #edf6f9;
+  --surface-alt: #f4f8fa;
+  --primary-50: #eef8fa;
+  --primary-100: #dceef2;
+  --primary-200: #c2e0e7;
+  --primary-300: #93c8d4;
+  --primary-500: #5e9cad;
+  --primary-600: #397d91;
+  --primary-700: #2c6078;
+  --primary-900: #193b52;
+  --ink-deep: #102d42;
+  --text: #203746;
+  --text-muted: #607885;
+  --text-subtle: #8296a1;
+  --line: #dbe8ed;
+  --line-strong: #c7dbe2;
+  --teal: #3e9b9a;
+  --success: #4d9b88;
+  --warning: #ae8b57;
+  --shadow-soft: 0 24px 64px rgba(31, 74, 97, 0.15);
+  --shadow-card: 0 10px 26px rgba(40, 87, 106, 0.08);
+  --shadow-float: 0 16px 36px rgba(31, 74, 97, 0.12);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+}
 
-/* Override base styles with modern theme */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
 #app {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  min-height: 100%;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: var(--color-primary-deep);
-  transition: all var(--transition-normal);
-  padding: 3px;
+body {
+  margin: 0;
+  font-family: Inter, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: rgba(59, 130, 246, 0.1);
-  }
+button,
+textarea {
+  font: inherit;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+button {
+  -webkit-tap-highlight-color: transparent;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+::selection {
+  background: rgba(62, 155, 154, 0.22);
 }
