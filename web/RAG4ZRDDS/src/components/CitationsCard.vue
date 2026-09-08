@@ -54,8 +54,26 @@
           📄 查看详情
         </button>
         <span v-else class="no-details-tip">无详情数据</span>
-      </div>
         
+        <!-- 反馈按钮 -->
+        <div class="feedback-actions" v-if="requestId && canFetchDetails">
+          <button 
+            class="feedback-btn helpful"
+            @click="submitFeedback(s.node_id, true)"
+            title="有帮助"
+          >
+            👍 有帮助
+          </button>
+          <button 
+            class="feedback-btn unhelpful"
+            @click="submitFeedback(s.node_id, false)"
+            title="无帮助"
+          >
+            👎 无帮助
+          </button>
+        </div>
+      </div>
+      
       <!-- 详情展示区域（每个卡片独立） -->
       <div 
         v-if="showDetails[s.node_id]" 
@@ -112,6 +130,29 @@ const showDetails = ref({})
 
 /** 活跃的来源数据（每个来源独立） */
 const activeSources = ref({})
+
+/** 反馈记录（node_id → { helpful: boolean, timestamp: number }） */
+const feedbacks = ref({})
+
+/**
+ * 提交反馈
+ * @param {string} nodeId - 来源节点 ID
+ * @param {boolean} isHelpful - 是否有帮助
+ */
+const submitFeedback = async (nodeId, isHelpful) => {
+  if (!canFetchDetails.value) return
+  
+  // 记录反馈（前端暂存，实际提交需后端 API）
+  feedbacks.value[nodeId] = {
+    helpful: isHelpful,
+    timestamp: Date.now()
+  }
+  
+  // TODO: 调用后端 API 提交反馈数据
+  // await fetch(`/api/feedback/${nodeId}`, { method: 'POST', body: ... })
+  
+  console.log(`Feedback submitted for ${nodeId}: helpful=${isHelpful}`)
+}
 
 /**
  * 隐藏指定来源的详情面板
@@ -254,6 +295,42 @@ const fetchAndShowDetails = async (source) => {
   font-size: 11px;
   color: #999;
   font-style: italic;
+}
+
+/* 反馈按钮样式 */
+.feedback-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.feedback-btn {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #666;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-btn:hover {
+  background-color: #f5f5f5;
+  color: #333;
+  border-color: #999;
+}
+
+.feedback-btn.helpful:hover {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-color: #4caf50;
+}
+
+.feedback-btn.unhelpful:hover {
+  background-color: #ffebee;
+  color: #c62828;
+  border-color: #f44336;
 }
 
 /* 详情面板样式 */

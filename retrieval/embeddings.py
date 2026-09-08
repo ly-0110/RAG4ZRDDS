@@ -4,14 +4,16 @@
 sentence-transformers）；provider=api 留待后续周次。
 模型采用懒加载：build_embedding 只返回闭包，首次调用才加载模型。
 模型已下载到 models/{model} 时优先用本地目录（免联网）；
-否则按 HuggingFace repo id 下载（国内可设 HF_ENDPOINT=https://hf-mirror.com）。
+否则按 HuggingFace repo id 下载（国内可设 HF_ENDPOINT=https://mirrors.tuna.tsinghua.edu.cn/huggingface.co）。
 """
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 from pathlib import Path
 
 MODEL_DIR = Path(__file__).resolve().parents[1] / "models"
+DEFAULT_DESKTOP_MODEL_DIR = Path.home() / "Desktop" / "bge-m3"
 
 # 配置允许用短名（也参与索引目录命名）；联网拉取时必须换成 HF 全 repo id。
 HF_REPO_ALIASES = {
@@ -20,9 +22,16 @@ HF_REPO_ALIASES = {
 
 
 def _resolve_model(name: str) -> str:
+    configured = os.environ.get("BGE_M3_MODEL_PATH")
+    if name == "bge-m3" and configured:
+        configured_path = Path(configured).expanduser()
+        if configured_path.is_dir():
+            return str(configured_path)
     local = MODEL_DIR / name
     if local.exists():
         return str(local)
+    if name == "bge-m3" and DEFAULT_DESKTOP_MODEL_DIR.is_dir():
+        return str(DEFAULT_DESKTOP_MODEL_DIR)
     return HF_REPO_ALIASES.get(name, name)
 
 
@@ -40,6 +49,10 @@ def build_embedding(cfg) -> Callable[[list[str]], list[list[float]]]:
         if _model is None:
             from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
+            # 国内镜像源配置（解决 SSL 证书问题）
+            if not os.environ.get('HF_ENDPOINT'):
+                os.environ['HF_ENDPOINT'] = 'https://mirrors.tuna.tsinghua.edu.cn/huggingface.co'
+            
             _model = HuggingFaceEmbedding(
                 model_name=_resolve_model(cfg.embedding.model),
                 device=cfg.embedding.device,
