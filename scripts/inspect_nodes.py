@@ -38,29 +38,52 @@ def percentile(sorted_vals: list[int], p: float) -> int:
 
 
 def stats_report(nodes) -> int:
-    lengths = sorted(len(n.text) for n in nodes)
+    """质检口径（指南 §7 多来源）：全局查空/重复，双页码规则仅对 PDF 来源，
+    HTML 来源以 source_url 为锚（页码可空，按 §7.2 Schema）。"""
+    lengths_all = sorted(len(nd.text) for nd in nodes)
     n = len(nodes)
-    ids = [n_.node_id for n_ in nodes]
+    ids = [nd.node_id for nd in nodes]
     dup_ids = {i for i in ids if ids.count(i) > 1}
-    texts = [n_.text for n_ in nodes]
+    texts = [nd.text for nd in nodes]
     dup_texts = {t[:40] for t in texts if texts.count(t) > 1}
-    empty = sum(1 for t in lengths if t == 0)
-    no_page = sum(
-        1 for x in nodes if x.page_print is None or x.page_physical is None
-    )
-    over = sum(1 for t in lengths if t > 2500)
+    empty = sum(1 for t in lengths_all if t == 0)
+    over = sum(1 for t in lengths_all if t > 2500)
+
+    def _dist(group: list) -> str:
+        ls = sorted(len(nd.text) for nd in group)
+        m = len(ls)
+        return (f"min={ls[0] if m else 0} p50={percentile(ls, 0.5)} "
+                f"avg={sum(ls) // m if m else 0} max={ls[-1] if m else 0}")
+
+    # 分来源类型统计（metadata 缺 source_type 时按 pdf 处理，兼容旧产物）
+    by_type: dict[str, list] = {}
+    for nd in nodes:
+        st = nd.metadata.get("source_type") or "pdf"
+        by_type.setdefault(st, []).append(nd)
 
     print(f"节点数        : {n}")
-    print(f"字符长度分布  : min={lengths[0] if n else 0} p50={percentile(lengths, 0.5)} "
-          f"avg={sum(lengths) // n if n else 0} p95={percentile(lengths, 0.95)} "
-          f"max={lengths[-1] if n else 0}")
+    for st in sorted(by_type):
+        group = by_type[st]
+        print(f"— 来源 {st}: {len(group)} 条 | {_dist(group)}")
+        if st == "pdf":
+            no_page = sum(1 for x in group
+                          if x.page_print is None or x.page_physical is None)
+            print(f"  缺双页码    : {no_page}")
+            bad_type = no_page
+        elif st == "html":
+            no_url = sum(1 for x in group if not (x.metadata.get("source_url") or "").strip())
+            print(f"  缺 source_url: {no_url}")
+            bad_type = no_url
+        else:
+            print(f"  未知来源类型，仅统计基础指标")
+            bad_type = 0
     print(f"空文本        : {empty}")
     print(f"重复 ID       : {len(dup_ids)}" + (f" 例: {list(dup_ids)[:3]}" if dup_ids else ""))
     print(f"重复文本      : {len(dup_texts)}")
-    print(f"缺双页码      : {no_page}")
     print(f">2500 字符块  : {over}（原子保护块表格/代码可超，正常）")
-    bad = empty or dup_ids or dup_texts or no_page
-    print("结论          : " + ("存在异常，见上" if bad else "通过（无空 Node / 无重复 / 页码齐全）"))
+    bad = empty or dup_ids or dup_texts or bad_type
+    print("结论          : " + ("存在异常，见上" if bad else
+                                "通过（无空 Node / 无重复 / 页码与 URL 锚齐全）"))
     return 1 if bad else 0
 
 

@@ -1,7 +1,8 @@
-# RAG4ZRDDS Ingest 编排管线（v1.1 · 全链路打通）
+# RAG4ZRDDS Ingest 编排管线（v1.3 · 多来源注册式）
 
 > 维护人：成员 D。调用 A 交付物（data_pipeline/）完成 raw → cleaned → processed 的自动化编排。
-> 当前 stage：全链路打通——分块步骤已接入 A 的 StructureChunker（2026-08-27 测试验证后启用）。
+> 当前 stage：多来源注册式接入（Week 3，指南 §7）——按配置 `sources[]` 注册表逐来源分派 loader，
+> 合并为统一 Node 集；单来源配置行为与 v1.2 逐字节兼容（四个真实配置 hash8 回归钉死）。
 
 ## 概览
 
@@ -203,6 +204,42 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 `metadata` 必填字段：`source_id`（对齐实验配置 `sources[].id`，2026-08-28 新增） `source_file` `source_type` `part` `chapter` `section_path` `section_level` `printed_page_start/end` `physical_page_start/end` `node_ids[]` `chunk_id` `version` `product`；
 可选字段（第三周 HTML 回填）：`language` `platform` `content_type` `api_name` `error_code` `source_url`（PDF 阶段均为 None）。
 
+## 多来源注册式接入（Week 3，指南 §7）
+
+**目标**：新来源放入 raw + 在配置注册即可重建索引；PDF 与 HTML 独立解析、统一 Node、统一检索（§7.4）。
+
+### 来源注册（configs/experiments/*.yaml 的 sources）
+
+每个来源声明 `id / type(pdf|html) / path / version / url`（html 必填 url，§7.2 引用可跳转）。
+合并校验强制跨域一致性：
+
+- `metadata.source_id` 必须等于注册 `id`（抓 loader 错挂来源）
+- 注册声明了 `version` 时 `metadata.version` 必须一致（抓 2.0/2.4 错配）
+- 双页码差值按 `source_id` **分组**校验——多 PDF 来源可各有偏移；HTML 无页码自然跳过
+- `chunk_id` 全局唯一（跨来源重复在建库前暴露，抓 A 侧 ID 前缀撞车）
+
+### 分派与产物命名
+
+| | 单来源配置（现状，兼容冻结） | 多来源配置 |
+|---|---|---|
+| PDF 链路 | 六步全链路（既有产物名 pages.jsonl / section_tree_v1.jsonl） | 同链路，产物按来源拆分 `pages_{sid}.jsonl` / `section_tree_{sid}.jsonl` |
+| HTML 链路 | —（不注册 html 即可） | 经 A 的 `html_loader.load_html_nodes`（见下接缝） |
+| Node 集 | `{method}_{version}.jsonl`（既有命名不变） | `{method}_{version}__{src8}.jsonl`（src8=来源集指纹，见 `experiment_config.sources_digest8`） |
+| 索引身份 | hash8 不含 sources（**既有 4 个真实索引不受影响**，R5 回归钉死） | 来源集参与 `index_identity_json`——来源集变了索引名必变，与 R2 产物指纹双保险 |
+
+**落盘顺序**：先合并校验、后写盘——坏合并不得覆盖既有好产物（Node 集同名覆盖即索引指纹翻转）。
+
+### html_loader 接缝（成员 A 交付物，未就绪前注册 html 来源会在 ingest 期得到可读错误）
+
+```python
+# data_pipeline/html_loader.py 期望接口（Chunk.to_dict 同款顶层结构）
+load_html_nodes(source_path: Path, *, source_id: str, version: str,
+                base_url: str, chunk_params: dict) -> List[dict]
+```
+
+metadata 必须经 `data_pipeline.metadata.build_chunk_metadata` 构建
+（`source_type="html"`：双页码 None、`source_url`/`title` 必填、version=2.4）。
+
 ## 已知边界
 
 > 分块交付物的缺陷根因、实测证据与修复方向统一见 **`docs/chunking-defect-report.md`**（D1~D5，2026-08-27 诊断，修复责任人 A）。下表仅登记对管线的影响与状态。
@@ -238,6 +275,7 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 | v1 | 第一周 | 骨架定稿：配置加载 → PDF 提取 → 清洗 → pages.jsonl + 契约校验 → 章节树 → 分块预留点 |
 | v1.1 | 2026-08-27 | 分块步骤接入 A 的 StructureChunker（`get_chunker` 工厂）；新增 `validate_nodes_jsonl` Node 集契约校验与 `quality_check` 质检挂接；A 交付物经实测登记上表 9 条边界 |
 | v1.2 | 2026-09-01 | A 第二周三方案交付（PR #11）检验与回退修复（R1/R2）：struct 301 条复现、semantic 288 / hybrid 220 重跑（bge-m3）；metadata 升至 15 必填 + 7 可选（恢复 source_id）；实验配置 `semantic_v1.yaml` / `hybrid_v1.yaml` 入库 |
+| v1.3 | 2026-09-08 | **多来源注册式接入（Week 3）**：sources 注册表逐来源分派（pdf 全链路 / html 接缝预留）、合并 Node 集 + 来源注册一致性校验（source_id/version/分组页码差值/跨来源 ID 唯一）、多来源派生命名（nodes 文件名 src8 后缀 + 索引身份含来源集，单来源逐字节兼容并有 4 配置 hash8 回归钉）；先校验后落盘；`inspect_nodes.py` 分来源分型统计（双页码仅对 PDF，HTML 以 source_url 为锚）；回归 `tests/unit/test_multi_source_ingest.py` 17 例，全套 195/195 |
 
 ## 依赖模块清单
 
@@ -250,3 +288,4 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 | `data_pipeline/chunkers/` | A | ✅ | structure/semantic/hybrid 三策略已交付并接入（PR #11 + D 修复） |
 | `data_pipeline/metadata.py` | A | ✅ | 15 必填 + 7 可选 Schema 单一事实源（含会签字段 source_id） |
 | `data_pipeline/quality_check.py` | A | ✅ | §16 清单自动化（页眉正则/精确判重/页码真值校验已恢复） |
+| `data_pipeline/html_loader.py` | A | ⏳ 未交付 | Week 3 HTML 来源 loader（Doxygen 436 页）；接缝签名见上方「多来源注册式接入」，交付前配置注册 html 来源会在 ingest 期得可读错误 |

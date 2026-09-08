@@ -281,6 +281,14 @@ def index_identity_json(cfg: ExperimentConfig) -> str:
     identity = {k: data[k] for k in _INDEX_IDENTITY_SECTIONS if k in data}
     retrieval = data.get("retrieval") or {}
     identity["retrieval"] = {k: retrieval.get(k) for k in _INDEX_IDENTITY_RETRIEVAL_KEYS}
+    # 多来源注册集参与索引身份（指南 §7：来源集变了索引内容必变）；
+    # 单来源不进身份——保持既有 hash8 不变，避免真实索引孤儿化（R5 教训）。
+    if len(cfg.sources) > 1:
+        identity["sources"] = sorted(
+            ({"id": s.id, "type": s.type, "path": s.path, "version": s.version}
+             for s in cfg.sources),
+            key=lambda s: s["id"],
+        )
     return json.dumps(identity, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
@@ -293,8 +301,24 @@ def config_hash8(cfg: ExperimentConfig) -> str:
     return hashlib.sha256(index_identity_json(cfg).encode("utf-8")).hexdigest()[:8]
 
 
+def sources_digest8(cfg: ExperimentConfig) -> str:
+    """多来源注册集的身份摘要（sha256 前 8 位）：排序后的 (id,type,path,version)。
+
+    仅在 sources 数量 >1 时参与派生命名（见 nodes_path / index_identity_json），
+    单来源配置的派生命名保持与 Week2 冻结版逐字节一致。
+    """
+    items = sorted([s.id, s.type, s.path, s.version or ""] for s in cfg.sources)
+    payload = json.dumps(items, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:8]
+
+
 def nodes_path(cfg: ExperimentConfig) -> Path:
-    return REPO_ROOT / "data" / "processed" / f"{cfg.chunking.method}_{cfg.chunking.version}.jsonl"
+    name = f"{cfg.chunking.method}_{cfg.chunking.version}"
+    if len(cfg.sources) > 1:
+        # 多来源合并节点集与单来源产物同 method/version 时不得共用文件，
+        # 否则注册一个来源就会覆盖另一个配置的 Node 集。
+        name += f"__{sources_digest8(cfg)}"
+    return REPO_ROOT / "data" / "processed" / f"{name}.jsonl"
 
 
 def index_dirname(cfg: ExperimentConfig) -> str:

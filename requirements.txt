@@ -46,5 +46,5 @@ pytest==9.1.1
 # ===== LLM（OpenAI 兼容 · 成员 C 第一周）=====
 openai==2.46.0           # 生成侧流式调用，任何 OpenAI 兼容服务通用
 
-# ===== 可选（按需启用）=====
-# mcp>=1.0              # 第四周 MCP Server 封装
+# ===== MCP（成员 D 第三周）=====
+mcp==2.2.0               # MCP Server stdio 传输（指南 §7 任务 2；v2 起 FastMCP 更名 MCPServer）
