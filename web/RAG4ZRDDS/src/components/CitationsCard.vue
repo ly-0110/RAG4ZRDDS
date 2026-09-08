@@ -17,12 +17,31 @@
           第 
           <span class="page-print">{{ s.page_print }}</span> 页（物理页 {{ s.page_physical }}）
         </span>
+        
+        <span v-if="s.source_type" :class="[
+          'source-badge',
+          s.source_type === 'PDF' ? 'badge-pdf' : 'badge-html'
+        ]">
+          <span class="source-badge-icon">
+            {{ s.source_type === 'PDF' ? '📕' : '📘' }}
+          </span>
+          <span>{{ s.source_type === 'PDF' ? 'ZRDDS 用户手册' : 'Developer Guide' }}</span>
+        </span>
+        
         <span class="score-info">
           · 相关度 {{ Number(s.score).toFixed(3) }}
         </span>
-        <span class="source-id" v-if="s.source_id">
-          · {{ s.source_id }}
-        </span>
+        
+        <a 
+          v-if="s.source_type === 'HTML'" 
+          :href="s.url" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="source-id"
+          style="color: #1565c0; text-decoration: none;"
+        >
+          → 查看原文
+        </a>
       </div>
         
       <!-- 查看详情按钮 -->
@@ -35,8 +54,26 @@
           📄 查看详情
         </button>
         <span v-else class="no-details-tip">无详情数据</span>
-      </div>
         
+        <!-- 反馈按钮 -->
+        <div class="feedback-actions" v-if="requestId && canFetchDetails">
+          <button 
+            class="feedback-btn helpful"
+            @click="submitFeedback(s.node_id, true)"
+            title="有帮助"
+          >
+            👍 有帮助
+          </button>
+          <button 
+            class="feedback-btn unhelpful"
+            @click="submitFeedback(s.node_id, false)"
+            title="无帮助"
+          >
+            👎 无帮助
+          </button>
+        </div>
+      </div>
+      
       <!-- 详情展示区域（每个卡片独立） -->
       <div 
         v-if="showDetails[s.node_id]" 
@@ -94,6 +131,29 @@ const showDetails = ref({})
 /** 活跃的来源数据（每个来源独立） */
 const activeSources = ref({})
 
+/** 反馈记录（node_id → { helpful: boolean, timestamp: number }） */
+const feedbacks = ref({})
+
+/**
+ * 提交反馈
+ * @param {string} nodeId - 来源节点 ID
+ * @param {boolean} isHelpful - 是否有帮助
+ */
+const submitFeedback = async (nodeId, isHelpful) => {
+  if (!canFetchDetails.value) return
+  
+  // 记录反馈（前端暂存，实际提交需后端 API）
+  feedbacks.value[nodeId] = {
+    helpful: isHelpful,
+    timestamp: Date.now()
+  }
+  
+  // TODO: 调用后端 API 提交反馈数据
+  // await fetch(`/api/feedback/${nodeId}`, { method: 'POST', body: ... })
+  
+  console.log(`Feedback submitted for ${nodeId}: helpful=${isHelpful}`)
+}
+
 /**
  * 隐藏指定来源的详情面板
  * @param {string} nodeId - 来源节点 ID
@@ -135,7 +195,7 @@ const fetchAndShowDetails = async (source) => {
 
 .source-card {
   border: 1px solid #dbe7f3;
-  background: #fff;
+  background: #fafafa; /* 柔和的浅灰背景 */
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 8px;
@@ -143,13 +203,13 @@ const fetchAndShowDetails = async (source) => {
 }
 
 .source-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 增强阴影 */
   transform: translateY(-1px);
 }
 
 .source-title {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 600; /* 加粗标题 */
   color: #1a5276;
   margin-bottom: 4px;
 }
@@ -185,6 +245,30 @@ const fetchAndShowDetails = async (source) => {
   font-size: 11px;
 }
 
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-pdf {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.badge-html {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.source-badge-icon {
+  font-size: 14px;
+}
+
 .action-area {
   display: flex;
   align-items: center;
@@ -211,6 +295,42 @@ const fetchAndShowDetails = async (source) => {
   font-size: 11px;
   color: #999;
   font-style: italic;
+}
+
+/* 反馈按钮样式 */
+.feedback-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.feedback-btn {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #666;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-btn:hover {
+  background-color: #f5f5f5;
+  color: #333;
+  border-color: #999;
+}
+
+.feedback-btn.helpful:hover {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-color: #4caf50;
+}
+
+.feedback-btn.unhelpful:hover {
+  background-color: #ffebee;
+  color: #c62828;
+  border-color: #f44336;
 }
 
 /* 详情面板样式 */
