@@ -22,6 +22,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from retrieval.retriever import to_source_refs
+from server.core.request_log import request_log_scope
 from server.core.schema import QueryRequest
 
 router = APIRouter()
@@ -47,28 +48,31 @@ async def query(req: QueryRequest, request: Request) -> StreamingResponse:
     rid: str = request.state.request_id
 
     async def event_stream() -> AsyncIterator[str]:
-        try:
-            chunks = await pipeline.retriever.retrieve(question, top_k)
-            # 检索器返回富引用（含 text 正文，供生成侧）；下发前端前投影为
-            # SourceRef 7 字段，避免把整段正文塞进 sources 事件与 sources.jsonl。
-            wire_sources = to_source_refs(chunks)
-            yield _sse("sources", {"request_id": rid, "sources": wire_sources})
-            # X3（2026-09-07 会签）：引用一经下发即持久化——之后生成侧失败
-            # （如 LLM 不可达），客户端已拿到的 sources 仍可经 /sources/{rid} 回查。
-            # put 每次追加序列化副本且回读取最后一条，成功路径下方二次 put
-            # 覆盖为最终答案，JSONL 中保留「引用下发→答案完成」两条生命周期。
-            cache.put(rid, {"question": question, "answer": None, "sources": wire_sources})
+        # 检索日志关联（docs/retrieval-log-schema.md）：本请求的 rid 经 ContextVar
+        # 注入 pipeline 层包装器，retrievals.jsonl 的记录据此关联 requests.jsonl。
+        with request_log_scope(rid):
+            try:
+                chunks = await pipeline.retriever.retrieve(question, top_k)
+                # 检索器返回富引用（含 text 正文，供生成侧）；下发前端前投影为
+                # SourceRef 7 字段，避免把整段正文塞进 sources 事件与 sources.jsonl。
+                wire_sources = to_source_refs(chunks)
+                yield _sse("sources", {"request_id": rid, "sources": wire_sources})
+                # X3（2026-09-07 会签）：引用一经下发即持久化——之后生成侧失败
+                # （如 LLM 不可达），客户端已拿到的 sources 仍可经 /sources/{rid} 回查。
+                # put 每次追加序列化副本且回读取最后一条，成功路径下方二次 put
+                # 覆盖为最终答案，JSONL 中保留「引用下发→答案完成」两条生命周期。
+                cache.put(rid, {"question": question, "answer": None, "sources": wire_sources})
 
-            parts: list[str] = []
-            async for token in pipeline.answer_stream.stream(question, chunks):
-                parts.append(token)
-                yield _sse("token", {"request_id": rid, "text": token})
+                parts: list[str] = []
+                async for token in pipeline.answer_stream.stream(question, chunks):
+                    parts.append(token)
+                    yield _sse("token", {"request_id": rid, "text": token})
 
-            answer = "".join(parts)
-            yield _sse("done", {"request_id": rid, "answer": answer, "sources": wire_sources})
-            cache.put(rid, {"question": question, "answer": answer, "sources": wire_sources})
-        except Exception as exc:  # noqa: BLE001 —— 流中任何错误都必须以事件形式告知客户端
-            yield _sse("error", {"request_id": rid, "error": f"{type(exc).__name__}: {exc}"})
+                answer = "".join(parts)
+                yield _sse("done", {"request_id": rid, "answer": answer, "sources": wire_sources})
+                cache.put(rid, {"question": question, "answer": answer, "sources": wire_sources})
+            except Exception as exc:  # noqa: BLE001 —— 流中任何错误都必须以事件形式告知客户端
+                yield _sse("error", {"request_id": rid, "error": f"{type(exc).__name__}: {exc}"})
 
     return StreamingResponse(
         event_stream(),

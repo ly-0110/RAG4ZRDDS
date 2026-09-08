@@ -95,9 +95,11 @@ bm25 无证据一例（`struct_bm25`）：
 ## 6. 会签记录
 
 - 2026-09-08　B 出初稿（本版本）。
-- 待办：D 确认存储格式与接线方式（`JsonlLog` 复用、记录点在 pipeline 还是 api 层）；
-  C 确认「result_count=0 → 拒答」信号口径与生成侧日志的衔接。
-- 会签结论（由 D 回写）：
-  - 结论：
-  - 修改点：
-  - 签名：D ______　B ______　日期：
+- 2026-09-08　**D 会签落地**（接线提交见 `server/core/request_log.py` / `pipeline.py` / `api/query.py` + `tests/unit/server/test_retrieval_log.py` 6 例），确认事项与补充约定如下，**待 B 回签追认**：
+  - **结论**：存储格式与字段照单全收；`JsonlLog` 复用（`ts` 自动前置、追加不截断）；记录点定在 **pipeline 层**——live 组装时以 `LoggedRetriever` 包装 B 的检索器（`build_pipeline`），非 HTTP 检索（预热、脚本直调）同样入日志且 `request_id=null`，与 §5.4 预期一致；HTTP 路径由 `server/api/query.py` 经 ContextVar（`request_log_scope`）注入关联 id，与 `requests.jsonl` 可按 rid 关联。字段值来源：`experiment`/`config_hash8`/`index_dirname`/`mode`/`filters` 取自实验配置（单一事实源 `scripts/experiment_config.py`，R5 语义：hash8 仅索引身份段）；`top_k`/`question`/`results` 为调用实参与返回值；`latency_ms` 为包装器计时（内层 `retrieve` 前后，不含写盘）。
+  - **修改点**（补充约定，B 回签确认）：
+    1. **检索异常不落检索日志**：`retrieve` 抛错属服务故障而非检索行为，由 `requests.jsonl`（HTTP 侧）与 SSE `error` 事件覆盖；`result_count=0`（无证据信号）不受影响，照常落盘。
+    2. **mock 模式不落盘**：按 §1 范围"仅覆盖 server live 路径"，mock 假检索无分析价值。
+    3. **`filters` 记录配置值**：过滤在检索器内部执行，包装器只持有 `cfg.retrieval.filters`，故原样记录该配置 dict。
+  - **C 侧待办**（不阻塞本会签）：「result_count=0 → 拒答」信号口径与生成侧日志衔接，待 C 确认（见 §6 待办原文）。
+  - 签名：D 已按本表落地 ✅　B ______（待追认修改点 1~3）　日期：______
