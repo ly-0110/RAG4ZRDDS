@@ -1,4 +1,4 @@
-.PHONY: setup ingest index experiment serve inspect help
+.PHONY: setup ingest index experiment serve inspect mcp smoke-mcp help
 
 CFG ?= configs/experiments/struct_v1.yaml
 APP_HOST ?= 127.0.0.1
@@ -7,7 +7,7 @@ APP_PORT ?= 8000
 PIP_INDEX ?= https://pypi.tuna.tsinghua.edu.cn/simple
 
 help:
-	@echo "targets: setup | ingest/index/experiment CFG=... | serve | inspect"
+	@echo "targets: setup | ingest/index/experiment CFG=... | serve | inspect | mcp | smoke-mcp"
 
 setup:
 	python -m venv .venv
@@ -29,3 +29,9 @@ serve:
 
 inspect:
 	python scripts/inspect_nodes.py
+
+mcp:
+	python -m server.mcp_server
+
+smoke-mcp:
+	python scripts/smoke_mcp.py
