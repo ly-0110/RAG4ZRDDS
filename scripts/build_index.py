@@ -17,10 +17,6 @@ scripts/build_index.py — processed + config → indexes/ 索引构建门面
 依赖: scripts/experiment_config.py · retrieval/*（B 交付物）· chromadb
       真实 embedding 首次运行需联网下载模型（直连 huggingface.co；
       本机 huggingface_hub 走 hf-mirror 拉文件必失败，勿设 HF_ENDPOINT）
-
-国内镜像源配置（解决 SSL 证书问题）:
-      * 设置 HF_ENDPOINT=https://hf-mirror.com 使用 ModelScope 镜像
-      * transformers 缓存路径：~/.cache/huggingface/transformers
 """
 
 from __future__ import annotations
@@ -28,7 +24,6 @@ from __future__ import annotations
 import argparse
 import contextlib
 import json
-import os
 import sys
 import threading
 import time
@@ -221,12 +216,6 @@ def cmd_list(config_path: str | None) -> int:
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):  # Windows 控制台默认 GBK
         sys.stdout.reconfigure(encoding="utf-8")
-    
-    # 国内镜像源配置（解决 SSL 证书问题）
-    if not os.environ.get('HF_ENDPOINT'):
-        os.environ['HF_ENDPOINT'] = 'https://nexus.aliyun.com/'
-        print('[INFO] 已设置 HF_ENDPOINT=https://nexus.aliyun.com/')
-    
     parser = argparse.ArgumentParser(prog="build_index", description=__doc__)
     parser.add_argument("--config", default="configs/experiments/struct_v1.yaml",
                         help="实验配置 yaml（默认 struct_v1 基线）")
