@@ -1,58 +1,89 @@
 <template>
   <div class="chat-input-container">
-    <!-- 输入框区域 -->
-    <div class="input-wrapper">
+    <div class="input-shell" :class="{ 'is-busy': loading }">
+      <div class="input-toolbar">
+        <div class="input-mode">
+          <span class="mode-icon" aria-hidden="true">⌘</span>
+          <div>
+            <span class="toolbar-label">输入控制台</span>
+            <span class="toolbar-caption">提问后自动检索文档上下文</span>
+          </div>
+        </div>
+        <div class="toolbar-options">
+          <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
+          <span class="control-chip">Top-K 6</span>
+        </div>
+      </div>
+
       <textarea
         v-model="userInput"
         :placeholder="placeholder"
         rows="3"
+        maxlength="200"
+        aria-label="输入你的问题"
         @keydown.enter="handleEnterKey"
         @input="updateLength"
         :disabled="loading"
       ></textarea>
 
-      <!-- 提交按钮区域 -->
       <div class="submit-area">
-        <span class="word-count">{{ userInput.length }}/{{ MAX_LENGTH }}</span>
+        <div class="input-hints">
+          <span class="word-count">{{ userInput.length }}/{{ MAX_LENGTH }}</span>
+          <span class="keyboard-hint">Enter 提交 · Shift + Enter 换行</span>
+        </div>
         <button
           :disabled="!canSubmit"
           @click="handleSubmit"
           class="submit-btn"
+          type="button"
         >
-          {{ loading ? '回答中...' : '提问' }}
-          <span v-if="loading" class="loading-icon">⏳</span>
+          <span>{{ loading ? '正在检索' : '开始检索' }}</span>
+          <span v-if="loading" class="loading-icon" aria-hidden="true"></span>
+          <span v-else class="submit-arrow" aria-hidden="true">↗</span>
         </button>
       </div>
     </div>
 
-    <!-- 提示信息区域（尚无回答且空闲时显示） -->
     <div v-if="!hasAnswer && !loading" class="tip-box">
-      <p class="tip-title">💡 提问示例：</p>
-      <ul class="tips-list">
-        <li>如何调用 DataWriter API?</li>
-        <li>ZRDDS 故障码 E1003 是什么意思</li>
-        <li>数据发送速率如何配置</li>
-        <li>v2.4 版本新增了哪些功能</li>
-      </ul>
+      <div class="tip-heading">
+        <div>
+          <p class="tip-title">建议从这些问题开始</p>
+          <span class="tip-caption">点击示例即可填入控制台</span>
+        </div>
+        <span class="tip-mark" aria-hidden="true">✦</span>
+      </div>
+      <div class="tips-list">
+        <button
+          v-for="suggestion in suggestions"
+          :key="suggestion"
+          class="suggestion-chip"
+          type="button"
+          @click="useSuggestion(suggestion)"
+        >
+          <span>↗</span>{{ suggestion }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-// 纯输入组件（2026-08-29 接线修复）：只负责输入交互，提问动作通过
-// submit 事件交给父组件（App.vue）统一走 /query SSE——组件内不再自发请求。
 import { ref, computed } from 'vue'
 
 const props = defineProps({
-  loading: { type: Boolean, default: false },   // 后端是否正在回答
-  hasAnswer: { type: Boolean, default: false }, // 是否已有回答/引用（隐藏示例提示）
+  loading: { type: Boolean, default: false },
+  hasAnswer: { type: Boolean, default: false },
 })
 const emit = defineEmits(['submit'])
 
 const userInput = ref('')
-
-// 字数限制（前端先行约束；后端 QueryRequest 上限 2000）
 const MAX_LENGTH = 200
+const suggestions = [
+  '如何调用 DataWriter API？',
+  'ZRDDS 故障码 E1003 是什么意思？',
+  '数据发送速率如何配置？',
+  'v2.4 版本新增了哪些功能？',
+]
 
 const canSubmit = computed(
   () => userInput.value.trim().length > 0 && !props.loading,
@@ -61,17 +92,15 @@ const canSubmit = computed(
 const placeholder = computed(() =>
   userInput.value.length >= MAX_LENGTH
     ? '请精简问题内容'
-    : '请输入问题，例如：ZRDDS用户手册.pdf第42页关于API调用的说明...',
+    : '输入关于 ZRDDS API、配置或故障排查的问题…',
 )
 
-// 超过上限即截断
 const updateLength = () => {
   if (userInput.value.length > MAX_LENGTH) {
     userInput.value = userInput.value.slice(0, MAX_LENGTH)
   }
 }
 
-// Enter 提交；Shift+Enter 换行（与占位提示"按 Enter 提交"一致）
 const handleEnterKey = (e) => {
   if (e.shiftKey) return
   e.preventDefault()
@@ -84,6 +113,11 @@ const handleSubmit = () => {
   emit('submit', question)
 }
 
+const useSuggestion = (suggestion) => {
+  if (props.loading) return
+  userInput.value = suggestion
+}
+
 defineExpose({ question: userInput })
 </script>
 
@@ -91,114 +125,325 @@ defineExpose({ question: userInput })
 .chat-input-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 11px;
   margin-bottom: 20px;
 }
 
-.input-wrapper {
-  position: relative;
+.input-shell {
+  padding: 15px 15px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: var(--shadow-float), var(--shadow-inset);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.input-shell:focus-within {
+  border-color: rgba(62, 145, 157, 0.62);
+  box-shadow: 0 17px 38px rgba(40, 87, 106, 0.13), 0 0 0 4px rgba(94, 156, 173, 0.1);
+  transform: translateY(-1px);
+}
+
+.input-shell.is-busy {
+  border-color: rgba(94, 156, 173, 0.38);
+}
+
+.input-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 2px 12px;
+}
+
+.input-mode,
+.toolbar-options,
+.control-chip,
+.tip-heading {
+  display: flex;
+  align-items: center;
+}
+
+.input-mode {
+  gap: 9px;
+}
+
+.mode-icon {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(94, 156, 173, 0.2);
+  border-radius: 9px;
+  background: rgba(94, 156, 173, 0.11);
+  color: var(--primary-700);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.toolbar-label,
+.toolbar-caption {
+  display: block;
+}
+
+.toolbar-label {
+  color: var(--ink-deep);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.toolbar-caption {
+  margin-top: 2px;
+  color: var(--text-subtle);
+  font-size: 0.62rem;
+}
+
+.toolbar-options {
+  gap: 6px;
+}
+
+.control-chip {
+  gap: 5px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.chip-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--teal);
 }
 
 textarea {
   width: 100%;
-  padding: 14px 16px 14px 14px;
-  font-size: 16px;
-  line-height: 1.5;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  resize: vertical;
-  min-height: 80px;
-  max-height: 200px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  transition: border-color 0.3s;
-  outline: none;
+  min-height: 88px;
+  max-height: 220px;
+  display: block;
   box-sizing: border-box;
+  padding: 14px 14px 12px;
+  resize: vertical;
+  outline: none;
+  border: 1px solid rgba(138, 175, 202, 0.32);
+  border-radius: var(--radius-md);
+  background: rgba(247, 251, 252, 0.92);
+  color: var(--text);
+  font-size: 0.94rem;
+  line-height: 1.6;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
 }
 
 textarea::placeholder {
-  color: #999;
-  font-style: italic;
+  color: #8195a0;
 }
 
 textarea:focus {
-  border-color: #007bff;
+  border-color: rgba(76, 133, 148, 0.65);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(118, 164, 178, 0.12);
+}
+
+textarea:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
 }
 
 .submit-area {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-right: 8px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 2px 0;
+}
+
+.input-hints {
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
 .word-count {
-  font-size: 14px;
-  color: #666;
+  color: var(--primary-700);
+  font: 0.68rem 'Consolas', monospace;
+}
+
+.keyboard-hint {
+  color: var(--text-subtle);
+  font-size: 0.61rem;
 }
 
 .submit-btn {
-  padding: 10px 32px;
-  font-size: 15px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  padding: 10px 14px 10px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 800;
+  box-shadow: 0 9px 18px rgba(57, 125, 145, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #0056b3;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 12px 24px rgba(57, 125, 145, 0.32);
+  filter: brightness(1.04);
 }
 
 .submit-btn:active:not(:disabled) {
-  background-color: #004494;
-  transform: translateY(0);
+  transform: translateY(1px) scale(0.97);
+}
+
+.submit-btn:focus-visible {
+  outline: 3px solid rgba(94, 156, 173, 0.26);
+  outline-offset: 3px;
 }
 
 .submit-btn:disabled {
-  background-color: #ccc;
+  background: linear-gradient(135deg, #b9cbd1, #aebfc6);
+  box-shadow: none;
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.83;
+}
+
+.submit-arrow {
+  width: 19px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 0.92rem;
+  line-height: 1;
 }
 
 .loading-icon {
-  font-size: 14px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.38);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
 }
 
 .tip-box {
-  background-color: #f8f9fa;
-  border-left: 4px solid #17a2b8;
-  padding: 12px 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #333;
+  padding: 13px 15px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(115deg, rgba(247, 251, 252, 0.86), rgba(239, 247, 249, 0.74));
+  box-shadow: var(--shadow-card);
+}
+
+.tip-heading {
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .tip-title {
-  font-weight: bold;
-  margin-bottom: 8px;
+  margin: 0;
+  color: var(--primary-700);
+  font-size: 0.73rem;
+  font-weight: 800;
+}
+
+.tip-caption {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-subtle);
+  font-size: 0.62rem;
+}
+
+.tip-mark {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(94, 156, 173, 0.12);
+  color: var(--primary-600);
+  font-size: 0.78rem;
 }
 
 .tips-list {
-  margin: 0;
-  padding-left: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 11px;
 }
 
-.tips-list li {
-  margin: 4px 0;
-  color: #555;
+.suggestion-chip {
+  min-width: 0;
+  overflow: hidden;
+  padding: 8px 9px;
+  border: 1px solid rgba(192, 216, 222, 0.9);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.67rem;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.suggestion-chip span {
+  margin-right: 5px;
+  color: var(--primary-600);
+}
+
+.suggestion-chip:hover {
+  border-color: rgba(94, 156, 173, 0.46);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--primary-700);
+  transform: translateY(-1px);
+}
+
+.suggestion-chip:focus-visible {
+  outline: 3px solid rgba(94, 156, 173, 0.22);
+  outline-offset: 2px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input-shell,
+  .submit-btn,
+  .suggestion-chip {
+    transition-duration: 0.01ms;
+  }
+
+  .loading-icon {
+    animation: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .input-toolbar {
+    align-items: flex-start;
+  }
+
+  .toolbar-options {
+    display: none;
+  }
+
+  .keyboard-hint {
+    display: none;
+  }
+
+  .tips-list {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
