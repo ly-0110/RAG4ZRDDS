@@ -252,6 +252,71 @@ def test_resolve_model_prefers_local_dir(tmp_path, monkeypatch):
 # ---------------------------------------------------------------- 向量库
 
 
+def test_vector_store_close_releases_client():
+    # chroma 1.5.9 段落盘是异步的：进程不显式 close 就退出会中断
+    # compactor flush，段目录只剩 index_metadata.pickle（本机 semantic
+    # 1059 节点十连崩实测）。close() 等待落盘完成，build 路径必须调用。
+    store = VectorStore(
+        embed_fn=FakeEmbedder({}), collection_name=f"test_{uuid.uuid4().hex}"
+    )
+    store.close()
+
+    assert store._client is None
+    store.close()  # 重复调用安全
+
+
+def test_vector_store_close_waits_for_segment_flush(tmp_path):
+    # close() 后段数据文件必须已落盘：宁可抛错也不产出「构建成功但
+    # 不可加载」的索引（semantic 事故的修复契约）。
+    store = VectorStore(
+        embed_fn=FakeEmbedder({"正文": [1.0, 0.0, 0.0, 0.0]}),
+        persist_path=str(tmp_path), collection_name="flush_probe",
+    )
+    store.add_nodes([make_node("n1", "正文")])
+    store.close(flush_timeout=10)
+
+    assert any(
+        (d / "data_level0.bin").exists()
+        for d in tmp_path.iterdir() if d.is_dir()
+    )
+
+
+def test_vector_store_close_empty_store_does_not_wait(tmp_path):
+    store = VectorStore(
+        embed_fn=FakeEmbedder({}), persist_path=str(tmp_path),
+        collection_name="empty_probe",
+    )
+    store.close(flush_timeout=0.01)  # 空库跳过轮询，不会超时
+
+
+def test_wait_segment_flush_returns_false_on_empty_dir(tmp_path):
+    from retrieval.vector_store import _wait_segment_flush
+
+    assert not _wait_segment_flush(tmp_path, timeout=0.01)
+
+
+def test_vector_store_passes_relative_path_to_chroma(tmp_path, monkeypatch):
+    # chroma 1.5.9 本机对绝对 persist 路径有 flush 竞态：段数据文件写不出、
+    # 首次加载回填即崩（semantic 1059 节点七连崩，相对路径稳定复现不出）。
+    # VectorStore 必须把绝对路径相对化后再交给 chroma。
+    import chromadb
+
+    captured: dict = {}
+    real_pc = chromadb.PersistentClient
+
+    def fake_pc(path, **kw):
+        captured["path"] = path
+        return real_pc(path, **kw)
+
+    monkeypatch.setattr(chromadb, "PersistentClient", fake_pc)
+    VectorStore(
+        embed_fn=FakeEmbedder({}), persist_path=str(tmp_path),
+        collection_name=f"test_{uuid.uuid4().hex}",
+    )
+
+    assert not Path(captured["path"]).is_absolute()
+
+
 def test_store_query_returns_results_sorted_by_score():
     store, _ = make_store()
 
@@ -307,6 +372,31 @@ def test_store_skips_blank_text_nodes():
     results = store.query("查询 alpha", top_k=10)
 
     assert all(r["node_id"] != "n_blank" for r in results)
+
+
+def test_store_add_nodes_accepts_precomputed_embeddings():
+    # build_index 先编码后建客户端（客户端在长 torch 编码期间存活会毒死
+    # compactor，flush 永不完成——semantic 1059 节点本机实测），
+    # 故 add 阶段支持注入预计算向量、不调用 embed_fn。
+    class _Raises:
+        def __call__(self, texts):
+            raise AssertionError("预计算路径不应调用 embed_fn")
+
+    store = VectorStore(
+        embed_fn=_Raises(), collection_name=f"test_{uuid.uuid4().hex}"
+    )
+    store.add_nodes(
+        [make_node("n1", "正文一")],
+        embeddings=[[1.0, 0.0, 0.0, 0.0]],
+    )
+
+    store2 = VectorStore(
+        embed_fn=FakeEmbedder({"正文一": [1.0, 0.0, 0.0, 0.0],
+                               "查询": [1.0, 0.0, 0.0, 0.0]}),
+        collection_name=f"test_{uuid.uuid4().hex}",
+    )
+    store2.add_nodes([make_node("n1", "正文一")], embeddings=[[1.0, 0.0, 0.0, 0.0]])
+    assert [r["node_id"] for r in store2.query("查询", top_k=5)] == ["n1"]
 
 
 def test_store_warns_only_when_store_ends_up_empty():
