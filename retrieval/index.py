@@ -40,6 +40,11 @@ def build_index(cfg, embed_fn=None) -> Path:
         from retrieval.embeddings import build_embedding
 
         embed_fn = build_embedding(cfg)
+    # 先编码后建客户端（防御性排序）：chroma 1.5.9 段 flush 为后台异步，
+    # 落盘完整性由 close() 的轮询兜底；编码先行可避免客户端在长编码
+    # （十几分钟）期间长期空闲（semantic 1059 节点事故的残余教训）。
+    docs = [n.text for n in nodes if n.text and n.text.strip()]
+    vectors = embed_fn(docs)
     store = VectorStore(
         embed_fn=embed_fn,
         persist_path=str(experiment_config.index_dir(cfg)),
@@ -47,5 +52,7 @@ def build_index(cfg, embed_fn=None) -> Path:
         collection_name=sanitize_collection_name(experiment_config.index_dirname(cfg)),
         reset=True,
     )
-    store.add_nodes(nodes)
+    store.add_nodes(nodes, embeddings=vectors)
+    # 等待 chroma 异步段 flush 落盘（见 VectorStore.close 的说明）
+    store.close()
     return experiment_config.index_dir(cfg)

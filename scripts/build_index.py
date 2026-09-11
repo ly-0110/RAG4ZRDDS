@@ -31,9 +31,11 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
-sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-import experiment_config as ec  # noqa: E402
+# 注意：experiment_config 必须经 retrieval._bootstrap 导入——实测本机
+# 「REPO_ROOT + scripts/ 双 insert + 直接 import」的排列会让 chroma 1.5.9
+# 的段 flush 静默失效（semantic 1059 节点索引十连崩），机制不明但稳定复现。
+from retrieval._bootstrap import experiment_config as ec  # noqa: E402
 
 MANIFEST_NAME = "manifest.json"
 
