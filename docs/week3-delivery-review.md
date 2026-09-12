@@ -16,7 +16,7 @@
 | **A 知识工程** | ① `html_loader.py` 解析 Doxygen HTML | ✅ PR#28 | 288 正文页、噪声过滤实测、质检全 0（§2.1） |
 | | ② HTML Node 按 §7.2 Schema 落盘 `html_v1.jsonl` | ✅ PR#28 | 1305 chunk；Schema v1.0 未改即达标；URL 进 metadata；D 接线逐字节复现 |
 | | ③（可选）第二 PDF《故障排查指南》接入 | ❌ 未做 | 可选项；偏移 −68 需先将 `PAGE_OFFSET` 参数化（html-loader.md §7.4 已记） |
-| | 遗留：semantic 真实复测 | ⏳ | 碎块/耗时新数字待 bge-m3 环境（A 本机权重缺失）；语义修复本身已合入 |
+| | 遗留：semantic 真实复测 | ◌ 复测完成，发现新问题 | 本机复测 583 块：碎块过滤有效（min=20、<50 块 166→50）；但 **18 块 >2500 字符（max 7175）**——`max_chunk_chars` 声明未消费，待 A 确认/修复后再替换产物；复测产物暂存 `semantic_v2.jsonl` |
 | **B 检索** | ① Metadata Filtering 验证 | ◌ 设计定稿 | PR#27 §3（接口第二周已接线）；执行等多来源索引——**本日已建成**，可启动 |
 | | ② Hybrid RRF 初版 | ◌ 设计定稿 | PR#27 §2 零重建方案；触发条件（A 就绪）已满足，待 B 实现；D 三项配套见 §4-1 |
 | | ③ §7.5 四场景跨来源验证 | ◌ 方案定稿 | PR#27 §4 验证矩阵；正式评测等 E 题集 + C 口径；降级路径（4 样例冒烟）可用 |
@@ -41,7 +41,9 @@
 
 **html_loader / html_v1.jsonl 契约要点**：source_id=`zrdds_dev_guide`（C 的 source_labels 已注册）、version=`"2.4"`（与 B 的等值过滤口径一致）、`source_url` 1305/1305 非空、双页码一律 null（**Schema v1.0 未改动**即覆盖 html 分支）、chunk_id 全局唯一；content_type 枚举受校验（api 952 / tutorial 159 / guide 123 / error 49 / faq 22），`error_code` 0 条与 8-30 审计"E1003 不存在"交叉吻合；**D 接线后实时产出与 A 入库产物逐字节一致**。
 
-**semantic 两项遗留闭环**：`min_chunk_chars`（默认 20，可配可关）+ 全文档单 Document 一次 embedding batch（~287 次调用 → 1 次）+ 同批修掉页锚点控制字符泄漏与跨页 node 错页，patch 单测锁定。⚠ **真实复测待 A**（本机缺 bge-m3 权重，新块数/墙钟未测）。
+**semantic 两项遗留闭环**：`min_chunk_chars`（默认 20，可配可关）+ 全文档单 Document 一次 embedding batch（~287 次调用 → 1 次）+ 同批修掉页锚点控制字符泄漏与跨页 node 错页，patch 单测锁定。
+
+**semantic 新代码真实复测（D 本机代测，2026-09-12；A 与 D 使用同一模型，经用户检验）**：583 块（旧 1059），min=20、<50 字符碎块 166→50——碎块过滤与性能修复有效。**但暴露疑似缺陷**：18 块 >2500 字符（max 7175）/ 17 块 >1200 token（旧产物 max 1341、0 块超限）。**根因已定位**：`max_chunk_chars` 在 `semantic.py` 仅赋值（L63 `self.max_chars`）从未消费，`_node_to_chunk` 只有 `min_chunk_chars` 下限过滤（L276）而无超长再切分；旧产物上限是"逐页 Document"的自然页长假象，全文档拼接后语义断点稀疏区（15.1 C接口简介 p221、9.3 DataReader p99 等长代码节）不再受页界约束。**待 A 确认**：是语义断点保护的有意设计（则需同步修改 §6.2 口径与文档）还是超长兜底缺失（则补 node 级句边界再切分）。复测产物存 `data/processed/semantic_v2.jsonl` 供对比，正式 semantic_v1 产物与索引未动。
 
 **带入的两处文档回退（已由 D 当日修复）**：
 
@@ -100,7 +102,7 @@
 
 ## 4. 会签与跨成员议题（例会带回）
 
-1. **D 三项配套**（B 启动 hybrid 时落地，触发条件已满足）：`RetrievalCfg.components` 字段（extra=forbid + hybrid 必填 + 引用存在性校验）、`build_index` hybrid 跳过与 `--list`/manifest 对齐、`run_experiment` 索引存在性检查豁免 hybrid。
+1. **D 三项配套** ✅ **已会签（2026-09-12 用户四问拍板）并落地**：①接受 components 引用制设计（引实验名 / rrf_k 入 params 袋 / candidate_top_k 复用 / 不入索引身份段）②build_index 遇 hybrid 跳过 + 提示 + --list 标注子索引 ③三项现做——`RetrievalCfg.components` + hybrid 校验（必填/引用存在）、跳过分支、`run_experiment` 子索引存在性检查；+4 回归测试（全套 **243/243**）；跨域微调 B 的 test_retrieval hybrid 夹具（自引用配置满足存在性校验），**待 B 追认**。
 2. **命名对齐**：B 设计 §4.4 提名 multi_v1/multi_bm25/multi_hybrid vs D 已建的 `struct_multisrc_v1`（struct_* 前缀惯例）——B 实现 hybrid 时 components 引用实际配置名，例会一次对齐。
 3. **base_url 正式值**：现为文档站占位 `https://docs.zrtechnology.com/cdoc/html`，待例会确认。
 4. **source_priority 填值**：等 C 的 source-priority-draft 会签后，D 填入各配置（草案建议 [zrdds_dev_guide, user_manual]）。
