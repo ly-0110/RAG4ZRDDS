@@ -303,3 +303,66 @@ def test_evaluation_cfg_allows_null_expected_sources():
     cfg = ec.EvaluationCfg(expected_sources=None)
     assert cfg.expected_sources is None
     assert ec.EvaluationCfg().expected_sources == "evaluation/datasets/expected_sources.jsonl"
+
+
+def test_hybrid_components_validation():
+    """PR#27 会签①：mode=hybrid 必填 components 且引用的实验 yaml 必须存在。"""
+    with pytest.raises(Exception):
+        ec.RetrievalCfg(mode="hybrid")
+    with pytest.raises(Exception):
+        ec.RetrievalCfg(mode="hybrid", components={"vector": "no_such_exp__xyz"})
+    cfg = ec.RetrievalCfg(mode="hybrid",
+                          components={"vector": "struct_v1", "bm25": "struct_bm25"})
+    assert cfg.components == {"vector": "struct_v1", "bm25": "struct_bm25"}
+
+
+def test_components_excluded_from_index_identity():
+    """PR#27 会签④：components 不入索引身份段——改引用不改变 hash8/目录名。"""
+    base = ec.load(REPO_ROOT / "configs" / "experiments" / "struct_v1.yaml")
+    hybrid = base.model_copy(update={
+        "retrieval": base.retrieval.model_copy(update={
+            "mode": "hybrid",
+            "components": {"vector": "struct_v1", "bm25": "struct_bm25"},
+        })
+    })
+    reswapped = hybrid.model_copy(update={
+        "retrieval": hybrid.retrieval.model_copy(update={
+            "components": {"vector": "struct_bm25", "bm25": "struct_v1"},
+        })
+    })
+    assert ec.config_hash8(hybrid) == ec.config_hash8(reswapped)
+
+
+def test_ensure_index_hybrid_checks_subindexes(capsys):
+    """PR#27 会签③：run_experiment 对 hybrid 只检查子索引存在，不构建本配置索引。"""
+    base = ec.load(REPO_ROOT / "configs" / "experiments" / "struct_v1.yaml")
+    hybrid = base.model_copy(update={
+        "retrieval": base.retrieval.model_copy(update={
+            "mode": "hybrid",
+            "components": {"vector": "struct_v1", "bm25": "struct_bm25"},
+        })
+    })
+    assert rx._ensure_index("configs/experiments/struct_v1.yaml", hybrid, False, False) == 0
+    cap = capsys.readouterr()
+    assert "子索引[vector] 复用" in cap.out + cap.err
+    broken = hybrid.model_copy(update={
+        "retrieval": hybrid.retrieval.model_copy(update={
+            "components": {"vector": "no_such_exp__xyz", "bm25": "struct_bm25"},
+        })
+    })
+    assert rx._ensure_index("configs/experiments/struct_v1.yaml", broken, False, False) == 1
+
+
+def test_build_index_skips_hybrid(tmp_path, capsys):
+    """PR#27 会签②：make index 遇 mode=hybrid 跳过构建、不写 manifest。"""
+    import build_index as bi
+    text = (REPO_ROOT / "configs" / "experiments" / "struct_v1.yaml").read_text(encoding="utf-8")
+    text = text.replace("name: struct_v1", "name: struct_hybrid_t").replace(
+        "mode: vector",
+        "mode: hybrid\n  components: {vector: struct_v1, bm25: struct_bm25}",
+    )
+    p = tmp_path / "struct_hybrid_t.yaml"
+    p.write_text(text, encoding="utf-8")
+    rc = bi.cmd_build(str(p), fake=False)
+    out = capsys.readouterr().out
+    assert rc == 0 and "无自有索引" in out and "struct_v1" in out

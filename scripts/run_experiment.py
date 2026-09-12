@@ -334,6 +334,29 @@ def _check_fingerprint(target: Path, cfg) -> str | None:
     return None
 
 
+def _ensure_hybrid_subindexes(cfg) -> int:
+    """hybrid 引用制（PR#27 会签③）：只检查 components 引用的子索引是否存在。
+
+    不构建、不校验指纹——子索引归各自配置管；节点集一致性由检索器加载时校验（B 域）。
+    """
+    missing: list[str] = []
+    for role, name in sorted((cfg.retrieval.components or {}).items()):
+        ref_path = ec.experiment_yaml_path(name)
+        if not ref_path.exists():
+            missing.append(f"{role}: {name}（配置不存在 {ref_path}）")
+            continue
+        target = ec.index_dir(ec.load(ref_path))
+        if target.exists():
+            print(f"[experiment] 子索引[{role}] 复用: {name} → {target.relative_to(REPO_ROOT)}")
+        else:
+            missing.append(f"{role}: {name} → 子索引缺失（make index CFG={ref_path}）")
+    if missing:
+        print("[experiment] 错误: hybrid 引用的子索引缺失:\n  "
+              + "\n  ".join(missing), file=sys.stderr)
+        return 1
+    return 0
+
+
 def _ensure_index(config_path: str, cfg, rebuild: bool, fake_embed: bool) -> int:
     """索引不存在 → 自动构建；已存在 → 复用（hash8 保证同目录同配置）。
 
@@ -341,6 +364,9 @@ def _ensure_index(config_path: str, cfg, rebuild: bool, fake_embed: bool) -> int
     目标已是真实索引时拒绝 fake 重建（反之：真实构建可覆盖遗留 fake 索引）。
     """
     import build_index as bi
+
+    if cfg.retrieval.mode == "hybrid":
+        return _ensure_hybrid_subindexes(cfg)
 
     target = ec.index_dir(cfg)
     if target.exists():

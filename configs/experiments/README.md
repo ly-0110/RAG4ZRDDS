@@ -98,7 +98,8 @@ python scripts/experiment_config.py configs/experiments/semantic_v1.yaml
 | `rerank_model` | 精排用的模型名 | `mode: hybrid_rerank` 时必填 |
 | `filters` | 检索时的过滤条件 | 例如只搜 v2.4 的内容：`{version: "2.4"}` |
 | `source_priority` | 来源优先顺序 | 按 id 从高到低列，如 `[api_ref, user_manual]`；空 = 不分先后 |
-| `params` | 本域自由参数区 | BM25 的 k1/b、混合权重等，由 B 决定 |
+| `params` | 本域自由参数区 | BM25 的 k1/b、RRF 的 rrf_k、混合权重等，由 B 决定 |
+| `components` | hybrid 引用制（2026-09-12 会签） | 仅 `mode: hybrid` 必填：引用两个子实验名，如 `{vector: struct_v1, bm25: struct_bm25}`；hybrid 无自有索引，子索引由各自配置分别构建（`make index` 遇 hybrid 自动跳过并提示）；components 不参与索引目录命名 |
 
 ### generation —— 回答怎么生成
 

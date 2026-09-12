@@ -518,6 +518,9 @@ def _write_config(
 """
     if api_key_env:
         embed_block += f"  api_key_env: {api_key_env}\n"
+    components_block = ""
+    if retrieval_mode == "hybrid":
+        components_block = "\n  components: {vector: baseline_v1, bm25: baseline_v1}"
     p = tmp_path / "baseline_v1.yaml"
     p.write_text(
         f"""
@@ -536,8 +539,7 @@ chunking:
   backend: {index_backend}
 retrieval:
   mode: {retrieval_mode}
-  top_k: 5
-""".strip() + "\n",
+  top_k: 5{components_block}""".strip() + "\n",
         encoding="utf-8",
     )
     return p
@@ -627,8 +629,15 @@ def test_build_index_rejects_unsupported_backend(tmp_path, monkeypatch):
 
 
 def test_build_retriever_rejects_unsupported_mode(tmp_path, monkeypatch):
+    cfg_path = _write_config(tmp_path, retrieval_mode="hybrid")
+    # schema 会签（2026-09-12）：hybrid 需 components 且引用的实验 yaml 必须存在——
+    # 在 tmp 侧放一份自引用配置满足校验（本测试只锁定 build_retriever 的拒绝行为）。
+    ref_dir = tmp_path / "configs" / "experiments"
+    ref_dir.mkdir(parents=True)
+    (ref_dir / "baseline_v1.yaml").write_text(cfg_path.read_text(encoding="utf-8"),
+                                              encoding="utf-8")
     monkeypatch.setattr(experiment_config, "REPO_ROOT", tmp_path)
-    cfg = experiment_config.load(_write_config(tmp_path, retrieval_mode="hybrid"))
+    cfg = experiment_config.load(cfg_path)
     index_path = experiment_config.index_dir(cfg)
     index_path.mkdir(parents=True, exist_ok=True)
 
