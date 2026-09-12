@@ -416,9 +416,14 @@ def main(argv: list[str] | None = None) -> int:
     except (FileNotFoundError, ValueError) as e:
         print(f"[experiment] 错误: {e}", file=sys.stderr)
         return 1
-    expected = load_expected_sources(REPO_ROOT / cfg.evaluation.expected_sources)
+    expected = (
+        load_expected_sources(REPO_ROOT / cfg.evaluation.expected_sources)
+        if cfg.evaluation.expected_sources
+        else {}
+    )
     if not expected:
-        print(f"[experiment] 警告: 期望来源标注不存在 {cfg.evaluation.expected_sources}"
+        print(f"[experiment] 警告: 期望来源标注未配置或不存在"
+              f"（expected_sources={cfg.evaluation.expected_sources}）"
               "——本次只记录检索结果，不计算指标。", file=sys.stderr)
 
     print(f"[experiment] 实验={cfg.experiment.name} hash8={ec.config_hash8(cfg)}"

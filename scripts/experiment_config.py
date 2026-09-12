@@ -127,7 +127,7 @@ class GenerationCfg(_Strict):
 
 class EvaluationCfg(_Strict):
     dataset: str = "evaluation/datasets/questions.jsonl"
-    expected_sources: str = "evaluation/datasets/expected_sources.jsonl"
+    expected_sources: str | None = "evaluation/datasets/expected_sources.jsonl"
     retrieval_metrics: list[str] = ["hit_rate@5", "mrr@5"]
     response_metrics: list[str] = []
     sample_size: int | None = Field(default=None, ge=1)

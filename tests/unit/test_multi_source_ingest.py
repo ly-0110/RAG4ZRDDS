@@ -257,18 +257,25 @@ def test_validate_without_registry_keeps_legacy_behavior():
 
 # ---------------------------------------------------------------- HTML 分派
 
-def test_html_source_without_loader_gives_readable_error():
-    """A 的 html_loader 未交付时，html 来源分派给出含接口签名的可读错误。"""
+def test_html_source_without_loader_gives_readable_error(monkeypatch):
+    """html_loader 缺席时（loader 未交付/环境缺失），html 来源分派给出含接口签名的可读错误。"""
     import types
+    # A 的 loader 第三周已交付（PR#28）；本测试模拟其缺席（sys.modules 置 None → ImportError）
+    monkeypatch.setitem(sys.modules, "data_pipeline.html_loader", None)
     src = _source("zrdds_dev_guide", "html", "2.4")
     cfg = types.SimpleNamespace(chunking=types.SimpleNamespace(params={}))
     with pytest.raises(RuntimeError, match="html_loader") as ei:
         ing._process_html_source(src, cfg)
-    assert "load_html_nodes" in str(ei.value)
+    assert "build_html_chunks" in str(ei.value)
 
 
-def test_ingest_main_fails_fast_on_html_only_config(tmp_path, capsys):
-    """仅注册 html 来源的配置：main 退出码 1，错误可读且不落任何产物。"""
+def test_ingest_main_fails_fast_on_html_only_config(tmp_path, capsys, monkeypatch):
+    """仅注册 html 来源且 loader 缺席：main 退出码 1，错误可读且不落任何产物。
+
+    loader 必须显式模拟缺席（sys.modules 置 None）——A 的 loader 交付后，若不拦截，
+    本测试会在 pytest 期真跑 288 页 HTML 解析并把单来源命名产物 struct_v1.jsonl
+    覆盖成 html-only 内容（2026-09-12 实际发生过，产物经确定性重跑再生）。
+    """
     yaml_text = _MULTI_YAML.format(name="ms_html_only").replace(
         "  - id: user_manual\n    type: pdf\n"
         "    path: data/raw/manuals/ZRDDS用户手册.pdf\n    version: \"2.0\"\n", ""
@@ -276,8 +283,8 @@ def test_ingest_main_fails_fast_on_html_only_config(tmp_path, capsys):
     p = tmp_path / "ms_html_only.yaml"
     p.write_text(yaml_text, encoding="utf-8")
 
-    import types
     import ingest as ing_mod
+    monkeypatch.setitem(sys.modules, "data_pipeline.html_loader", None)
     orig_argv = sys.argv
     sys.argv = ["ingest.py", "--config", str(p)]
     try:

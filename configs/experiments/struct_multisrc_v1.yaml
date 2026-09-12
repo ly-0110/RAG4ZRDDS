@@ -68,7 +68,9 @@ generation:                        # ── 生成（C）
 
 evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）
   dataset: evaluation/datasets/questions.jsonl
-  expected_sources: evaluation/datasets/expected_sources.jsonl
+  expected_sources: null           # 宁缺毋滥：现库中标注为检索 top-1 回显（循环论证，见
+                                   # docs/week3-delivery-review.md §2），不产出 void 指标；
+                                   # 真值标注会签定稿后改回 evaluation/datasets/expected_sources.jsonl
   retrieval_metrics: [hit_rate@5, mrr@5]   # 另支持 precision@K / recall@K
   response_metrics: []             # 第二周起：faithfulness / answer_relevance 等
   sample_size: null                # null=全集；联调冒烟可设 10

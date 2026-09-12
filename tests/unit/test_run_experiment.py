@@ -296,3 +296,10 @@ class TestIndexIdentity:
         assert m["embedding"]["model"] is None
         assert m["index"]["backend"] == "bm25-json"
         assert m["index"]["params"] == {"k1": 2.0, "b": 0.5}
+
+
+def test_evaluation_cfg_allows_null_expected_sources():
+    """宁缺毋滥：标注未定版时可显式置空 expected_sources，走"只记明细不算指标"模式。"""
+    cfg = ec.EvaluationCfg(expected_sources=None)
+    assert cfg.expected_sources is None
+    assert ec.EvaluationCfg().expected_sources == "evaluation/datasets/expected_sources.jsonl"
