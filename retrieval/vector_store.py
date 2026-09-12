@@ -7,10 +7,26 @@ embed_fn 依赖注入（文本列表 → 向量列表）：单元测试注入确
 """
 from __future__ import annotations
 
+import os
+import time
 from collections.abc import Callable
 from pathlib import Path
 
 from retrieval.nodes import NodeRecord
+
+
+def _wait_segment_flush(persist_path: Path, timeout: float) -> bool:
+    """轮询等待 chroma compactor 把 HNSW 数据文件写入段目录。"""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if any(
+            (d / "data_level0.bin").exists()
+            for d in persist_path.iterdir()
+            if d.is_dir()
+        ):
+            return True
+        time.sleep(0.2)
+    return False
 
 
 def _sanitize_metadata(metadata: dict) -> dict:
@@ -45,11 +61,16 @@ class VectorStore:
             raise ValueError(f"第一周仅支持 cosine 度量，收到 {metric!r}")
         import chromadb
 
+        self._persist_path = Path(persist_path) if persist_path else None
         if persist_path is None:
             self._client = chromadb.EphemeralClient()
         else:
-            Path(persist_path).mkdir(parents=True, exist_ok=True)
-            self._client = chromadb.PersistentClient(path=str(persist_path))
+            self._persist_path.mkdir(parents=True, exist_ok=True)
+            # chroma 1.5.9 本机对绝对 persist 路径有 flush 竞态（段数据文件
+            # 写不出、首次加载回填即崩，semantic 1059 节点七连崩实测），
+            # 相对路径稳定复现不出——见 test_vector_store_passes_relative_path_to_chroma
+            chroma_path = os.path.relpath(self._persist_path, Path.cwd())
+            self._client = chromadb.PersistentClient(path=str(chroma_path))
         if reset:
             # 幂等重建：先删后建。注意——删除后其他仍持有旧句柄的 VectorStore
             # 会失效，因此约定「重建期间不可服务，重建后需重建 retriever 实例」。
@@ -62,8 +83,37 @@ class VectorStore:
         )
         self._embed_fn = embed_fn
 
-    def add_nodes(self, nodes: list[NodeRecord]) -> None:
-        """写入节点；空白文本跳过，空元数据置 None（Chroma 不接受空 dict）。"""
+    def close(self, flush_timeout: float = 60.0) -> None:
+        """显式关闭 chroma 客户端，并等待异步段 flush 落盘（幂等）。
+
+        chroma 1.5.9 的段落盘由后台 compactor 异步执行：本机实测进程
+        退出时机不当会中断写入，段目录只剩 index_metadata.pickle、
+        HNSW 数据文件缺失，索引首次加载回填即崩（semantic 1059 节点
+        十连崩）。close() 触发 flush 后轮询段数据文件直至出现，
+        超时抛错——宁可失败也不产出「构建成功但不可加载」的索引。
+        build 路径（retrieval.index.build_index）在写入后必须调用。
+        """
+        if self._client is None:
+            return
+        has_nodes = self._collection.count() > 0
+        client, self._client = self._client, None
+        client.close()
+        if self._persist_path is not None and has_nodes:
+            if not _wait_segment_flush(self._persist_path, flush_timeout):
+                raise RuntimeError(
+                    f"chroma 段 flush 超时（{flush_timeout}s）：索引目录 "
+                    f"{self._persist_path} 未出现 HNSW 数据文件，索引不可用。"
+                    "请删除该目录后重新构建。"
+                )
+
+    def add_nodes(self, nodes: list[NodeRecord],
+                  embeddings: list[list[float]] | None = None) -> None:
+        """写入节点；空白文本跳过，空元数据置 None（Chroma 不接受空 dict）。
+
+        embeddings 提供时按预计算向量写入、不调用 embed_fn——build_index
+        用它在编码完成后才创建 chroma 客户端：客户端在长 torch 编码期间
+        存活会毒死 compactor、flush 永不完成（semantic 1059 节点实测）。
+        """
         ids: list[str] = []
         docs: list[str] = []
         metas: list[dict | None] = []
@@ -79,7 +129,14 @@ class VectorStore:
 
                 warnings.warn("所有节点均为空白文本，索引将为空——请检查上游分块产物")
             return
-        vectors = self._embed_fn(docs)
+        if embeddings is not None:
+            if len(embeddings) != len(ids):
+                raise ValueError(
+                    f"预计算向量数({len(embeddings)})与有效节点数({len(ids)})不一致"
+                )
+            vectors = embeddings
+        else:
+            vectors = self._embed_fn(docs)
         self._collection.add(ids=ids, documents=docs, embeddings=vectors, metadatas=metas)
 
     def query(

@@ -12,6 +12,8 @@
 > **v1.2（2026-09-07 晚）**：A 域两项遗留（碎块过滤、生成性能）已闭环交付（改动在
 > feature/pdf-parser 分支工作树，未合 develop），§1/§2.1 状态相应更新；同时修掉实现
 > 过程中暴露的两处新缺陷（页锚点控制字符泄漏、跨页 node 错页），详见 §2.1。
+> **v1.2（2026-09-08）**：B 的检索日志字段定义到货（PR#21）并完成 D 侧落地——§1 总览、
+> §2.2 未完成任务、§4 议题 3 已更新；接线明细见 `docs/retrieval-log-schema.md` §6 会签记录。
 
 ---
 
@@ -22,7 +24,7 @@
 | A 知识工程 | semantic/hybrid 分块（#11，09-01） | 方向正确；基线漂移致合入即回退（R1），已代修 | 两项遗留已闭环（§2.1，待同步 develop） |
 | B 检索 | BM25 全链路（#17，09-07） | **合格可用**，含真实产物冒烟 | 检索日志字段（逾期两周）、score 阈值会签 |
 | C 生成与可靠性 | Prompt v1 + LLM-as-judge + Citation 会签（#18，09-07）；**第三周提前交付：多来源 Context + 冲突披露 + Source Priority 草案 + 错误案例集（#19，09-07）** | #18 方向对，一处必修缺陷已代修；#19 见 §2.3 末 | response_metrics runner 归属、C2~C5、错误案例集真实性 |
-| D 集成与实验平台 | run_experiment、日志骨架、R5/R6 等修复（本分支） | 156 测试全绿；live 服务已恢复并实测 | response_metrics 接线、检索/回答级日志 |
+| D 集成与实验平台 | run_experiment、日志骨架、R5/R6 等修复（本分支）；检索级日志接线（09-08） | 172 测试全绿；live 服务已恢复并实测 | response_metrics 接线（等 C runner）、回答级日志（等 C 定口径） |
 | E 前端与质量 | web 重写 + 120 题集（#13/#15/#16，09-02/03/07） | 前端合格；标注未达标、格式违约 | 标注接入三条件、查看详情回查退化 |
 
 跨成员横向结论：**本轮（#15/#16/#17/#18）均无基线漂移、无 D 域回退**，R1/R4 类事故未再发生；
@@ -94,10 +96,12 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 
 **未完成任务（B 域）**
 
-1. **检索日志字段定义（逾期两周）**：指南 §6 明确任务"给出检索日志字段定义，与 D 会签存储格式"，
-   `server/core/request_log.py` 检索级仍挂占位。
+1. ~~检索日志字段定义~~ **已交付（2026-09-08，PR#21）**：`docs/retrieval-log-schema.md` v0.1
+   字段定义完整（request_id 关联、result_count=0 无证据信号、text 仅落本地、量纲注意）；
+   D 已按 §6 落地存储接线（pipeline 层 `LoggedRetriever` + ContextVar 注入 rid，
+   `{LOG_DIR}/retrievals.jsonl`），补充约定 3 条待 B 回签追认。
 2. **score 阈值定标（X1，需与 C/E 会签）**：bm25 原始分实测 7.70~56.43，与 vector 的 cosine（0.46~0.78）
-   不可比；任何基于 score 的判定必须按 mode 分别定标（api.md v0.6 已登记量纲事实）。
+   不可比；任何基于 score 的判定必须按 mode 分别定标（api.md v0.6 已登记量纲事实，v0.7 已按 mode 定标、待例会追认）。
 
 
 ### 2.3 成员 C —— 生成与可靠性
@@ -232,5 +236,5 @@ Q001 connect() = 印刷 242 第 18 章（与 semantic 审计真值一致）。
 |---|---|---|---|
 | 1 | E 标注格式：沿用 questions.jsonl + 分文件，或会签新格式改 loader/config | C/D/E | 待例会（阻塞验收项 1/2/3） |
 | 2 | 检索指标"判对"口径定版（含"定义页/操作页"口径） | C | 待例会（run_experiment 匹配口径仍为占位） |
-| 3 | B 检索日志字段（逾期两周） | B/D | 待例会催办 |
+| 3 | B 检索日志字段（逾期两周） | B/D | **已交付并落地（09-08）**：B 出 `docs/retrieval-log-schema.md` v0.1，D 已接线（retrievals.jsonl）；待 B 追认 D 补充约定 3 条（检索异常不落日志/mock 不落盘/filters 记配置值） |
 | 4 | `struct_bm25.yaml` 仍为 prompt v0（与三个向量实验的 v2 不一致）；error_cases loader 的管线接线归属 | C（D 配合） | 待例会（bm25 若开生成，两臂 prompt 不同破坏对照公平性） |

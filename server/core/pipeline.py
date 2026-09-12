@@ -126,6 +126,21 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
             retriever = build_retriever(cfg)
         except (FileNotFoundError, NotImplementedError) as e:
             raise RuntimeError(f"RAG_MODE=live 启动失败：{e}") from e
+        # 检索日志接线（docs/retrieval-log-schema.md，B/D 会签）：包装在 pipeline
+        # 层，预热/脚本直调也入日志（request_id=null）；HTTP 路径由 query 层经
+        # request_log_scope 注入关联 id。mock 模式不落盘（B 文档 §1 仅 live）。
+        from server.core.request_log import JsonlLog, LoggedRetriever
+        from server.core.settings import settings
+
+        retriever = LoggedRetriever(
+            retriever,
+            JsonlLog(repo_root / settings.log_dir / "retrievals.jsonl"),
+            experiment=cfg.experiment.name,
+            config_hash8=ec.config_hash8(cfg),
+            index_dirname=ec.index_dirname(cfg),
+            mode=cfg.retrieval.mode,
+            filters=cfg.retrieval.filters or None,
+        )
         # 生成侧：读 .env 的 LLM 配置；缺失时在此拒绝启动（可读错误），
         # 而非等首个请求才报错（与 D 的"接线问题在启动期暴露"一致）。
         answer_stream = build_answer_stream(cfg)
