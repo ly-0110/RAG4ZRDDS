@@ -263,8 +263,8 @@ metadata 必须经 `data_pipeline.metadata.build_chunk_metadata` 构建
 | **R5 hash8 覆盖整份配置，无关段改动孤儿化真实索引（2026-09-07）**：`config_hash8` 对 `canonical_json(整份配置)` 取值，C 在 PR#18 把三个 yaml 的 `generation` 段改为 `enabled: true`/`prompt_version: v1`（合法且必要的改动）即改掉全部派生目录名 | 三个真实 bge-m3 索引（struct 301 / semantic 1059 / hybrid 906 节点）全部孤儿化；`make serve` live 启动直接失败（实测报「索引不存在 struct_bge-m3_47950b94」）；重建代价 CPU 上 12~40 分钟/个 | **已修复**（hash8 改为只对索引身份段取值：`chunking`/`embedding`/`index`/`retrieval(mode,params,filters)`；`generation`/`evaluation`/`report`/`experiment` 不再参与。实测改生成与评测段 hash8 不变、改 embedding 或 retrieval.mode 仍变；README 与两个 yaml 注释同步更正） |
 | **R6 产物指纹对换行符敏感（2026-09-07）**：`nodes_file_sha12` 对原始字节取哈希，而 `.gitattributes` 的 `*.jsonl text eol=lf` 会把产物规范成 LF——建索引时工作树是 CRLF | 内容语义完全相同却指纹不符，三个索引全部被 R2 的硬校验误判为「产物已变」而拒绝复用；且写入侧（build_index）与校验侧（run_experiment）各有一份算法副本，任一侧单独修都会造成指纹恒不匹配 | **已修复**（哈希前 `CRLF→LF` 归一化；删除 run_experiment 的第二份副本，改为委托 build_index 的唯一实现） |
 | **A 入库的 semantic/hybrid 产物疑似 mock 嵌入生成**（288/220 条，bge-m3 真实重跑为 1059/906 条） | mock 向量无语义区分度 → 断点稀少块数差 3-4 倍，A 提交版不可用于真实对比 | 已用真实 bge-m3 重跑替换（本仓库产物为真值） |
-| semantic 方案碎块：bge-m3 真实切分下 166/1059 块 <50 字符（62 块 <10 字符，图号/节号/省略号碎片） | 噪声块进索引，可能干扰检索 | 待 A 在 `_node_to_chunk` 加最短长度过滤（建议 ≥20 字符）并复测；属 A 调参域，未代改 |
-| semantic 方案生成耗时：逐页 Document 调 splitter（约 300 次独立调用），bge-m3 CPU 全文档 ~25 分钟 | 实验迭代效率 | 待 A 改为全文档拼接一次调用；属 A 实现域，未代改 |
+| semantic 方案碎块：bge-m3 真实切分下 166/1059 块 <50 字符（62 块 <10 字符，图号/节号/省略号碎片） | 噪声块进索引，可能干扰检索 | **已修复**（A，2026-09-07 晚）：`_node_to_chunk` 加 `min_chunk_chars`（默认 20，可配可关），对剥离锚点后的正文判长；按旧真实产物静态核对将剔除 93 块（62 块 <10 全在内）；真实重跑块数待 bge-m3 环境复测（本机模型缺失） |
+| semantic 方案生成耗时：逐页 Document 调 splitter（约 300 次独立调用），bge-m3 CPU 全文档 ~25 分钟 | 实验迭代效率 | **已修复**（A，2026-09-07 晚）：全文档拼单 Document + 页锚点一次 embedding batch 前向；patch 单测锁定「5 页输入只传 1 Document」。同批修复锚点控制字符泄漏与跨页 node 错页（句流标签 + 游标定位起始句） |
 | semantic 方案双页码为"块起始页"单页口径（LlamaIndex node 元数据仅含起始页，跨页块止页未知） | 跨页语义块 Citation 止页可能差 1~2 页 | 已知近似，C/E 展示时以"起页"为准；如需精确止页待 A 在 Node 元数据补止页信息 |
 | semantic/hybrid 方案 section_path 按页粒度回填（页内跨节时归入最深层节点） | 页内含多小节时路径近似 | 已知近似，与三方案公平对比口径一致（A 原设计） |
 
@@ -275,7 +275,7 @@ metadata 必须经 `data_pipeline.metadata.build_chunk_metadata` 构建
 | v1 | 第一周 | 骨架定稿：配置加载 → PDF 提取 → 清洗 → pages.jsonl + 契约校验 → 章节树 → 分块预留点 |
 | v1.1 | 2026-08-27 | 分块步骤接入 A 的 StructureChunker（`get_chunker` 工厂）；新增 `validate_nodes_jsonl` Node 集契约校验与 `quality_check` 质检挂接；A 交付物经实测登记上表 9 条边界 |
 | v1.2 | 2026-09-01 | A 第二周三方案交付（PR #11）检验与回退修复（R1/R2）：struct 301 条复现、semantic 288 / hybrid 220 重跑（bge-m3）；metadata 升至 15 必填 + 7 可选（恢复 source_id）；实验配置 `semantic_v1.yaml` / `hybrid_v1.yaml` 入库 |
-| v1.3 | 2026-09-08 | **多来源注册式接入（Week 3）**：sources 注册表逐来源分派（pdf 全链路 / html 接缝预留）、合并 Node 集 + 来源注册一致性校验（source_id/version/分组页码差值/跨来源 ID 唯一）、多来源派生命名（nodes 文件名 src8 后缀 + 索引身份含来源集，单来源逐字节兼容并有 4 配置 hash8 回归钉）；先校验后落盘；`inspect_nodes.py` 分来源分型统计（双页码仅对 PDF，HTML 以 source_url 为锚）；回归 `tests/unit/test_multi_source_ingest.py` 17 例，全套 195/195 |
+| v1.3 | 2026-09-07 | A 遗留闭环（上表两条已修复行）：`semantic.py` 全文档单 Document 拼接 + 页锚点句流定位回填（一次 embedding batch），碎块 `min_chunk_chars` 过滤（默认 20）；修掉锚点泄漏与跨页错页两处新缺陷；单测 24 条（管道）全绿 |
 
 ## 依赖模块清单
 

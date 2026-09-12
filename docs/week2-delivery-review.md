@@ -9,6 +9,9 @@
 > 新增 §2.3 末的第三周交付审查、更新 §3 验收项 5 与 §4 会签议题。本稿按团队意见做了精简，
 > 逐条审查过程细节以 AGENTS.md 时间线条目为准。
 >
+> **v1.2（2026-09-07 晚）**：A 域两项遗留（碎块过滤、生成性能）已闭环交付（改动在
+> feature/pdf-parser 分支工作树，未合 develop），§1/§2.1 状态相应更新；同时修掉实现
+> 过程中暴露的两处新缺陷（页锚点控制字符泄漏、跨页 node 错页），详见 §2.1。
 > **v1.2（2026-09-08）**：B 的检索日志字段定义到货（PR#21）并完成 D 侧落地——§1 总览、
 > §2.2 未完成任务、§4 议题 3 已更新；接线明细见 `docs/retrieval-log-schema.md` §6 会签记录。
 
@@ -18,8 +21,8 @@
 
 | 成员 | 交付（PR / 合入日） | 审查结论 | 未完成核心项 |
 |---|---|---|---|
-| A 知识工程 | semantic/hybrid 分块（#11，09-01） | 方向正确；基线漂移致合入即回退（R1），已代修 | 碎块过滤、生成性能；先同步 develop |
-| B 检索 | BM25 全链路（#17，09-07）；检索日志字段定义 `docs/retrieval-log-schema.md`（#21，09-08） | **合格可用**，含真实产物冒烟；日志字段定义完整（含 result_count=0 无证据信号） | score 阈值 X1 追认、日志会签修改点 1~3 追认 |
+| A 知识工程 | semantic/hybrid 分块（#11，09-01） | 方向正确；基线漂移致合入即回退（R1），已代修 | 两项遗留已闭环（§2.1，待同步 develop） |
+| B 检索 | BM25 全链路（#17，09-07） | **合格可用**，含真实产物冒烟 | 检索日志字段（逾期两周）、score 阈值会签 |
 | C 生成与可靠性 | Prompt v1 + LLM-as-judge + Citation 会签（#18，09-07）；**第三周提前交付：多来源 Context + 冲突披露 + Source Priority 草案 + 错误案例集（#19，09-07）** | #18 方向对，一处必修缺陷已代修；#19 见 §2.3 末 | response_metrics runner 归属、C2~C5、错误案例集真实性 |
 | D 集成与实验平台 | run_experiment、日志骨架、R5/R6 等修复（本分支）；检索级日志接线（09-08） | 172 测试全绿；live 服务已恢复并实测 | response_metrics 接线（等 C runner）、回答级日志（等 C 定口径） |
 | E 前端与质量 | web 重写 + 120 题集（#13/#15/#16，09-02/03/07） | 前端合格；标注未达标、格式违约 | 标注接入三条件、查看详情回查退化 |
@@ -43,12 +46,32 @@ PR#19 同步（merge `0f8cf4d`）零冲突，`pytest` **166/166**；
 - metadata 冻结声明（v1.0）+ HTML 字段对照表；`base.py` 防死循环修复；`_is_descendant` 自排除。
 
 
-**未完成任务（A 域）**
+**遗留闭环（A 域，2026-09-07 晚交付，改动在 feature/pdf-parser 工作树）**
 
-1. **semantic 碎块过滤**：166/1059 块 <50 字符（62 块 <10 字符的图号/节号碎片）进索引。
-   建议在 `_node_to_chunk` 加最短长度过滤（≥20 字符）并复测；属 A 调参域，D 未代改。
-2. **semantic 生成性能**：逐页 Document 调 splitter（约 300 次独立调用），bge-m3 CPU 全文档 ~25 分钟；
-   建议改全文档拼接一次调用。
+1. **semantic 碎块过滤 —— 已闭环**：`_node_to_chunk` 加最短长度过滤，`min_chunk_chars` 默认 20
+   （config `chunking.params` 可调，0=关闭以保留原始分布），对**剥离页锚点后的正文**判长。
+   实现期另修掉两处新缺陷（见下）。按旧真实产物（1059 块）静态核对，≥20 阈值将剔除 93 块
+   （其中 62 块 <10 字符的图号/节号碎片全部在内）；新切分下的真实块数需 bge-m3 环境复测确认
+   （本机权重缺失 + HF 网络不可达，见"验证边界"）。单测：`test_semantic_short_chunk_filter_default`
+   / `..._disabled`（默认 20 全量命中；0 关闭兼容）。
+2. **semantic 生成性能 —— 已闭环**：`chunk()` 改全文档拼接**单个 Document** + 页边界注入
+   `PAGE={phys}` 锚点句 → splitter 内部一次 `get_text_embedding_batch` 前向（原逐页方案
+   ≈287 次独立调用，bge-m3 CPU 全文档实测 ~25 分钟）。单测 `test_semantic_single_embedding_batch_call`
+   用 patch 锁死：5 页输入下 `get_nodes_from_documents` 仅收 1 个 Document（回退逐页则收 5 个）。
+3. **实现期暴露并修复的两处新缺陷（A 域，随本交付一并闭环）**：
+   - 页锚点控制字符泄漏：锚点句若被切进 node 区间，`\x01PAGE=N\x02` 会原样进 chunk 正文/索引。
+     改为「句流复算 + 逐句标页 + 游标定位起始句」后，锚点从正文剥离（`_clean_node_text`），
+     绝不进索引/检索/引用。回归：mock 冒烟断言正文无控制字符。
+   - 跨页 node 错页：原「文本内取最后锚点」方案下，node 若不含锚点句会回退到**首个 included 页**
+     （整批错标）。现利用 llama_index「node 文本 = 句流连续句子按 "" 拼接」的性质，
+     用同一 `_split_sentences` 复算句流并对每句标注所在页，按游标顺序把每个 node 定位到
+     **起始句 → 块起始页**（与 struct 块起始页单页口径一致）。单测：`test_semantic_stream_index_and_partition_mapping`
+     （句流标签 + 分区定位逐段断言）、`test_semantic_page_anchor_round_trip`、`..._clean_text_matches_source...`。
+4. **验证边界（记录在案，A 后续项）**：本机 `.hf_cache` 的 bge-m3 快照为空且
+   huggingface.co 网络不可达（SSL），**无法实跑 bge-m3 全文档**给出新墙钟与真实碎块分布；
+   已做验证 = 全语料 mock 结构性冒烟（295 页/287 命中页，0.46s：0 控制字符泄漏、0 短块泄漏、
+   页码 0 越界、chunk_id 唯一）+ 24 条管道单测全绿。模型环境就绪后按
+   `python -m data_pipeline.chunkers.semantic <pages> <tree> <out> bge-m3` 复测登记。
 
 
 ### 2.2 成员 B —— 检索
