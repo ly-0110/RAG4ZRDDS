@@ -1,9 +1,10 @@
 # 第三周交付审查记录（成员 D）
 
+> **v0.3（2026-09-12）**：新增 §9——A 第三周交付（PR#28）审查与 D 侧接线端到端实测；§10——B 第三周检索设计（PR#27）审查；**§11——第三周全员工作任务跟踪**（指南 §7 对照，全员）；§12——Week 3 验收对照与结论。同步修复 A 的 PR#28 带入的两处文档回退（ingest-pipeline.md v1.3 撞号、week2 review B 行回退，见 §9.3）。
 > **v0.2（2026-09-11）**：新增 §7——B 第二周收尾（PR#26）审查与四实验指标真实性验证（三方三角验证），及处置方法。
 > **v0.1（2026-09-08）**：首版，覆盖 E 的 PR#22（`b871bf8`，"修复问题集格式与本地回归验证"，merge `53e8099`）。
 > 审查人：成员 D。审查方法沿用《week2-delivery-review》四步：基线核对 → pytest 全套 → 契约/格式核对 → 内容真值抽查。
-> 同步状态：`feature/server-platform` 已 merge origin/develop（`96ae6f9`）零冲突，pytest **178/178** 绿。
+> 同步状态：`feature/server-platform` 已 merge origin/develop（`fa39418`，含 PR#27 `7cf2687` + PR#28 `04c3327`）零冲突，pytest **238/238** 绿。
 
 ---
 
@@ -119,5 +120,107 @@ E 在 QA 提交中未经会签修改了三个跨域文件，给 embedding 环境
 
 - **PR#22（E）**：格式整改合格、前端改动合格；标注与验证脚本不合格，评测闭环在真值标注完成前不可用。验收项现状：2 达成 / 2 部分 / 3 未达成（不变，E 标注阻塞继续）。
 - **PR#26（B，2026-09-11）**：代码修复合格（含既有索引兼容性确认）、会签回签完成；四实验指标经三方三角验证为**真实测量但无效**（§7.2），metrics 视同 void，不得用作结论或基线（§7.3）。
+- **PR#28（A，2026-09-12）**：**合格，已由 D 接线**——html_loader 契约达标、产物逐字节可复现、semantic 两项遗留真实闭环；带入两处文档回退已由 D 修复（§9.3）。被 A 阻塞的 D 侧多来源端到端联调已完成（§9.5）。
+- **PR#27（B，2026-09-12）**：设计文档合格，hybrid 引用既有索引零重建的决策合理；`components` schema 字段等三项 D 侧配套待 B 启动实现时落地（§10）。
+- **第三周全员任务跟踪**：见 §11（指南 §7 对照）；Week 3 验收口径现状见 §12。
 
-> 变更记录：v0.2（2026-09-11）新增 §7 PR#26 审查与指标真实性验证、§8 补 PR#26 结论。v0.1（2026-09-08）首版。
+## 9. 成员 A 第三周交付（PR#28，`04c3327`）审查 + D 侧接线（2026-09-12）
+
+**范围**：① `data_pipeline/html_loader.py`（997 行）+ `docs/html-loader.md` 契约文档 ② `data/processed/html_v1.jsonl`（1305 chunk）③ `chunkers/semantic.py` 两项遗留闭环（+13 回归测试）④ 对 `docs/ingest-pipeline.md` / `docs/week2-delivery-review.md` / `semantic_v1.yaml` 的跨文档更新。
+
+### 9.1 四步审查结果
+
+| 步骤 | 结果 |
+|---|---|
+| ① merge-base 基线核对 | ✅ A 分支头 `a995f7e` 包含 develop 侧全部已合修复（含 R3/R5/R6 与页码真值）——**PR#11 事故后 A 首次零基线漂移**（代码域） |
+| ② pytest 全套 | ✅ **238/238**（207 → +31：html_loader 24 例 + semantic 回归扩充） |
+| ③ 契约/格式核对 | ✅ 见 §9.2；metadata.py v1.0 冻结 Schema **未改动**即覆盖 html 分支 |
+| ④ 内容真值抽查 | ✅ 见 §9.2 逐字节复现；另发现两处**文档域**回退（§9.3，已由 D 修复） |
+
+### 9.2 html_loader 契约与产物核对
+
+| 核对项 | 结果 |
+|---|---|
+| 来源治理 | source_id=`zrdds_dev_guide`（C 的 source_labels 已注册）、version=`"2.4"`（与 B PR#27 要求的等值过滤口径一致）、source_type=html |
+| 规模 | 288 正文页解析（282 产出节点），1007 节点 → **1305 chunk**，6 个无节点文档——与 A 契约文档数字逐位一致 |
+| 唯一性 | chunk_id 1305 条全局唯一；与 PDF 侧 `struct_v1_` 前缀零碰撞 |
+| 页等价物 | 双页码四字段一律 `null`（metadata v1.0 html 分支允许）、`source_url` 1305/1305 非空 |
+| content_type | 枚举受 Schema 校验（api 952 / tutorial 159 / guide 123 / error 49 / faq 22）；`error_code` 实测 0 条——与 8-30 审计"E1003 不存在"交叉吻合 |
+| **可复现性** | **D 接线后实时产出与 A 入库的 `html_v1.jsonl` 逐字节一致**——产物非手写、参数与文档声明一致 |
+
+### 9.3 发现的两处文档回退（已由 D 当日修复）
+
+| 文件 | A 带入的回退 | 修复 |
+|---|---|---|
+| `docs/ingest-pipeline.md` | 变更记录 v1.3 撞号：A 以自己的 v1.3（09-07，semantic 闭环）**替换**了 D 的 v1.3（09-08，多来源注册式接入）条目；依赖清单 `html_loader` 仍标"⏳ 未交付" | D 的 v1.3 条目恢复；A 条目升 v1.4（含 D 接线实测）；依赖清单改 ✅；接缝签名章节更新为实际 API |
+| `docs/week2-delivery-review.md` | §1 表 B 行回退到 PR#21 之前（"检索日志字段（逾期两周）"，实际 PR#21 已交付且 D 已接线、B 已回签）；出现两个 v1.2 版本头 | B 行按事实恢复；A 的闭环内容并入并升 v1.3（09-12）；留注释说明合并裁决缘由 |
+
+**根因**：A 于 09-07 晚在**旧工作树**写好文档改动，09-12 合并 develop 时冲突裁决取了自家版本。与 PR#11 同根但**轻量**——代码零回退，仅文档。**给 A 的流程反馈**：修改他人维护的文档（ingest-pipeline / week2 review 属 D 域）必须以 develop 最新版为基线，冲突时逐行核对 develop 侧内容。
+
+### 9.4 semantic 两项遗留闭环核对
+
+- ✅ **碎块过滤**：`_node_to_chunk` 加 `min_chunk_chars`（默认 20，可配可关），对剥离锚点后正文判长；`semantic_v1.yaml` 注释正确提示"写进 params 会改变索引身份 hash8"（A 已理解 R5 语义）。
+- ✅ **生成性能**：全文档拼**单个 Document** + 页锚点句流定位，embedding batch 从 ~287 次独立调用降为 1 次；patch 单测锁定。
+- ✅ 同批修复两处新缺陷：页锚点控制字符泄漏进正文/索引、跨页 node 错页（句流标签 + 游标定位起始句，块起始页与 struct 单页口径一致）。
+- ⚠ **真实复测待做（A 域）**：A 本机缺 bge-m3 权重，新切分下的真实块数/墙钟未测——本机环境就绪后按 `python -m data_pipeline.chunkers.semantic ...` 复测登记（A 契约文档 §2.1.4 已自记此边界）。
+
+### 9.5 D 侧接线与端到端实测（**被 A 阻塞项销项**）
+
+1. **接缝适配（D 域）**：A 实际交付 `build_html_chunks(doc_dir, *, base_url, source_id, version, max_chunk_chars, min_chunk_chars)`（`docs/html-loader.md` §5 指定接口），与 D 预留的 `load_html_nodes` 签名不同名——`scripts/ingest.py::_process_html_source` 已按实际 API 适配（params 袋透传 2500/20），模块 docstring 同步。
+2. **多来源基线配置** `configs/experiments/struct_multisrc_v1.yaml` 入库：user_manual(pdf, 2.0) + zrdds_dev_guide(html, 2.4, url)；`source_priority` 留空待 C 草案会签；`compare_baseline: struct_v1`。
+3. **ingest 实测**：PDF 301 + HTML 1305 = **1606 条统一 Node 集**（`data/processed/struct_v1__b95d1061.jsonl`），跨来源契约校验全过（source_id ∈ 注册表 / version 一致 / 分组页码差值 / 跨来源 ID 唯一）；先校验后落盘机制正常。
+4. **inspect_nodes 分来源统计**：html 缺 source_url 0 / pdf 缺双页码 0 / 空文本 0 / 重复 ID 0；重复文本 34 条与 >2500 字符 5 块均为 A 已核实的源冗余与原子保护块（html-loader.md §6）。
+5. **索引**：多来源 vector 索引 `struct_bge-m3_d57f695e` 构建中（1606 节点，CPU 预计 ~1h——`docs/index-rebuild-drill.md` 的 HTML 接入 30min 红线预警首次真实命中）；bm25 通路可即时构建。实验报告待索引完成后运行。
+
+## 10. 成员 B 第三周设计（PR#27，`7cf2687`）审查（2026-09-12）
+
+`docs/superpowers/specs/2026-09-11-week3-retrieval-design.md`（203 行）——设计先行、实现等 A 就绪（团队决策）。
+
+- ✅ **Hybrid RRF 零重建方案合理**：`components` 引用既有 struct_v1(vector) + struct_bm25 索引（同一节点集），运行时 RRF 融合，避免重复编码；components 引**实验名**而非 hash8 目录名，与 D 的命名单一事实源约定一致。
+- ✅ **schema 改动最小化**：`rrf_k` 入 `retrieval.params` 袋（Owner 自由区零校验）、子检索候选数复用既有 `candidate_top_k`，唯一新增字段 `components`。
+- ✅ **components 不入 `index_identity_json`**：hybrid 无索引产物，不影响子索引定位——对 R5 语义的理解正确。
+- ✅ **score 量纲第三次对齐 X1 决议**：RRF 分（0~2/61）与 cosine / BM25 原始分互不可比，按 mode 分别定标——与 api.md v0.7 的按 mode 定标决议一致。
+- ✅ HTML version 口径 `"2.4"`：A 产物已按此落盘（§9.2），B 的前置会签条件已满足。
+- **D 侧三项配套**（B 设计 §6 表，待 B 启动实现时由 D 落地，**触发条件已满足**）：①`RetrievalCfg` 新增 `components: dict[str,str]|None`（extra=forbid 严格模型 + hybrid 必填 + 引用实验名存在性校验）②`build_index` hybrid 分支跳过构建的 `--list`/manifest 对齐 ③`run_experiment` 对 hybrid 的索引存在性检查豁免。
+- ⚠ **命名对齐一处**：B §4.4 提名多来源三件套 `multi_v1`/`multi_bm25`/`multi_hybrid`；D 已按仓库 `struct_*` 前缀惯例创建 `struct_multisrc_v1`（本日）。B 实现 `multi_hybrid` 时 components 直接引用实际配置名即可，例会一次对齐，不阻塞。
+
+## 11. 第三周全员工作任务跟踪（指南 §7 对照，2026-09-12）
+
+| 成员 | 指南 §7 任务 | 状态 | 交付物 / 阻塞 |
+|---|---|---|---|
+| **A 知识工程** | ① `html_loader.py` 解析 Doxygen HTML | ✅ PR#28 | 288 正文页、噪声过滤实测、质检全 0（§9.2） |
+| | ② HTML Node 按 §7.2 Schema 落盘 `html_v1.jsonl` | ✅ PR#28 | 1305 chunk；Schema v1.0 未改即达标；URL 进 metadata；D 接线逐字节复现 |
+| | ③（可选）第二 PDF《故障排查指南》接入 | ❌ 未做 | 可选项；偏移 −68 需先将 `PAGE_OFFSET` 参数化（html-loader.md §7.4 已记） |
+| | 遗留：semantic 真实复测 | ⏳ | 碎块/耗时新数字待 bge-m3 环境（A 本机权重缺失）；语义修复本身已合入（§9.4） |
+| **B 检索** | ① Metadata Filtering 验证 | ◌ 设计定稿 | PR#27 §3（接口第二周已接线）；执行等多来源索引——**本日已建成**，可启动 |
+| | ② Hybrid RRF 初版 | ◌ 设计定稿 | PR#27 §2 零重建方案；触发条件（A 就绪）已满足，待 B 实现；D 三项配套见 §10 |
+| | ③ §7.5 四场景跨来源验证 | ◌ 方案定稿 | PR#27 §4 验证矩阵；正式评测等 E 题集 + C 口径；降级路径（4 样例冒烟）可用 |
+| **C 生成与可靠性** | ① 多来源 Context 组装 + 冲突披露 | ✅ PR#19 提前交付 | Prompt v2（§7 多来源 + §8.4 规则 5）live 通路已实证生效 |
+| | ② Source Priority 规则草案 | ✅ PR#19 | `docs/source-priority-draft.md` 待会签；会签后 D 填入各配置 `source_priority` |
+| | ③ 错误案例集扩容（混版本/错来源 ≥10 例） | ◌ 部分 | C 的 20 例经真值核对为手写虚构 → 转第三周夹具；**D 补采 37 例真实案例达标**（`error_cases_real.jsonl`，2026-09-07 决议④） |
+| | （X2）response_metrics runner `answer_eval.py` | ❌ 未交付 | 验收项 4 阻塞方 C；D 侧 build_pipeline/answer_stream 钩子就绪 |
+| **D 集成与实验平台** | ① ingest 多来源注册式接入 | ✅ 完成 | PR#23 骨架（17 例回归）+ 本日 PR#28 接线实测 1606 条端到端（§9.5） |
+| | ② MCP Server 打底（OpenAI 门面条件未触发） | ✅ PR#23 | `server/mcp_server.py` stdio 端到端冒烟通；OpenAI 兼容门面经用户决策**不做**（E 自研轻量页） |
+| | ③ 索引升级演练（全量重建 ≤30min、可回切） | ✅ 文档成文 | `docs/index-rebuild-drill.md` v0.1（PR#23）；本日多来源 1606 节点重建首次实测——**30min 红线预警真实命中**（§9.5-5），红线应对四选项待例会 |
+| **E 前端与质量** | ① 问题集扩展跨来源题 | ❌ 阻塞 | P0 标注循环论证未整改（§2），跨来源题标注同样受 "逐题对 PDF/正文核对" 条件约束 |
+| | ② 来源徽标区分 PDF/HTML、HTML 引用跳转 URL | ◌ 待核对 | CitationsCard 视觉升级已交付（PR#22/25，7 字段含 source_url）；徽标与点击跳转的 UI 细节 D 侧未逐项验证 |
+| | ③ 回归：PDF-only 指标不低于 Week 2 基线 | ❌ 阻塞 | 四报告 metrics 视同 void（§7.2）；真值标注到位后 D 统一重跑四份报告，届时可做回归对照 |
+
+> 图例：✅ 完成 · ◌ 部分完成/进行中 · ⏳ 待条件 · ❌ 未开始或阻塞。
+
+## 12. Week 3 验收口径对照（指南 §19）与结论
+
+**"PDF 手册和 HTML 开发指南能否作为一个知识体系回答问题？"**
+
+| 通过标准 | 现状 |
+|---|---|
+| 两种来源均可独立解析 | ✅ pdf 六步链路（301）/ html_loader（1305）各自质检全 0 |
+| Metadata 统一 | ✅ metadata.py v1.0 冻结 Schema 双来源共用（22 字段，html 分支页码 null + source_url 必填） |
+| 可同时检索 | 🔶 统一 Node 集 1606 条已产出并校验；bm25 索引可即时构建；vector 索引构建中（本日）；hybrid 待 B 实现 |
+| Citation 能区分来源 | ✅ source_id / source_file / source_url / 双页码按来源分型（HTML 引用跳 URL，PDF 引用报双页码）；X3 修复后 error 路径引用可回查 |
+
+**结论**：多来源知识库的数据面（解析 → 统一 Schema → 统一 Node 集 → 可建索引）已闭环；检索面等本日 vector 索引建成后即"可同时检索"达成，hybrid 初版在 B 手上。评测面（跨来源题 + 真值标注）仍阻塞在 E 的 P0 整改与 C 的口径定稿。
+
+**本次新增待办 / 会签**：① D 三项配套（B 启动 hybrid 时落地，§10）② multi_* 命名对齐（例会一次）③ `base_url` 正式值确认（现为文档站占位 `https://docs.zrtechnology.com/cdoc/html`）④ source_priority 填值（等 C 会签）⑤ A 的 semantic 真实复测 + 索引红线实测数据补入 `index-rebuild-drill.md` §5 演练记录表（本日 1606 节点计时）⑥ 例会通报 A：文档回退修复（§9.3 流程反馈）。
+
+> 变更记录：v0.3（2026-09-12）新增 §9 A PR#28 审查与接线实测、§10 B PR#27 审查、§11 全员第三周任务跟踪、§12 验收对照；v0.2（2026-09-11）新增 §7 PR#26 审查与指标真实性验证、§8 补 PR#26 结论。v0.1（2026-09-08）首版。

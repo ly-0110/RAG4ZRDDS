@@ -5,7 +5,7 @@ scripts/ingest.py — raw → cleaned → processed 编排（多来源注册式�
 职责（成员 D · 集成与实验平台）:
   * 按实验配置 sources[] 注册表逐来源分派 loader：
       pdf  → A 的 pdf_loader / cleaner / section_tree / chunkers（既有六步链路）
-      html → A 的 html_loader.load_html_nodes（第三周接缝，未交付前给可读错误）
+      html → A 的 html_loader.build_html_chunks（第三周已交付，docs/html-loader.md §5）
   * 各来源独立分块落盘中间产物，合并为统一 Node 集（指南 §7.4 Unified Nodes）
   * 各接缝处执行契约校验（pages.jsonl / 合并 Node 集：按来源分型），失败即停
     给出可读错误；校验通过后才落盘，坏产物不会覆盖既有好产物
@@ -17,12 +17,14 @@ scripts/ingest.py — raw → cleaned → processed 编排（多来源注册式�
     * 注册声明了 version 时 metadata.version 必须一致（抓 2.0/2.4 错配）
     * 双页码差值按 source_id 分组校验（多 PDF 来源可各有偏移）
 
-html_loader 接缝（成员 A 交付物，期望签名）:
-  load_html_nodes(source_path: Path, *, source_id: str, version: str,
-                  base_url: str, chunk_params: dict) -> List[dict]
-  每条 = Chunk.to_dict() 同款顶层结构（chunk_id/text/metadata/token_count/
-  char_start/char_end），metadata 经 data_pipeline.metadata.build_chunk_metadata
-  构建（source_type="html"：双页码 None、source_url 必填、title 必填）。
+html_loader 接线（成员 A 第三周已交付，接口见 docs/html-loader.md §5）:
+  build_html_chunks(doc_dir, *, base_url, source_id, version,
+                    max_chunk_chars, min_chunk_chars)
+      -> (List[Chunk], stats)
+  每条 Chunk 经 to_dict() 即 Chunk.to_dict 同款顶层结构（chunk_id/text/
+  metadata/token_count/char_start/char_end），metadata 经
+  data_pipeline.metadata.build_chunk_metadata 构建（source_type="html"：
+  双页码 None、source_url 必填、title 必填）。
 
 用法:
   make ingest                           # 默认配置（单来源 struct_v1 基线）
@@ -332,28 +334,34 @@ def _process_pdf_source(source, cfg, pages_out: Path,
 
 
 def _process_html_source(source, cfg) -> List[dict]:
-    """HTML 来源经 A 的 html_loader 产出节点记录（接缝见模块 docstring）。"""
+    """HTML 来源经 A 的 html_loader 产出节点记录（接线接口见 docs/html-loader.md §5）。"""
     try:
-        from data_pipeline.html_loader import load_html_nodes
+        from data_pipeline.html_loader import build_html_chunks
     except ImportError as e:
         raise RuntimeError(
             f"来源 {source.id!r}（type=html）需要成员 A 的 html_loader 交付物："
-            "data_pipeline/html_loader.py 尚未就绪。期望接口 "
-            "load_html_nodes(source_path, *, source_id, version, base_url, "
-            "chunk_params) -> List[dict]（Chunk.to_dict 同款顶层结构，metadata 经 "
-            "build_chunk_metadata 构建，source_type=html）。接到交付前请勿在配置 "
-            "中注册 html 来源。"
+            "data_pipeline/html_loader.py 尚未就绪。接线接口 "
+            "build_html_chunks(doc_dir, *, base_url, source_id, version, "
+            "max_chunk_chars, min_chunk_chars) -> (List[Chunk], stats)，"
+            "契约见 docs/html-loader.md。"
         ) from e
-    records = load_html_nodes(
+    params = dict(cfg.chunking.params)
+    chunks, stats = build_html_chunks(
         REPO_ROOT / source.path,
+        base_url=source.url or "",
         source_id=source.id,
         version=source.version or "",
-        base_url=source.url or "",
-        chunk_params=dict(cfg.chunking.params),
+        max_chunk_chars=params.get("max_chunk_chars", 2500),
+        min_chunk_chars=params.get("min_chunk_chars", 20),
     )
-    if not records:
+    if not chunks:
         raise RuntimeError(f"来源 {source.id!r}: html_loader 产出 0 个节点")
-    return records
+    no_nodes = stats.get("documents_without_nodes", [])
+    print(f"  -> html_loader: 解析 {stats.get('documents', '?')} 文档"
+          f"（{stats.get('documents_with_nodes', '?')} 产出节点），"
+          f"{stats.get('nodes', '?')} 节点 → {len(chunks)} chunk"
+          + (f"；无节点文档 {len(no_nodes)} 个" if no_nodes else ""))
+    return [c.to_dict() for c in chunks]
 
 
 # ─── 核心编排 ────────────────────────────────────────────────────────
