@@ -151,6 +151,19 @@ def _count_nodes(cfg) -> int:
 def cmd_build(config_path: str, fake: bool) -> int:
     cfg = ec.load(config_path)
 
+    if cfg.retrieval.mode == "hybrid":
+        comps = cfg.retrieval.components or {}
+        print("[index] mode=hybrid 无自有索引（引用制，PR#27 会签②）："
+              "子索引由 components 引用的实验分别构建")
+        for role, name in sorted(comps.items()):
+            ref = ec.experiment_yaml_path(name)
+            if ref.exists():
+                print(f"  - {role}: {name} → indexes/{ec.index_dirname(ec.load(ref))}")
+            else:
+                print(f"  - {role}: {name}（配置缺失）")
+        print("[index] 构建子索引: make index CFG=configs/experiments/<子实验>.yaml")
+        return 0
+
     nodes_file = ec.nodes_path(cfg)
     if not nodes_file.exists():
         print(f"[index] 错误: Node 集不存在 {nodes_file}（先运行 make ingest）",
@@ -183,9 +196,18 @@ def cmd_build(config_path: str, fake: bool) -> int:
 def cmd_list(config_path: str | None) -> int:
     root = REPO_ROOT / "indexes"
     current = None
+    extra_marks: set[str] = set()
     if config_path:
         cfg = ec.load(config_path)
         current = ec.index_dirname(cfg)
+        if cfg.retrieval.mode == "hybrid":
+            for role, name in sorted((cfg.retrieval.components or {}).items()):
+                ref = ec.experiment_yaml_path(name)
+                if ref.exists():
+                    extra_marks.add(ec.index_dirname(ec.load(ref)))
+            if extra_marks:
+                print(f"[index] 当前配置 mode=hybrid（无自有索引），引用子索引: "
+                      f"{', '.join(sorted(extra_marks))}")
     if not root.exists() or not any(root.iterdir()):
         print("[index] indexes/ 为空——先运行 make index")
         return 0
@@ -206,7 +228,7 @@ def cmd_list(config_path: str | None) -> int:
                 desc = "manifest 损坏"
         else:
             desc = "无 manifest（非本脚本构建或旧版）"
-        mark = "*" if d.name == current else " "
+        mark = "*" if (d.name == current or d.name in extra_marks) else " "
         rows.append(f"  {mark} {d.name:<40} {desc}")
     print(f"[index] indexes/ 盘点（* = 当前配置 {config_path or '未指定'} 的目标索引）:")
     print("\n".join(rows))

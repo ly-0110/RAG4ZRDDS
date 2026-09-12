@@ -1,4 +1,4 @@
-# RAG4ZRDDS Ingest 编排管线（v1.3 · 多来源注册式）
+# RAG4ZRDDS Ingest 编排管线（v1.4 · 多来源注册式）
 
 > 维护人：成员 D。调用 A 交付物（data_pipeline/）完成 raw → cleaned → processed 的自动化编排。
 > 当前 stage：多来源注册式接入（Week 3，指南 §7）——按配置 `sources[]` 注册表逐来源分派 loader，
@@ -223,22 +223,30 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 | | 单来源配置（现状，兼容冻结） | 多来源配置 |
 |---|---|---|
 | PDF 链路 | 六步全链路（既有产物名 pages.jsonl / section_tree_v1.jsonl） | 同链路，产物按来源拆分 `pages_{sid}.jsonl` / `section_tree_{sid}.jsonl` |
-| HTML 链路 | —（不注册 html 即可） | 经 A 的 `html_loader.load_html_nodes`（见下接缝） |
+| HTML 链路 | —（不注册 html 即可） | 经 A 的 `html_loader.build_html_chunks`（PR#28 已交付，见下接线） |
 | Node 集 | `{method}_{version}.jsonl`（既有命名不变） | `{method}_{version}__{src8}.jsonl`（src8=来源集指纹，见 `experiment_config.sources_digest8`） |
 | 索引身份 | hash8 不含 sources（**既有 4 个真实索引不受影响**，R5 回归钉死） | 来源集参与 `index_identity_json`——来源集变了索引名必变，与 R2 产物指纹双保险 |
 
 **落盘顺序**：先合并校验、后写盘——坏合并不得覆盖既有好产物（Node 集同名覆盖即索引指纹翻转）。
 
-### html_loader 接缝（成员 A 交付物，未就绪前注册 html 来源会在 ingest 期得到可读错误）
+### html_loader 接线（成员 A 第三周已交付，PR#28 合入 2026-09-12）
 
 ```python
-# data_pipeline/html_loader.py 期望接口（Chunk.to_dict 同款顶层结构）
-load_html_nodes(source_path: Path, *, source_id: str, version: str,
-                base_url: str, chunk_params: dict) -> List[dict]
+# data_pipeline/html_loader.py 实际接口（docs/html-loader.md §5；Chunk.to_dict 同款顶层结构）
+build_html_chunks(doc_dir, *, base_url="", source_id="zrdds_dev_guide", version="2.4",
+                  max_chunk_chars=2500, min_chunk_chars=20,
+                  include_source_listings=False, drop_index_pages=False, limit=None)
+      -> (List[Chunk], stats)
 ```
 
-metadata 必须经 `data_pipeline.metadata.build_chunk_metadata` 构建
+metadata 经 `data_pipeline.metadata.build_chunk_metadata` 构建
 （`source_type="html"`：双页码 None、`source_url`/`title` 必填、version=2.4）。
+D 侧 `_process_html_source` 从配置透传 `max_chunk_chars`/`min_chunk_chars`（params 袋缺省 2500/20）。
+
+**接线实测（2026-09-12，D）**：多来源配置 `struct_multisrc_v1.yaml` 端到端通过——
+PDF 301 + HTML 1305 = **1606 条统一 Node 集**（`struct_v1__b95d1061.jsonl`），跨来源契约校验全过；
+A 入库产物 `html_v1.jsonl` 与接线实时产出**逐字节一致**（可复现性验证）；
+`inspect_nodes` 分来源统计：html 缺 source_url 0 / pdf 缺双页码 0 / 重复 ID 0。
 
 ## 已知边界
 
@@ -275,7 +283,8 @@ metadata 必须经 `data_pipeline.metadata.build_chunk_metadata` 构建
 | v1 | 第一周 | 骨架定稿：配置加载 → PDF 提取 → 清洗 → pages.jsonl + 契约校验 → 章节树 → 分块预留点 |
 | v1.1 | 2026-08-27 | 分块步骤接入 A 的 StructureChunker（`get_chunker` 工厂）；新增 `validate_nodes_jsonl` Node 集契约校验与 `quality_check` 质检挂接；A 交付物经实测登记上表 9 条边界 |
 | v1.2 | 2026-09-01 | A 第二周三方案交付（PR #11）检验与回退修复（R1/R2）：struct 301 条复现、semantic 288 / hybrid 220 重跑（bge-m3）；metadata 升至 15 必填 + 7 可选（恢复 source_id）；实验配置 `semantic_v1.yaml` / `hybrid_v1.yaml` 入库 |
-| v1.3 | 2026-09-07 | A 遗留闭环（上表两条已修复行）：`semantic.py` 全文档单 Document 拼接 + 页锚点句流定位回填（一次 embedding batch），碎块 `min_chunk_chars` 过滤（默认 20）；修掉锚点泄漏与跨页错页两处新缺陷；单测 24 条（管道）全绿 |
+| v1.3 | 2026-09-08 | **多来源注册式接入（Week 3）**：sources 注册表逐来源分派（pdf 全链路 / html 接缝预留）、合并 Node 集 + 来源注册一致性校验（source_id/version/分组页码差值/跨来源 ID 唯一）、多来源派生命名（nodes 文件名 src8 后缀 + 索引身份含来源集，单来源逐字节兼容并有 4 配置 hash8 回归钉）；先校验后落盘；`inspect_nodes.py` 分来源分型统计（双页码仅对 PDF，HTML 以 source_url 为锚）；回归 `tests/unit/test_multi_source_ingest.py` 17 例，全套 195/195 |
+| v1.4 | 2026-09-12 | **A 第三周交付合入（PR#28）+ D 接线**：①`semantic.py` 遗留闭环合入（全文档单 Document 拼接 + 页锚点句流定位，碎块 `min_chunk_chars` 过滤默认 20；同批修锚点泄漏与跨页错页，上表两条已修复行随之更新）②`html_loader.py` 交付（288 正文页 → 1305 chunk，契约 `docs/html-loader.md`）③D 接缝适配 `build_html_chunks` + 多来源配置 `struct_multisrc_v1.yaml` 端到端实测 1606 条（见上方接线实测）；全套 pytest 238/238 |
 
 ## 依赖模块清单
 
@@ -288,4 +297,4 @@ metadata 必须经 `data_pipeline.metadata.build_chunk_metadata` 构建
 | `data_pipeline/chunkers/` | A | ✅ | structure/semantic/hybrid 三策略已交付并接入（PR #11 + D 修复） |
 | `data_pipeline/metadata.py` | A | ✅ | 15 必填 + 7 可选 Schema 单一事实源（含会签字段 source_id） |
 | `data_pipeline/quality_check.py` | A | ✅ | §16 清单自动化（页眉正则/精确判重/页码真值校验已恢复） |
-| `data_pipeline/html_loader.py` | A | ⏳ 未交付 | Week 3 HTML 来源 loader（Doxygen 436 页）；接缝签名见上方「多来源注册式接入」，交付前配置注册 html 来源会在 ingest 期得可读错误 |
+| `data_pipeline/html_loader.py` | A | ✅ | Week 3 HTML 来源 loader（Doxygen 436 页→288 正文页）；PR#28 已交付并接线（接口 `build_html_chunks`，契约 `docs/html-loader.md`）；D 侧多来源配置 `struct_multisrc_v1.yaml` 端到端实测通过 |

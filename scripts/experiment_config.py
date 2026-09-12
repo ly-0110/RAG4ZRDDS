@@ -97,6 +97,14 @@ class IndexCfg(_Strict):
     metric: Literal["cosine", "ip", "l2"] = "cosine"
 
 
+def experiment_yaml_path(name: str) -> Path:
+    """实验名 → 配置 yaml 路径（hybrid components 引用约定的单一事实源）。
+
+    基于 REPO_ROOT 动态解析：单测可 monkeypatch experiment_config.REPO_ROOT 隔离到临时目录。
+    """
+    return REPO_ROOT / "configs" / "experiments" / f"{name}.yaml"
+
+
 class RetrievalCfg(_Strict):
     mode: Literal["vector", "bm25", "hybrid", "hybrid_rerank"] = "vector"
     top_k: int = Field(default=5, ge=1)
@@ -105,6 +113,7 @@ class RetrievalCfg(_Strict):
     filters: dict[str, Any] = {}
     source_priority: list[str] = []
     params: dict[str, Any] = {}
+    components: dict[str, str] | None = None  # hybrid 引用制（PR#27 会签①）：{vector: 实验名, bm25: 实验名}
 
     @model_validator(mode="after")
     def _rerank_rules(self) -> "RetrievalCfg":
@@ -118,6 +127,23 @@ class RetrievalCfg(_Strict):
                 raise ValueError("mode=hybrid_rerank 必须指定 rerank_model（如 bge-reranker-v2-m3）")
         return self
 
+    @model_validator(mode="after")
+    def _hybrid_rules(self) -> "RetrievalCfg":
+        if self.mode == "hybrid":
+            if not self.components:
+                raise ValueError(
+                    "mode=hybrid 必须提供 components（引用制，无自有索引），"
+                    "如 {vector: struct_v1, bm25: struct_bm25}"
+                )
+            missing = sorted(n for n in self.components.values()
+                             if not experiment_yaml_path(n).exists())
+            if missing:
+                raise ValueError(
+                    f"components 引用的实验配置不存在: {missing}"
+                    "（约定 configs/experiments/<实验名>.yaml）"
+                )
+        return self
+
 
 class GenerationCfg(_Strict):
     enabled: bool = False
@@ -127,7 +153,7 @@ class GenerationCfg(_Strict):
 
 class EvaluationCfg(_Strict):
     dataset: str = "evaluation/datasets/questions.jsonl"
-    expected_sources: str = "evaluation/datasets/expected_sources.jsonl"
+    expected_sources: str | None = "evaluation/datasets/expected_sources.jsonl"
     retrieval_metrics: list[str] = ["hit_rate@5", "mrr@5"]
     response_metrics: list[str] = []
     sample_size: int | None = Field(default=None, ge=1)
@@ -273,6 +299,8 @@ def canonical_json(cfg: ExperimentConfig) -> str:
 # 三个真实 bge-m3 索引全部孤儿化、live 服务启动失败）。
 _INDEX_IDENTITY_SECTIONS = ("chunking", "embedding", "index")
 _INDEX_IDENTITY_RETRIEVAL_KEYS = ("mode", "params", "filters")
+# components（hybrid 引用制）刻意不入身份（PR#27 会签④）：hybrid 无自有索引，
+# 改引用只影响运行时加载，不触发任何子索引重建。
 
 
 def index_identity_json(cfg: ExperimentConfig) -> str:
