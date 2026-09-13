@@ -521,6 +521,8 @@ def _write_config(
     components_block = ""
     if retrieval_mode == "hybrid":
         components_block = "\n  components: {vector: baseline_v1, bm25: baseline_v1}"
+    elif retrieval_mode == "hybrid_rerank":
+        components_block = "\n  rerank_model: bge-reranker-v2-m3"
     p = tmp_path / "baseline_v1.yaml"
     p.write_text(
         f"""
@@ -629,19 +631,11 @@ def test_build_index_rejects_unsupported_backend(tmp_path, monkeypatch):
 
 
 def test_build_retriever_rejects_unsupported_mode(tmp_path, monkeypatch):
-    cfg_path = _write_config(tmp_path, retrieval_mode="hybrid")
-    # schema 会签（2026-09-12）：hybrid 需 components 且引用的实验 yaml 必须存在——
-    # 在 tmp 侧放一份自引用配置满足校验（本测试只锁定 build_retriever 的拒绝行为）。
-    ref_dir = tmp_path / "configs" / "experiments"
-    ref_dir.mkdir(parents=True)
-    (ref_dir / "baseline_v1.yaml").write_text(cfg_path.read_text(encoding="utf-8"),
-                                              encoding="utf-8")
+    # hybrid 已实现（PR#27 设计 §2）；此处锁定 hybrid_rerank 仍被明确拒绝
     monkeypatch.setattr(experiment_config, "REPO_ROOT", tmp_path)
-    cfg = experiment_config.load(cfg_path)
-    index_path = experiment_config.index_dir(cfg)
-    index_path.mkdir(parents=True, exist_ok=True)
+    cfg = experiment_config.load(_write_config(tmp_path, retrieval_mode="hybrid_rerank"))
 
-    with pytest.raises(NotImplementedError, match="vector"):
+    with pytest.raises(NotImplementedError, match="hybrid_rerank"):
         build_retriever(cfg, embed_fn=FakeEmbedder({}))
 
 
