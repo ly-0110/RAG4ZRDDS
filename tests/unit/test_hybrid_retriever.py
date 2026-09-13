@@ -187,3 +187,12 @@ def test_hybrid_missing_subindex_raises_with_build_hint(tmp_path, monkeypatch):
 
     with pytest.raises(FileNotFoundError, match="make index"):
         build_retriever(cfg, embed_fn=FakeEmbedder(VECTORS))
+
+
+def test_build_index_rejects_hybrid_reference_mode(tmp_path, monkeypatch):
+    # 引用制无自有索引：build_index 拦程序化误用（D 的 scripts/build_index.py 已提前短路）
+    fake = _setup(tmp_path, monkeypatch)
+    cfg = experiment_config.load(_write_hybrid(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+
+    with pytest.raises(ValueError, match="引用制"):
+        build_index(cfg, embed_fn=fake)

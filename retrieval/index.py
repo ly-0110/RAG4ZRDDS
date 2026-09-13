@@ -16,6 +16,13 @@ from retrieval.vector_store import VectorStore, sanitize_collection_name
 
 
 def build_index(cfg, embed_fn=None) -> Path:
+    if cfg.retrieval.mode == "hybrid":
+        # 引用制无自有索引（PR#27 设计 §2.2）：子索引由各自配置管；
+        # scripts/build_index.py 已提前短路，此处拦程序化误用
+        raise ValueError(
+            "hybrid 为引用制、无自有索引：请分别构建 components 引用的子配置"
+            "（make index CFG=configs/experiments/<子实验>.yaml）"
+        )
     nodes_file = experiment_config.nodes_path(cfg)
     if not nodes_file.exists():
         raise FileNotFoundError(
