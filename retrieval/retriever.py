@@ -11,6 +11,7 @@ from __future__ import annotations
 from retrieval._bootstrap import experiment_config
 from retrieval.bm25 import BM25Store
 from retrieval.nodes import NodeRecord
+from retrieval.rrf import DEFAULT_RRF_K, fuse_hits
 from retrieval.vector_store import VectorStore, sanitize_collection_name
 
 SOURCE_REF_FIELDS = (
@@ -65,6 +66,32 @@ class BM25Retriever:
         return [_to_source_ref(r) for r in results]
 
 
+class HybridRetriever:
+    """vector + bm25 两路候选 → RRF 融合（引用制：无自有索引，PR#27 设计 §2）。"""
+
+    def __init__(
+        self,
+        vector_store: VectorStore,
+        bm25_store: BM25Store,
+        rrf_k: float = DEFAULT_RRF_K,
+        candidate_top_k: int = 30,
+        filters: dict | None = None,
+    ) -> None:
+        self._vector_store = vector_store
+        self._bm25_store = bm25_store
+        self._rrf_k = rrf_k
+        self._candidate_top_k = candidate_top_k
+        self._filters = filters
+
+    async def retrieve(self, question: str, top_k: int) -> list[dict]:
+        # 子检索各取候选池；top_k 大于池容量时以 top_k 兜底（防融合池不足）
+        sub_k = max(top_k, self._candidate_top_k)
+        vec_hits = self._vector_store.query(question, sub_k, filters=self._filters)
+        bm_hits = self._bm25_store.query(question, sub_k, filters=self._filters)
+        fused = fuse_hits([vec_hits, bm_hits], top_k=top_k, k=self._rrf_k)
+        return [_to_source_ref(r) for r in fused]
+
+
 def build_retriever(cfg, embed_fn=None):
     """按实验配置组装：索引目录/集合名由 configs 派生命名（D 的约定）。"""
     index_path = experiment_config.index_dir(cfg)
@@ -75,10 +102,58 @@ def build_retriever(cfg, embed_fn=None):
             )
         store = BM25Store.load(index_path)
         return BM25Retriever(store, filters=cfg.retrieval.filters or None)
+    if cfg.retrieval.mode == "hybrid":
+        comps = cfg.retrieval.components or {}
+        missing_roles = [role for role in ("vector", "bm25") if role not in comps]
+        if missing_roles:
+            raise ValueError(
+                f"hybrid components 缺少角色: {missing_roles}"
+                "（需要 vector 与 bm25 两类引用，见 configs/experiments/README.md）"
+            )
+        vec_cfg = experiment_config.load(
+            experiment_config.experiment_yaml_path(comps["vector"]))
+        bm25_cfg = experiment_config.load(
+            experiment_config.experiment_yaml_path(comps["bm25"]))
+        vec_nodes = experiment_config.nodes_path(vec_cfg)
+        bm25_nodes = experiment_config.nodes_path(bm25_cfg)
+        if vec_nodes != bm25_nodes:
+            raise ValueError(
+                f"hybrid 两路节点集不一致：vector={comps['vector']} → {vec_nodes.name}，"
+                f"bm25={comps['bm25']} → {bm25_nodes.name}；"
+                "RRF 按 node_id 融合要求 components 产出同一节点集（chunking+sources 相同）"
+            )
+        vec_path = experiment_config.index_dir(vec_cfg)
+        bm25_path = experiment_config.index_dir(bm25_cfg)
+        for role, path in (("vector", vec_path), ("bm25", bm25_path)):
+            if not path.exists():
+                raise FileNotFoundError(
+                    f"子索引不存在: {path}（role={role}，请先运行 "
+                    f"make index CFG=configs/experiments/{comps[role]}.yaml）"
+                )
+        if embed_fn is None:
+            from retrieval.embeddings import build_embedding
+
+            embed_fn = build_embedding(vec_cfg)
+        vector_store = VectorStore(
+            embed_fn=embed_fn,
+            persist_path=str(vec_path),
+            metric=vec_cfg.index.metric,
+            collection_name=sanitize_collection_name(
+                experiment_config.index_dirname(vec_cfg)),
+        )
+        bm25_store = BM25Store.load(bm25_path)
+        rrf_k = float((cfg.retrieval.params or {}).get("rrf_k", DEFAULT_RRF_K))
+        return HybridRetriever(
+            vector_store,
+            bm25_store,
+            rrf_k=rrf_k,
+            candidate_top_k=cfg.retrieval.candidate_top_k,
+            filters=cfg.retrieval.filters or None,
+        )
     if cfg.retrieval.mode != "vector":
         raise NotImplementedError(
-            f"当前支持 vector/bm25 检索，收到 mode={cfg.retrieval.mode!r}"
-            "（hybrid/hybrid_rerank 待后续周次实现）"
+            f"当前支持 vector/bm25/hybrid 检索，收到 mode={cfg.retrieval.mode!r}"
+            "（hybrid_rerank 待第四周实现）"
         )
     if not index_path.exists():
         raise FileNotFoundError(
