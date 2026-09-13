@@ -1,0 +1,70 @@
+# =====================================================================
+# RAG4ZRDDS 实验配置 · 第三周 Hybrid RRF 初版（struct_hybrid）
+# 引用制（PR#27 设计 §2）：无自有索引，components 引用 struct_v1(vector)
+# 与 struct_bm25(bm25) 两个既有索引，RRF 运行时融合——零重建。
+#   * build_index 对 hybrid 自动跳过（子索引由各自配置构建）
+#   * rrf_k 放 retrieval.params（B 自由区）：score = Σ 1/(rrf_k + rank)
+#   * 本实验为第四周正式对比热身；指标待 E 真值标注定稿后补
+#     （宁缺毋滥：标注 P0 整改前 expected_sources 置 null）
+# =====================================================================
+schema_version: 1
+
+experiment:
+  name: struct_hybrid
+  description: 第三周 Hybrid RRF 初版：struct_v1(向量) + struct_bm25(词袋) 引用融合
+  stage: ablation
+
+sources:
+  - id: user_manual
+    type: pdf
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"
+
+ingest:
+  cleaned_output: data/cleaned/pages.jsonl
+  quality_check: true
+
+chunking:                          # 与 struct_v1/struct_bm25 完全一致（同一节点集）
+  method: struct
+  version: v1
+  params:
+    max_chunk_chars: 2500
+    overlap_chars: 200
+    large_section_thresh: 2500
+
+embedding:                         # 与 struct_v1 一致（向量路消费；hybrid 命名沿用）
+  provider: local
+  model: bge-m3
+  batch_size: 32
+  device: cpu
+
+index:
+  backend: chroma
+  metric: cosine
+
+retrieval:
+  mode: hybrid
+  top_k: 5
+  candidate_top_k: 30              # 两路子检索各取条数（融合粗取池）
+  filters: {}
+  params:
+    rrf_k: 60                      # RRF 常数（经典值 60）
+  components:                      # 引用制：实验名 → configs/experiments/<名>.yaml
+    vector: struct_v1
+    bm25: struct_bm25
+
+generation:
+  enabled: false                   # 热身只验检索路径，不跑生成（省 LLM 配额）
+  prompt_version: v0
+  llm_env_prefix: LLM_
+
+evaluation:
+  dataset: evaluation/datasets/questions.jsonl
+  expected_sources: null           # 宁缺毋滥（D 协议）：标注整改前不产出循环论证指标
+  retrieval_metrics: [hit_rate@5, mrr@5]
+  response_metrics: []
+  sample_size: null
+
+report:
+  dir: evaluation/reports
+  compare_baseline: struct_v1      # 单来源基线对照（热身期指标为空，仅记录检索明细）
