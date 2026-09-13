@@ -39,8 +39,16 @@ def _sanitize_metadata(metadata: dict) -> dict:
 
 
 def _to_chroma_where(filters: dict) -> dict:
-    """第一周仅支持等值过滤：{version: "2.4"} → {"version": "2.4"}。"""
-    return dict(filters)
+    """等值过滤 → chroma where；多键转 $and。
+
+    chroma 每个 where 节点只接受恰好一个操作符（实测 1.5.9：
+    多键平铺 dict 报 "Expected where to have exactly one operator"），
+    组合过滤（如 {source_type: html, version: "2.4"}，PR#27 设计 §3.2-2）
+    必须以 {"$and": [{k: v}, ...]} 形式下发；单键保持平铺简写。
+    """
+    if len(filters) <= 1:
+        return dict(filters)
+    return {"$and": [{k: v} for k, v in filters.items()]}
 
 
 def sanitize_collection_name(name: str) -> str:

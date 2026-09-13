@@ -94,7 +94,7 @@ python scripts/experiment_config.py configs/experiments/semantic_v1.yaml
 |---|---|---|
 | `mode` | 检索方式 | `vector`=向量语义匹配 / `bm25`=关键词精确匹配（适合 API 名、错误码）/ `hybrid`=两者融合 / `hybrid_rerank`=融合后再用模型精排 |
 | `top_k` | 最终取几个片段交给生成环节 | 先用 `5`。注意：对比不同实验时各配置此项必须一致，否则结果不可比 |
-| `candidate_top_k` | 精排前先粗取多少条 | 仅 `hybrid_rerank` 生效，必须 ≥ top_k（典型做法：粗取 30 → 精排留 5） |
+| `candidate_top_k` | 粗取候选数 | `hybrid`=两路子检索各取条数 / `hybrid_rerank`=精排前粗取条数（必须 ≥ top_k，典型 30 → 5） |
 | `rerank_model` | 精排用的模型名 | `mode: hybrid_rerank` 时必填 |
 | `filters` | 检索时的过滤条件 | 例如只搜 v2.4 的内容：`{version: "2.4"}` |
 | `source_priority` | 来源优先顺序 | 按 id 从高到低列，如 `[api_ref, user_manual]`；空 = 不分先后 |
