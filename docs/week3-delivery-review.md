@@ -1,11 +1,12 @@
 # 第三周交付审查记录（成员 D）
 
+> **v0.5（2026-09-13）**：新增 **B PR#30（Hybrid RRF + 多来源过滤验证）审查**（§1 B 行、§2.2）——实现合格、D 本机端到端实证通过；§3 验收"可同时检索"补 hybrid；§4 会签决议更新（命名对齐关闭、2026-09-13 四项决议）。同步 PR#29（D 自有提交经用户 squash 入 develop）。
 > **v0.4（2026-09-12）**：结构重排（对齐 week2 review 版式）——全员任务跟踪表提前至 §1，§2 按成员组织（A/B/C/D/E），Week 3 验收对照与会签议题独立成 §3/§4；§5 镜像/网络配置内容不变；删除重复与过程性内容。
 > **v0.3（2026-09-12）**：新增 A PR#28 审查与 D 接线实测、B PR#27 审查、全员任务跟踪、Week 3 验收对照；修复 A 带入的两处文档回退。
 > **v0.2（2026-09-11）**：新增 B 第二周收尾（PR#26）审查与四实验指标真实性验证（三方三角验证）。
 > **v0.1（2026-09-08）**：首版，覆盖 E 的 PR#22（`b871bf8`，merge `53e8099`）。
 > 审查人：成员 D。审查方法沿用《week2-delivery-review》四步：基线核对 → pytest 全套 → 契约/格式核对 → 内容真值抽查。
-> 同步状态：`feature/server-platform` 已 merge origin/develop（`fa39418`，含 PR#27 `7cf2687` + PR#28 `04c3327`）零冲突；合并时点 pytest 238/238，含 D 回归后终态 **239/239** 绿。
+> 同步状态：`feature/server-platform` 已 merge origin/develop（`21085df`，含 PR#29 = D 自有 6 提交经用户 squash 入 develop、PR#30 `df8e3af` = B 的 hybrid 实现）；唯一冲突 `tests/unit/test_retrieval.py` 已裁决；pytest **266/266** 绿（含 B 的真实产物守卫测试在建索引后转通过）。
 
 ---
 
@@ -17,9 +18,9 @@
 | | ② HTML Node 按 §7.2 Schema 落盘 `html_v1.jsonl` | ✅ PR#28 | 1305 chunk；Schema v1.0 未改即达标；URL 进 metadata；D 接线逐字节复现 |
 | | ③（可选）第二 PDF《故障排查指南》接入 | ❌ 未做 | 可选项；偏移 −68 需先将 `PAGE_OFFSET` 参数化（html-loader.md §7.4 已记） |
 | | 遗留：semantic 真实复测 | ◌ 复测完成，发现新问题 | 本机复测 583 块：碎块过滤有效（min=20、<50 块 166→50）；但 **18 块 >2500 字符（max 7175）**——`max_chunk_chars` 声明未消费，待 A 确认/修复后再替换产物；复测产物暂存 `semantic_v2.jsonl` |
-| **B 检索** | ① Metadata Filtering 验证 | ◌ 设计定稿 | PR#27 §3（接口第二周已接线）；执行等多来源索引——**本日已建成**，可启动 |
-| | ② Hybrid RRF 初版 | ◌ 设计定稿 | PR#27 §2 零重建方案；触发条件（A 就绪）已满足，待 B 实现；D 三项配套见 §4-1 |
-| | ③ §7.5 四场景跨来源验证 | ◌ 方案定稿 | PR#27 §4 验证矩阵；正式评测等 E 题集 + C 口径；降级路径（4 样例冒烟）可用 |
+| **B 检索** | ① Metadata Filtering 验证 | ✅ PR#30 | 多键过滤 chroma `$and` 生产修复；`verify_filters` 真值合规脚本（检索器层换装，不触发索引身份漂移）；bm25 多来源 4 过滤集×5 探针实测精确命中 |
+| | ② Hybrid RRF 初版 | ✅ PR#30 | `fuse_hits` 纯函数 + HybridRetriever 引用制分发（复用 D 的 components schema/yaml 路径帮手）；单来源+多来源本机端到端冒烟通过（§2.2） |
+| | ③ §7.5 四场景跨来源验证 | ✅ 冒烟通过 | bm25 多来源 A/B/C/D 四场景全命中预期（开发参考，正式评测仍等 E 题集 + C 口径）；`smoke_cross_source.py` 收编为共用工具 |
 | **C 生成与可靠性** | ① 多来源 Context 组装 + 冲突披露 | ✅ PR#19 提前交付 | Prompt v2（§7 多来源 + §8.4 规则 5）live 通路已实证生效 |
 | | ② Source Priority 规则草案 | ✅ PR#19 | `docs/source-priority-draft.md` 待会签；会签后 D 填入各配置 `source_priority` |
 | | ③ 错误案例集扩容（混版本/错来源 ≥10 例） | ◌ 部分 | C 的 20 例经真值核对为手写虚构 → 转第三周夹具；D 补采 37 例真实案例达标 |
@@ -55,6 +56,16 @@
 根因同 PR#11（旧工作树改动带病合并），仅文档域、代码零回退。**流程反馈（例会通报）**：修改他人维护的文档必须以 develop 最新版为基线，冲突时逐行核对 develop 侧内容。
 
 ### 2.2 成员 B —— 检索
+
+**PR#30（`df8e3af`，Hybrid RRF + 多来源过滤验证）= 合格，D 本机端到端实证通过（2026-09-13）**：
+
+- **实现质量**：`rrf.py::fuse_hits` 纯函数（同分按 node_id 定序保确定性，量纲 caveat 写明）；`HybridRetriever` 双路候选（`sub_k=max(top_k, candidate_top_k)`）+ filters 双路下推 + RRF 融合；`build_retriever` 引用制分发——components 角色校验、**两路节点集一致性校验**、子索引缺失给可读错误（含构建命令）；`retrieval/index.py` 核心层再加 hybrid 拦截，与 D 的 `build_index` 门面跳过构成双重防线。**直接复用 D 的 `components` schema 与 `experiment_yaml_path` 帮手**——PR#29 配套与 PR#30 实现零摩擦衔接。
+- **生产修复**：`_to_chroma_where` 多键平铺 dict 被 chroma 1.5.9 拒绝（实测报错），改 `{"$and": [...]}` 下发——组合过滤 `{source_type, version}` 由此可用。
+- **契约遵循**：`struct_hybrid.yaml` stage=ablation、`expected_sources: null`（宁缺毋滥协议）、`compare_baseline: struct_v1`；rrf_k=60 入 params 袋；multisrc hybrid/bm25 配置**采纳 struct_multisrc_* 命名**（§4-2 命名议题自动关闭）。
+- **D 端到端实证（本机，2026-09-13）**：①单来源 `struct_hybrid`：DurabilityQosPolicy 题 top-1 RRF 分 0.032787≈理论满分 2/61（两路一致命中），top-5 全落第 10 章真值区（页印 127 在列）；②`struct_multisrc_hybrid`：`DDS_Publisher_create_datawriter` 题 top-1=HTML API 页（zrdds_dev_guide）、top-2=手册第 15 章——**双来源共存**；子索引缺失时报错可读并正确指路。本机补建多来源 bm25 索引（0.1s，`struct_bge-m3_3a834db2`）。
+- **B 落实历史反馈**：新增带真实产物守卫的测试（本机建索引前 skip、建后转通过）——"单测全绿≠真实数据可跑"教训已吸收。
+- **合并裁决（2026-09-13，唯一冲突）**：`test_retrieval.py` 原"build_retriever 拒绝 hybrid"断言随 hybrid 落地过时，取 B 侧改为锁定 hybrid_rerank 拒绝；D 的 hybrid components 测试夹具保留（供 hybrid_rerank 分支复用）。
+- ⚠ 观察（登记不阻塞）：SourceRef 无 `source_type` 字段，多来源以 `source_id` 区分——2026-09-13 决议：**暂不加字段**，前端徽标由 id 映射；如需增补走 Citation 契约会签。
 
 **PR#27（`7cf2687`，第三周检索设计定稿）= 合格**：Hybrid RRF 零重建——`components` 引用既有 struct_v1(vector) + struct_bm25（同一节点集），运行时融合，避免重复编码；`components` 引实验名、`rrf_k` 入 params 袋、components 不入 index_identity_json（对 R5 语义理解正确）；score 量纲第三次对齐 X1 决议（RRF 分与 cosine/BM25 互不可比）；HTML version=`"2.4"` 前置条件已由 A 产物满足。
 
@@ -95,23 +106,23 @@
 |---|---|
 | 两种来源均可独立解析 | ✅ pdf 六步链路（301）/ html_loader（1305）各自质检全 0 |
 | Metadata 统一 | ✅ metadata.py v1.0 冻结 Schema 双来源共用（html 分支页码 null + source_url 必填） |
-| 可同时检索 | ✅ 1606 条统一 Node 集 → vector 索引建成（24.8min，红线内）→ 120 题跨来源检索实验通过（17.7s，明细落盘）；bm25 可即时构建；hybrid 待 B 实现 |
+| 可同时检索 | ✅ 1606 条统一 Node 集 → vector 索引建成（24.8min，红线内）→ 120 题跨来源检索实验通过（17.7s，明细落盘）；bm25 可即时构建；**hybrid 已落地（PR#30）并端到端实证**（§2.2） |
 | Citation 能区分来源 | ✅ source_id / source_file / source_url / 双页码按来源分型（HTML 引用跳 URL，PDF 引用报双页码）；X3 修复后 error 路径引用可回查 |
 
-**结论**：多来源知识库的数据面（解析 → 统一 Schema → 统一 Node 集 → 可建索引）与检索面（"可同时检索"）已闭环；hybrid 初版在 B（设计定稿、触发条件满足）。评测面（跨来源题 + 真值标注）仍阻塞在 E 的 P0 整改与 C 的口径定稿。
+**结论**：多来源知识库的数据面（解析 → 统一 Schema → 统一 Node 集 → 可建索引）与检索面（"可同时检索"，vector/bm25/hybrid 三模式全通）已闭环。评测面（跨来源题 + 真值标注）仍阻塞在 E 的 P0 整改与 C 的口径定稿。
 
 ## 4. 会签与跨成员议题（例会带回）
 
-1. **D 三项配套** ✅ **已会签（2026-09-12 用户四问拍板）并落地**：①接受 components 引用制设计（引实验名 / rrf_k 入 params 袋 / candidate_top_k 复用 / 不入索引身份段）②build_index 遇 hybrid 跳过 + 提示 + --list 标注子索引 ③三项现做——`RetrievalCfg.components` + hybrid 校验（必填/引用存在）、跳过分支、`run_experiment` 子索引存在性检查；+4 回归测试（全套 **243/243**）；跨域微调 B 的 test_retrieval hybrid 夹具（自引用配置满足存在性校验），**待 B 追认**。
-2. **命名对齐**：B 设计 §4.4 提名 multi_v1/multi_bm25/multi_hybrid vs D 已建的 `struct_multisrc_v1`（struct_* 前缀惯例）——B 实现 hybrid 时 components 引用实际配置名，例会一次对齐。
-3. **base_url 正式值**：现为文档站占位 `https://docs.zrtechnology.com/cdoc/html`，待例会确认。
-4. **source_priority 填值**：等 C 的 source-priority-draft 会签后，D 填入各配置（草案建议 [zrdds_dev_guide, user_manual]）。
-5. **X1/X2/X3 追认**：X1 按 mode 定标已落实（api.md v0.7，作废单一 0.5）；X3 已修复+回归；X2 阻塞方 C。B 补充约定 3 条已由 B 回签 ✅，仅剩 C 确认「result_count=0 → 拒答」。
-6. **四报告 metrics void**：真值标注到位后 D 统一重跑刷新（struct_v1/struct_bm25/semantic/hybrid；multisrc 报告同为明细版，届时一并刷新）。
-7. **向 B**：无效标注 caveat 纪律（宁缺毋滥）、"import 排列"注释删除或给出真实机制、B1（BM25 零分过滤）追认、relpath 跨盘符守卫。
+1. **D 三项配套** ✅ **已会签（2026-09-12 用户四问拍板）并落地，且 B PR#30 已消费**：components 引用制设计（引实验名 / rrf_k 入 params 袋 / candidate_top_k 复用 / 不入索引身份段）、build_index 遇 hybrid 跳过 + 提示 + --list 标注子索引、run_experiment 子索引存在性检查——B 的检索器实现与 schema/`experiment_yaml_path` 帮手零摩擦衔接；跨域微调 B 的 test_retrieval hybrid 夹具已随 PR#30 合入对齐（合并裁决取 B 侧锁定 hybrid_rerank 拒绝）。
+2. ~~命名对齐~~ **已关闭（2026-09-13）**：B PR#30 采纳 struct_multisrc_* 命名（struct_multisrc_bm25/hybrid 引用 struct_multisrc_v1），无歧义。
+3. **2026-09-13 会签决议（用户四问拍板，PR#30 审查）**：①B 改 D 域 README candidate_top_k 一行**追认**（内容准确、已自标跨域）②B 在 scripts/ 的 `verify_filters.py`/`smoke_cross_source.py` **收编为团队共用工具**（D 在本章登记归属，开发参考性质、不进正式报告流程）③SourceRef **暂不增补 source_type**——多来源以 `source_id` 区分，前端徽标由 id 映射；如需增补走 Citation 契约会签 ④api.md 升 **v0.9** 补 hybrid RRF 量纲条目（弱证据阈值不启用，沿用空结果信号）。
+4. **base_url 正式值**：现为文档站占位 `https://docs.zrtechnology.com/cdoc/html`，待例会确认。
+5. **source_priority 填值**：等 C 的 source-priority-draft 会签后，D 填入各配置（草案建议 [zrdds_dev_guide, user_manual]）。
+6. **X1/X2/X3 追认**：X1 按 mode 定标已落实（api.md v0.7+v0.9，作废单一 0.5）；X3 已修复+回归；X2 阻塞方 C。B 补充约定 3 条已由 B 回签 ✅，仅剩 C 确认「result_count=0 → 拒答」。
+7. **metrics void 清单**：真值标注到位后 D 统一重跑刷新——struct_v1/struct_bm25/semantic_v1/hybrid_v1（循环标注版）+ struct_multisrc_v1/struct_hybrid（明细版）；届时含三模式×过滤矩阵的正式跨来源评测。
 8. **向 C**：C2~C5 反馈、X2 runner、题集大改写（135 行 diff）口径确认。
-9. **向 E**：标注整改（§2.5 整改路径）、假验证脚本处置、跨来源题扩展。
-10. **向 A**：semantic 真实复测（bge-m3 环境就绪后）、文档基线流程反馈（§2.1）。
+9. **向 E**：标注整改（§2.5 整改路径）、假验证脚本处置、跨来源题扩展、徽标由 source_id 映射（2026-09-13 决议③）。
+10. **向 A**：semantic 真实复测结论（超长块根因，2026-09-12）与文档基线流程反馈（§2.1）。
 
 ## 5. 正确的镜像/网络配置方式（本机实测，团队参考）
 注意：建议完全不要在业务代码里设置环境变量--每个人的情况不同，都需要进行自己的设置，那么就不能在会同步到git的文件中设置。
