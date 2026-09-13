@@ -647,7 +647,9 @@ def test_build_index_rejects_unsupported_backend(tmp_path, monkeypatch):
 
 
 def test_build_retriever_rejects_unsupported_mode(tmp_path, monkeypatch):
-    # hybrid 已实现（PR#27 设计 §2）；此处锁定 hybrid_rerank 仍被明确拒绝
+    # hybrid 已实现（PR#27 设计 §2，B PR#30）；此处锁定 hybrid_rerank 仍被明确拒绝。
+    # （原「拒绝 hybrid」断言随 hybrid 落地过时，合并裁决取 B 侧；tmp 自引用夹具
+    # 不再需要——hybrid 配置校验在 PR#29 的 components schema 中已由真配置满足。）
     monkeypatch.setattr(experiment_config, "REPO_ROOT", tmp_path)
     cfg = experiment_config.load(_write_config(tmp_path, retrieval_mode="hybrid_rerank"))
 
