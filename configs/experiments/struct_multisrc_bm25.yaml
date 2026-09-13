@@ -1,0 +1,70 @@
+# =====================================================================
+# RAG4ZRDDS 实验配置 · 第三周多来源对照（struct_multisrc_bm25）
+# 与 struct_multisrc_v1 同节点集（PDF 2.0 + HTML 2.4 合并 1606 块），
+# 检索方式换为 BM25 词袋——“同分块、异检索”对照。
+# =====================================================================
+schema_version: 1
+
+experiment:
+  name: struct_multisrc_bm25
+  description: 第三周多来源对照：struct 分块 × (用户手册 PDF 2.0 + Doxygen HTML 2.4) × BM25 词袋检索
+  stage: ablation
+
+sources:
+  - id: user_manual
+    type: pdf
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"
+  - id: zrdds_dev_guide
+    type: html
+    path: data/raw/developer-guides/cdoc_html
+    version: "2.4"
+    url: https://docs.zrtechnology.com/cdoc/html
+
+ingest:
+  cleaned_output: data/cleaned/pages.jsonl
+  quality_check: true
+
+chunking:
+  method: struct
+  version: v1
+  params:
+    max_chunk_chars: 2500
+    overlap_chars: 200
+    large_section_thresh: 2500
+
+embedding:                         # bm25 不消费；命名/校验需要保留
+  provider: local
+  model: bge-m3
+  batch_size: 32
+  device: cpu
+
+index:
+  backend: chroma                  # bm25 实际落 bm25.json，backend/metric 仅参与命名
+  metric: cosine
+
+retrieval:
+  mode: bm25
+  top_k: 5
+  candidate_top_k: 30
+  filters: {}
+  source_priority: []
+  params:
+    k1: 1.5
+    b: 0.75
+
+generation:
+  enabled: false
+  prompt_version: v0
+  llm_env_prefix: LLM_
+
+evaluation:
+  dataset: evaluation/datasets/questions.jsonl
+  expected_sources: null           # 宁缺毋滥（同 struct_multisrc_v1 协议）
+  retrieval_metrics: [hit_rate@5, mrr@5]
+  response_metrics: []
+  sample_size: null
+
+report:
+  dir: evaluation/reports
+  compare_baseline: struct_multisrc_v1
