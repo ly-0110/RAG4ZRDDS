@@ -29,6 +29,13 @@ make serve                                      # 终端 B：HF_HUB_OFFLINE=1 �
 curl http://127.0.0.1:8000/healthz     # → {"status":"ok","mode":"live"}
 ```
 
+**收摊顺序**（演示结束或换配置前）：先停 `make serve` 的 uvicorn，再停 `llm_gateway.py`，
+最后按需 `ollama stop <模型>` 释放显存（只卸载模型、不终止 11434 服务进程）。核验端口是否释放：
+
+```bash
+netstat -ano | grep LISTENING | grep -E ":8000|:11500|:11434"
+```
+
 ## 3. 四段演示脚本
 
 ### 场景 1 · 单来源精确定位 + 引用真值（基线）

@@ -191,7 +191,10 @@ cited_nodes, comment?, node_ids?
 | v0.2 | 2026-08-28：live 接线 B 检索（真实 sources）；双页码约定定为 +7；新增 `RAG_EXPERIMENT_CONFIG`；生成待 C（PendingAnswerStream 可读缺口） |
 | v0.1 | 骨架：/healthz、/query(SSE)、/sources 回查；mock/live 双模式 |
 
-## 已知边界（后续版本）
+## 已知边界（现状与后续）
 
-- `/v1/chat/completions`（OpenAI 兼容门面）与 MCP 工具：第三周交付
-- 回答的 Grounding/拒答行为：C 的 Prompt v0 已落地两条硬规则（仅依据检索作答 / 给出来源）；正式 Grounding/Abstention 细化与 Citation 字段定版在第二周（指南 §6.3 / §6.4）
+- **OpenAI 兼容门面 `/v1/chat/completions`：经决策不做**（前端 E 走自研轻量页，指南 §7 的触发条件未成立）。原预留的空目录 `server/openai_compat/` 已于 2026-09-14 删除。
+- **MCP 工具已交付**：`server/mcp_server.py`（stdio，两工具 `query_knowledge_base` / `get_sources`），契约见 `docs/mcp.md`；与本文的引用语义一致（含 v0.11 的回查附带 `source_url`）。
+- **缺口 W1**：`source_url` 目前只在**回查通道**（`/sources/{rid}`、MCP `get_sources`）附带，SSE `sources`/`done` 仍是 7 字段 wire；正式扩第 8 字段需 B/C/E 会签（`docs/week4-delivery-review.md` §2.3/§4.6）。
+- **回答级日志与回答质量指标**：`POST /feedback`（v0.10）为 D 侧提案待 E/C 会签；`response_metrics` 需成员 C 的 `evaluation/runners/answer_eval.py`，接入前 `run_experiment` 仍拒绝非空 `response_metrics`。
+- **Citation 字段定版**：仍按 `docs/citation-contract-draft.md` 与 C/E 会签推进（section 截断落点、弱证据阈值按 mode 定标已落在 v0.7/v0.9）。
