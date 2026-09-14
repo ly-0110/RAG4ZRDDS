@@ -8,8 +8,8 @@
     "questions_sha12": "4a5ddb1f1b5c",
     "expected_sources_sha12": null
   },
-  "generated_at": "2026-09-14T10:29:34+0800",
-  "duration_seconds": 10.3,
+  "generated_at": "2026-09-14T11:55:34+0800",
+  "duration_seconds": 10.0,
   "index": {
     "dirname": "struct_bge-m3_d57f695e",
     "backend": "chroma",

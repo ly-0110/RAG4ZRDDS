@@ -1,6 +1,6 @@
 {
   "schema": "rag4zrdds.regression/v1",
-  "started_at": "2026-09-14T10:29:44+0800",
+  "started_at": "2026-09-14T11:55:44+0800",
   "scope_note": "全量",
   "with_metrics": false,
   "thresholds": {
@@ -16,31 +16,31 @@
       "experiment": "hybrid_v1",
       "config": "configs\\experiments\\hybrid_v1.yaml",
       "verdict": "pass",
-      "duration_seconds": 17.4,
+      "duration_seconds": 17.2,
       "detail": {
         "comparable_questions": 120,
-        "mean_overlap": 0.9883,
+        "mean_overlap": 0.9767,
         "rank1_agreement": 1.0,
         "empty_before": 0,
         "empty_after": 0
       },
       "metrics": {
-        "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "hit_rate@5": -0.0083,
+        "mrr@5": -0.0016
       },
       "reasons": [],
       "vs_previous": {
         "verdict": "pass",
         "detail": {
           "comparable_questions": 120,
-          "mean_overlap": 0.9883,
+          "mean_overlap": 0.9767,
           "rank1_agreement": 1.0,
           "empty_before": 0,
           "empty_after": 0
         },
         "metrics": {
-          "hit_rate@5": 0.0,
-          "mrr@5": 0.0
+          "hit_rate@5": -0.0083,
+          "mrr@5": -0.0016
         },
         "incomparable_reasons": []
       },
@@ -48,14 +48,14 @@
         "verdict": "pass",
         "detail": {
           "comparable_questions": 120,
-          "mean_overlap": 0.9883,
+          "mean_overlap": 0.9783,
           "rank1_agreement": 1.0,
           "empty_before": 0,
           "empty_after": 0
         },
         "metrics": {
-          "hit_rate@5": 0.0,
-          "mrr@5": 0.0
+          "hit_rate@5": -0.0083,
+          "mrr@5": -0.0016
         },
         "incomparable_reasons": []
       }
@@ -64,7 +64,7 @@
       "experiment": "semantic_v1",
       "config": "configs\\experiments\\semantic_v1.yaml",
       "verdict": "pass",
-      "duration_seconds": 10.4,
+      "duration_seconds": 10.3,
       "detail": {
         "comparable_questions": 120,
         "mean_overlap": 1.0,
@@ -160,7 +160,7 @@
       "experiment": "struct_hybrid",
       "config": "configs\\experiments\\struct_hybrid.yaml",
       "verdict": "pass",
-      "duration_seconds": 10.7,
+      "duration_seconds": 10.4,
       "detail": {
         "comparable_questions": 120,
         "mean_overlap": 1.0,
@@ -277,7 +277,7 @@
       "experiment": "struct_multisrc_v1",
       "config": "configs\\experiments\\struct_multisrc_v1.yaml",
       "verdict": "pass",
-      "duration_seconds": 10.3,
+      "duration_seconds": 10.0,
       "detail": {
         "comparable_questions": 120,
         "mean_overlap": 1.0,
@@ -316,7 +316,7 @@
       "experiment": "struct_v1",
       "config": "configs\\experiments\\struct_v1.yaml",
       "verdict": "pass",
-      "duration_seconds": 10.3,
+      "duration_seconds": 9.9,
       "detail": {
         "comparable_questions": 120,
         "mean_overlap": 1.0,
