@@ -59,6 +59,7 @@ live 模式用哪套索引由 `RAG_EXPERIMENT_CONFIG`（默认 `configs/experime
 | `index` | 建索引（幂等，先删后建）+ manifest + 产物指纹 | `CFG=`；`--list` 盘点与回切 |
 | `experiment` | 单实验：保障索引就绪 → 全量题检索 → 报告落盘 | `CFG=` / `--rebuild` / `--fake-embed` / `--sample N` |
 | `regression` | **一键回归矩阵**（指南 §10）：跑相关实验并与历史/基准比对 | `REG_ARGS='--only a,b'` / `--changed-only` / `--with-metrics` / `--promote` |
+| `audit` | **标注真值核对**（判据只来自产物，不调检索器）；是 `--with-metrics` 的前置门禁 | 参数直传脚本，如 `--emit-abstention` |
 | `test` | pytest 全套单测 | — |
 | `serve` | FastAPI（REST + SSE） | `APP_HOST=` `APP_PORT=` |
 | `inspect` | Node 产物质检与抽查（分来源统计） | — |
@@ -80,10 +81,13 @@ live 模式用哪套索引由 `RAG_EXPERIMENT_CONFIG`（默认 `configs/experime
 ## 回归与评测
 
 ```bash
+make audit                                                    # 标注真值核对（指标闸门的前置门禁）
 make regression                                                 # 全部实验
 make regression REG_ARGS=--changed-only                         # 按 git 变更推断范围
 make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准锚点
 ```
+
+- **标注闸门**：`make audit` 的判据**只来自 A 的产物与章节树**（不调检索器），因此能抓出"标注 = 检索 top-1 回显"的自证循环；退出码非 0 时不得启用 `--with-metrics`。现库核对：120 题中 48 题标注页答不对题、6 题题面实体全库零命中（逐题清单见 `evaluation/reports/annotation_audit.md`）。
 
 - **双通道**：默认只比"检索明细"（top-K 重合率 / rank-1 一致率 / 空结果数 / 耗时），与标注无关即可发现退化；指标通道需 `--with-metrics` 显式启用（当前标注未定版，见下）。
 - **可比性闸门**：比对前核 `config_hash8` 与 Node 集 / 问题集 / 标注集三份指纹；输入变了判 `incomparable` 而非"回归"。
@@ -121,12 +125,12 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 
 ## 当前状态与已知限制
 
-系统状态（2026-09-14）：`make test` **302/302** 绿；`make ingest / index / experiment / serve / regression` 全链路本机实测；live 通路真实检索 + 本地 LLM 出词的四场景演示通过（见 `docs/demo-runbook.md`）。
+系统状态（2026-09-14）：`make test` **340/340** 绿；`make ingest / index / experiment / regression / audit / serve` 全链路本机实测；live 通路真实检索 + 本地 LLM 出词的四场景演示通过（见 `docs/demo-runbook.md`）。
 
 以下限制如实登记，请勿在汇报中当作已完成：
 
 - **Reranker 未实现**：`retrieval` 对 `hybrid_rerank` 仍抛 `NotImplementedError`（B 域第四周任务），"Vector / BM25 / Hybrid / Hybrid+Reranker"四组对比缺最后一档。
-- **正式标注未定版**：`evaluation/datasets/expected_sources.jsonl` 120 条仍是检索结果回显（与规范索引 top-1 仅 44/120 吻合），因此现有 hit_rate / mrr 数字**视同 void**；待逐题对 PDF 页眉核对后统一重跑刷新。
+- **正式标注未达标准**：`make audit` 判定 **blocked**——120 题中 48 题"标注页答不对题"、6 题题面实体在产物中全库零命中、13 题纯中文需人工核对（现有 hit_rate / mrr 因此**视同 void**）。逐题回炉清单见 `evaluation/reports/annotation_audit.md`；标注定版前回归只走明细通道。
 - **HTML 引用跳转**：`GET /sources/{rid}`（及 MCP `get_sources`）的每条引用已带 `source_url`（HTML 非空 / PDF 为 `null`，api.md v0.11）；但 SSE 的 `sources` 事件仍是 7 字段 wire，正式扩第 8 字段需 B/C/E 会签（缺口 W1，见 `docs/week4-delivery-review.md` §2.3）。
 - **容器化未验证**：交付环境本机无 Docker，快速开始以 `make` 链路为准；Docker 方案的验证状态见 `docs/week4-delivery-review.md`。
 - `semantic_v1` 分块存在超长块待处置（`max_chunk_chars` 未被消费），其产物与索引暂为旧版。

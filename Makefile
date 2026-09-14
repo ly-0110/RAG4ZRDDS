@@ -1,4 +1,4 @@
-.PHONY: setup ingest index experiment regression test serve inspect mcp smoke-mcp help
+.PHONY: setup ingest index experiment regression audit test serve inspect mcp smoke-mcp help
 
 CFG ?= configs/experiments/struct_v1.yaml
 REG_ARGS ?=
@@ -43,6 +43,10 @@ experiment:
 # 指南 §10 回归机制：变更 → 一键跑相关实验 → 与历史/基准报告比对 → 退出码判定
 regression:
 	$(PY) scripts/run_regression.py $(REG_ARGS)
+
+# 标注真值核对（§6.1/§9.3）：判据只来自 A 的产物；它是 regression --with-metrics 的前置门禁
+audit:
+	$(PY) scripts/audit_annotations.py --out-prefix evaluation/reports/annotation_audit
 
 test:
 	$(PY) -m pytest tests/ -q

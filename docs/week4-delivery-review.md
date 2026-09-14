@@ -1,7 +1,7 @@
 # 第四周交付记录（成员 D）
 
+> **v0.7（2026-09-14）**：新增 **D 交付八：标注真值核对工具**（§4.8，`scripts/audit_annotations.py` + `make audit`）。判据**只来自 A 的产物与章节树、不调用检索器**，因此能抓出"标注=检索回显"这类自证循环；现库核对结果 verdict=blocked：120 题中 **48 题标注页答不对题**、**6 题题面实体全库零命中**（已逐一 grep 双产物核验为真阳性，且已导出为机器发现的真·拒答案例供 C 专项集）、13 题纯中文需人工、循环指纹 44/120=0.3667。它同时是 `--with-metrics` 的前置门禁——"宁缺毋滥"从约定变成可执行检查。全套单测 320 → **340**。
 > **v0.6（2026-09-14）**：新增 **D 交付六：W1 过渡处置（方案 B，api.md v0.11）**（§4.6）与 **交付七：reranker 权重离线预取**（§4.7）。回查通道（`/sources/{rid}` 与 MCP `get_sources`）每条引用附带 `source_url`，**SSE wire 仍严格 7 字段**（实测确认）；真实产物装载 1606 条映射 / 1305 条带 URL。**冒烟脚本抓到一个真实缺陷**：MCP 成功路径第二次 `store.put` 覆盖了未富化记录——已修并调整比对口径。`BAAI/bge-reranker-v2-m3` 2.2GB 已缓存，B 落地即可离线加载。全套单测 314 → **320**。
-
 > **v0.5（2026-09-14）**：新增 **D 交付五：Reranker 落地前的 D 侧配套**（§4.5）——引用制判定收敛为单一事实源 `experiment_config.uses_reference_index()`，`build_index` 跳过 / `--list` 父子标注 / `run_experiment` 子索引检查三处改判（避免 B 的 `hybrid_rerank` 复用子索引时被误建 25 分钟自有索引），schema 放宽 `hybrid_rerank.components` 为可选并新增拒绝 `vector/bm25` 误填。**回归矩阵已铺满 8 个实验**（§1.3）：首轮 3 pass/3 incomparable/2 no_baseline，提基准后第二轮 **8/8 pass**，零回归；全套 **314/314** 绿。未决新增第 6 项（reranker 权重离线预取，§7）。
 > **v0.4（2026-09-14）**：新增 **D 交付四：Feedback 落库接缝**（§4）——`POST /feedback` + `{LOG_DIR}/feedback.jsonl` 四级日志 + api.md **v0.10**（D 侧提案待 E/C 会签；既有端点形状零变化，不阻塞前端）。单测 7 例、live 实测三条（含跨重启归因与"未知 rid 零落盘"）。演示题单第 5 题（RapidIO QoS）实测补录：top-1 = 10.21 RapidIOConfigQosPolicy 印刷 147/物理 153。**至此指南 §8 的 D 三项全部落地**（回归自动化 / 打包与 README / Demo 环境）。
 > **v0.3（2026-09-14）**：新增 **D 交付三：打包与 README**（§3）——按用户决策走"make 链路真验证"。修掉 `make setup` 建 venv 而其余目标全用裸 `python` 的脱节（此前"三行命令可跑"名不副实），README 全文重写（含逐步骤耗时实测、live 后端三选、回归用法、已知限制如实登记），`.env.example` 补本地 Ollama 通路与 HF 离线提示；`make help` 中文在 GBK 控制台乱码已改 ASCII。**验证缺口如实标注**：`make setup` 的 venv 全新安装未在本机跑通（需重下 2GB+ 且改动在用环境）；Dockerfile/compose 未交付（本机无 docker）。
@@ -128,7 +128,7 @@
 
 ---
 
-## 4. D 交付四 ~ 七：Feedback 落库 / Reranker 配套 / W1 过渡处置 / 权重预取
+## 4. D 交付四 ~ 八：Feedback 落库 / Reranker 配套 / W1 过渡处置 / 权重预取 / 标注真值核对
 
 E 的第四周任务是"反馈按钮与数据落库"，但**落库属 D 的日志设施**——按既定分工，D 先把服务端与契约做出来，E 只需在答案卡片加两个按钮发一次 POST。
 
@@ -183,6 +183,22 @@ B 本周要交 `hybrid_rerank`。D 侧此前把"无自有索引（引用制）"�
 
 `BAAI/bge-reranker-v2-m3` 已缓存到本机 HF hub（**2.2GB**，`model.safetensors` + tokenizer 全套，直连下载成功）。B 落地 `hybrid_rerank` 时可直接离线加载（配 `HF_HUB_OFFLINE=1`），不必在演示当天赌网络。
 
+### 4.8 D 交付八：标注真值核对工具（`scripts/audit_annotations.py` + `make audit`）
+
+第三周我给的"E 整改路径"只有一句"逐题对 PDF 核对"，缺可执行的验收手段——**没有工具，整改就无法被验证，只能靠口头承诺**。本次把它做成一条命令，也是指标闸门的前置门禁。
+
+**为什么判据不能来自检索**：第二、三周两次事故的共性就是"标注 = 检索 top-1 回显"，用检索结果给检索打分。本工具的判定只读 **A 的产物与章节树**（`printed_page_start/end`、块正文、块标题），**不调用任何检索器**；报告 top-1 只用来算"反推指纹"比例，绝不当真值。
+
+**判据（阻断项）**：`PAGE_OUT_OF_RANGE`（页码越出该来源真实页区间，如手册印刷页最大 289）· `PAGE_NO_CHUNK`（标注页无任何块承载）· `TERM_NOT_FOUND`（关键词在章节树/块标题/正文三处皆零命中）· `SECTION_PAGE_MISMATCH` / `TERM_PAGE_MISMATCH`（关键词所属章节或出现页与标注页矛盾）· **`QUESTION_TOKEN_OFF_PAGE`**（题干技术 token 不在标注页 ±2 页内 → 这页回答不了这题）· **`QUESTION_TOKEN_ABSENT`**（题面实体全库零命中）· HTML 来源标了印刷页 · 缺标注/多余题号。非阻断：`NO_TOKEN_PROBE`（纯中文题干，无 token 可机检，交人工）、`CIRCULAR_TOP1`（聚合比例超阈值才判 `suspect_circular`）。
+
+**现库实测（verdict=blocked，退出码 1）**：120 题中 **48 题 `QUESTION_TOKEN_OFF_PAGE`**（标注页答不对题）、**6 题 `QUESTION_TOKEN_ABSENT`**、13 题无 token 可检、循环指纹 44/120=0.3667（未达 0.9 阈值，说明"错位"比"整批反推"更普遍）。
+
+零命中六题已逐一核验（防误判）：`matched_count`(Q021/Q028) · `status_kind`(Q023) · `keyindex`(Q059) · `encoding_vendor_id`(Q060) · `readerthreadconfigqospolicy`(Q119) 在 PDF 产物与 1606 条合并产物中 **grep 均为 0 次**，且其标注指向无关章节（Q119 问线程配置却标到"24.2 Licence授权方式"第 276 页）→ **题面实体不存在，属真阳性**。
+
+**双重产出**：`evaluation/reports/annotation_audit.{json,md}`（E 的逐题回炉清单，含"token 实际出现在哪几页"）；`--emit-abstention` 导出的 6 题是**机器发现的真·无证据题**（`evaluation/reports/abstention_candidates.jsonl`），可直接补强 C 的 Abstention 专项集——第三周 C 那 20 例因手写虚构被判不计入验收，这批的来源是产物反证。
+
+**闸门关系**：`make audit` 退出码非 0 → 不得开 `make regression REG_ARGS=--with-metrics`，六份 void 报告也不得刷成"指标"。这一条把"宁缺毋滥"从口头约定变成可执行检查。
+
 ---
 
 ## 5. 分支与开工前置状态
@@ -197,7 +213,7 @@ B 本周要交 `hybrid_rerank`。D 侧此前把"无自有索引（引用制）"�
 
 | 事项 | 归属 | 实测现状 | 对 D/Week4 的影响 |
 |---|---|---|---|
-| 真值标注（逐题对 PDF 核对） | E | `expected_sources.jsonl` 120 条仍在，但与规范索引报告 top-1 仅 **44/120** 吻合（本次实测），仍是循环 + 非规范模型副本产物 | 指标闸门只能默认关闭；6 份 void 报告无法刷新；Week4 验收项 1/2/3 继续阻塞 |
+| 真值标注（逐题对 PDF 核对） | E | 循环 + 非规范模型副本产物未修；**本次机器核对（`make audit`，判据只来自产物）**：120 题中 **48 题标注页答不对题**、**6 题题面实体全库零命中**、13 题纯中文需人工，与规范报告 top-1 仅 44/120 吻合 | 指标闸门只能默认关闭；六份 void 报告无法刷新；Week4 验收项 1/2/3 继续阻塞。**整改清单已可生成**：`evaluation/reports/annotation_audit.md` 逐题列出"token 实际出现在哪几页" |
 | Reranker（§8.2） | B | `retrieval/retriever.py:154` 仍 `NotImplementedError("hybrid_rerank 待第四周实现")` | "Reranker 有实验数据"验收项拿不到；**D 侧已全部备好**（`uses_reference_index` 收敛 + 三处改判 + 5 测试 §4.5；bge-reranker-v2-m3 权重 2.2GB 已离线缓存 §4.7），只等 B 的实现 |
 | `answer_eval.py` runner（X2） | C | `evaluation/runners/` 仍只有 `.gitkeep` | 回答侧指标无法进矩阵；D 的 `run_experiment` 保持 `response_metrics` 非空即拒绝的现有语义 |
 | semantic 超长块 | A | `data_pipeline/chunkers/semantic.py:63` 的 `self.max_chars` 仍无消费点 | `semantic_v1` 已进矩阵（用旧代码产物的既有索引，pass）；A 一旦替换产物 → 指纹翻转 → 需重建索引（约 529s）+ `--promote` 重提基准 |
