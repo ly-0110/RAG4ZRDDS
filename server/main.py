@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from server.api import query, sources
+from server.api import feedback, query, sources
 from server.core.pipeline import build_pipeline
 from server.core.request_log import JsonlLog, PersistentSourcesStore
 from server.core.settings import REPO_ROOT, Settings, settings as app_settings
@@ -48,6 +48,7 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
         log_dir = REPO_ROOT / log_dir
     request_log = JsonlLog(log_dir / "requests.jsonl")
     sources_store = PersistentSourcesStore(log_dir / "sources.jsonl", cfg.sources_cache_size)
+    feedback_log = JsonlLog(log_dir / "feedback.jsonl")
 
     app.add_middleware(
         CORSMiddleware,
@@ -121,11 +122,13 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
 
     app.include_router(query.router, tags=["qa"])
     app.include_router(sources.router, tags=["qa"])
+    app.include_router(feedback.router, tags=["qa"])
 
     app.state.settings = cfg
     app.state.pipeline = pipeline
     app.state.request_log = request_log
     app.state.sources_cache = sources_store
+    app.state.feedback_log = feedback_log
     return app
 
 

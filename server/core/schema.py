@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -70,3 +72,18 @@ class ErrorResponse(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     error: str = Field(description="人类可读的错误说明")
+
+
+class FeedbackRequest(BaseModel):
+    """POST /feedback 请求体（第四周反馈落库，指南 §8 E 任务 1 的 D 侧承接）。
+
+    request_id 必填：脱离某次回答的"整体满意度的"无法归因，也不进本接口。
+    node_ids 可选：指向本次引用里的具体某几条，服务端校验归属后落库。
+    """
+
+    request_id: str = Field(min_length=1, max_length=32, description="被评价回答的 X-Request-ID")
+    rating: Literal["up", "down"] = Field(description="有帮助 / 无帮助")
+    comment: str | None = Field(default=None, max_length=2000, description="补充说明，可空")
+    node_ids: list[str] | None = Field(
+        default=None, max_length=20, description="指向具体引用；须属于该 request_id 的引用集"
+    )

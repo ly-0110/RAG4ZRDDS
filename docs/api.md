@@ -1,7 +1,7 @@
-# RAG4ZRDDS API 契约（v0.9 · hybrid 融合分量纲 D）
+# RAG4ZRDDS API 契约（v0.10 · 新增 POST /feedback 反馈落库）
 
 > 维护人：成员 D。前端（成员 E）以此文档对接；字段变更会同步更新本页。
-> 模式现状（2026-08-31）：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索与生成均已真实**（B 检索 + C 生成，需先 `make index` 并在 `.env` 填好 `LLM_BASE_URL`/`LLM_API_KEY`/`LLM_MODEL`）。`sources` 事件为真实引用（SourceRef 7 字段；正文 text 仅生成侧使用，下发前由服务端投影剥离），随后 `token` 流式回答。接口形状两模式不变。
+> 模式现状（2026-09-14）：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索与生成均已真实**（B 检索 + C 生成，需先 `make index` 并在 `.env` 填好 `LLM_BASE_URL`/`LLM_API_KEY`/`LLM_MODEL`，三者缺一即启动期报错）。生成后端已实测两种：云端 OpenAI 兼容 API，与本地 Ollama（经 `models/llm_gateway.py` 网关，见 `docs/demo-runbook.md`）。`sources` 事件为真实引用（SourceRef 7 字段；正文 text 仅生成侧使用，下发前由服务端投影剥离），随后 `token` 流式回答。接口形状两模式不变。
 
 ## 启动
 
@@ -125,10 +125,51 @@ curl -N -X POST http://127.0.0.1:8000/query \
 
 未命中：HTTP 404，`error` 说明可能不存在或已超出缓存范围。
 
+## POST /feedback —— 回答反馈落库（v0.10 新增 · D 侧提案，待 E/C 会签）
+
+指南 §8 成员 E 任务「有帮助/无帮助反馈按钮与数据落库」的落库侧。前端只需按本契约发一次 POST，存储与聚合归 D 的日志设施。
+
+### 请求
+
+```json
+{
+  "request_id": "a1b2c3d4e5f6",
+  "rating": "up",
+  "comment": "第 2 条引用与问题无关",
+  "node_ids": ["struct_v1_...00001"]
+}
+```
+
+| 字段 | 必填 | 约束 | 说明 |
+|---|---|---|---|
+| `request_id` | ✅ | 1~32 字符 | 被评价那次回答的 `X-Request-ID`（或 SSE 事件里的 `request_id`） |
+| `rating` | ✅ | `up` \| `down` | 两档；细化原因写进 `comment`，不扩枚举 |
+| `comment` | — | ≤2000 字符 | 自由文本 |
+| `node_ids` | — | ≤20 条 | 指向本次引用里的具体某几条；**必须属于该 `request_id` 的引用集** |
+
+### 响应
+
+- 成功：**201** `{"status":"recorded","feedback_id":"…","request_id":"…","rating":"up"}`
+- **404**：`request_id` 无对应记录 → 拒绝并说明"无法归因"。**不留孤儿反馈**（宁可少收，也不收无法回溯到那次问答的反馈）。
+- **400**：`node_ids` 含不属于该次回答的节点（防前端把 rid 与 node 配错对），`error` 会列出越界项。
+- **422**：`rating` 非 `up|down`、缺 `request_id` 等字段校验失败。
+
+### 落盘
+
+追加到 `{LOG_DIR}/feedback.jsonl`（默认 `logs/`，不入 Git），与请求级 `requests.jsonl`、检索级 `retrievals.jsonl`、引用级 `sources.jsonl` 构成四级日志，均可按 `request_id` 关联。记录字段：
+
+```
+ts, feedback_id, request_id, rating, question, answer_present,
+cited_nodes, comment?, node_ids?
+```
+
+刻意**不落答案正文**（已在 `sources.jsonl`），避免同一长答案被反复复制。
+
 ## 变更记录
 
 | 版本 | 变更 |
 |---|---|
+| v0.10 | 2026-09-14：新增 `POST /feedback`（D 侧实现 + 契约提案，**待 E/C 会签后才动前端**）——两档 `rating` 绑定 `request_id` 落 `{LOG_DIR}/feedback.jsonl`，未知 rid 一律 404 拒绝（不产孤儿反馈），`node_ids` 越界 400。**既有 `/query`、`/sources`、`/healthz` 的路径与响应形状零变化，前端不改也能继续跑**；前端接入时只需在答案卡片上加两个按钮 + 一次 POST |
 | v0.9 | 2026-09-13：`hybrid` 融合分量纲条目（D，PR#30 落地后补）——RRF 分 `Σ 1/(rrf_k+rank)`（k=60 时单路 1/61~1/90、双路一致最高 2/61≈0.0328），与 cosine/bm25 互不可比；不设绝对阈值，弱证据判定沿用「返回条数少于 top_k / 空 sources」信号；前端「弱证据」弱化展示仍仅 vector 模式启用。字段无增删，前端无需改解析 |
 | v0.8 | 2026-09-08：检索级日志落地（B 字段定义 `docs/retrieval-log-schema.md` v0.1 + D 接线）——live 模式每次检索追加一条记录到 `{LOG_DIR}/retrievals.jsonl`（含富引用正文，仅落本地不入 Git；`request_id` 可与 `requests.jsonl` 关联）。**API 响应形状与路径无任何变化，前端无需改动**；warmup/脚本直调的检索也会入日志（`request_id` 为 null） |
 | v0.7 | 2026-09-07：弱证据阈值定标（D 会签决议，待 C/E/B 例会追认）——按 `retrieval.mode` 分别定标：`vector` 阈值 **0.35** 起试（实测正常命中 0.46~0.78、无证据题 top1 约 0.52；待真实标注产出后校准）；`bm25` 不设绝对阈值，弱证据判定改用「返回条数少于 top_k / 空 sources」信号；前端「弱证据」弱化展示仅 `vector` 模式启用。C 会签第 5 题建议的单一阈值 0.5 作废（在 bm25 下永不触发、在 vector 下误伤约一半正常命中）。字段无增删，前端解析无需改动 |

@@ -65,18 +65,25 @@ curl http://127.0.0.1:8000/healthz     # → {"status":"ok","mode":"live"}
 - **实测**（rid `837a938406c8`）：**19.2s**；5 条引用分数 **0.0276~0.0318**（RRF 量纲，满量程 2/61≈0.0328，见 api.md v0.9），与向量余弦（0.72~0.75）完全不同尺度；来源仍是两来源混合，但排序把 HTML"发布模块"总览页提到 top-1。
 - 讲点：三模式（vector/bm25/hybrid）同一套门面，换实验只换配置。
 
-### 附 · 引用回查与三级日志（每段演示后随手展示）
+### 附 · 引用回查与四级日志（每段演示后随手展示）
 
 ```bash
 curl http://127.0.0.1:8000/sources/<rid>     # 200：question / answer / sources
-tail -n 1 logs/retrievals.jsonl              # 请求级检索明细（含实验名/hash8/latency）
+tail -n 1 logs/retrievals.jsonl              # 检索级明细（含实验名/hash8/latency）
 tail -n 1 logs/requests.jsonl                # HTTP 级耗时与状态
+curl -X POST http://127.0.0.1:8000/feedback -H "Content-Type: application/json" \
+     -d '{"request_id":"<rid>","rating":"down","comment":"第2条引用与问题无关"}'   # 反馈级
+tail -n 1 logs/feedback.jsonl
 ```
 实测：rid `33a22b78cb88` 在 `requests.jsonl`/`retrievals.jsonl`/`sources.jsonl` 三处均可关联（`config_hash8=0a7830b7`、`index_dirname=struct_bge-m3_0a7830b7`、`mode=vector`）。
 
+反馈端点（api.md **v0.10**）三条实测：对**上一次服务会话遗留的 rid** `837a938406c8` 打 `up` → 201（记录持久化在 `sources.jsonl`，跨重启仍可归因）；未知 rid → **404「无法归因反馈」，且不落任何孤儿记录**；新生成的 rid 带 `node_ids` 打 `down` → 201。
+
+> 前端反馈按钮属 E 域，尚未接入；Demo 时用 curl 现场敲即可，讲点是"用户反馈可回流成评测语料"。
+
 ## 4. 已知缺口（演示时必须如实说明）
 
-1. **HTML 引用无法跳转原文 URL**：Node 产物有 `source_url`（1305/1305 非空），但 `SourceRef` wire 只投影 7 字段（`node_id/source_id/source_name/section/page_print/page_physical/score`），**`source_url` 不在其中**，`docs/api.md` 亦未定义，前端 `web/` 零引用。故 HTML 引用目前只能显示文件名（如 `group___c_publication.html`）。详见 week4 review §3 缺口 W1。
+1. **HTML 引用无法跳转原文 URL**：Node 产物有 `source_url`（1305/1305 非空），但 `SourceRef` wire 只投影 7 字段（`node_id/source_id/source_name/section/page_print/page_physical/score`），**`source_url` 不在其中**，`docs/api.md` 亦未定义，前端 `web/` 零引用。故 HTML 引用目前只能显示文件名（如 `group___c_publication.html`）。详见 week4 review §2.3 缺口 W1。
 2. **Reranker 未落地**：`retrieval/retriever.py` 对 `hybrid_rerank` 仍抛 `NotImplementedError`（B 域第四周任务），Demo 不讲精排。
 3. **指标不可讲**：现库 120 条标注仍是"检索 top-1 回显"的循环版（与规范检索仅 44/120 吻合），任何 hit_rate/mrr 数字都不得出现在汇报页（回归矩阵默认只走明细通道）。
 4. 第三周遗留：`semantic` 超长块待 A 处置，semantic 实验暂不进演示链路。
@@ -103,7 +110,5 @@ tail -n 1 logs/requests.jsonl                # HTTP 级耗时与状态
 | 2 | 拒答 | ZRDDS 的错误码 E1003 代表什么含义？ | 明确"无法确认"，不编造错误码表 |
 | 3 | 越界 | ZRDDS 用户手册第 300 页讲了什么？ | 明确"无法确认"，手册最大印刷页 289 |
 | 4 | 跨来源 | 用 DDS_Publisher 创建 datawriter 的接口原型和调用步骤是什么？ | 引用同现 `zrdds_dev_guide` + `user_manual`；主动披露 C API / C++ 接口差异 |
-| 5 | 精确 token | RapidIO 相关的 QoS 策略怎么配？ | 引用落在第10章 QoS 策略区间（印刷 125~161） |
-| 6 | 回查 | （任一 rid）`GET /sources/<rid>` | 200 且 answer+sources 完整；三级日志按 rid 关联 |
-
-> 表题 5 的实测值待下次演练补录（本轮未单独跑）。
+| 5 | 精确 token | RapidIO 相关的 QoS 策略怎么配？ | **实测**（rid `bad0c2ceb9f4`）top-1 = 10.21 RapidIOConfigQosPolicy 印刷 147/物理 153，top-3 = 10.22 RapidIOControllerQosPolicy（148），top-4/5 = 21.2 RapidIO通信配置（256）；答案分"控制器参数配置（工厂端）+ 通信端选择（参与者端）"两步 |
+| 6 | 回查 | （任一 rid）`GET /sources/<rid>` | 200 且 answer+sources 完整；四级日志按 rid 关联 |
