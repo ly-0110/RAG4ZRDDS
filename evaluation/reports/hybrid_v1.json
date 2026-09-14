@@ -1,10 +1,15 @@
 {
-  "schema": "rag4zrdds.report/v1",
+  "schema": "rag4zrdds.report/v1.1",
   "experiment": "hybrid_v1",
   "stage": "baseline",
   "config_hash8": "ade09e39",
-  "generated_at": "2026-09-10T13:17:48+0800",
-  "duration_seconds": 18.3,
+  "artifacts": {
+    "nodes_file_sha12": "7b4fae96867b",
+    "questions_sha12": "4a5ddb1f1b5c",
+    "expected_sources_sha12": "4969e7ab1274"
+  },
+  "generated_at": "2026-09-14T11:54:52+0800",
+  "duration_seconds": 17.2,
   "index": {
     "dirname": "hybrid_bge-m3_ade09e39",
     "backend": "chroma",
@@ -760,12 +765,12 @@
           "score": 0.6617
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000_sem003",
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_7_获取Subscriber的关联实体_00000_sem002",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.2 Subscriber / 9.2.5 设置Subscriber的Listener",
-          "page_print": 96,
-          "page_physical": 102,
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.2.7 获取Subscriber的关联实体",
+          "page_print": 97,
+          "page_physical": 103,
           "score": 0.6598
         }
       ],
@@ -1192,19 +1197,19 @@
           "score": 0.7677
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_2_OFFERED_DEADLINE_MISSED_Status_00000",
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_1_LIVELINESS_LOST_Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.2 OFFERED_DEADLINE_MISSED Status",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.1 LIVELINESS_LOST Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.7677
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_3_OFFERED_INCOMPATIBLE_QOS_Status_00000",
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_2_OFFERED_DEADLINE_MISSED_Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.3 OFFERED_INCOMPATIBLE_QOS Status",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.2 OFFERED_DEADLINE_MISSED Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.7677
@@ -1390,10 +1395,10 @@
           "score": 0.6721
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_2_OFFERED_DEADLINE_MISSED_Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.5 关于DataWriter的Status",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.2 OFFERED_DEADLINE_MISSED Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.6721
@@ -1444,19 +1449,19 @@
           "score": 0.7179
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_1_LIVELINESS_LOST_Status_00000",
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.1 LIVELINESS_LOST Status",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.5 关于DataWriter的Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.7104
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_3_OFFERED_INCOMPATIBLE_QOS_Status_00000",
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_1_LIVELINESS_LOST_Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.3 OFFERED_INCOMPATIBLE_QOS Status",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.1 LIVELINESS_LOST Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.7104
@@ -1579,12 +1584,12 @@
           "score": 0.7565
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_4_PUBLICATION_MATCHED_Status_00000_sem001",
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_4_设置DataWriter的Listener_00000_sem002",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.4 PUBLICATION_MATCHED Status",
-          "page_print": 85,
-          "page_physical": 91,
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.4 设置DataWriter的Listener",
+          "page_print": 84,
+          "page_physical": 90,
           "score": 0.7444
         }
       ],
@@ -1642,12 +1647,12 @@
           "score": 0.7144
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_4_设置DataReader的Listener_00000_sem001",
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_3_设置DataReader的QoS策略_9_3_3_3_使用Topic的QoS策略初始化DataReader的QoS策略_00000_sem004",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.4 设置DataReader的Listener",
-          "page_print": 103,
-          "page_physical": 109,
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.3 设置DataReader的QoS策略 / 9.3.3.3 使用Topic的QoS策略初始化DataReader的QoS策略",
+          "page_print": 102,
+          "page_physical": 108,
           "score": 0.712
         }
       ],
@@ -1705,12 +1710,12 @@
           "score": 0.7469
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_3_设置DataReader的QoS策略_9_3_3_3_使用Topic的QoS策略初始化DataReader的QoS策略_00000_sem004",
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_4_设置DataReader的Listener_00000_sem001",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.3 设置DataReader的QoS策略 / 9.3.3.3 使用Topic的QoS策略初始化DataReader的QoS策略",
-          "page_print": 102,
-          "page_physical": 108,
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.4 设置DataReader的Listener",
+          "page_print": 103,
+          "page_physical": 109,
           "score": 0.7401
         }
       ],
@@ -1759,19 +1764,19 @@
           "score": 0.6588
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_3_OFFERED_INCOMPATIBLE_QOS_Status_00000",
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_1_LIVELINESS_LOST_Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.3 OFFERED_INCOMPATIBLE_QOS Status",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.1 LIVELINESS_LOST Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.6571
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_3_OFFERED_INCOMPATIBLE_QOS_Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.5 关于DataWriter的Status",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.3 OFFERED_INCOMPATIBLE_QOS Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.6571
@@ -1804,15 +1809,6 @@
           "score": 0.7876
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_3_OFFERED_INCOMPATIBLE_QOS_Status_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.3 OFFERED_INCOMPATIBLE_QOS Status",
-          "page_print": 85,
-          "page_physical": 91,
-          "score": 0.7686
-        },
-        {
           "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -1835,6 +1831,15 @@
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
           "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.2 OFFERED_DEADLINE_MISSED Status",
+          "page_print": 85,
+          "page_physical": 91,
+          "score": 0.7686
+        },
+        {
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_3_OFFERED_INCOMPATIBLE_QOS_Status_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.3 OFFERED_INCOMPATIBLE_QOS Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.7686
@@ -1876,19 +1881,19 @@
           "score": 0.7522
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_3_OFFERED_INCOMPATIBLE_QOS_Status_00000",
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.3 OFFERED_INCOMPATIBLE_QOS Status",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.5 关于DataWriter的Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.7208
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_1_LIVELINESS_LOST_Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.5 关于DataWriter的Status",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.6 获取DataWriter的Status / 8.3.5.1 LIVELINESS_LOST Status",
           "page_print": 85,
           "page_physical": 91,
           "score": 0.7208

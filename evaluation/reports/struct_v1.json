@@ -1,10 +1,15 @@
 {
-  "schema": "rag4zrdds.report/v1",
+  "schema": "rag4zrdds.report/v1.1",
   "experiment": "struct_v1",
   "stage": "baseline",
   "config_hash8": "0a7830b7",
-  "generated_at": "2026-09-10T13:17:27+0800",
-  "duration_seconds": 47.8,
+  "artifacts": {
+    "nodes_file_sha12": "adcca4de72d4",
+    "questions_sha12": "4a5ddb1f1b5c",
+    "expected_sources_sha12": "4969e7ab1274"
+  },
+  "generated_at": "2026-09-14T11:55:44+0800",
+  "duration_seconds": 9.9,
   "index": {
     "dirname": "struct_bge-m3_0a7830b7",
     "backend": "chroma",
@@ -5680,7 +5685,7 @@
           "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.10 发布数据",
           "page_print": 87,
           "page_physical": 93,
-          "score": 0.6426
+          "score": 0.6425
         }
       ],
       "metric_values": {

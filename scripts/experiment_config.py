@@ -128,12 +128,23 @@ class RetrievalCfg(_Strict):
         return self
 
     @model_validator(mode="after")
-    def _hybrid_rules(self) -> "RetrievalCfg":
-        if self.mode == "hybrid":
-            if not self.components:
+    def _reference_rules(self) -> "RetrievalCfg":
+        """引用制（PR#27 会签①）：hybrid 必填 components；hybrid_rerank 给了就同样校验。
+
+        hybrid_rerank 刻意**不**强制 components——第四周精排由 B 实现，形态可能是
+        "hybrid 引用制 + 精排"，也可能是"自有向量索引 + 精排"。给出 components 即按
+        引用制对待（无自有索引），未给出则走普通建索引路径。判定统一走
+        uses_reference_index()，门面与流水线不得各自猜。
+        """
+        if self.mode == "hybrid" and not self.components:
+            raise ValueError(
+                "mode=hybrid 必须提供 components（引用制，无自有索引），"
+                "如 {vector: struct_v1, bm25: struct_bm25}"
+            )
+        if self.components:
+            if self.mode not in ("hybrid", "hybrid_rerank"):
                 raise ValueError(
-                    "mode=hybrid 必须提供 components（引用制，无自有索引），"
-                    "如 {vector: struct_v1, bm25: struct_bm25}"
+                    f"components 仅用于 hybrid/hybrid_rerank 的引用制，当前 mode={self.mode!r}"
                 )
             missing = sorted(n for n in self.components.values()
                              if not experiment_yaml_path(n).exists())
@@ -351,6 +362,16 @@ def nodes_path(cfg: ExperimentConfig) -> Path:
 
 def index_dirname(cfg: ExperimentConfig) -> str:
     return f"{cfg.chunking.method}_{cfg.embedding.model}_{config_hash8(cfg)}"
+
+
+def uses_reference_index(cfg: ExperimentConfig) -> bool:
+    """该实验是否走引用制（无自有索引，运行时融合 components 指向的子索引）。
+
+    build_index 据此跳过建索引、run_experiment 据此只做子索引存在性检查。
+    判定集中一处：mode 与 components 的组合语义将来由 B 扩到 hybrid_rerank 时，
+    两侧不会各自漂移。
+    """
+    return cfg.retrieval.mode in ("hybrid", "hybrid_rerank") and bool(cfg.retrieval.components)
 
 
 def index_dir(cfg: ExperimentConfig) -> Path:

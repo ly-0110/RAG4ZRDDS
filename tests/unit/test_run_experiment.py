@@ -366,3 +366,66 @@ def test_build_index_skips_hybrid(tmp_path, capsys):
     rc = bi.cmd_build(str(p), fake=False)
     out = capsys.readouterr().out
     assert rc == 0 and "无自有索引" in out and "struct_v1" in out
+
+
+# ---------------------------------------------------------------- reranker 配套（第四周）
+
+
+class TestRerankerReferenceMode:
+    """引用制判定收敛到 uses_reference_index()，避免门面与流水线各自按 mode 字面猜。"""
+
+    def test_truth_table(self):
+        base = ec.load(REPO_ROOT / "configs" / "experiments" / "struct_v1.yaml")
+        comps = {"vector": "struct_v1", "bm25": "struct_bm25"}
+
+        def variant(mode, components):
+            return base.model_copy(update={
+                "retrieval": base.retrieval.model_copy(update={
+                    "mode": mode, "components": components})})
+
+        assert ec.uses_reference_index(variant("hybrid", comps)) is True
+        assert ec.uses_reference_index(variant("hybrid_rerank", comps)) is True
+        # B 若把精排实现成"自有向量索引 + 精排"（不给 components），仍走普通建索引路径
+        assert ec.uses_reference_index(variant("hybrid_rerank", None)) is False
+        assert ec.uses_reference_index(variant("vector", comps)) is False
+        assert ec.uses_reference_index(variant("bm25", None)) is False
+
+    def test_components_rejected_on_plain_modes(self):
+        with pytest.raises(Exception, match="仅用于 hybrid/hybrid_rerank"):
+            ec.RetrievalCfg(mode="vector",
+                            components={"vector": "struct_v1", "bm25": "struct_bm25"})
+
+    def test_hybrid_rerank_components_still_validated(self):
+        with pytest.raises(Exception, match="引用的实验配置不存在"):
+            ec.RetrievalCfg(mode="hybrid_rerank", rerank_model="bge-reranker-v2-m3",
+                            components={"vector": "no_such_exp__xyz", "bm25": "struct_bm25"})
+
+    def test_make_index_skips_reference_hybrid_rerank(self, tmp_path, capsys):
+        """引用制 hybrid_rerank 不得派生自有索引目录（否则会白建 25 分钟且孤儿化）。"""
+        import build_index as bi
+
+        text = (REPO_ROOT / "configs" / "experiments" / "struct_v1.yaml").read_text(encoding="utf-8")
+        text = text.replace("name: struct_v1", "name: rerank_ref_t").replace(
+            "mode: vector",
+            "mode: hybrid_rerank\n  rerank_model: bge-reranker-v2-m3\n"
+            "  components: {vector: struct_v1, bm25: struct_bm25}",
+        )
+        p = tmp_path / "rerank_ref_t.yaml"
+        p.write_text(text, encoding="utf-8")
+
+        assert bi.cmd_build(str(p), fake=False) == 0
+        out = capsys.readouterr().out
+        assert "mode=hybrid_rerank 走引用制" in out and "struct_bm25" in out
+        assert not ec.index_dir(ec.load(str(p))).exists(), "引用制实验不应建自有索引目录"
+
+    def test_ensure_index_for_reference_hybrid_rerank_checks_subindexes(self, capsys):
+        base = ec.load(REPO_ROOT / "configs" / "experiments" / "struct_v1.yaml")
+        cfg = base.model_copy(update={
+            "retrieval": base.retrieval.model_copy(update={
+                "mode": "hybrid_rerank", "rerank_model": "bge-reranker-v2-m3",
+                "components": {"vector": "struct_v1", "bm25": "struct_bm25"}})})
+
+        assert rx._ensure_index("configs/experiments/struct_v1.yaml", cfg, False, False) == 0
+        cap = capsys.readouterr()
+        assert "子索引[vector] 复用" in cap.out + cap.err
+        assert "子索引[bm25] 复用" in cap.out + cap.err

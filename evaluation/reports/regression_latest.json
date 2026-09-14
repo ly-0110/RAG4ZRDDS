@@ -1,0 +1,64 @@
+{
+  "schema": "rag4zrdds.regression/v1",
+  "started_at": "2026-09-14T15:14:19+0800",
+  "scope_note": "指定 1 个实验",
+  "with_metrics": false,
+  "thresholds": {
+    "min_overlap": 0.8,
+    "metric_tol": 0.02
+  },
+  "counts": {
+    "pass": 1
+  },
+  "overall": "PASS",
+  "results": [
+    {
+      "experiment": "semantic_v1",
+      "config": "configs\\experiments\\semantic_v1.yaml",
+      "verdict": "pass",
+      "duration_seconds": 17.8,
+      "detail": {
+        "comparable_questions": 120,
+        "mean_overlap": 0.9983,
+        "rank1_agreement": 1.0,
+        "empty_before": 0,
+        "empty_after": 0
+      },
+      "metrics": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0
+      },
+      "reasons": [],
+      "vs_previous": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 0.9983,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {
+          "hit_rate@5": 0.0,
+          "mrr@5": 0.0
+        },
+        "incomparable_reasons": []
+      },
+      "vs_baseline": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 0.9983,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {
+          "hit_rate@5": 0.0,
+          "mrr@5": 0.0
+        },
+        "incomparable_reasons": []
+      }
+    }
+  ]
+}

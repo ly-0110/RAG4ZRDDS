@@ -44,7 +44,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 import experiment_config as ec  # noqa: E402
 
-REPORT_SCHEMA = "rag4zrdds.report/v1"
+REPORT_SCHEMA = "rag4zrdds.report/v1.1"
 
 
 # ---------------------------------------------------------------- 数据集
@@ -184,7 +184,8 @@ async def _run_queries(retriever, questions: list[dict], top_k: int) -> dict[str
 
 def build_report(cfg, retrievals: dict[str, list[dict]], questions: list[dict],
                  expected: dict[str, list[dict]], metrics: list[str],
-                 elapsed: float, fake_embed: bool) -> dict:
+                 elapsed: float, fake_embed: bool,
+                 artifacts: dict | None = None) -> dict:
     per_question: list[dict] = []
     evaluated: list[str] = []
     skipped: list[str] = []
@@ -219,6 +220,7 @@ def build_report(cfg, retrievals: dict[str, list[dict]], questions: list[dict],
         "experiment": cfg.experiment.name,
         "stage": cfg.experiment.stage,
         "config_hash8": ec.config_hash8(cfg),
+        "artifacts": artifacts or {},
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "duration_seconds": round(elapsed, 1),
         "index": {
@@ -310,6 +312,22 @@ def _nodes_file_sha12(cfg) -> str | None:
     return bi._nodes_file_sha12(cfg)
 
 
+def _artifact_fingerprints(cfg) -> dict:
+    """报告需记录三份输入产物指纹，供回归比对判定"是否可比"（§10）。
+
+    只看 config_hash8 不够：R1（PR#11）与 R4（PR#13）两次事故都是配置未变、
+    磁盘产物已被旧基线 PR 换掉——配置哈希相同而语义内容不同。
+    """
+    import build_index as bi
+
+    expected = cfg.evaluation.expected_sources
+    return {
+        "nodes_file_sha12": bi.sha12_file(ec.nodes_path(cfg)),
+        "questions_sha12": bi.sha12_file(REPO_ROOT / cfg.evaluation.dataset),
+        "expected_sources_sha12": bi.sha12_file(REPO_ROOT / expected) if expected else None,
+    }
+
+
 def _check_fingerprint(target: Path, cfg) -> str | None:
     """复用前校验索引与 Node 集一致性。返回 None=可复用，否则返回拒绝原因。
 
@@ -334,8 +352,8 @@ def _check_fingerprint(target: Path, cfg) -> str | None:
     return None
 
 
-def _ensure_hybrid_subindexes(cfg) -> int:
-    """hybrid 引用制（PR#27 会签③）：只检查 components 引用的子索引是否存在。
+def _ensure_subindexes(cfg) -> int:
+    """引用制实验（hybrid / 引用制 hybrid_rerank，PR#27 会签③）：只检查 components 引用的子索引。
 
     不构建、不校验指纹——子索引归各自配置管；节点集一致性由检索器加载时校验（B 域）。
     """
@@ -365,8 +383,8 @@ def _ensure_index(config_path: str, cfg, rebuild: bool, fake_embed: bool) -> int
     """
     import build_index as bi
 
-    if cfg.retrieval.mode == "hybrid":
-        return _ensure_hybrid_subindexes(cfg)
+    if ec.uses_reference_index(cfg):
+        return _ensure_subindexes(cfg)
 
     target = ec.index_dir(cfg)
     if target.exists():
@@ -473,7 +491,8 @@ def main(argv: list[str] | None = None) -> int:
 
     metrics = cfg.evaluation.retrieval_metrics
     report = build_report(cfg, retrievals, questions, expected, metrics,
-                          elapsed, args.fake_embed)
+                          elapsed, args.fake_embed,
+                          artifacts=_artifact_fingerprints(cfg))
     path = write_report(cfg, report)
 
     print(f"[experiment] ✓ 完成，耗时 {elapsed:.1f}s")

@@ -5,6 +5,9 @@ data/cleaned/*
 indexes/*
 !indexes/.gitkeep
 evaluation/runs/
+# 回归矩阵的本机产物：逐轮时间戳报告与历史归档（regression_latest.* 与 baseline/ 入库）
+evaluation/reports/runs/
+evaluation/reports/regression_2*.json
 models/
 logs/*
 !logs/.gitkeep

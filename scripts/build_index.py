@@ -80,25 +80,30 @@ def _fake_embed(texts: list[str]) -> list[list[float]]:
     ]
 
 
-def _nodes_file_sha12(cfg) -> str | None:
-    """Node 集内容指纹（sha256 前 12 位，CRLF 归一化为 LF 后计算）；缺失返回 None。
-
-    背景（2026-09-01 事故）：hash8 只由配置内容派生，产物重跑而配置未变时
-    旧索引会被静默复用 → 索引向量与磁盘产物脱节。指纹供复用侧校验。
+def sha12_file(path: Path) -> str | None:
+    """文件内容指纹（sha256 前 12 位，CRLF 归一化为 LF 后计算）；缺失返回 None。
 
     归一化背景（2026-09-07 事故）：.gitattributes 的「*.jsonl text eol=lf」把产物
-    规范成 LF，而建索引时工作树是 CRLF——内容语义完全相同、原始字节哈希却不同，
-    三个真实索引的指纹全部误判为「产物已变」而拒绝复用。指纹只应反映语义内容。
+    规范成 LF，而工作树可能是 CRLF——内容语义完全相同、原始字节哈希却不同，
+    真实索引的指纹会被误判为「产物已变」。指纹只应反映语义内容。
     """
     import hashlib
-    p = ec.nodes_path(cfg)
-    if not p.exists():
+    if not path.exists():
         return None
     h = hashlib.sha256()
-    with p.open("rb") as f:
+    with path.open("rb") as f:
         for blk in iter(lambda: f.read(1 << 20), b""):
             h.update(blk.replace(b"\r\n", b"\n"))
     return h.hexdigest()[:12]
+
+
+def _nodes_file_sha12(cfg) -> str | None:
+    """Node 集内容指纹；缺失返回 None。
+
+    背景（2026-09-01 事故）：hash8 只由配置内容派生，产物重跑而配置未变时
+    旧索引会被静默复用 → 索引向量与磁盘产物脱节。指纹供复用侧校验。
+    """
+    return sha12_file(ec.nodes_path(cfg))
 
 
 def _write_manifest(index_path: Path, cfg, nodes_count: int, build_seconds: float,
@@ -153,9 +158,9 @@ def _count_nodes(cfg) -> int:
 def cmd_build(config_path: str, fake: bool) -> int:
     cfg = ec.load(config_path)
 
-    if cfg.retrieval.mode == "hybrid":
+    if ec.uses_reference_index(cfg):
         comps = cfg.retrieval.components or {}
-        print("[index] mode=hybrid 无自有索引（引用制，PR#27 会签②）："
+        print(f"[index] mode={cfg.retrieval.mode} 走引用制（PR#27 会签②）：无自有索引，"
               "子索引由 components 引用的实验分别构建")
         for role, name in sorted(comps.items()):
             ref = ec.experiment_yaml_path(name)
@@ -202,14 +207,14 @@ def cmd_list(config_path: str | None) -> int:
     if config_path:
         cfg = ec.load(config_path)
         current = ec.index_dirname(cfg)
-        if cfg.retrieval.mode == "hybrid":
+        if ec.uses_reference_index(cfg):
             for role, name in sorted((cfg.retrieval.components or {}).items()):
                 ref = ec.experiment_yaml_path(name)
                 if ref.exists():
                     extra_marks.add(ec.index_dirname(ec.load(ref)))
             if extra_marks:
-                print(f"[index] 当前配置 mode=hybrid（无自有索引），引用子索引: "
-                      f"{', '.join(sorted(extra_marks))}")
+                print(f"[index] 当前配置 mode={cfg.retrieval.mode}（引用制，无自有索引），"
+                      f"引用子索引: {', '.join(sorted(extra_marks))}")
     if not root.exists() or not any(root.iterdir()):
         print("[index] indexes/ 为空——先运行 make index")
         return 0

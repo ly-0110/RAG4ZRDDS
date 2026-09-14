@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -70,3 +72,30 @@ class ErrorResponse(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     error: str = Field(description="人类可读的错误说明")
+
+
+class FeedbackRequest(BaseModel):
+    """POST /feedback 请求体（第四周反馈落库，指南 §8 E 任务 1 的 D 侧承接）。
+
+    request_id 必填：脱离某次回答的"整体满意度的"无法归因，也不进本接口。
+    node_ids 可选：指向本次引用里的具体某几条，服务端校验归属后落库。
+    """
+
+    request_id: str = Field(min_length=1, max_length=32, description="被评价回答的 X-Request-ID")
+    rating: Literal["up", "down"] = Field(description="有帮助 / 无帮助")
+    comment: str | None = Field(default=None, max_length=2000, description="补充说明，可空")
+    node_ids: list[str] | None = Field(
+        default=None, max_length=20, description="指向具体引用；须属于该 request_id 的引用集"
+    )
+
+
+def with_source_urls(sources: list[dict],
+                     source_urls: dict[str, str | None]) -> list[dict]:
+    """回查记录专用投影：给每条引用附 `source_url`（HTML 来源有、PDF 为 null）。
+
+    `SourceRef` 七字段是与前端会签的 wire 契约，SSE 事件**不**带此字段；扩字段须走
+    B/C/E 会签（缺口 W1，docs/week4-delivery-review.md §2.3）。在此之前，
+    `/sources/{rid}` 与 MCP `get_sources` 两条回查通路先带 URL，HTML 引用即可跳原文。
+    刻意构造副本而非原地改，避免 URL 顺着 wire 引用漏进 SSE 帧或工具返回。
+    """
+    return [{**s, "source_url": source_urls.get(s.get("node_id"))} for s in sources]

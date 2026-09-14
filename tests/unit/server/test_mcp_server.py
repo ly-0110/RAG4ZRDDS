@@ -56,7 +56,10 @@ def test_query_returns_answer_sources_and_persists(kb_env):
     # 引用先行持久化 + done 后覆盖：回查拿到最终答案
     rec = ms.get_sources_impl(out["request_id"])
     assert rec["answer"] == out["answer"]
-    assert rec["sources"] == out["sources"]
+    assert [{k: v for k, v in s.items() if k != "source_url"}
+            for s in rec["sources"]] == out["sources"]   # W1：回查记录多带 source_url
+    assert all("source_url" in s for s in rec["sources"])
+    assert all("source_url" not in s for s in out["sources"])  # 工具返回保持 7 字段 wire
     assert rec["question"] == "如何创建 DataWriter？"
 
 
@@ -82,7 +85,10 @@ def test_generation_failure_keeps_sources_queryable(kb_env, tmp_path):
     assert "error" in out and "LLM 不可达" in out["error"]
     assert out["sources"]
     rec = ms.get_sources_impl(out["request_id"])
-    assert rec["sources"] == out["sources"]
+    assert [{k: v for k, v in s.items() if k != "source_url"}
+            for s in rec["sources"]] == out["sources"]   # W1：回查记录多带 source_url
+    assert all("source_url" in s for s in rec["sources"])
+    assert all("source_url" not in s for s in out["sources"])  # 工具返回保持 7 字段 wire
 
 
 def test_get_sources_unknown_id_readable_error(kb_env):
