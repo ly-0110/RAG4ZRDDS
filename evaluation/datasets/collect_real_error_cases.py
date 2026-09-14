@@ -66,6 +66,10 @@ TRUTHS: dict[str, dict] = {
 }
 
 
+# 因缺人工审计真值而未参与采集的题号（collect() 每次重置，main() 打印覆盖度）
+UNAUDITED: list[str] = []
+
+
 def _in_ranges(page: int | None, ranges: list[tuple[int, int]]) -> bool:
     return page is not None and any(lo <= page <= hi for lo, hi in ranges)
 
@@ -102,6 +106,7 @@ def _load_nodes_index(product_rel: str) -> dict[str, dict]:
 
 
 def collect() -> list[dict]:
+    UNAUDITED.clear()
     reports = {
         name: json.loads((REPO_ROOT / rep).read_text(encoding="utf-8"))["per_question"]
         for name, (rep, _) in REPORTS.items()
@@ -115,7 +120,12 @@ def collect() -> list[dict]:
             d = next(x for x in pq if x["id"] == qid)
             top1[name] = d["retrieved"][0] if d["retrieved"] else None
 
-        truth = TRUTHS[qid]
+        # 无人工审计真值的题一律跳过：E 的题集已从 15 题扩到 120 题，而 §6.5 的人工
+        # 审计只覆盖 Q001~Q015。案例的立身之本是"有真值依据"，宁可少采也不能臆造。
+        truth = TRUTHS.get(qid)
+        if truth is None:
+            UNAUDITED.append(qid)
+            continue
         if truth.get("absent"):
             for name, rec in top1.items():
                 if rec is None:
@@ -213,6 +223,10 @@ def main(argv: list[str] | None = None) -> int:
     from collections import Counter
     by_cat = Counter(c["category"] for c in cases)
     print(f"[real-error-cases] 共 {len(cases)} 例：{dict(by_cat)}")
+    if UNAUDITED:
+        print(f"[real-error-cases] 注：{len(UNAUDITED)} 题因无人工审计真值未参与采集"
+              f"（TRUTHS 仅覆盖 {len(TRUTHS)} 题，§6.5 人工审计只做了 Q001~Q015）。"
+              f"案例数随审计覆盖扩大而增长，勿把本数误读为『错误变少』")
     if problems:
         print("[real-error-cases] 校验失败：", file=sys.stderr)
         for p in problems:
