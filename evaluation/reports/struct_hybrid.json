@@ -1,10 +1,15 @@
 {
-  "schema": "rag4zrdds.report/v1",
+  "schema": "rag4zrdds.report/v1.1",
   "experiment": "struct_hybrid",
   "stage": "ablation",
   "config_hash8": "6ba2ddfc",
-  "generated_at": "2026-09-13T13:55:53+0800",
-  "duration_seconds": 21.3,
+  "artifacts": {
+    "nodes_file_sha12": "adcca4de72d4",
+    "questions_sha12": "4a5ddb1f1b5c",
+    "expected_sources_sha12": null
+  },
+  "generated_at": "2026-09-14T10:29:12+0800",
+  "duration_seconds": 10.7,
   "index": {
     "dirname": "struct_bge-m3_6ba2ddfc",
     "backend": "chroma",

@@ -1,0 +1,2434 @@
+{
+  "schema": "rag4zrdds.baseline/v1",
+  "compact_from": "rag4zrdds.report/v1.1",
+  "experiment": "semantic_v1",
+  "config_hash8": "7415d375",
+  "artifacts": {
+    "nodes_file_sha12": "33c623f1a655",
+    "questions_sha12": "4a5ddb1f1b5c",
+    "expected_sources_sha12": "4969e7ab1274"
+  },
+  "duration_seconds": 10.5,
+  "index": {
+    "dirname": "semantic_bge-m3_7415d375",
+    "backend": "chroma",
+    "metric": "cosine"
+  },
+  "retrieval": {
+    "mode": "vector",
+    "top_k": 5
+  },
+  "dataset": {
+    "questions": "evaluation/datasets/questions.jsonl",
+    "expected_sources": "evaluation/datasets/expected_sources.jsonl",
+    "total": 120,
+    "evaluated": 120,
+    "skipped_no_expected": []
+  },
+  "metrics": {
+    "hit_rate@5": 0.0583,
+    "mrr@5": 0.0311
+  },
+  "per_question": [
+    {
+      "id": "Q001",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00167"
+        },
+        {
+          "node_id": "semantic_v1_00155"
+        },
+        {
+          "node_id": "semantic_v1_00153"
+        },
+        {
+          "node_id": "semantic_v1_00158"
+        },
+        {
+          "node_id": "semantic_v1_00175"
+        }
+      ]
+    },
+    {
+      "id": "Q002",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00177"
+        },
+        {
+          "node_id": "semantic_v1_00663"
+        },
+        {
+          "node_id": "semantic_v1_00175"
+        },
+        {
+          "node_id": "semantic_v1_00164"
+        },
+        {
+          "node_id": "semantic_v1_00167"
+        }
+      ]
+    },
+    {
+      "id": "Q003",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00295"
+        },
+        {
+          "node_id": "semantic_v1_00176"
+        },
+        {
+          "node_id": "semantic_v1_00196"
+        },
+        {
+          "node_id": "semantic_v1_00273"
+        },
+        {
+          "node_id": "semantic_v1_00366"
+        }
+      ]
+    },
+    {
+      "id": "Q004",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00085"
+        },
+        {
+          "node_id": "semantic_v1_00168"
+        },
+        {
+          "node_id": "semantic_v1_00167"
+        },
+        {
+          "node_id": "semantic_v1_00088"
+        },
+        {
+          "node_id": "semantic_v1_00192"
+        }
+      ]
+    },
+    {
+      "id": "Q005",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00814"
+        },
+        {
+          "node_id": "semantic_v1_00167"
+        },
+        {
+          "node_id": "semantic_v1_00271"
+        },
+        {
+          "node_id": "semantic_v1_00212"
+        },
+        {
+          "node_id": "semantic_v1_00207"
+        }
+      ]
+    },
+    {
+      "id": "Q006",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00299"
+        },
+        {
+          "node_id": "semantic_v1_00301"
+        },
+        {
+          "node_id": "semantic_v1_00303"
+        },
+        {
+          "node_id": "semantic_v1_00281"
+        },
+        {
+          "node_id": "semantic_v1_00100"
+        }
+      ]
+    },
+    {
+      "id": "Q007",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00401"
+        },
+        {
+          "node_id": "semantic_v1_00704"
+        },
+        {
+          "node_id": "semantic_v1_00710"
+        },
+        {
+          "node_id": "semantic_v1_00356"
+        },
+        {
+          "node_id": "semantic_v1_00417"
+        }
+      ]
+    },
+    {
+      "id": "Q008",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00416"
+        },
+        {
+          "node_id": "semantic_v1_00704"
+        },
+        {
+          "node_id": "semantic_v1_00146"
+        },
+        {
+          "node_id": "semantic_v1_00356"
+        },
+        {
+          "node_id": "semantic_v1_00145"
+        }
+      ]
+    },
+    {
+      "id": "Q009",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00148"
+        },
+        {
+          "node_id": "semantic_v1_00149"
+        },
+        {
+          "node_id": "semantic_v1_00143"
+        },
+        {
+          "node_id": "semantic_v1_00140"
+        },
+        {
+          "node_id": "semantic_v1_00138"
+        }
+      ]
+    },
+    {
+      "id": "Q010",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00663"
+        },
+        {
+          "node_id": "semantic_v1_00181"
+        },
+        {
+          "node_id": "semantic_v1_00180"
+        },
+        {
+          "node_id": "semantic_v1_00178"
+        },
+        {
+          "node_id": "semantic_v1_00842"
+        }
+      ]
+    },
+    {
+      "id": "Q011",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00169"
+        },
+        {
+          "node_id": "semantic_v1_00802"
+        },
+        {
+          "node_id": "semantic_v1_00181"
+        },
+        {
+          "node_id": "semantic_v1_00180"
+        },
+        {
+          "node_id": "semantic_v1_00888"
+        }
+      ]
+    },
+    {
+      "id": "Q012",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00146"
+        },
+        {
+          "node_id": "semantic_v1_00414"
+        },
+        {
+          "node_id": "semantic_v1_00818"
+        },
+        {
+          "node_id": "semantic_v1_00416"
+        },
+        {
+          "node_id": "semantic_v1_00354"
+        }
+      ]
+    },
+    {
+      "id": "Q013",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00815"
+        },
+        {
+          "node_id": "semantic_v1_00801"
+        },
+        {
+          "node_id": "semantic_v1_00168"
+        },
+        {
+          "node_id": "semantic_v1_00812"
+        },
+        {
+          "node_id": "semantic_v1_00176"
+        }
+      ]
+    },
+    {
+      "id": "Q014",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00141"
+        },
+        {
+          "node_id": "semantic_v1_00143"
+        },
+        {
+          "node_id": "semantic_v1_00140"
+        },
+        {
+          "node_id": "semantic_v1_00138"
+        },
+        {
+          "node_id": "semantic_v1_00142"
+        }
+      ]
+    },
+    {
+      "id": "Q015",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00285"
+        },
+        {
+          "node_id": "semantic_v1_00813"
+        },
+        {
+          "node_id": "semantic_v1_00812"
+        },
+        {
+          "node_id": "semantic_v1_00272"
+        },
+        {
+          "node_id": "semantic_v1_00677"
+        }
+      ]
+    },
+    {
+      "id": "Q016",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00295"
+        },
+        {
+          "node_id": "semantic_v1_00128"
+        },
+        {
+          "node_id": "semantic_v1_00366"
+        },
+        {
+          "node_id": "semantic_v1_00126"
+        },
+        {
+          "node_id": "semantic_v1_00365"
+        }
+      ]
+    },
+    {
+      "id": "Q017",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00234"
+        },
+        {
+          "node_id": "semantic_v1_00232"
+        },
+        {
+          "node_id": "semantic_v1_00233"
+        },
+        {
+          "node_id": "semantic_v1_00216"
+        },
+        {
+          "node_id": "semantic_v1_00391"
+        }
+      ]
+    },
+    {
+      "id": "Q018",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00386"
+        },
+        {
+          "node_id": "semantic_v1_00381"
+        },
+        {
+          "node_id": "semantic_v1_00380"
+        },
+        {
+          "node_id": "semantic_v1_00307"
+        },
+        {
+          "node_id": "semantic_v1_00294"
+        }
+      ]
+    },
+    {
+      "id": "Q019",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00499"
+        },
+        {
+          "node_id": "semantic_v1_00386"
+        },
+        {
+          "node_id": "semantic_v1_00309"
+        },
+        {
+          "node_id": "semantic_v1_00498"
+        },
+        {
+          "node_id": "semantic_v1_00136"
+        }
+      ]
+    },
+    {
+      "id": "Q020",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00351"
+        },
+        {
+          "node_id": "semantic_v1_00386"
+        },
+        {
+          "node_id": "semantic_v1_00352"
+        },
+        {
+          "node_id": "semantic_v1_00380"
+        },
+        {
+          "node_id": "semantic_v1_00394"
+        }
+      ]
+    },
+    {
+      "id": "Q021",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00394"
+        },
+        {
+          "node_id": "semantic_v1_00310"
+        },
+        {
+          "node_id": "semantic_v1_00315"
+        },
+        {
+          "node_id": "semantic_v1_00313"
+        },
+        {
+          "node_id": "semantic_v1_00290"
+        }
+      ]
+    },
+    {
+      "id": "Q022",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00133"
+        },
+        {
+          "node_id": "semantic_v1_00313"
+        },
+        {
+          "node_id": "semantic_v1_00144"
+        },
+        {
+          "node_id": "semantic_v1_00310"
+        },
+        {
+          "node_id": "semantic_v1_00396"
+        }
+      ]
+    },
+    {
+      "id": "Q023",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00386"
+        },
+        {
+          "node_id": "semantic_v1_00309"
+        },
+        {
+          "node_id": "semantic_v1_00380"
+        },
+        {
+          "node_id": "semantic_v1_00136"
+        },
+        {
+          "node_id": "semantic_v1_00385"
+        }
+      ]
+    },
+    {
+      "id": "Q024",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00391"
+        },
+        {
+          "node_id": "semantic_v1_00583"
+        },
+        {
+          "node_id": "semantic_v1_00309"
+        },
+        {
+          "node_id": "semantic_v1_00390"
+        },
+        {
+          "node_id": "semantic_v1_00380"
+        }
+      ]
+    },
+    {
+      "id": "Q025",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00391"
+        },
+        {
+          "node_id": "semantic_v1_00310"
+        },
+        {
+          "node_id": "semantic_v1_00616"
+        },
+        {
+          "node_id": "semantic_v1_00559"
+        },
+        {
+          "node_id": "semantic_v1_00371"
+        }
+      ]
+    },
+    {
+      "id": "Q026",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00380"
+        },
+        {
+          "node_id": "semantic_v1_00392"
+        },
+        {
+          "node_id": "semantic_v1_00386"
+        },
+        {
+          "node_id": "semantic_v1_00391"
+        },
+        {
+          "node_id": "semantic_v1_00414"
+        }
+      ]
+    },
+    {
+      "id": "Q027",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00392"
+        },
+        {
+          "node_id": "semantic_v1_00380"
+        },
+        {
+          "node_id": "semantic_v1_00719"
+        },
+        {
+          "node_id": "semantic_v1_00386"
+        },
+        {
+          "node_id": "semantic_v1_00391"
+        }
+      ]
+    },
+    {
+      "id": "Q028",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00394"
+        },
+        {
+          "node_id": "semantic_v1_00313"
+        },
+        {
+          "node_id": "semantic_v1_00308"
+        },
+        {
+          "node_id": "semantic_v1_00310"
+        },
+        {
+          "node_id": "semantic_v1_00358"
+        }
+      ]
+    },
+    {
+      "id": "Q029",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00309"
+        },
+        {
+          "node_id": "semantic_v1_00391"
+        },
+        {
+          "node_id": "semantic_v1_00310"
+        },
+        {
+          "node_id": "semantic_v1_00380"
+        },
+        {
+          "node_id": "semantic_v1_00461"
+        }
+      ]
+    },
+    {
+      "id": "Q030",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00310"
+        },
+        {
+          "node_id": "semantic_v1_00391"
+        },
+        {
+          "node_id": "semantic_v1_00309"
+        },
+        {
+          "node_id": "semantic_v1_00281"
+        },
+        {
+          "node_id": "semantic_v1_00441"
+        }
+      ]
+    },
+    {
+      "id": "Q031",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00174"
+        },
+        {
+          "node_id": "semantic_v1_00167"
+        },
+        {
+          "node_id": "semantic_v1_00192"
+        },
+        {
+          "node_id": "semantic_v1_00206"
+        },
+        {
+          "node_id": "semantic_v1_00869"
+        }
+      ]
+    },
+    {
+      "id": "Q032",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00174"
+        },
+        {
+          "node_id": "semantic_v1_00806"
+        },
+        {
+          "node_id": "semantic_v1_00212"
+        },
+        {
+          "node_id": "semantic_v1_00167"
+        },
+        {
+          "node_id": "semantic_v1_00857"
+        }
+      ]
+    },
+    {
+      "id": "Q033",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00835"
+        },
+        {
+          "node_id": "semantic_v1_00666"
+        },
+        {
+          "node_id": "semantic_v1_00296"
+        },
+        {
+          "node_id": "semantic_v1_00681"
+        },
+        {
+          "node_id": "semantic_v1_00099"
+        }
+      ]
+    },
+    {
+      "id": "Q034",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00199"
+        },
+        {
+          "node_id": "semantic_v1_00174"
+        },
+        {
+          "node_id": "semantic_v1_00216"
+        },
+        {
+          "node_id": "semantic_v1_00510"
+        },
+        {
+          "node_id": "semantic_v1_00198"
+        }
+      ]
+    },
+    {
+      "id": "Q035",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00198"
+        },
+        {
+          "node_id": "semantic_v1_00211"
+        },
+        {
+          "node_id": "semantic_v1_00214"
+        },
+        {
+          "node_id": "semantic_v1_00199"
+        },
+        {
+          "node_id": "semantic_v1_00236"
+        }
+      ]
+    },
+    {
+      "id": "Q036",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00239"
+        },
+        {
+          "node_id": "semantic_v1_00236"
+        },
+        {
+          "node_id": "semantic_v1_00214"
+        },
+        {
+          "node_id": "semantic_v1_00242"
+        },
+        {
+          "node_id": "semantic_v1_00170"
+        }
+      ]
+    },
+    {
+      "id": "Q037",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00182"
+        },
+        {
+          "node_id": "semantic_v1_00560"
+        },
+        {
+          "node_id": "semantic_v1_00162"
+        },
+        {
+          "node_id": "semantic_v1_00190"
+        },
+        {
+          "node_id": "semantic_v1_00164"
+        }
+      ]
+    },
+    {
+      "id": "Q038",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00182"
+        },
+        {
+          "node_id": "semantic_v1_00468"
+        },
+        {
+          "node_id": "semantic_v1_00992"
+        },
+        {
+          "node_id": "semantic_v1_00603"
+        },
+        {
+          "node_id": "semantic_v1_00189"
+        }
+      ]
+    },
+    {
+      "id": "Q039",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00164"
+        },
+        {
+          "node_id": "semantic_v1_00159"
+        },
+        {
+          "node_id": "semantic_v1_00084"
+        },
+        {
+          "node_id": "semantic_v1_00189"
+        },
+        {
+          "node_id": "semantic_v1_00345"
+        }
+      ]
+    },
+    {
+      "id": "Q040",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_01026"
+        },
+        {
+          "node_id": "semantic_v1_00106"
+        },
+        {
+          "node_id": "semantic_v1_01054"
+        },
+        {
+          "node_id": "semantic_v1_01022"
+        },
+        {
+          "node_id": "semantic_v1_01037"
+        }
+      ]
+    },
+    {
+      "id": "Q041",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00960"
+        },
+        {
+          "node_id": "semantic_v1_00189"
+        },
+        {
+          "node_id": "semantic_v1_00997"
+        },
+        {
+          "node_id": "semantic_v1_00167"
+        },
+        {
+          "node_id": "semantic_v1_00192"
+        }
+      ]
+    },
+    {
+      "id": "Q042",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00945"
+        },
+        {
+          "node_id": "semantic_v1_00951"
+        },
+        {
+          "node_id": "semantic_v1_00551"
+        },
+        {
+          "node_id": "semantic_v1_00108"
+        },
+        {
+          "node_id": "semantic_v1_00182"
+        }
+      ]
+    },
+    {
+      "id": "Q043",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00189"
+        },
+        {
+          "node_id": "semantic_v1_00828"
+        },
+        {
+          "node_id": "semantic_v1_00167"
+        },
+        {
+          "node_id": "semantic_v1_00787"
+        },
+        {
+          "node_id": "semantic_v1_00959"
+        }
+      ]
+    },
+    {
+      "id": "Q044",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00111"
+        },
+        {
+          "node_id": "semantic_v1_00182"
+        },
+        {
+          "node_id": "semantic_v1_00578"
+        },
+        {
+          "node_id": "semantic_v1_00957"
+        },
+        {
+          "node_id": "semantic_v1_00176"
+        }
+      ]
+    },
+    {
+      "id": "Q045",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00560"
+        },
+        {
+          "node_id": "semantic_v1_00182"
+        },
+        {
+          "node_id": "semantic_v1_00770"
+        },
+        {
+          "node_id": "semantic_v1_00562"
+        },
+        {
+          "node_id": "semantic_v1_00561"
+        }
+      ]
+    },
+    {
+      "id": "Q046",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00231"
+        },
+        {
+          "node_id": "semantic_v1_00227"
+        },
+        {
+          "node_id": "semantic_v1_00228"
+        },
+        {
+          "node_id": "semantic_v1_00586"
+        },
+        {
+          "node_id": "semantic_v1_00182"
+        }
+      ]
+    },
+    {
+      "id": "Q047",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00303"
+        },
+        {
+          "node_id": "semantic_v1_00299"
+        },
+        {
+          "node_id": "semantic_v1_00231"
+        },
+        {
+          "node_id": "semantic_v1_00098"
+        },
+        {
+          "node_id": "semantic_v1_00100"
+        }
+      ]
+    },
+    {
+      "id": "Q048",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00373"
+        },
+        {
+          "node_id": "semantic_v1_00371"
+        },
+        {
+          "node_id": "semantic_v1_00368"
+        },
+        {
+          "node_id": "semantic_v1_00466"
+        },
+        {
+          "node_id": "semantic_v1_00932"
+        }
+      ]
+    },
+    {
+      "id": "Q049",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00276"
+        },
+        {
+          "node_id": "semantic_v1_00279"
+        },
+        {
+          "node_id": "semantic_v1_00098"
+        },
+        {
+          "node_id": "semantic_v1_00521"
+        },
+        {
+          "node_id": "semantic_v1_00191"
+        }
+      ]
+    },
+    {
+      "id": "Q050",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00344"
+        },
+        {
+          "node_id": "semantic_v1_00347"
+        },
+        {
+          "node_id": "semantic_v1_00182"
+        },
+        {
+          "node_id": "semantic_v1_00341"
+        },
+        {
+          "node_id": "semantic_v1_00336"
+        }
+      ]
+    },
+    {
+      "id": "Q051",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00299"
+        },
+        {
+          "node_id": "semantic_v1_00280"
+        },
+        {
+          "node_id": "semantic_v1_00301"
+        },
+        {
+          "node_id": "semantic_v1_00281"
+        },
+        {
+          "node_id": "semantic_v1_00304"
+        }
+      ]
+    },
+    {
+      "id": "Q052",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00225"
+        },
+        {
+          "node_id": "semantic_v1_00566"
+        },
+        {
+          "node_id": "semantic_v1_00564"
+        },
+        {
+          "node_id": "semantic_v1_00098"
+        },
+        {
+          "node_id": "semantic_v1_00706"
+        }
+      ]
+    },
+    {
+      "id": "Q053",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00482"
+        },
+        {
+          "node_id": "semantic_v1_00569"
+        },
+        {
+          "node_id": "semantic_v1_00483"
+        },
+        {
+          "node_id": "semantic_v1_00586"
+        },
+        {
+          "node_id": "semantic_v1_00489"
+        }
+      ]
+    },
+    {
+      "id": "Q054",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00221"
+        },
+        {
+          "node_id": "semantic_v1_00369"
+        },
+        {
+          "node_id": "semantic_v1_00454"
+        },
+        {
+          "node_id": "semantic_v1_00222"
+        },
+        {
+          "node_id": "semantic_v1_00492"
+        }
+      ]
+    },
+    {
+      "id": "Q055",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00459"
+        },
+        {
+          "node_id": "semantic_v1_00461"
+        },
+        {
+          "node_id": "semantic_v1_00229"
+        },
+        {
+          "node_id": "semantic_v1_00458"
+        },
+        {
+          "node_id": "semantic_v1_00221"
+        }
+      ]
+    },
+    {
+      "id": "Q056",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00482"
+        },
+        {
+          "node_id": "semantic_v1_00474"
+        },
+        {
+          "node_id": "semantic_v1_00472"
+        },
+        {
+          "node_id": "semantic_v1_00369"
+        },
+        {
+          "node_id": "semantic_v1_00517"
+        }
+      ]
+    },
+    {
+      "id": "Q057",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00478"
+        },
+        {
+          "node_id": "semantic_v1_00084"
+        },
+        {
+          "node_id": "semantic_v1_00085"
+        },
+        {
+          "node_id": "semantic_v1_00345"
+        },
+        {
+          "node_id": "semantic_v1_00088"
+        }
+      ]
+    },
+    {
+      "id": "Q058",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00513"
+        },
+        {
+          "node_id": "semantic_v1_00517"
+        },
+        {
+          "node_id": "semantic_v1_00114"
+        },
+        {
+          "node_id": "semantic_v1_00511"
+        },
+        {
+          "node_id": "semantic_v1_00514"
+        }
+      ]
+    },
+    {
+      "id": "Q059",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00519"
+        },
+        {
+          "node_id": "semantic_v1_00521"
+        },
+        {
+          "node_id": "semantic_v1_00342"
+        },
+        {
+          "node_id": "semantic_v1_00524"
+        },
+        {
+          "node_id": "semantic_v1_01003"
+        }
+      ]
+    },
+    {
+      "id": "Q060",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00276"
+        },
+        {
+          "node_id": "semantic_v1_00538"
+        },
+        {
+          "node_id": "semantic_v1_00586"
+        },
+        {
+          "node_id": "semantic_v1_00993"
+        },
+        {
+          "node_id": "semantic_v1_00622"
+        }
+      ]
+    },
+    {
+      "id": "Q061",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00586"
+        },
+        {
+          "node_id": "semantic_v1_00605"
+        },
+        {
+          "node_id": "semantic_v1_00480"
+        },
+        {
+          "node_id": "semantic_v1_00106"
+        },
+        {
+          "node_id": "semantic_v1_01008"
+        }
+      ]
+    },
+    {
+      "id": "Q062",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00586"
+        },
+        {
+          "node_id": "semantic_v1_00605"
+        },
+        {
+          "node_id": "semantic_v1_00619"
+        },
+        {
+          "node_id": "semantic_v1_00480"
+        },
+        {
+          "node_id": "semantic_v1_00517"
+        }
+      ]
+    },
+    {
+      "id": "Q063",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00573"
+        },
+        {
+          "node_id": "semantic_v1_00576"
+        },
+        {
+          "node_id": "semantic_v1_00486"
+        },
+        {
+          "node_id": "semantic_v1_00110"
+        },
+        {
+          "node_id": "semantic_v1_00613"
+        }
+      ]
+    },
+    {
+      "id": "Q064",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00586"
+        },
+        {
+          "node_id": "semantic_v1_00231"
+        },
+        {
+          "node_id": "semantic_v1_00605"
+        },
+        {
+          "node_id": "semantic_v1_00304"
+        },
+        {
+          "node_id": "semantic_v1_00226"
+        }
+      ]
+    },
+    {
+      "id": "Q065",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00606"
+        },
+        {
+          "node_id": "semantic_v1_00495"
+        },
+        {
+          "node_id": "semantic_v1_00098"
+        },
+        {
+          "node_id": "semantic_v1_00299"
+        },
+        {
+          "node_id": "semantic_v1_00305"
+        }
+      ]
+    },
+    {
+      "id": "Q066",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00454"
+        },
+        {
+          "node_id": "semantic_v1_01006"
+        },
+        {
+          "node_id": "semantic_v1_00458"
+        },
+        {
+          "node_id": "semantic_v1_00498"
+        },
+        {
+          "node_id": "semantic_v1_00606"
+        }
+      ]
+    },
+    {
+      "id": "Q067",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00120"
+        },
+        {
+          "node_id": "semantic_v1_01019"
+        },
+        {
+          "node_id": "semantic_v1_00124"
+        },
+        {
+          "node_id": "semantic_v1_00217"
+        },
+        {
+          "node_id": "semantic_v1_01026"
+        }
+      ]
+    },
+    {
+      "id": "Q068",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_01022"
+        },
+        {
+          "node_id": "semantic_v1_01054"
+        },
+        {
+          "node_id": "semantic_v1_01026"
+        },
+        {
+          "node_id": "semantic_v1_01053"
+        },
+        {
+          "node_id": "semantic_v1_01040"
+        }
+      ]
+    },
+    {
+      "id": "Q069",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00911"
+        },
+        {
+          "node_id": "semantic_v1_00913"
+        },
+        {
+          "node_id": "semantic_v1_00890"
+        },
+        {
+          "node_id": "semantic_v1_01026"
+        },
+        {
+          "node_id": "semantic_v1_00862"
+        }
+      ]
+    },
+    {
+      "id": "Q070",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_01045"
+        },
+        {
+          "node_id": "semantic_v1_00967"
+        },
+        {
+          "node_id": "semantic_v1_00659"
+        },
+        {
+          "node_id": "semantic_v1_00913"
+        },
+        {
+          "node_id": "semantic_v1_00040"
+        }
+      ]
+    },
+    {
+      "id": "Q071",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_01043"
+        },
+        {
+          "node_id": "semantic_v1_01040"
+        },
+        {
+          "node_id": "semantic_v1_01026"
+        },
+        {
+          "node_id": "semantic_v1_00967"
+        },
+        {
+          "node_id": "semantic_v1_01051"
+        }
+      ]
+    },
+    {
+      "id": "Q072",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00138"
+        },
+        {
+          "node_id": "semantic_v1_00141"
+        },
+        {
+          "node_id": "semantic_v1_00331"
+        },
+        {
+          "node_id": "semantic_v1_00146"
+        },
+        {
+          "node_id": "semantic_v1_00148"
+        }
+      ]
+    },
+    {
+      "id": "Q073",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00913"
+        },
+        {
+          "node_id": "semantic_v1_00911"
+        },
+        {
+          "node_id": "semantic_v1_00878"
+        },
+        {
+          "node_id": "semantic_v1_00862"
+        },
+        {
+          "node_id": "semantic_v1_00993"
+        }
+      ]
+    },
+    {
+      "id": "Q074",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00677"
+        },
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00671"
+        },
+        {
+          "node_id": "semantic_v1_00926"
+        },
+        {
+          "node_id": "semantic_v1_00405"
+        }
+      ]
+    },
+    {
+      "id": "Q075",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00677"
+        },
+        {
+          "node_id": "semantic_v1_00093"
+        },
+        {
+          "node_id": "semantic_v1_00408"
+        },
+        {
+          "node_id": "semantic_v1_00671"
+        }
+      ]
+    },
+    {
+      "id": "Q076",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00671"
+        },
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00677"
+        },
+        {
+          "node_id": "semantic_v1_00670"
+        },
+        {
+          "node_id": "semantic_v1_00093"
+        }
+      ]
+    },
+    {
+      "id": "Q077",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00677"
+        },
+        {
+          "node_id": "semantic_v1_00415"
+        },
+        {
+          "node_id": "semantic_v1_00671"
+        },
+        {
+          "node_id": "semantic_v1_00383"
+        }
+      ]
+    },
+    {
+      "id": "Q078",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00093"
+        },
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00088"
+        },
+        {
+          "node_id": "semantic_v1_00677"
+        },
+        {
+          "node_id": "semantic_v1_00671"
+        }
+      ]
+    },
+    {
+      "id": "Q079",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00102"
+        },
+        {
+          "node_id": "semantic_v1_00229"
+        },
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00113"
+        },
+        {
+          "node_id": "semantic_v1_00506"
+        }
+      ]
+    },
+    {
+      "id": "Q080",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00102"
+        },
+        {
+          "node_id": "semantic_v1_00229"
+        },
+        {
+          "node_id": "semantic_v1_00113"
+        },
+        {
+          "node_id": "semantic_v1_00487"
+        }
+      ]
+    },
+    {
+      "id": "Q081",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00677"
+        },
+        {
+          "node_id": "semantic_v1_00671"
+        },
+        {
+          "node_id": "semantic_v1_00102"
+        },
+        {
+          "node_id": "semantic_v1_00229"
+        }
+      ]
+    },
+    {
+      "id": "Q082",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00229"
+        },
+        {
+          "node_id": "semantic_v1_00677"
+        },
+        {
+          "node_id": "semantic_v1_00671"
+        },
+        {
+          "node_id": "semantic_v1_00383"
+        }
+      ]
+    },
+    {
+      "id": "Q083",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00093"
+        },
+        {
+          "node_id": "semantic_v1_00671"
+        },
+        {
+          "node_id": "semantic_v1_00677"
+        },
+        {
+          "node_id": "semantic_v1_00970"
+        }
+      ]
+    },
+    {
+      "id": "Q084",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00091"
+        },
+        {
+          "node_id": "semantic_v1_00677"
+        },
+        {
+          "node_id": "semantic_v1_00383"
+        },
+        {
+          "node_id": "semantic_v1_00408"
+        },
+        {
+          "node_id": "semantic_v1_00671"
+        }
+      ]
+    },
+    {
+      "id": "Q085",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00312"
+        },
+        {
+          "node_id": "semantic_v1_00286"
+        },
+        {
+          "node_id": "semantic_v1_00285"
+        },
+        {
+          "node_id": "semantic_v1_00296"
+        },
+        {
+          "node_id": "semantic_v1_00293"
+        }
+      ]
+    },
+    {
+      "id": "Q086",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00312"
+        },
+        {
+          "node_id": "semantic_v1_00270"
+        },
+        {
+          "node_id": "semantic_v1_00297"
+        },
+        {
+          "node_id": "semantic_v1_00387"
+        },
+        {
+          "node_id": "semantic_v1_00275"
+        }
+      ]
+    },
+    {
+      "id": "Q087",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00208"
+        },
+        {
+          "node_id": "semantic_v1_00284"
+        },
+        {
+          "node_id": "semantic_v1_00285"
+        },
+        {
+          "node_id": "semantic_v1_00271"
+        },
+        {
+          "node_id": "semantic_v1_00313"
+        }
+      ]
+    },
+    {
+      "id": "Q088",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00312"
+        },
+        {
+          "node_id": "semantic_v1_00320"
+        },
+        {
+          "node_id": "semantic_v1_00287"
+        },
+        {
+          "node_id": "semantic_v1_00297"
+        },
+        {
+          "node_id": "semantic_v1_00313"
+        }
+      ]
+    },
+    {
+      "id": "Q089",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00312"
+        },
+        {
+          "node_id": "semantic_v1_00287"
+        },
+        {
+          "node_id": "semantic_v1_00824"
+        },
+        {
+          "node_id": "semantic_v1_00465"
+        },
+        {
+          "node_id": "semantic_v1_00320"
+        }
+      ]
+    },
+    {
+      "id": "Q090",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00312"
+        },
+        {
+          "node_id": "semantic_v1_00288"
+        },
+        {
+          "node_id": "semantic_v1_00323"
+        },
+        {
+          "node_id": "semantic_v1_00317"
+        },
+        {
+          "node_id": "semantic_v1_00319"
+        }
+      ]
+    },
+    {
+      "id": "Q091",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00318"
+        },
+        {
+          "node_id": "semantic_v1_00607"
+        },
+        {
+          "node_id": "semantic_v1_00319"
+        },
+        {
+          "node_id": "semantic_v1_00288"
+        },
+        {
+          "node_id": "semantic_v1_00312"
+        }
+      ]
+    },
+    {
+      "id": "Q092",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00365"
+        },
+        {
+          "node_id": "semantic_v1_00355"
+        },
+        {
+          "node_id": "semantic_v1_00338"
+        },
+        {
+          "node_id": "semantic_v1_00673"
+        },
+        {
+          "node_id": "semantic_v1_00352"
+        }
+      ]
+    },
+    {
+      "id": "Q093",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00368"
+        },
+        {
+          "node_id": "semantic_v1_00367"
+        },
+        {
+          "node_id": "semantic_v1_00338"
+        },
+        {
+          "node_id": "semantic_v1_00341"
+        },
+        {
+          "node_id": "semantic_v1_00704"
+        }
+      ]
+    },
+    {
+      "id": "Q094",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00208"
+        },
+        {
+          "node_id": "semantic_v1_00360"
+        },
+        {
+          "node_id": "semantic_v1_00335"
+        },
+        {
+          "node_id": "semantic_v1_00333"
+        },
+        {
+          "node_id": "semantic_v1_00315"
+        }
+      ]
+    },
+    {
+      "id": "Q095",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00704"
+        },
+        {
+          "node_id": "semantic_v1_00401"
+        },
+        {
+          "node_id": "semantic_v1_00710"
+        },
+        {
+          "node_id": "semantic_v1_00356"
+        },
+        {
+          "node_id": "semantic_v1_00682"
+        }
+      ]
+    },
+    {
+      "id": "Q096",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00401"
+        },
+        {
+          "node_id": "semantic_v1_00704"
+        },
+        {
+          "node_id": "semantic_v1_00356"
+        },
+        {
+          "node_id": "semantic_v1_00355"
+        },
+        {
+          "node_id": "semantic_v1_00710"
+        }
+      ]
+    },
+    {
+      "id": "Q097",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_01019"
+        },
+        {
+          "node_id": "semantic_v1_00647"
+        },
+        {
+          "node_id": "semantic_v1_00001"
+        },
+        {
+          "node_id": "semantic_v1_00900"
+        },
+        {
+          "node_id": "semantic_v1_00643"
+        }
+      ]
+    },
+    {
+      "id": "Q098",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00014"
+        },
+        {
+          "node_id": "semantic_v1_00953"
+        },
+        {
+          "node_id": "semantic_v1_00647"
+        },
+        {
+          "node_id": "semantic_v1_00011"
+        },
+        {
+          "node_id": "semantic_v1_00017"
+        }
+      ]
+    },
+    {
+      "id": "Q099",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00075"
+        },
+        {
+          "node_id": "semantic_v1_00858"
+        },
+        {
+          "node_id": "semantic_v1_00876"
+        },
+        {
+          "node_id": "semantic_v1_00905"
+        },
+        {
+          "node_id": "semantic_v1_00647"
+        }
+      ]
+    },
+    {
+      "id": "Q100",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00638"
+        },
+        {
+          "node_id": "semantic_v1_00637"
+        },
+        {
+          "node_id": "semantic_v1_01016"
+        },
+        {
+          "node_id": "semantic_v1_00568"
+        },
+        {
+          "node_id": "semantic_v1_00658"
+        }
+      ]
+    },
+    {
+      "id": "Q101",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00075"
+        },
+        {
+          "node_id": "semantic_v1_00643"
+        },
+        {
+          "node_id": "semantic_v1_00043"
+        },
+        {
+          "node_id": "semantic_v1_00660"
+        },
+        {
+          "node_id": "semantic_v1_00647"
+        }
+      ]
+    },
+    {
+      "id": "Q102",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00926"
+        },
+        {
+          "node_id": "semantic_v1_00643"
+        },
+        {
+          "node_id": "semantic_v1_00647"
+        },
+        {
+          "node_id": "semantic_v1_00001"
+        },
+        {
+          "node_id": "semantic_v1_00658"
+        }
+      ]
+    },
+    {
+      "id": "Q103",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00050"
+        },
+        {
+          "node_id": "semantic_v1_01040"
+        },
+        {
+          "node_id": "semantic_v1_00076"
+        },
+        {
+          "node_id": "semantic_v1_01029"
+        },
+        {
+          "node_id": "semantic_v1_01019"
+        }
+      ]
+    },
+    {
+      "id": "Q104",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00055"
+        },
+        {
+          "node_id": "semantic_v1_00062"
+        },
+        {
+          "node_id": "semantic_v1_00064"
+        },
+        {
+          "node_id": "semantic_v1_00063"
+        },
+        {
+          "node_id": "semantic_v1_00060"
+        }
+      ]
+    },
+    {
+      "id": "Q105",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00652"
+        },
+        {
+          "node_id": "semantic_v1_00077"
+        },
+        {
+          "node_id": "semantic_v1_00649"
+        },
+        {
+          "node_id": "semantic_v1_00905"
+        },
+        {
+          "node_id": "semantic_v1_00876"
+        }
+      ]
+    },
+    {
+      "id": "Q106",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00077"
+        },
+        {
+          "node_id": "semantic_v1_00078"
+        },
+        {
+          "node_id": "semantic_v1_00655"
+        },
+        {
+          "node_id": "semantic_v1_00650"
+        },
+        {
+          "node_id": "semantic_v1_00649"
+        }
+      ]
+    },
+    {
+      "id": "Q107",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00070"
+        },
+        {
+          "node_id": "semantic_v1_00073"
+        },
+        {
+          "node_id": "semantic_v1_00071"
+        },
+        {
+          "node_id": "semantic_v1_00255"
+        },
+        {
+          "node_id": "semantic_v1_01056"
+        }
+      ]
+    },
+    {
+      "id": "Q108",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00072"
+        },
+        {
+          "node_id": "semantic_v1_00071"
+        },
+        {
+          "node_id": "semantic_v1_00074"
+        },
+        {
+          "node_id": "semantic_v1_00073"
+        },
+        {
+          "node_id": "semantic_v1_00070"
+        }
+      ]
+    },
+    {
+      "id": "Q109",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00074"
+        },
+        {
+          "node_id": "semantic_v1_00073"
+        },
+        {
+          "node_id": "semantic_v1_00071"
+        },
+        {
+          "node_id": "semantic_v1_00070"
+        },
+        {
+          "node_id": "semantic_v1_00997"
+        }
+      ]
+    },
+    {
+      "id": "Q110",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00067"
+        },
+        {
+          "node_id": "semantic_v1_00023"
+        },
+        {
+          "node_id": "semantic_v1_00077"
+        },
+        {
+          "node_id": "semantic_v1_00050"
+        },
+        {
+          "node_id": "semantic_v1_00068"
+        }
+      ]
+    },
+    {
+      "id": "Q111",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00638"
+        },
+        {
+          "node_id": "semantic_v1_00637"
+        },
+        {
+          "node_id": "semantic_v1_00643"
+        },
+        {
+          "node_id": "semantic_v1_00633"
+        },
+        {
+          "node_id": "semantic_v1_01014"
+        }
+      ]
+    },
+    {
+      "id": "Q112",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_01013"
+        },
+        {
+          "node_id": "semantic_v1_01014"
+        },
+        {
+          "node_id": "semantic_v1_01016"
+        },
+        {
+          "node_id": "semantic_v1_00655"
+        },
+        {
+          "node_id": "semantic_v1_00643"
+        }
+      ]
+    },
+    {
+      "id": "Q113",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_01010"
+        },
+        {
+          "node_id": "semantic_v1_01015"
+        },
+        {
+          "node_id": "semantic_v1_01016"
+        },
+        {
+          "node_id": "semantic_v1_01013"
+        },
+        {
+          "node_id": "semantic_v1_00655"
+        }
+      ]
+    },
+    {
+      "id": "Q114",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00913"
+        },
+        {
+          "node_id": "semantic_v1_00911"
+        },
+        {
+          "node_id": "semantic_v1_00862"
+        },
+        {
+          "node_id": "semantic_v1_00890"
+        },
+        {
+          "node_id": "semantic_v1_00878"
+        }
+      ]
+    },
+    {
+      "id": "Q115",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_01019"
+        },
+        {
+          "node_id": "semantic_v1_01040"
+        },
+        {
+          "node_id": "semantic_v1_01037"
+        },
+        {
+          "node_id": "semantic_v1_01022"
+        },
+        {
+          "node_id": "semantic_v1_01041"
+        }
+      ]
+    },
+    {
+      "id": "Q116",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00120"
+        },
+        {
+          "node_id": "semantic_v1_00130"
+        },
+        {
+          "node_id": "semantic_v1_00124"
+        },
+        {
+          "node_id": "semantic_v1_00294"
+        },
+        {
+          "node_id": "semantic_v1_00217"
+        }
+      ]
+    },
+    {
+      "id": "Q117",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00141"
+        },
+        {
+          "node_id": "semantic_v1_00712"
+        },
+        {
+          "node_id": "semantic_v1_00720"
+        },
+        {
+          "node_id": "semantic_v1_00142"
+        },
+        {
+          "node_id": "semantic_v1_00140"
+        }
+      ]
+    },
+    {
+      "id": "Q118",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00292"
+        },
+        {
+          "node_id": "semantic_v1_00468"
+        },
+        {
+          "node_id": "semantic_v1_00497"
+        },
+        {
+          "node_id": "semantic_v1_00496"
+        },
+        {
+          "node_id": "semantic_v1_00175"
+        }
+      ]
+    },
+    {
+      "id": "Q119",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00110"
+        },
+        {
+          "node_id": "semantic_v1_00705"
+        },
+        {
+          "node_id": "semantic_v1_00736"
+        },
+        {
+          "node_id": "semantic_v1_00706"
+        },
+        {
+          "node_id": "semantic_v1_00578"
+        }
+      ]
+    },
+    {
+      "id": "Q120",
+      "retrieved": [
+        {
+          "node_id": "semantic_v1_00900"
+        },
+        {
+          "node_id": "semantic_v1_00705"
+        },
+        {
+          "node_id": "semantic_v1_00480"
+        },
+        {
+          "node_id": "semantic_v1_00486"
+        },
+        {
+          "node_id": "semantic_v1_00106"
+        }
+      ]
+    }
+  ]
+}

@@ -1,22 +1,70 @@
 {
   "schema": "rag4zrdds.regression/v1",
-  "started_at": "2026-09-14T09:39:39+0800",
-  "scope_note": "指定 2 个实验",
+  "started_at": "2026-09-14T10:29:44+0800",
+  "scope_note": "全量",
   "with_metrics": false,
   "thresholds": {
     "min_overlap": 0.8,
     "metric_tol": 0.02
   },
   "counts": {
-    "pass": 2
+    "pass": 8
   },
   "overall": "PASS",
   "results": [
     {
-      "experiment": "struct_v1",
-      "config": "configs\\experiments\\struct_v1.yaml",
+      "experiment": "hybrid_v1",
+      "config": "configs\\experiments\\hybrid_v1.yaml",
       "verdict": "pass",
-      "duration_seconds": 17.8,
+      "duration_seconds": 17.4,
+      "detail": {
+        "comparable_questions": 120,
+        "mean_overlap": 0.9883,
+        "rank1_agreement": 1.0,
+        "empty_before": 0,
+        "empty_after": 0
+      },
+      "metrics": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0
+      },
+      "reasons": [],
+      "vs_previous": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 0.9883,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {
+          "hit_rate@5": 0.0,
+          "mrr@5": 0.0
+        },
+        "incomparable_reasons": []
+      },
+      "vs_baseline": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 0.9883,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {
+          "hit_rate@5": 0.0,
+          "mrr@5": 0.0
+        },
+        "incomparable_reasons": []
+      }
+    },
+    {
+      "experiment": "semantic_v1",
+      "config": "configs\\experiments\\semantic_v1.yaml",
+      "verdict": "pass",
+      "duration_seconds": 10.4,
       "detail": {
         "comparable_questions": 120,
         "mean_overlap": 1.0,
@@ -64,7 +112,211 @@
       "experiment": "struct_bm25",
       "config": "configs\\experiments\\struct_bm25.yaml",
       "verdict": "pass",
-      "duration_seconds": 0.6,
+      "duration_seconds": 0.1,
+      "detail": {
+        "comparable_questions": 120,
+        "mean_overlap": 1.0,
+        "rank1_agreement": 1.0,
+        "empty_before": 0,
+        "empty_after": 0
+      },
+      "metrics": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0
+      },
+      "reasons": [],
+      "vs_previous": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {
+          "hit_rate@5": 0.0,
+          "mrr@5": 0.0
+        },
+        "incomparable_reasons": []
+      },
+      "vs_baseline": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {
+          "hit_rate@5": 0.0,
+          "mrr@5": 0.0
+        },
+        "incomparable_reasons": []
+      }
+    },
+    {
+      "experiment": "struct_hybrid",
+      "config": "configs\\experiments\\struct_hybrid.yaml",
+      "verdict": "pass",
+      "duration_seconds": 10.7,
+      "detail": {
+        "comparable_questions": 120,
+        "mean_overlap": 1.0,
+        "rank1_agreement": 1.0,
+        "empty_before": 0,
+        "empty_after": 0
+      },
+      "metrics": {},
+      "reasons": [],
+      "vs_previous": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {},
+        "incomparable_reasons": []
+      },
+      "vs_baseline": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {},
+        "incomparable_reasons": []
+      }
+    },
+    {
+      "experiment": "struct_multisrc_bm25",
+      "config": "configs\\experiments\\struct_multisrc_bm25.yaml",
+      "verdict": "pass",
+      "duration_seconds": 0.5,
+      "detail": {
+        "comparable_questions": 120,
+        "mean_overlap": 1.0,
+        "rank1_agreement": 1.0,
+        "empty_before": 0,
+        "empty_after": 0
+      },
+      "metrics": {},
+      "reasons": [],
+      "vs_previous": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {},
+        "incomparable_reasons": []
+      },
+      "vs_baseline": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {},
+        "incomparable_reasons": []
+      }
+    },
+    {
+      "experiment": "struct_multisrc_hybrid",
+      "config": "configs\\experiments\\struct_multisrc_hybrid.yaml",
+      "verdict": "pass",
+      "duration_seconds": 11.0,
+      "detail": {
+        "comparable_questions": 120,
+        "mean_overlap": 1.0,
+        "rank1_agreement": 1.0,
+        "empty_before": 0,
+        "empty_after": 0
+      },
+      "metrics": {},
+      "reasons": [],
+      "vs_previous": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {},
+        "incomparable_reasons": []
+      },
+      "vs_baseline": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {},
+        "incomparable_reasons": []
+      }
+    },
+    {
+      "experiment": "struct_multisrc_v1",
+      "config": "configs\\experiments\\struct_multisrc_v1.yaml",
+      "verdict": "pass",
+      "duration_seconds": 10.3,
+      "detail": {
+        "comparable_questions": 120,
+        "mean_overlap": 1.0,
+        "rank1_agreement": 1.0,
+        "empty_before": 0,
+        "empty_after": 0
+      },
+      "metrics": {},
+      "reasons": [],
+      "vs_previous": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {},
+        "incomparable_reasons": []
+      },
+      "vs_baseline": {
+        "verdict": "pass",
+        "detail": {
+          "comparable_questions": 120,
+          "mean_overlap": 1.0,
+          "rank1_agreement": 1.0,
+          "empty_before": 0,
+          "empty_after": 0
+        },
+        "metrics": {},
+        "incomparable_reasons": []
+      }
+    },
+    {
+      "experiment": "struct_v1",
+      "config": "configs\\experiments\\struct_v1.yaml",
+      "verdict": "pass",
+      "duration_seconds": 10.3,
       "detail": {
         "comparable_questions": 120,
         "mean_overlap": 1.0,

@@ -8,7 +8,7 @@
     "questions_sha12": "4a5ddb1f1b5c",
     "expected_sources_sha12": "4969e7ab1274"
   },
-  "duration_seconds": 17.5,
+  "duration_seconds": 10.2,
   "index": {
     "dirname": "struct_bge-m3_0a7830b7",
     "backend": "chroma",
