@@ -30,7 +30,7 @@
 | Reranker 选型 | **bge-reranker-v2-m3** | 与 bge-m3 同家族、多语言；CPU 上 30 候选/题约 1~2s，120 题/组约 5~10 分钟可接受 |
 | 对比语料 | **多来源语料**（struct_multisrc_*） | 产品方向与第三周会签方向一致；单 PDF 历史可比性靠引用既有报告，不重跑 |
 | Version-aware 范围 | **配置级**（params 袋），不动 API 协议 | 零跨组会签阻塞；每查询参数留作后续（服务端接入时再议） |
-| Rerank 集成形态 | **装饰器式 `RerankedRetriever`**（包住粗排检索器） | 精排后 score 量纲变成交叉编码器分，与 RRF/余弦语义分离，类更小、更好测；不污染 `HybridRetriever` 不变量 |
+| Rerank 集成形态 | **专用类 `HybridRerankRetriever`**（内部组合融合与精排） | 富引用经 `_to_source_ref` 投影后不含 metadata，而版本加权需要 metadata——boost 必须在投影前、精排后完成，故精排类直接持有两个 store 走原始 hit 通路，不跨投影边界做通用装饰器；精排 score 量纲与 RRF/余弦仍在类内分离 |
 | 版本加权算法 | **候选池内 min-max 归一 + 加成** | 四模式 score 量纲不同（余弦 0~1、RRF ~0.03、logits 可负），乘法在负分上翻转顺序、加法在 RRF 量纲上淹没原分；归一化对量纲免疫 |
 | 指标阻塞处理 | **证据链先行，标注到位后翻配置补指标** | E/C 交付不在 B 控制内；本设计把影响隔离为"改一行配置重跑" |
 
@@ -42,7 +42,7 @@
 
 ```
 question → HybridRetriever（vector+bm25 RRF 粗排，取 candidate_top_k=30）
-         → RerankedRetriever（交叉编码器精排）→ [版本加权] → top_k=5
+         → HybridRerankRetriever（交叉编码器精排）→ [版本加权] → top_k=5
 ```
 
 粗排/精排档位由既有 schema 强制（`candidate_top_k ≥ top_k`、`rerank_model` 必填），零新增字段。
@@ -59,20 +59,21 @@ def build_reranker(cfg) -> Callable[[str, list[str]], list[float]]:
 - 模型解析复用 `embeddings.py` 的本地目录/别名机制（`MODEL_DIR` 提为公共；`HF_REPO_ALIASES` 增补 `bge-reranker-v2-m3 → BAAI/bge-reranker-v2-m3`）。
 - 返回 `(question, texts) -> scores` 闭包；`batched` 由 CrossEncoder 内部处理。
 
-**新增 `RerankedRetriever`（`retriever.py`）**——通用精排装饰器：
+**新增 `HybridRerankRetriever`（`retriever.py`）**——精排通路专用类（走原始 hit，保证 boost 在投影前可用 metadata）：
 
 ```python
-class RerankedRetriever:
-    def __init__(self, inner, rerank_fn, candidate_top_k=30,
+class HybridRerankRetriever:
+    def __init__(self, vector_store, bm25_store, rerank_fn, rrf_k=60.0,
+                 candidate_top_k=30, filters=None,
                  version_pref=None, version_boost=0.0): ...
     async def retrieve(self, question, top_k) -> list[dict]:
-        # 1. inner.retrieve(question, max(top_k, candidate_top_k))  粗排池
-        # 2. rerank_fn(question, [text...]) → 按分降序
+        # 1. 两路子检索各取 max(top_k, candidate_top_k) → fuse_hits 融合成粗排池（原始 hit，含 metadata）
+        # 2. rerank_fn(question, [text...]) → 交叉编码器分，按分降序（并列 node_id 升序）
         # 3. apply_version_boost(...)  版本加权（可选）
         # 4. 截断 top_k，_to_source_ref 投影
 ```
 
-**`build_retriever` 增 hybrid_rerank 分支**：把现有 hybrid 装载段（components 角色校验 → 节点集一致性 → 子索引存在性 → 构建两个 store → rrf_k）抽为 `_load_hybrid_stores(cfg)` 复用；hybrid_rerank = 该公共段 + `HybridRetriever`（粗排）+ `RerankedRetriever` 包装。
+**`build_retriever` 增 hybrid_rerank 分支**：把现有 hybrid 装载段（components 角色校验 → 节点集一致性 → 子索引存在性 → 构建两个 store → rrf_k）抽为 `_load_hybrid_stores(cfg)` 复用；hybrid_rerank = 该公共段 + 精排函数（`rerank_fn` 依赖注入，测试可绕过真模型）+ `HybridRerankRetriever`。
 
 ### 2.3 引用制 gate（三处，D 的脚本，走会签 §6）
 
@@ -97,7 +98,7 @@ hybrid_rerank 与 hybrid 一样是**引用制、无自有索引**，以下 gate 
 | 层 | 用例 |
 |---|---|
 | 工厂 | `build_reranker`：本地目录优先解析、别名回退、懒加载只初始化一次（monkeypatch 假 CrossEncoder） |
-| 装饰器 | 假 inner + 假 rerank_fn：按精排分排序、截断 top_k、粗排池条数 = max(top_k, candidate_top_k)、score 被替换、空结果透传 |
+| 精排类 | 假 store + 假 rerank_fn：按精排分排序、截断 top_k、粗排池条数 = max(top_k, candidate_top_k)、score 被替换、空结果透传 |
 | 分发 | `build_retriever`：hybrid_rerank 构建成功、缺 components 报错复用 hybrid 校验、节点集不一致报错；`test_retrieval.py` 中"拒绝 hybrid_rerank"断言翻转为"支持" |
 | 端到端 | 合成节点：精排把粗排第 2 提到第 1（假 rerank_fn 构造）；真模型仅人工冒烟（§5 步骤 4），不进 CI |
 
@@ -191,7 +192,7 @@ apply_version_boost(hits, pref, boost):
 | 步骤 | 内容 | 依赖 | 备注 |
 |---|---|---|---|
 | 0 | 后台下载 bge-reranker-v2-m3 → `models/`（约 2.3GB，直连 HF） | 网络 | 与 1/2 并行，不阻塞编码 |
-| 1 | `rerank.py` 工厂 + `RerankedRetriever` + `build_retriever` 分支 + 三处 gate（TDD） | 无 | 提交点 1 |
+| 1 | `rerank.py` 工厂 + `HybridRerankRetriever` + `build_retriever` 分支 + 三处 gate（TDD） | 无 | 提交点 1 |
 | 2 | `boosts.py` + 四模式接线（TDD） | 无 | 提交点 2（可与 1 同 PR） |
 | 3 | 新增 3 份配置（hybrid_rerank + ver24 + ver20）；连同既有 3 份共 6 份逐份自检 | 1、2 | `python scripts/experiment_config.py configs/experiments/<名>.yaml` |
 | 4 | 真模型冒烟：单题加载 + 精排核验，定死 score 量纲 | 0、1 | 人工执行，不进 CI |
