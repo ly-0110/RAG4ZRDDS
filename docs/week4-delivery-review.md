@@ -198,11 +198,12 @@ B 本周要交 `hybrid_rerank`。D 侧此前把"无自有索引（引用制）"�
 | 事项 | 归属 | 实测现状 | 对 D/Week4 的影响 |
 |---|---|---|---|
 | 真值标注（逐题对 PDF 核对） | E | `expected_sources.jsonl` 120 条仍在，但与规范索引报告 top-1 仅 **44/120** 吻合（本次实测），仍是循环 + 非规范模型副本产物 | 指标闸门只能默认关闭；6 份 void 报告无法刷新；Week4 验收项 1/2/3 继续阻塞 |
-| Reranker（§8.2） | B | `retrieval/retriever.py:154` 仍 `NotImplementedError("hybrid_rerank 待第四周实现")` | "Reranker 有实验数据"验收项拿不到；**D 侧配套已先行交付**（`uses_reference_index` 收敛 + 三处改判 + 5 测试，§4.5），仅剩权重离线预取待批准 |
+| Reranker（§8.2） | B | `retrieval/retriever.py:154` 仍 `NotImplementedError("hybrid_rerank 待第四周实现")` | "Reranker 有实验数据"验收项拿不到；**D 侧已全部备好**（`uses_reference_index` 收敛 + 三处改判 + 5 测试 §4.5；bge-reranker-v2-m3 权重 2.2GB 已离线缓存 §4.7），只等 B 的实现 |
 | `answer_eval.py` runner（X2） | C | `evaluation/runners/` 仍只有 `.gitkeep` | 回答侧指标无法进矩阵；D 的 `run_experiment` 保持 `response_metrics` 非空即拒绝的现有语义 |
 | semantic 超长块 | A | `data_pipeline/chunkers/semantic.py:63` 的 `self.max_chars` 仍无消费点 | `semantic_v1` 已进矩阵（用旧代码产物的既有索引，pass）；A 一旦替换产物 → 指纹翻转 → 需重建索引（约 529s）+ `--promote` 重提基准 |
 | Prompt 版本一致性（议题 8） | C/D | `struct_bm25.yaml` 仍 `prompt_version: v0` | 配置在 D 域，改前需与 C 对齐 |
-| **W1 `source_url` 进 wire** | B/C/E | `SOURCE_REF_FIELDS` 七字段不含 `source_url`；`api.md` 0 处定义；`web/` 0 处引用（§2.3 实测） | 指南 §7 E 任务"HTML 引用跳 URL"无法达成；Week 4 "有 Citation" 降档；处置方案待拍板（§7 决策 5） |
+| **W1 `source_url` 进 wire** | B/C/E | `SOURCE_REF_FIELDS` 七字段不含 `source_url`；`api.md` 从未定义；`web/` 0 引用（§2.3 实测） | **已按方案 B 落地回查通道**（§4.6：`/sources` 与 MCP `get_sources` 带 URL，SSE 仍 7 字段）；正式进 wire 仍需 B/C/E 会签 |
+| **新发现 F1：filters 在身份段 vs 查询期过滤** | B（+D） | `index_identity_json` 含 `retrieval.filters`（R5 决策的产物），而 B 自 PR#30 起把 filters **下推到查询期**执行——`verify_filters.py` 刻意在检索器层换装以"不触发索引身份漂移" | 后果＝§8.3"按版本过滤"若落成独立实验配置，会为**内容完全相同**的 Node 集再嵌一遍（单来源约 8min、多来源约 25min）并多占一份索引目录。D **未**擅自把 filters 移出身份段（会改掉既有六套索引的派生名 = R5 类孤儿化事故）。例会与 B 二选一：①filters 出身份段（需配套回切演练与迁移说明）②约定版本过滤只在运行时换装、不建独立实验配置 |
 
 ## 7. 决策点与拍板结果
 
