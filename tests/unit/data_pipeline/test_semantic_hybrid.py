@@ -84,6 +84,49 @@ def test_semantic_mock_smoke():
         assert c.metadata["printed_page_start"] == c.metadata["physical_page_start"] - 6
 
 
+def test_semantic_oversized_block_is_split_to_cap():
+    """回归：全文档单 Document 后语义块会跨页合并 → max_chunk_chars 必须被消费。
+
+    修复前该参数声明后从未使用：「逐页 Document」由单页正文隐式封顶，改单
+    Document 后封顶变为整册，实测语义产物 583 块中 18 块 >2500、max 7175 字符。
+    mock 嵌入下整册无断点（距离恒 0）→ 只会产出 1 个 node，因此本用例必须
+    先被兜底切成多块才对。
+    """
+    body = "1.1 分布式系统概述。本节介绍 ZRDDS 的整体架构。" * 50  # ~1450 字符/页
+    pages = [{
+        "physical_page": phys, "printed_page": phys - 6,
+        "text": f"臻融数据分发服务DDS 系统软件\n{body}\n",
+        "blocks": [], "toc_entries": [],
+    } for phys in (7, 8, 9)]
+
+    chunker = SemanticChunker({
+        "max_chunk_chars": 2500, "overlap_chars": 200,
+        "breakpoint_percentile_threshold": 95, "buffer_size": 1,
+        "embed_model": "mock",
+    })
+    chunks = chunker.chunk(pages, _make_tree())
+
+    assert sum(len(c.text) for c in chunks) > chunker.max_chars, \
+        "夹具正文须大于上限，否则测不出兜底"
+    assert len(chunks) > 1, \
+        "mock 下整册只有 1 个 node；未过上限则说明 max_chunk_chars 未被消费"
+    for c in chunks:
+        _assert_schema(c)
+        assert c.chunk_id.startswith("semantic_v1_")
+        assert len(c.text) <= chunker.max_chars, \
+            f"{c.chunk_id} 超上限: {len(c.text)} > {chunker.max_chars}"
+        assert "chunk_prefix" not in c.metadata, \
+            f"{c.chunk_id} 落盘 metadata 混入非 Schema 字段 chunk_prefix"
+        # 自相对偏移口径：语义方案不保留真实字符偏移（子块由兜底产出，须归一）
+        assert (c.char_start, c.char_end) == (0, len(c.text)), \
+            f"{c.chunk_id} 字符偏移未归一: ({c.char_start}, {c.char_end})"
+    ids = [c.chunk_id for c in chunks]
+    assert len(ids) == len(set(ids)), \
+        f"chunk_id 碰撞: {[i for i in ids if ids.count(i) > 1]}"
+    assert any(c.chunk_id.endswith("_p000") for c in chunks), \
+        "超限块应由 _p{j} 后缀子块承接"
+
+
 def test_hybrid_mock_smoke_and_cap():
     long_text = "超长段落测试。" * 900  # 6300 字符，无子节 → 语义切分 → 字符兜底
     pages = [{
