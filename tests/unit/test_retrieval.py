@@ -237,8 +237,8 @@ def test_resolve_model_maps_short_name_to_hf_repo(tmp_path, monkeypatch):
     from retrieval import embeddings
 
     monkeypatch.setattr(embeddings, "MODEL_DIR", tmp_path)
-    assert embeddings._resolve_model("bge-m3") == "BAAI/bge-m3"
-    assert embeddings._resolve_model("some/other-model") == "some/other-model"
+    assert embeddings.resolve_model("bge-m3") == "BAAI/bge-m3"
+    assert embeddings.resolve_model("some/other-model") == "some/other-model"
 
 
 def test_resolve_model_prefers_local_dir(tmp_path, monkeypatch):
@@ -246,7 +246,7 @@ def test_resolve_model_prefers_local_dir(tmp_path, monkeypatch):
 
     (tmp_path / "bge-m3").mkdir()
     monkeypatch.setattr(embeddings, "MODEL_DIR", tmp_path)
-    assert embeddings._resolve_model("bge-m3") == str(tmp_path / "bge-m3")
+    assert embeddings.resolve_model("bge-m3") == str(tmp_path / "bge-m3")
 
 
 # ---------------------------------------------------------------- 向量库
@@ -585,8 +585,8 @@ def test_resolve_model_prefers_local_model_dir(tmp_path, monkeypatch):
     monkeypatch.setattr(embeddings, "MODEL_DIR", tmp_path)
     (tmp_path / "bge-m3").mkdir()
 
-    assert embeddings._resolve_model("bge-m3") == str(tmp_path / "bge-m3")
-    assert embeddings._resolve_model("不存在模型") == "不存在模型"
+    assert embeddings.resolve_model("bge-m3") == str(tmp_path / "bge-m3")
+    assert embeddings.resolve_model("不存在模型") == "不存在模型"
 
 
 def test_build_embedding_api_provider_not_implemented_yet(tmp_path, monkeypatch):
