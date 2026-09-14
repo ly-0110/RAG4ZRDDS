@@ -39,6 +39,7 @@ from mcp.server.mcpserver import MCPServer
 from retrieval.retriever import to_source_refs
 from server.core.pipeline import Pipeline, build_pipeline
 from server.core.request_log import PersistentSourcesStore, request_log_scope
+from server.core.schema import with_source_urls
 from server.core.settings import settings
 
 mcp = MCPServer(
@@ -84,8 +85,10 @@ async def query_knowledge_base_impl(question: str, top_k: Optional[int] = None) 
         chunks = await pipeline.retriever.retrieve(q, k)
         # 富引用投影为 SourceRef 7 字段（与 HTTP /query 同口径，正文不进 wire/存储）
         wire = to_source_refs(chunks)
+        # 回查记录附 source_url（与 HTTP /sources 同语义）；工具返回仍是 7 字段 wire。
+        recorded = with_source_urls(wire, getattr(pipeline, "source_urls", None) or {})
         # X3 同款：引用先行持久化，之后生成侧失败仍可 get_sources 回查
-        store.put(rid, {"question": q, "answer": None, "sources": wire})
+        store.put(rid, {"question": q, "answer": None, "sources": recorded})
 
         parts: list[str] = []
         try:
@@ -100,7 +103,7 @@ async def query_knowledge_base_impl(question: str, top_k: Optional[int] = None) 
             }
 
     answer = "".join(parts)
-    store.put(rid, {"question": q, "answer": answer, "sources": wire})
+    store.put(rid, {"question": q, "answer": answer, "sources": recorded})
     return {"request_id": rid, "answer": answer, "sources": wire}
 
 

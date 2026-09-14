@@ -1,5 +1,7 @@
 # 第四周交付记录（成员 D）
 
+> **v0.6（2026-09-14）**：新增 **D 交付六：W1 过渡处置（方案 B，api.md v0.11）**（§4.6）与 **交付七：reranker 权重离线预取**（§4.7）。回查通道（`/sources/{rid}` 与 MCP `get_sources`）每条引用附带 `source_url`，**SSE wire 仍严格 7 字段**（实测确认）；真实产物装载 1606 条映射 / 1305 条带 URL。**冒烟脚本抓到一个真实缺陷**：MCP 成功路径第二次 `store.put` 覆盖了未富化记录——已修并调整比对口径。`BAAI/bge-reranker-v2-m3` 2.2GB 已缓存，B 落地即可离线加载。全套单测 314 → **320**。
+
 > **v0.5（2026-09-14）**：新增 **D 交付五：Reranker 落地前的 D 侧配套**（§4.5）——引用制判定收敛为单一事实源 `experiment_config.uses_reference_index()`，`build_index` 跳过 / `--list` 父子标注 / `run_experiment` 子索引检查三处改判（避免 B 的 `hybrid_rerank` 复用子索引时被误建 25 分钟自有索引），schema 放宽 `hybrid_rerank.components` 为可选并新增拒绝 `vector/bm25` 误填。**回归矩阵已铺满 8 个实验**（§1.3）：首轮 3 pass/3 incomparable/2 no_baseline，提基准后第二轮 **8/8 pass**，零回归；全套 **314/314** 绿。未决新增第 6 项（reranker 权重离线预取，§7）。
 > **v0.4（2026-09-14）**：新增 **D 交付四：Feedback 落库接缝**（§4）——`POST /feedback` + `{LOG_DIR}/feedback.jsonl` 四级日志 + api.md **v0.10**（D 侧提案待 E/C 会签；既有端点形状零变化，不阻塞前端）。单测 7 例、live 实测三条（含跨重启归因与"未知 rid 零落盘"）。演示题单第 5 题（RapidIO QoS）实测补录：top-1 = 10.21 RapidIOConfigQosPolicy 印刷 147/物理 153。**至此指南 §8 的 D 三项全部落地**（回归自动化 / 打包与 README / Demo 环境）。
 > **v0.3（2026-09-14）**：新增 **D 交付三：打包与 README**（§3）——按用户决策走"make 链路真验证"。修掉 `make setup` 建 venv 而其余目标全用裸 `python` 的脱节（此前"三行命令可跑"名不副实），README 全文重写（含逐步骤耗时实测、live 后端三选、回归用法、已知限制如实登记），`.env.example` 补本地 Ollama 通路与 HF 离线提示；`make help` 中文在 GBK 控制台乱码已改 ASCII。**验证缺口如实标注**：`make setup` 的 venv 全新安装未在本机跑通（需重下 2GB+ 且改动在用环境）；Dockerfile/compose 未交付（本机无 docker）。
@@ -80,7 +82,9 @@
 
 **更正**：`docs/week3-delivery-review.md` §3 我曾把"Citation 能区分来源"判为 ✅ 并写了"HTML 引用跳 URL"——那是**数据层（Node metadata）事实被当成了端到端能力**，四步审查里漏了"wire + 前端消费"这一环。本次实测予以更正。
 
-处置：属跨成员契约变更（B 的投影字段 + C 的 citation 组装 + E 的前端跳转 + D 的 api.md），2026-09-13 会签只决定过"暂不增补 `source_type`"，未覆盖 `source_url`。方案已提交用户拍板（见决策节），未定前 D 不擅自改他人域。
+处置：属跨成员契约变更（B 的投影字段 + C 的 citation 组装 + E 的前端跳转 + D 的 api.md），2026-09-13 会签只决定过"暂不增补 `source_type`"，未覆盖 `source_url`。
+
+**已按用户拍板执行方案 B（§4.6）**：D 单方在**回查通道**（`/sources/{rid}` 与 MCP `get_sources`）附带 `source_url`，api.md 升 **v0.11**；SSE wire 保持 7 字段不变（实测确认），因此不阻塞任何人、也不需要 B/C/E 先动代码。把 `source_url` 正式扩进 `SourceRef` 仍是待会签项（若 E 希望直接从 SSE 渲染链接，就得走方案 A）。
 
 ### 2.4 边界（本轮未覆盖）
 
@@ -124,7 +128,7 @@
 
 ---
 
-## 4. D 交付四 / 五：Feedback 落库接缝 + Reranker 配套前置
+## 4. D 交付四 ~ 七：Feedback 落库 / Reranker 配套 / W1 过渡处置 / 权重预取
 
 E 的第四周任务是"反馈按钮与数据落库"，但**落库属 D 的日志设施**——按既定分工，D 先把服务端与契约做出来，E 只需在答案卡片加两个按钮发一次 POST。
 
@@ -159,7 +163,25 @@ B 本周要交 `hybrid_rerank`。D 侧此前把"无自有索引（引用制）"�
 - 测试 **+5 例**（真值表 / 两类校验 / 门面跳过并断言"不应产生自有索引目录" / `run_experiment` 子索引复用路径）。
 - **端到端证据**：重构后 `make regression REG_ARGS=--only struct_hybrid` 正常复用两路子索引（`0a7830b7` + `677d777f`）并出报告；随后全量矩阵 8/8 pass（§1.3）。
 
-**未做（待批准）**：reranker 权重（bge-reranker 类，约 2GB）的离线预取——属大额下载且直连网络不稳，需用户同意后再拉，避免未经确认占用带宽与磁盘。B 落地时若 D 未预取，首次建库/精排会在联网上挂数分钟。
+**权重离线预取**：已按用户拍板预取完成（§4.7）。
+
+### 4.6 D 交付六：缺口 W1 的过渡处置（方案 B，api.md **v0.11**）
+
+用户拍板"只改 `/sources` 回查接口（D 单方可做）"。实现：
+
+- `server/core/pipeline.py`：`Pipeline` 新增 `source_urls`（node_id → 原文 URL），live 分支启动时从本实验的 Node 产物建表（`node_id ← chunk_id` 映射已锁定）并打印装载规模；产物缺失 → 空表，不报错。
+- `server/core/schema.py::with_source_urls`：契约层唯一投影函数，HTTP 与 MCP 两条回查通路共用；**构造副本**，绝不原地改 `wire_sources`（否则 URL 会顺着同一对象漏进 SSE 帧）。
+- `server/api/query.py` / `server/mcp_server.py`：只有 `store.put` 的记录带该字段；SSE 事件与 MCP 工具返回值仍是 7 字段。
+- 实测：多来源题 5 条引用 **4 条 HTML 带真实 URL**（`https://docs.zrtechnology.com/cdoc/html/group___c_publication.html`）、PDF 为 `null`；**SSE 响应体经程序化检查不含 `source_url`**；真实产物装载规模 1606 条映射 / 1305 条带 URL（与 A 的契约一致），单来源 PDF = 0 条。
+- 测试 **+6 例**（`tests/unit/server/test_source_url_backfill.py`：映射读取含坏行/回退/缺文件、回查带键、SSE 不带键、JSONL 落盘、未知节点为 null）。
+
+**冒烟脚本抓到一个真实缺陷**：`make smoke-mcp` 首次失败，根因是 MCP 成功路径的**第二次 `store.put` 仍在写未富化的 `wire`**，把先前带 URL 的记录覆盖掉（回读取最后一条）。只跑单测漏不掉它——`test_mcp_server` 的成功路径断言恰好也抓到了。已修，并把冒烟脚本的回查一致性检查改为按 v0.11 语义比对（剥掉 `source_url` 后必须逐字段相等，且只允许多这一个键）。
+
+**仍未闭合**：`source_url` 正式进 `SourceRef` wire（方案 A）需 B 改投影 + C 改 citation 组装 + E 改渲染，等会签；URL 的 base_url 仍是文档站占位值，待例会确认正式域名。
+
+### 4.7 D 交付七：reranker 权重离线预取
+
+`BAAI/bge-reranker-v2-m3` 已缓存到本机 HF hub（**2.2GB**，`model.safetensors` + tokenizer 全套，直连下载成功）。B 落地 `hybrid_rerank` 时可直接离线加载（配 `HF_HUB_OFFLINE=1`），不必在演示当天赌网络。
 
 ---
 
@@ -167,8 +189,8 @@ B 本周要交 `hybrid_rerank`。D 侧此前把"无自有索引（引用制）"�
 
 - 分支起点 `feature/server-platform` = `5d925c2`（与 origin 同步）；**PR#31 由用户提交，仍待 squash 合入 develop**（远端 develop 落后本地多个提交）。
 - 用户决策（2026-09-14）：**先把本周内容做完，再发新的 PR**；因此本地在 `5d925c2` 之上继续累积提交，暂不合入、暂不改远端。
-- 本周本地提交：`2ecd6c4` 交付一 回归自动化 → `ff929bf` 本记录 v0.1 → `f05114f` 交付二 Demo 环境 + v0.2 → `dfff5da` 交付三 打包与 README + v0.3 → `b60f78f` 交付四 Feedback 落库 + api.md v0.10 + v0.4 → `717286e` 交付五 reranker 配套 → `69cd312` 回归矩阵基线（8 实验）→ 本记录 v0.5。
-- **指南 §8 D 三项全部落地**：①回归自动化 ✅ 实测（§1）②打包 = README/make 链路 ✅ 实测，容器形态按决策未做（§3.4）③最终 Demo 环境 ✅ 四场景实测（§2）。**额外先行交付**：§8 E 任务 1 的落库侧（§4.1~4.4）与 B reranker 的 D 侧配套（§4.5）。
+- 本周本地提交：`2ecd6c4` 交付一 回归自动化 → `ff929bf` 本记录 v0.1 → `f05114f` 交付二 Demo 环境 + v0.2 → `dfff5da` 交付三 打包与 README + v0.3 → `b60f78f` 交付四 Feedback 落库 + api.md v0.10 + v0.4 → `717286e` 交付五 reranker 配套 → `69cd312` 回归矩阵基线（8 实验）→ `6c8f0a7` 本记录 v0.5 → 本次提交 交付六/七（W1 回查附带 source_url + api.md v0.11 + reranker 权重预取）+ 本记录 v0.6。
+- **指南 §8 D 三项全部落地**：①回归自动化 ✅ 实测（§1）②打包 = README/make 链路 ✅ 实测，容器形态按决策未做（§3.4）③最终 Demo 环境 ✅ 四场景实测（§2）。**额外交付**：E 任务 1 落库侧（§4.1~4.4）、B reranker 配套与权重预取（§4.5/§4.7）、W1 过渡处置（§4.6）。全套单测 266 → **320**。
 - 索引状态：六套全部可用且指纹匹配，本轮回归与全部 Demo **未触发任何重建**（复用链路正常；hybrid 走引用制）。
 
 ## 6. 跨成员依赖与阻塞（截至本版实测）
@@ -193,11 +215,11 @@ B 本周要交 `hybrid_rerank`。D 侧此前把"无自有索引（引用制）"�
 **未决（需用户拍板）**
 
 4. **OpenAI 兼容门面**：`server/openai_compat/` 空目录（2026-09-08 决策不做）。第四周汇报若不需要"生态兼容"证据，建议删除空目录。
-5. **缺口 W1 处置**（`source_url` 未进 wire，HTML 引用点不回原文）：
+5. **缺口 W1 处置** = **已决：方案 B**（D 单方在回查通道附带 `source_url`，落地见 §4.6；SSE wire 扩字段仍待 B/C/E 会签）。原三选一记录如下：
    - 方案 A（推荐，契约正确解）：会签新增可选第 8 字段 `source_url`（HTML 非空 / PDF 为 null）——D 起草提案 + 改 `api.md`，B 改 `SOURCE_REF_FIELDS` 投影、C 改 citation 组装、E 加前端跳转。四人均需动手，周五前完成取决于 B/C/E。
    - 方案 B（D 单方可做，权宜）：SSE 契约不动，仅在 `GET /sources/{rid}` 持久化记录里附带 `source_url`，E 从回查接口取 URL 渲染链接。代价 = 同一引用两处字段不一致。
    - 方案 C：本周记为已知缺口，Demo 只展示 HTML 引用显示文件名。
-6. **reranker 权重离线预取**：bge-reranker 类交叉编码器约 2GB，本机直连 huggingface.co 常超时。是否现在预取（占带宽与磁盘，但 B 落地当天不至于卡在下载上）？未预取的后果 = 首次精排在联网上挂数分钟。
+6. **reranker 权重离线预取** = **已决并执行**：`BAAI/bge-reranker-v2-m3` 已缓存本机（2.2GB，§4.7）。
 
 ## 8. Week 4 验收对照（指南 §19）· 本版现状
 
@@ -206,6 +228,6 @@ B 本周要交 `hybrid_rerank`。D 侧此前把"无自有索引（引用制）"�
 | Hybrid Retrieval 可运行 | ✅ | PR#30 实验通路 + **本版新增 live 服务通路实测**（RRF 分数 0.0276~0.0318、引用制零重建，§2.2） |
 | Reranker 有实验数据 | ❌ 未开始 | B 域 `hybrid_rerank` 仍抛 NotImplementedError（§6） |
 | Unknown/Abstention 可工作 | ✅ **本版补实测** | 两条"确证无证据"题（E1003 不存在 / 第 300 页越界）live 通路均明确拒答且不虚构（§2.2）；20 题专项口径仍待 C 定版 |
-| 有 Citation | ◌ **降档** | 双页码/来源分型/`/sources` 回查均达标；**但 `source_url` 未进 wire，HTML 引用跳不回原文**（W1，§2.3；同时更正第三周口径） |
+| 有 Citation | ◕ 达标（含过渡处置） | 双页码/来源分型/`/sources` 回查达标；W1 已按方案 B 让**回查通道带 `source_url`**（§4.6，实测 4/5 HTML 引用可跳原文），SSE wire 扩第 8 字段仍待 B/C/E 会签 |
 | 有自动/半自动 Evaluation | ◌ 本版推进 | 检索侧自动化闭环：8 实验全量矩阵 + 基准锚点（§1.3）、可比性闸门与退出码可挂 CI；回答侧待 C 的 runner |
 | 有最终 Demo | ◕ 本版落地 | `docs/demo-runbook.md` v0.1 + 四场景本机实测通过；剩余缺口是 reranker 与 W1（§7 决策 5） |

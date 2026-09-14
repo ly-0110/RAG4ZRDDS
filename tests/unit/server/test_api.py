@@ -179,7 +179,11 @@ def test_error_path_sources_still_queryable_after_generation_failure():
     body = lookup.json()
     assert body["request_id"] == events[0][1]["request_id"]
     assert body["answer"] is None  # 失败路径无答案
-    assert body["sources"] == events[0][1]["sources"]  # 与下发内容一致
+    recorded = body["sources"]
+    stripped = [{k: v for k, v in s.items() if k != "source_url"} for s in recorded]
+    assert stripped == events[0][1]["sources"]  # 与下发内容一致（W1：回查多带 source_url）
+    assert all(set(s) - set(e) == {"source_url"}
+               for s, e in zip(recorded, events[0][1]["sources"])), "回查记录只允许多 source_url 一个键"
 
 
 def test_sources_lookup_roundtrip_and_404():
@@ -197,5 +201,7 @@ def test_sources_lookup_roundtrip_and_404():
     body = ok.json()
     assert body["request_id"] == done["request_id"]
     assert body["answer"] == done["answer"]
-    assert body["sources"] == done["sources"]
+    assert [{k: v for k, v in s.items() if k != "source_url"}
+            for s in body["sources"]] == done["sources"]   # W1：回查记录多带 source_url
+    assert all("source_url" in s for s in body["sources"])
     assert missing.status_code == 404

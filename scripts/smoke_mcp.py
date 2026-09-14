@@ -62,8 +62,12 @@ async def _run() -> int:
                 res2.content[0].text
             )
             assert payload2["answer"] == payload["answer"], payload2
-            assert payload2["sources"] == payload["sources"], payload2
-            print("[smoke] get_sources ✓: 引用回查一致")
+            # api.md v0.11（W1 过渡）：回查记录比 wire 多带一个 source_url，比对时剥掉
+            stripped = [{k: v for k, v in s.items() if k != "source_url"}
+                        for s in payload2["sources"]]
+            assert stripped == payload["sources"], payload2
+            n_url = sum(1 for s in payload2["sources"] if s.get("source_url"))
+            print(f"[smoke] get_sources ✓: 引用回查一致（{n_url} 条带原文 URL）")
 
     print("[smoke] ✓ MCP stdio 端到端通过")
     return 0

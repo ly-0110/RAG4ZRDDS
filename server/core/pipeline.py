@@ -91,11 +91,46 @@ class MockAnswerStream:
 
 
 class Pipeline:
-    """一条问答管线 = 一个检索器 + 一个生成流。D 负责组装，算法归 B/C。"""
+    """一条问答管线 = 一个检索器 + 一个生成流。D 负责组装，算法归 B/C。
 
-    def __init__(self, retriever: Retriever, answer_stream: AnswerStream) -> None:
+    `source_urls` 是 node_id → 原文 URL 的映射（HTML 来源有、PDF 来源为 None），
+    只用于 `/sources/{rid}` 回查记录补 `source_url` 字段——`SourceRef` 七字段是
+    与前端会签过的 wire 契约，扩字段须走会签（缺口 W1，docs/week4-delivery-review.md §2.3）。
+    """
+
+    def __init__(self, retriever: Retriever, answer_stream: AnswerStream,
+                 source_urls: dict[str, str | None] | None = None) -> None:
         self.retriever = retriever
         self.answer_stream = answer_stream
+        self.source_urls = source_urls or {}
+
+
+def _load_source_urls(nodes_file) -> dict[str, str | None]:
+    """从实验的 Node 产物读 node_id → source_url（node_id ← chunk_id 映射已锁定）。
+
+    A 的产物里 HTML 块 100% 带 source_url、PDF 块为 None；检索层投影到
+    SourceRef 时该字段被丢弃，故回查侧从产物补齐。文件缺失返回空表（不报错，
+    回查记录只是不带 URL）。
+    """
+    import json
+
+    urls: dict[str, str | None] = {}
+    if not nodes_file or not nodes_file.exists():
+        return urls
+    with nodes_file.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            node_id = rec.get("chunk_id") or (rec.get("metadata") or {}).get("chunk_id")
+            if not node_id:
+                continue
+            urls[node_id] = rec.get("source_url") or (rec.get("metadata") or {}).get("source_url")
+    return urls
 
 
 def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
@@ -145,7 +180,11 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
         # 而非等首个请求才报错（与 D 的"接线问题在启动期暴露"一致）。
         answer_stream = build_answer_stream(cfg)
         _warmup_retriever(retriever)
-        return Pipeline(retriever, answer_stream)
+        source_urls = _load_source_urls(ec.nodes_path(cfg))
+        with_url = sum(1 for v in source_urls.values() if v)
+        print(f"[server] 引用回查 URL 表：{len(source_urls)} 节点，其中 {with_url} 条带原文 URL"
+              f"（HTML 来源；PDF 为 null）", flush=True)
+        return Pipeline(retriever, answer_stream, source_urls)
     raise RuntimeError(f"未知 RAG_MODE={mode!r}，可选值：mock | live")
 
 

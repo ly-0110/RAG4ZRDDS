@@ -127,6 +127,6 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 
 - **Reranker 未实现**：`retrieval` 对 `hybrid_rerank` 仍抛 `NotImplementedError`（B 域第四周任务），"Vector / BM25 / Hybrid / Hybrid+Reranker"四组对比缺最后一档。
 - **正式标注未定版**：`evaluation/datasets/expected_sources.jsonl` 120 条仍是检索结果回显（与规范索引 top-1 仅 44/120 吻合），因此现有 hit_rate / mrr 数字**视同 void**；待逐题对 PDF 页眉核对后统一重跑刷新。
-- **HTML 引用尚不能跳转原文 URL**（缺口 W1）：`source_url` 存在于 Node 产物但未进入 `SourceRef` wire 契约，需 B/C/E 会签补字段。
+- **HTML 引用跳转**：`GET /sources/{rid}`（及 MCP `get_sources`）的每条引用已带 `source_url`（HTML 非空 / PDF 为 `null`，api.md v0.11）；但 SSE 的 `sources` 事件仍是 7 字段 wire，正式扩第 8 字段需 B/C/E 会签（缺口 W1，见 `docs/week4-delivery-review.md` §2.3）。
 - **容器化未验证**：交付环境本机无 Docker，快速开始以 `make` 链路为准；Docker 方案的验证状态见 `docs/week4-delivery-review.md`。
 - `semantic_v1` 分块存在超长块待处置（`max_chunk_chars` 未被消费），其产物与索引暂为旧版。

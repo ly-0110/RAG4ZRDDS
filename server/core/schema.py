@@ -87,3 +87,15 @@ class FeedbackRequest(BaseModel):
     node_ids: list[str] | None = Field(
         default=None, max_length=20, description="指向具体引用；须属于该 request_id 的引用集"
     )
+
+
+def with_source_urls(sources: list[dict],
+                     source_urls: dict[str, str | None]) -> list[dict]:
+    """回查记录专用投影：给每条引用附 `source_url`（HTML 来源有、PDF 为 null）。
+
+    `SourceRef` 七字段是与前端会签的 wire 契约，SSE 事件**不**带此字段；扩字段须走
+    B/C/E 会签（缺口 W1，docs/week4-delivery-review.md §2.3）。在此之前，
+    `/sources/{rid}` 与 MCP `get_sources` 两条回查通路先带 URL，HTML 引用即可跳原文。
+    刻意构造副本而非原地改，避免 URL 顺着 wire 引用漏进 SSE 帧或工具返回。
+    """
+    return [{**s, "source_url": source_urls.get(s.get("node_id"))} for s in sources]

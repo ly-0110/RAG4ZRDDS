@@ -1,4 +1,4 @@
-# RAG4ZRDDS API 契约（v0.10 · 新增 POST /feedback 反馈落库）
+# RAG4ZRDDS API 契约（v0.11 · /sources 回查附带 source_url）
 
 > 维护人：成员 D。前端（成员 E）以此文档对接；字段变更会同步更新本页。
 > 模式现状（2026-09-14）：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索与生成均已真实**（B 检索 + C 生成，需先 `make index` 并在 `.env` 填好 `LLM_BASE_URL`/`LLM_API_KEY`/`LLM_MODEL`，三者缺一即启动期报错）。生成后端已实测两种：云端 OpenAI 兼容 API，与本地 Ollama（经 `models/llm_gateway.py` 网关，见 `docs/demo-runbook.md`）。`sources` 事件为真实引用（SourceRef 7 字段；正文 text 仅生成侧使用，下发前由服务端投影剥离），随后 `token` 流式回答。接口形状两模式不变。
@@ -119,11 +119,21 @@ curl -N -X POST http://127.0.0.1:8000/query \
   "request_id": "a1b2c3d4e5f6",
   "question": "如何创建 DataWriter？",
   "answer": "…",
-  "sources": [ …同上 SourceRef… ]
+  "sources": [ …SourceRef 7 字段 + source_url… ]
 }
 ```
 
 未命中：HTTP 404，`error` 说明可能不存在或已超出缓存范围。
+
+### v0.11：回查记录里的 `source_url`（缺口 W1 的过渡方案）
+
+| 字段 | 出现位置 | 取值 |
+|---|---|---|
+| `source_url` | **仅 `/sources/{rid}`（及 MCP `get_sources`）的 `sources[]`** | HTML 来源 = 该 Node 的原文页 URL；PDF 来源 = `null` |
+
+- 为什么只加在回查侧：`SourceRef` 七字段是与前端会签过的 **wire 契约**，扩第 8 字段需 B（投影）/C（citation 组装）/E（渲染）会签；在会签完成前，SSE 事件**不带**该字段，接口形状不变。
+- 数据来源：服务端启动时从本实验的 Node 产物建 `node_id → source_url` 表（`node_id ← chunk_id` 映射已锁定），查不到即为 `null`。启动日志会打印装载规模。
+- 前端可**无条件读该键**（恒存在，值可为 null）；MCP 侧 `get_sources` 同语义。URL 的正式值仍待例会确认（现为文档站占位 base_url）。
 
 ## POST /feedback —— 回答反馈落库（v0.10 新增 · D 侧提案，待 E/C 会签）
 
@@ -169,6 +179,7 @@ cited_nodes, comment?, node_ids?
 
 | 版本 | 变更 |
 |---|---|
+| v0.11 | 2026-09-14：缺口 W1 的过渡处置（用户拍板方案 B，D 单方落地）——`GET /sources/{rid}` 与 MCP `get_sources` 的每条引用新增 **`source_url`**（HTML 非空 / PDF 为 `null`），取自本实验 Node 产物（启动时建 `node_id → source_url` 表；多来源实测 1606 条映射 / 1305 条带 URL）。**SSE 的 `sources`/`done` 事件仍是 7 字段、不含该键**（实测确认），因此前端解析零破坏；E 要用 HTML 跳转就从回查接口取。正式扩进 wire 仍需 B/C/E 会签 |
 | v0.10 | 2026-09-14：新增 `POST /feedback`（D 侧实现 + 契约提案，**待 E/C 会签后才动前端**）——两档 `rating` 绑定 `request_id` 落 `{LOG_DIR}/feedback.jsonl`，未知 rid 一律 404 拒绝（不产孤儿反馈），`node_ids` 越界 400。**既有 `/query`、`/sources`、`/healthz` 的路径与响应形状零变化，前端不改也能继续跑**；前端接入时只需在答案卡片上加两个按钮 + 一次 POST |
 | v0.9 | 2026-09-13：`hybrid` 融合分量纲条目（D，PR#30 落地后补）——RRF 分 `Σ 1/(rrf_k+rank)`（k=60 时单路 1/61~1/90、双路一致最高 2/61≈0.0328），与 cosine/bm25 互不可比；不设绝对阈值，弱证据判定沿用「返回条数少于 top_k / 空 sources」信号；前端「弱证据」弱化展示仍仅 vector 模式启用。字段无增删，前端无需改解析 |
 | v0.8 | 2026-09-08：检索级日志落地（B 字段定义 `docs/retrieval-log-schema.md` v0.1 + D 接线）——live 模式每次检索追加一条记录到 `{LOG_DIR}/retrievals.jsonl`（含富引用正文，仅落本地不入 Git；`request_id` 可与 `requests.jsonl` 关联）。**API 响应形状与路径无任何变化，前端无需改动**；warmup/脚本直调的检索也会入日志（`request_id` 为 null） |

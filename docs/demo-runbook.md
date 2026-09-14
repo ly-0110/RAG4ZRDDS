@@ -83,7 +83,7 @@ tail -n 1 logs/feedback.jsonl
 
 ## 4. 已知缺口（演示时必须如实说明）
 
-1. **HTML 引用无法跳转原文 URL**：Node 产物有 `source_url`（1305/1305 非空），但 `SourceRef` wire 只投影 7 字段（`node_id/source_id/source_name/section/page_print/page_physical/score`），**`source_url` 不在其中**，`docs/api.md` 亦未定义，前端 `web/` 零引用。故 HTML 引用目前只能显示文件名（如 `group___c_publication.html`）。详见 week4 review §2.3 缺口 W1。
+1. **HTML 引用跳转 URL 只在回查通道可用**（缺口 W1 的过渡处置，api.md **v0.11**）：`GET /sources/{rid}`（及 MCP `get_sources`）的每条引用已带 `source_url`（实测多来源题 5 条引用中 4 条 HTML 带真实 URL、PDF 为 `null`），但 **SSE 的 `sources`/`done` 事件仍是 7 字段、不含该键**（实测确认），正式扩进 wire 需 B/C/E 会签。演示话术："引用可溯源到原文页——从回查接口拿 URL；前端按钮接入后即可点跳。"
 2. **Reranker 未落地**：`retrieval/retriever.py` 对 `hybrid_rerank` 仍抛 `NotImplementedError`（B 域第四周任务），Demo 不讲精排。
 3. **指标不可讲**：现库 120 条标注仍是"检索 top-1 回显"的循环版（与规范检索仅 44/120 吻合），任何 hit_rate/mrr 数字都不得出现在汇报页（回归矩阵默认只走明细通道）。
 4. 第三周遗留：`semantic` 超长块待 A 处置，semantic 实验暂不进演示链路。
