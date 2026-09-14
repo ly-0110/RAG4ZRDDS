@@ -1,0 +1,25 @@
+{"question_id":"MS001","source_id":"user_manual","page_print":[82,83],"section_keyword":"8.3.3.1 创建DataWriter时配置QoS策略"}
+{"question_id":"MS001","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_pub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}
+{"question_id":"MS002","source_id":"user_manual","page_print":[87,88],"section_keyword":"8.3.10 发布数据"}
+{"question_id":"MS002","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_pub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}
+{"question_id":"MS003","source_id":"user_manual","page_print":[101,101],"section_keyword":"9.3.3.1 创建DataReader时配置QoS策略"}
+{"question_id":"MS003","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_sub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_sub_8c-example.html"}
+{"question_id":"MS004","source_id":"user_manual","page_print":[82,83],"section_keyword":"8.3.3.1 创建DataWriter时配置QoS策略"}
+{"question_id":"MS004","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"DDS_Publisher_create_datawriter","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}
+{"question_id":"MS005","source_id":"user_manual","page_print":[8,9],"section_keyword":"2.5 发布者/订阅者"}
+{"question_id":"MS005","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_pub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}
+{"question_id":"MS006","source_id":"user_manual","page_print":[142,145],"section_keyword":"10.18 PresentationQosPolicy"}
+{"question_id":"MS006","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_pub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}
+{"question_id":"MS007","source_id":"user_manual","page_print":[101,103],"section_keyword":"9.3.3 设置DataReader的QoS策略"}
+{"question_id":"MS007","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_sub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_sub_8c-example.html"}
+{"question_id":"MS008","source_id":"user_manual","page_print":[38,39],"section_keyword":"5.4 Status"}
+{"question_id":"MS008","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_pub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}
+{"question_id":"MS009","source_id":"user_manual","page_print":[8,9],"section_keyword":"2.5 发布者/订阅者"}
+{"question_id":"MS009","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_pub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}
+{"question_id":"MS009","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_sub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_sub_8c-example.html"}
+{"question_id":"MS010","source_id":"user_manual","page_print":[120,123],"section_keyword":"10.2 BatchQosPolicy"}
+{"question_id":"MS010","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_pub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}
+{"question_id":"MS011","source_id":"user_manual","page_print":[79,80],"section_keyword":"8.2.8.1 Wait for Acknowledgment"}
+{"question_id":"MS011","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_pub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}
+{"question_id":"MS012","source_id":"user_manual","page_print":[120,123],"section_keyword":"10.2 BatchQosPolicy"}
+{"question_id":"MS012","source_id":"zrdds_dev_guide","page_print":null,"section_keyword":"BatchQos/main_pub.c","source_url":"https://docs.zrtechnology.com/cdoc/html/_batch_qos_2main_pub_8c-example.html"}

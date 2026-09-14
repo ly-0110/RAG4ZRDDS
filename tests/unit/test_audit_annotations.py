@@ -117,6 +117,24 @@ class TestAuditAnnotation:
             "DurabilityQosPolicy 的 kind 默认值是什么？")
         assert "PAGE_NO_CHUNK" in codes
 
+    def test_page_range_is_checked_against_product(self, truth):
+        codes, _ = aa.audit_annotation(
+            _ann(page_print=[127, 129]), truth, None, {"Q001"},
+            "DurabilityQosPolicy 的 kind 默认值是什么？")
+        assert codes == [], codes
+
+    def test_page_range_outside_product_is_blocked(self, truth):
+        codes, _ = aa.audit_annotation(
+            _ann(page_print=[127, 130], section_keyword=None), truth, None, {"Q001"},
+            "DurabilityQosPolicy 的 kind 默认值是什么？")
+        assert "PAGE_OUT_OF_RANGE" in codes
+
+    def test_invalid_page_value_is_blocked(self, truth):
+        codes, _ = aa.audit_annotation(
+            _ann(page_print=[129, 127], section_keyword=None), truth, None, {"Q001"},
+            "DurabilityQosPolicy 的 kind 默认值是什么？")
+        assert "PAGE_INVALID" in codes
+
     def test_question_token_elsewhere_is_off_page(self, truth):
         """题干问 DurabilityQosPolicy，标注却给第 11 页（该词只在 127~129 出现）。"""
         codes, probe = aa.audit_annotation(

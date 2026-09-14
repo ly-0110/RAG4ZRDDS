@@ -11,7 +11,7 @@
         </div>
         <div class="toolbar-options">
           <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
-          <span class="control-chip">Top-K 6</span>
+          <span class="control-chip">Top-K 5</span>
         </div>
       </div>
 
