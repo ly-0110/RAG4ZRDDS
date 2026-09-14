@@ -12,6 +12,7 @@ from collections.abc import Callable
 
 from retrieval._bootstrap import experiment_config
 from retrieval.bm25 import BM25Store
+from retrieval.boosts import apply_version_boost
 from retrieval.nodes import NodeRecord
 from retrieval.rrf import DEFAULT_RRF_K, fuse_hits
 from retrieval.vector_store import VectorStore, sanitize_collection_name
@@ -47,25 +48,41 @@ def _to_source_ref(r: dict) -> dict:
 
 
 class VectorRetriever:
-    def __init__(self, store: VectorStore, filters: dict | None = None) -> None:
+    def __init__(self, store: VectorStore, filters: dict | None = None,
+                 candidate_top_k: int = 30, version_pref: str | None = None,
+                 version_boost: float = 0.0) -> None:
         self._store = store
         self._filters = filters
+        self._candidate_top_k = candidate_top_k
+        self._version_pref = version_pref
+        self._version_boost = version_boost
+        self._boost_active = bool(version_pref) and version_boost > 0
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
         # 第一周为同步实现（CPU 推理），直接放在 async 方法内；
         # D 服务端接线时若发现阻塞事件循环，用 anyio.to_thread 包裹。
-        results = self._store.query(question, top_k, filters=self._filters)
-        return [_to_source_ref(r) for r in results]
+        pool_k = max(top_k, self._candidate_top_k) if self._boost_active else top_k
+        results = self._store.query(question, pool_k, filters=self._filters)
+        results = apply_version_boost(results, self._version_pref, self._version_boost)
+        return [_to_source_ref(r) for r in results[:top_k]]
 
 
 class BM25Retriever:
-    def __init__(self, store: BM25Store, filters: dict | None = None) -> None:
+    def __init__(self, store: BM25Store, filters: dict | None = None,
+                 candidate_top_k: int = 30, version_pref: str | None = None,
+                 version_boost: float = 0.0) -> None:
         self._store = store
         self._filters = filters
+        self._candidate_top_k = candidate_top_k
+        self._version_pref = version_pref
+        self._version_boost = version_boost
+        self._boost_active = bool(version_pref) and version_boost > 0
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
-        results = self._store.query(question, top_k, filters=self._filters)
-        return [_to_source_ref(r) for r in results]
+        pool_k = max(top_k, self._candidate_top_k) if self._boost_active else top_k
+        results = self._store.query(question, pool_k, filters=self._filters)
+        results = apply_version_boost(results, self._version_pref, self._version_boost)
+        return [_to_source_ref(r) for r in results[:top_k]]
 
 
 class HybridRetriever:
@@ -78,20 +95,25 @@ class HybridRetriever:
         rrf_k: float = DEFAULT_RRF_K,
         candidate_top_k: int = 30,
         filters: dict | None = None,
+        version_pref: str | None = None,
+        version_boost: float = 0.0,
     ) -> None:
         self._vector_store = vector_store
         self._bm25_store = bm25_store
         self._rrf_k = rrf_k
         self._candidate_top_k = candidate_top_k
         self._filters = filters
+        self._version_pref = version_pref
+        self._version_boost = version_boost
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
         # 子检索各取候选池；top_k 大于池容量时以 top_k 兜底（防融合池不足）
         sub_k = max(top_k, self._candidate_top_k)
         vec_hits = self._vector_store.query(question, sub_k, filters=self._filters)
         bm_hits = self._bm25_store.query(question, sub_k, filters=self._filters)
-        fused = fuse_hits([vec_hits, bm_hits], top_k=top_k, k=self._rrf_k)
-        return [_to_source_ref(r) for r in fused]
+        fused = fuse_hits([vec_hits, bm_hits], top_k=sub_k, k=self._rrf_k)
+        fused = apply_version_boost(fused, self._version_pref, self._version_boost)
+        return [_to_source_ref(r) for r in fused[:top_k]]
 
 
 class HybridRerankRetriever:
@@ -110,6 +132,8 @@ class HybridRerankRetriever:
         rrf_k: float = DEFAULT_RRF_K,
         candidate_top_k: int = 30,
         filters: dict | None = None,
+        version_pref: str | None = None,
+        version_boost: float = 0.0,
     ) -> None:
         self._vector_store = vector_store
         self._bm25_store = bm25_store
@@ -117,6 +141,8 @@ class HybridRerankRetriever:
         self._rrf_k = rrf_k
         self._candidate_top_k = candidate_top_k
         self._filters = filters
+        self._version_pref = version_pref
+        self._version_boost = version_boost
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
         pool_k = max(top_k, self._candidate_top_k)
@@ -127,7 +153,9 @@ class HybridRerankRetriever:
             return []
         scores = self._rerank_fn(question, [h["text"] for h in fused])
         ranked = sorted(zip(fused, scores), key=lambda p: (-p[1], p[0]["node_id"]))
-        return [_to_source_ref({**h, "score": float(s)}) for h, s in ranked[:top_k]]
+        hits = [{**h, "score": float(s)} for h, s in ranked]
+        hits = apply_version_boost(hits, self._version_pref, self._version_boost)
+        return [_to_source_ref(r) for r in hits[:top_k]]
 
 
 def _load_hybrid_stores(cfg, embed_fn):
@@ -175,6 +203,9 @@ def _load_hybrid_stores(cfg, embed_fn):
 
 def build_retriever(cfg, embed_fn=None, rerank_fn=None):
     """按实验配置组装：索引目录/集合名由 configs 派生命名（D 的约定）。"""
+    params = cfg.retrieval.params or {}
+    version_pref = params.get("version_pref")
+    version_boost = float(params.get("version_boost", 0.0))
     index_path = experiment_config.index_dir(cfg)
     if cfg.retrieval.mode == "bm25":
         if not index_path.exists():
@@ -182,10 +213,12 @@ def build_retriever(cfg, embed_fn=None, rerank_fn=None):
                 f"索引不存在: {index_path}（请先运行 build_index 建索引，再启动 live 检索）"
             )
         store = BM25Store.load(index_path)
-        return BM25Retriever(store, filters=cfg.retrieval.filters or None)
+        return BM25Retriever(store, filters=cfg.retrieval.filters or None,
+                             candidate_top_k=cfg.retrieval.candidate_top_k,
+                             version_pref=version_pref, version_boost=version_boost)
     if cfg.retrieval.mode in ("hybrid", "hybrid_rerank"):
         vector_store, bm25_store = _load_hybrid_stores(cfg, embed_fn)
-        rrf_k = float((cfg.retrieval.params or {}).get("rrf_k", DEFAULT_RRF_K))
+        rrf_k = float(params.get("rrf_k", DEFAULT_RRF_K))
         if cfg.retrieval.mode == "hybrid":
             return HybridRetriever(
                 vector_store,
@@ -193,6 +226,8 @@ def build_retriever(cfg, embed_fn=None, rerank_fn=None):
                 rrf_k=rrf_k,
                 candidate_top_k=cfg.retrieval.candidate_top_k,
                 filters=cfg.retrieval.filters or None,
+                version_pref=version_pref,
+                version_boost=version_boost,
             )
         if rerank_fn is None:
             from retrieval.rerank import build_reranker
@@ -205,6 +240,8 @@ def build_retriever(cfg, embed_fn=None, rerank_fn=None):
             rrf_k=rrf_k,
             candidate_top_k=cfg.retrieval.candidate_top_k,
             filters=cfg.retrieval.filters or None,
+            version_pref=version_pref,
+            version_boost=version_boost,
         )
     if cfg.retrieval.mode != "vector":
         raise NotImplementedError(
@@ -225,4 +262,6 @@ def build_retriever(cfg, embed_fn=None, rerank_fn=None):
         metric=cfg.index.metric,
         collection_name=sanitize_collection_name(experiment_config.index_dirname(cfg)),
     )
-    return VectorRetriever(store, filters=cfg.retrieval.filters or None)
+    return VectorRetriever(store, filters=cfg.retrieval.filters or None,
+                           candidate_top_k=cfg.retrieval.candidate_top_k,
+                           version_pref=version_pref, version_boost=version_boost)

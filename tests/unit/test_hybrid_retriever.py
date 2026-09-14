@@ -274,3 +274,15 @@ def test_build_index_rejects_hybrid_rerank_reference_mode(tmp_path, monkeypatch)
 
     with pytest.raises(ValueError, match="引用制"):
         build_index(cfg, embed_fn=fake)
+
+
+def test_build_retriever_passes_version_params(tmp_path, monkeypatch):
+    fake = _setup(tmp_path, monkeypatch)
+    cfg = experiment_config.load(_write_hybrid(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+    probe = cfg.model_copy(deep=True)
+    probe.retrieval.params = {"rrf_k": 60, "version_pref": "2.4", "version_boost": 0.1}
+
+    retriever = build_retriever(probe, embed_fn=fake)
+
+    assert retriever._version_pref == "2.4"
+    assert retriever._version_boost == 0.1
