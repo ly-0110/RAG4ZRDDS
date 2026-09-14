@@ -43,10 +43,10 @@
 - **紧凑锚点**：`--promote` 后 `baseline/*.json` 由 340KB 级报告压到 46~108KB，比对照常成立（有单测锁定）。
 - **全量矩阵已就位**：8 个实验首轮 = `3 pass / 3 incomparable / 2 no_baseline`（历史报告无 artifacts 指纹 + multisrc 两份首次进矩阵）；`--promote` 提基准后**第二轮 8/8 pass**（vs 上次与 vs 基准双通道），零回归零失败。矩阵里 `hybrid_v1` top-K 重合 **0.9883**（其余 1.0），与第三周记录的"RRF 并列边界非确定性"同源，落在阈值内不误报——属"被机制看见、但没被误报成回归"的正例。
 - 落盘：`evaluation/reports/regression_latest.{json,md}`（矩阵摘要）+ `runs/` 归档（本机，已 gitignore）。
+- **`--changed-only` 用真实历史三情形验证**（不是构造样本）：相对 `5d925c2`（本周 12 提交，改了 `scripts/`+`server/`+`configs/`）→ 正确推断**全量 8 实验**；相对 `c056f5d`（只改 docs 与删 `server/openai_compat/` 占位）→ 正确判**无需回归**；单改 `configs/experiments/struct_bm25.yaml` → 只选中该实验。
 
 ### 1.4 边界与未覆盖
 
-- `--changed-only` 的路径映射由单测覆盖，**未在真实多人 PR 流上跑过**；B 的 reranker PR 合入即首个实战样本。
 - 检索侧八个实验均已进矩阵并有基准；**回答侧仍空**——`response_metrics` 需 C 的 runner（§6），Week 4 验收项"有自动/半自动 Evaluation"目前只覆盖检索侧。
 
 ---
@@ -219,7 +219,7 @@ B 本周要交 `hybrid_rerank`。D 侧此前把"无自有索引（引用制）"�
 | semantic 超长块 | A | `data_pipeline/chunkers/semantic.py:63` 的 `self.max_chars` 仍无消费点 | `semantic_v1` 已进矩阵（用旧代码产物的既有索引，pass）；A 一旦替换产物 → 指纹翻转 → 需重建索引（约 529s）+ `--promote` 重提基准 |
 | Prompt 版本一致性（议题 8） | C/D | `struct_bm25.yaml` 仍 `prompt_version: v0` | 配置在 D 域，改前需与 C 对齐 |
 | **W1 `source_url` 进 wire** | B/C/E | `SOURCE_REF_FIELDS` 七字段不含 `source_url`；`api.md` 从未定义；`web/` 0 引用（§2.3 实测） | **已按方案 B 落地回查通道**（§4.6：`/sources` 与 MCP `get_sources` 带 URL，SSE 仍 7 字段）；正式进 wire 仍需 B/C/E 会签 |
-| **新发现 F1：filters 在身份段 vs 查询期过滤** | B（+D） | `index_identity_json` 含 `retrieval.filters`（R5 决策的产物），而 B 自 PR#30 起把 filters **下推到查询期**执行——`verify_filters.py` 刻意在检索器层换装以"不触发索引身份漂移" | 后果＝§8.3"按版本过滤"若落成独立实验配置，会为**内容完全相同**的 Node 集再嵌一遍（单来源约 8min、多来源约 25min）并多占一份索引目录。D **未**擅自把 filters 移出身份段（会改掉既有六套索引的派生名 = R5 类孤儿化事故）。例会与 B 二选一：①filters 出身份段（需配套回切演练与迁移说明）②约定版本过滤只在运行时换装、不建独立实验配置 |
+| **新发现 F1：filters 在身份段 vs 查询期过滤** | B（+D） | `index_identity_json` 含 `retrieval.filters`（R5 决策的产物），而 B 自 PR#30 起把 filters **下推到查询期**执行——`verify_filters.py` 刻意在检索器层换装以"不触发索引身份漂移"。**实测**：`struct_v1` 基线 hash8 `0a7830b7`；仅加 `filters:{version:"2.4"}` → `8961118d`；换 `2.0` → `d37176c1`；再加 `source_id` → `26bceadb`（对照：只改 `generation.prompt_version` → hash8 不变，R5 修复仍成立） | 后果＝§8.3"按版本过滤"若落成独立实验配置，会为**内容完全相同**的 Node 集再嵌一遍（单来源约 8min、多来源约 25min）并多占一份索引目录。D **未**擅自把 filters 移出身份段（会改掉既有六套索引的派生名 = R5 类孤儿化事故）。例会与 B 二选一：①filters 出身份段（需配套回切演练与迁移说明）②约定版本过滤只在运行时换装、不建独立实验配置 |
 
 ## 7. 决策点与拍板结果
 
