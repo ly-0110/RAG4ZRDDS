@@ -149,6 +149,36 @@
                   </div>
                 </Transition>
 
+                <div v-if="requestId && answer && !isLoading" class="feedback-panel" aria-label="回答反馈">
+                  <div>
+                    <span class="feedback-label">这份回答对你有帮助吗？</span>
+                    <span v-if="feedbackStatus === 'success'" class="feedback-status">感谢反馈</span>
+                    <span v-else-if="feedbackStatus === 'error'" class="feedback-status is-error">{{ feedbackError }}</span>
+                  </div>
+                  <div class="feedback-actions">
+                    <button
+                      type="button"
+                      class="feedback-btn"
+                      :class="{ 'is-selected': feedbackRating === 'up' }"
+                      :disabled="feedbackStatus === 'submitting' || feedbackStatus === 'success'"
+                      :aria-pressed="feedbackRating === 'up'"
+                      @click="submitFeedback('up')"
+                    >
+                      有帮助
+                    </button>
+                    <button
+                      type="button"
+                      class="feedback-btn"
+                      :class="{ 'is-selected is-negative': feedbackRating === 'down' }"
+                      :disabled="feedbackStatus === 'submitting' || feedbackStatus === 'success'"
+                      :aria-pressed="feedbackRating === 'down'"
+                      @click="submitFeedback('down')"
+                    >
+                      需改进
+                    </button>
+                  </div>
+                </div>
+
                 <Transition name="answer-fade">
                   <div v-if="errorMsg" class="error-box">
                     <span class="error-label">请求异常</span>
@@ -199,6 +229,9 @@ const errorMsg = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
 const requestId = ref('')
+const feedbackRating = ref('')
+const feedbackStatus = ref('')
+const feedbackError = ref('')
 const hasContent = computed(() => answer.value !== '' || sources.value.length > 0)
 const knowledgeStatus = ref('checking')
 const knowledgeMode = ref('')
@@ -290,6 +323,9 @@ const handleQuery = async (question) => {
   sources.value = []
   errorMsg.value = ''
   requestId.value = ''
+  feedbackRating.value = ''
+  feedbackStatus.value = ''
+  feedbackError.value = ''
   isStreaming.value = true
   isLoading.value = true
 
@@ -321,6 +357,9 @@ const handleQuery = async (question) => {
         handleFrame(frame)
       }
     }
+    if (requestId.value) {
+      await enrichSources(requestId.value)
+    }
   } catch (error) {
     if (error.name !== 'AbortError') {
       errorMsg.value = `请求失败：${error.message}（请确认后端已启动：make serve）`
@@ -328,6 +367,45 @@ const handleQuery = async (question) => {
     }
   } finally {
     isLoading.value = false
+  }
+}
+
+async function enrichSources(rid) {
+  try {
+    const response = await fetch(`/sources/${rid}`)
+    if (!response.ok) return
+    const record = await response.json()
+    if (record.request_id !== rid || !Array.isArray(record.sources)) return
+    const urlsByNode = new Map(record.sources.map((source) => [source.node_id, source.source_url]))
+    sources.value = sources.value.map((source) => ({
+      ...source,
+      source_url: urlsByNode.get(source.node_id) || source.source_url || null,
+    }))
+  } catch (error) {
+    console.error('获取引用原文链接失败:', error)
+  }
+}
+
+async function submitFeedback(rating) {
+  if (!requestId.value || feedbackStatus.value === 'submitting') return
+  feedbackRating.value = rating
+  feedbackStatus.value = 'submitting'
+  feedbackError.value = ''
+  try {
+    const response = await fetch('/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ request_id: requestId.value, rating }),
+    })
+    const payload = await response.json().catch(() => null)
+    if (!response.ok) {
+      throw new Error(payload?.error || `反馈提交失败：${response.status}`)
+    }
+    feedbackStatus.value = 'success'
+  } catch (error) {
+    feedbackStatus.value = 'error'
+    feedbackError.value = error.message || '反馈提交失败，请稍后重试'
+    console.error('提交反馈失败:', error)
   }
 }
 </script>
@@ -915,6 +993,68 @@ const handleQuery = async (question) => {
 .answer-card:hover {
   border-color: rgba(94, 156, 173, 0.4);
   box-shadow: var(--shadow-float);
+}
+
+.feedback-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.feedback-label,
+.feedback-status {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+
+.feedback-status {
+  margin-top: 3px;
+  color: var(--success);
+}
+
+.feedback-status.is-error {
+  color: #a35f69;
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+
+.feedback-btn {
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.64rem;
+  font-weight: 700;
+}
+
+.feedback-btn:hover:not(:disabled),
+.feedback-btn.is-selected {
+  border-color: rgba(78, 155, 136, 0.4);
+  background: rgba(78, 155, 136, 0.12);
+  color: #397967;
+}
+
+.feedback-btn.is-selected.is-negative {
+  border-color: rgba(163, 95, 105, 0.35);
+  background: rgba(163, 95, 105, 0.1);
+  color: #8d5360;
+}
+
+.feedback-btn:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
 .section-header {

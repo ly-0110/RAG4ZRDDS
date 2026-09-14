@@ -57,6 +57,16 @@
             <span v-if="s.source_id" class="source-id">· {{ s.source_id }}</span>
           </div>
 
+          <a
+            v-if="s.source_url"
+            class="source-link"
+            :href="s.source_url"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            打开 HTML 原文 <span aria-hidden="true">↗</span>
+          </a>
+
           <div class="relevance-row">
             <div class="relevance-label">
               <span>向量相关度</span>
@@ -409,6 +419,22 @@ const formatDetails = (details) => {
   color: var(--text-muted);
   font-size: 0.65rem;
   line-height: 1.5;
+}
+
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  color: var(--primary-700);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.source-link:hover {
+  color: var(--teal);
+  text-decoration: underline;
 }
 
 .meta-divider {

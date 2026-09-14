@@ -1,0 +1,12 @@
+{"id":"MS001","question":"用户手册说明了创建 DataWriter 时可以配置 QoS；HTML BatchQoS 示例实际按什么顺序获取 DomainParticipant、Topic、Publisher 并创建 DataWriter？","type":"cross_source","version":"documented","difficulty":"hard"}
+{"id":"MS002","question":"用户手册说明 DataWriter 的 write() 用于发布样本；HTML BatchQoS 示例如何设置批量发送策略并调用 write()？","type":"cross_source","version":"documented","difficulty":"hard"}
+{"id":"MS003","question":"用户手册说明 DataReader 可以通过 Listener 接收数据；HTML BatchQoS 订阅示例如何创建 DataReader 并注册 on_data_available 回调？","type":"cross_source","version":"documented","difficulty":"medium"}
+{"id":"MS004","question":"HTML 开发指南中的 DDS_Publisher_create_datawriter 示例使用了哪些输入对象和 QoS 参数？用户手册中的 DataWriter 创建章节如何解释这些参数？","type":"cross_source","version":"documented","difficulty":"medium"}
+{"id":"MS005","question":"HTML BatchQoS 发布示例中的 domain_id、Topic 名称和 Publisher 创建步骤，如何与用户手册的域、主题和发布者模型对应？","type":"cross_source","version":"documented","difficulty":"medium"}
+{"id":"MS006","question":"用户手册指出 PresentationQosPolicy 可以影响数据提交方式；HTML 开发指南中的发布示例是否展示了 coherent_access 或 ordered_access 的配置？如果没有，应如何回答？","type":"cross_source","version":"documented","difficulty":"hard"}
+{"id":"MS007","question":"用户手册说明 DataReader 的 QoS 可以在创建时配置；HTML BatchQoS 订阅示例实际设置了哪些 DataReader QoS 字段？","type":"cross_source","version":"documented","difficulty":"medium"}
+{"id":"MS008","question":"HTML BatchQoS 示例出现创建失败检查和返回码判断；结合用户手册的错误处理约定，回答时应报告哪些失败分支，哪些内容不能从材料中推断？","type":"debug","version":"documented","difficulty":"hard"}
+{"id":"MS009","question":"用户手册介绍 Publisher/Subscriber 必须通过匹配的 Topic 通信；HTML BatchQoS 发布端和订阅端如何使用相同的 Topic 建立通信？","type":"cross_source","version":"documented","difficulty":"medium"}
+{"id":"MS010","question":"HTML 开发指南提供了 BatchQoS C 示例；用户手册的 BatchQosPolicy 章节说明了该策略的什么用途？请区分规范说明与示例实现。","type":"cross_source","version":"documented","difficulty":"medium"}
+{"id":"MS011","question":"用户手册说明 wait_for_acknowledgments() 的等待语义；HTML BatchQoS 发布示例是否调用该接口？若未出现，能否据此断言发送数据已经被对端确认？","type":"cross_source","version":"documented","difficulty":"hard"}
+{"id":"MS012","question":"对比用户手册与 HTML 开发指南：用户手册提供概念和 API 语义，HTML 提供可运行示例时，回答 BatchQoS 发布问题应如何标注两个来源及其职责？","type":"faq","version":"documented","difficulty":"medium"}

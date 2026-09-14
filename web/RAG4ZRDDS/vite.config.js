@@ -28,6 +28,7 @@ export default defineConfig({
       '/query': { target: BACKEND_URL, changeOrigin: true },
       '/sources': { target: BACKEND_URL, changeOrigin: true },
       '/healthz': { target: BACKEND_URL, changeOrigin: true },
+      '/feedback': { target: BACKEND_URL, changeOrigin: true },
     },
   },
 })
