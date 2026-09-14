@@ -19,10 +19,12 @@ class FakeCrossEncoder:
 
     init_calls = 0
     init_args: tuple = ()
+    init_max_length = None
 
-    def __init__(self, model_name, device=None):
+    def __init__(self, model_name, device=None, max_length=None):
         type(self).init_calls += 1
         FakeCrossEncoder.init_args = (model_name, device)
+        FakeCrossEncoder.init_max_length = max_length
 
     def predict(self, pairs):
         return [float(len(t)) for _, t in pairs]
@@ -48,6 +50,7 @@ def test_build_reranker_is_lazy_and_resolves_local_model(tmp_path, monkeypatch):
     scores = rerank_fn("查询", ["ab", "abcd"])
     assert scores == [2.0, 4.0]
     assert FakeCrossEncoder.init_args == (str(tmp_path / "bge-reranker-v2-m3"), "cpu")
+    assert FakeCrossEncoder.init_max_length == 512   # 截断参数锁定（默认 8192 慢 3 倍）
 
     rerank_fn("查询", ["x"])
     assert FakeCrossEncoder.init_calls == 1          # 懒加载只发生一次
