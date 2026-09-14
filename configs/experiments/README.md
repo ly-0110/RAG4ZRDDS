@@ -98,7 +98,7 @@ python scripts/experiment_config.py configs/experiments/semantic_v1.yaml
 | `rerank_model` | 精排用的模型名 | `mode: hybrid_rerank` 时必填 |
 | `filters` | 检索时的过滤条件 | 例如只搜 v2.4 的内容：`{version: "2.4"}`。**注意（2026-09-14 实测 F1）**：`filters` 属索引身份段，改它就连目录名一起变（`struct_v1` 加 `{version:"2.4"}` → hash8 `0a7830b7`→`8961118d`），等于为同一份内容再嵌一遍（单来源约 8min、多来源约 25min）。而成员 B 自 PR#30 起是**查询期**下推过滤，索引内容其实没变。在例会决定"filters 是否移出身份段"之前：不要为版本过滤新建实验配置，改用 B 的运行时换装（`scripts/verify_filters.py` 的做法） |
 | `source_priority` | 来源优先顺序 | 按 id 从高到低列，如 `[api_ref, user_manual]`；空 = 不分先后 |
-| `params` | 本域自由参数区 | BM25 的 k1/b、RRF 的 rrf_k、混合权重等，由 B 决定 |
+| `params` | 本域自由参数区 | BM25 的 k1/b、RRF 的 rrf_k、混合权重等，由 B 决定。版本加权（PR#34 设计 §3）：`version_pref`=软偏好的目标版本（如 `"2.4"`；空/缺省 = 不加权，行为与现状逐字节一致），`version_boost`=版本命中加成（归一化分空间，典型 `0.1`）。加权生效时检索结果 `score` 变为池内归一化排序分，跨查询/跨配置不可比（api.md v0.12）；版本的**硬过滤**用 `filters`（注意上面 F1 身份段代价），**软偏好**才用这两个参数 |
 | `components` | 引用制（2026-09-12 会签） | `mode: hybrid` **必填**：引用两个子实验名，如 `{vector: struct_v1, bm25: struct_bm25}`；hybrid 无自有索引，子索引由各自配置分别构建（`make index` 遇引用制自动跳过并提示，`--list` 会标出父子关系）。`mode: hybrid_rerank` **可选**：若成员 B 采用"hybrid + 精排"就同样填，未填则按"自有索引 + 精排"建索引。是否为引用制的唯一判定处 = `experiment_config.uses_reference_index()`；components 不参与索引目录命名 |
 
 ### generation —— 回答怎么生成

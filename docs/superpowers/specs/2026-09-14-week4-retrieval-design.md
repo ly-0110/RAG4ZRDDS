@@ -215,6 +215,18 @@ apply_version_boost(hits, pref, boost):
 | 真值标注 | **E** | 多来源题集标注（禁循环论证）；B 只消费 |
 | 终版 Node 集冻结时机 | **A/D** | 见 §7 首条 |
 
+### 6.1 D 会签结论（2026-09-14，用户拍板；PR#34 审查后回写）
+
+| 事项 | D 结论 |
+|---|---|
+| 三处引用制 gate | **D 侧两处已完成，无需 B 出补丁**：`scripts/build_index.py` / `run_experiment.py` 已由 D 第四周交付五收敛为单一事实源 `experiment_config.uses_reference_index()`（判定 `mode in ("hybrid","hybrid_rerank") and components`，hybrid_rerank 引用制形态已覆盖；提交在 feature/server-platform 待 push，合入 develop 后 B 复核即可）。`retrieval/index.py` 属 B 域按原计划直改——但见下方「设计一致性」条。**B 实现时请勿再对两个 D 脚本出补丁**，避免与 D 侧提交冲突 |
+| 设计一致性（新增，需 B 拍板） | §2.3 计划让 `retrieval/index.py` 一刀切拒绝 `hybrid_rerank`，但 schema 刻意**不强制** hybrid_rerank 填 components（experiment_config.py L132 注释）、configs README components 行也写明"未填则按自有索引 + 精排建索引"——`uses_reference_index()` 对无 components 的 hybrid_rerank 返回 False，D 侧脚本会走自有索引路径，核心层却拒绝，两侧矛盾。二选一：①hybrid_rerank 一律引用制 → schema 收紧 components 必填 + README 行更新，`retrieval/index.py` 可一刀切拒绝；②保留自有索引形态 → `retrieval/index.py` 按 `uses_reference_index()`（或等价判定）分派拒绝，只拦引用制形态。D 无倾向，B 实现时定并回写本表 |
+| api.md 量纲补条目 | **已落 v0.12（D 落笔）**：score 字段表补 `hybrid_rerank` 交叉编码器分条目（具体量纲 sigmoid 0~1 或原始 logits **以 B 冒烟实测为准，B 定死后回写字段表**）；version_boost 生效配置 score = 池内归一化排序分 + 加成，跨查询/跨配置不可比；阈值注记补 `hybrid_rerank` 不设绝对阈值（沿用条数/top_k 信号）、boost 生效配置一律不适用绝对阈值 |
+| configs README params 行 | **已由 D 直接写**（不走 B 出稿往返）：`version_pref`/`version_boost` 作用与典型值 + 与 `filters` 硬过滤的分工 + F1 提示 |
+| 弱证据阈值口径（C） | **D 认可**：按 mode/配置定标与 X1 决议（api.md v0.7）同向，boost 生效配置下 score 不可跨查询比较，绝对阈值一律不适用（已写入 api.md v0.12）。例会通报 C |
+| source-priority 6.1 答复（B→C） | **D 认可**：检索侧只做 version 加权、`source_priority` 维持生成侧采信的理由成立（避免检索/生成对优先级的矛盾诉求）；`boosts.py` 通用 metadata 加成是干净的扩展路径。例会通报 C |
+| 终版 Node 集冻结（A/D） | 流程认可（先跑对比，A 冻结后走 R2 指纹复核）。**成本数字修正**：§7 的"向量重建 ~87 分钟"与 D 实测不符——本机（Ryzen 7 9700X）multisrc 1606 节点单次重建 **24.8min**；即便四套向量索引（301+622+906+1606 节点）全部重建合计约 **64min**。通报 A 时以实测为准 |
+
 ---
 
 ## 7. 风险与开放问题
