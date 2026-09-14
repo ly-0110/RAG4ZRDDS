@@ -156,9 +156,9 @@ def _count_nodes(cfg) -> int:
 def cmd_build(config_path: str, fake: bool) -> int:
     cfg = ec.load(config_path)
 
-    if cfg.retrieval.mode == "hybrid":
+    if ec.uses_reference_index(cfg):
         comps = cfg.retrieval.components or {}
-        print("[index] mode=hybrid 无自有索引（引用制，PR#27 会签②）："
+        print(f"[index] mode={cfg.retrieval.mode} 走引用制（PR#27 会签②）：无自有索引，"
               "子索引由 components 引用的实验分别构建")
         for role, name in sorted(comps.items()):
             ref = ec.experiment_yaml_path(name)
@@ -205,14 +205,14 @@ def cmd_list(config_path: str | None) -> int:
     if config_path:
         cfg = ec.load(config_path)
         current = ec.index_dirname(cfg)
-        if cfg.retrieval.mode == "hybrid":
+        if ec.uses_reference_index(cfg):
             for role, name in sorted((cfg.retrieval.components or {}).items()):
                 ref = ec.experiment_yaml_path(name)
                 if ref.exists():
                     extra_marks.add(ec.index_dirname(ec.load(ref)))
             if extra_marks:
-                print(f"[index] 当前配置 mode=hybrid（无自有索引），引用子索引: "
-                      f"{', '.join(sorted(extra_marks))}")
+                print(f"[index] 当前配置 mode={cfg.retrieval.mode}（引用制，无自有索引），"
+                      f"引用子索引: {', '.join(sorted(extra_marks))}")
     if not root.exists() or not any(root.iterdir()):
         print("[index] indexes/ 为空——先运行 make index")
         return 0
