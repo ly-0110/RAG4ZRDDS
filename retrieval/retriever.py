@@ -8,6 +8,8 @@ server/core/schema.py 的 SourceRef 一致），避免把整段正文塞进 sour
 """
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from retrieval._bootstrap import experiment_config
 from retrieval.bm25 import BM25Store
 from retrieval.nodes import NodeRecord
@@ -90,6 +92,42 @@ class HybridRetriever:
         bm_hits = self._bm25_store.query(question, sub_k, filters=self._filters)
         fused = fuse_hits([vec_hits, bm_hits], top_k=top_k, k=self._rrf_k)
         return [_to_source_ref(r) for r in fused]
+
+
+class HybridRerankRetriever:
+    """多来源 Hybrid 粗排（RRF）+ 交叉编码器精排（指南 §8.2 Top30→Top5）。
+
+    走原始 hit 通路：版本加权需要 metadata，而富引用经 _to_source_ref 投影后
+    不再携带 metadata——加权必须在投影前、精排后完成，故本类直接持有两个
+    store 而非包一层通用装饰器。
+    """
+
+    def __init__(
+        self,
+        vector_store: VectorStore,
+        bm25_store: BM25Store,
+        rerank_fn: Callable[[str, list[str]], list[float]],
+        rrf_k: float = DEFAULT_RRF_K,
+        candidate_top_k: int = 30,
+        filters: dict | None = None,
+    ) -> None:
+        self._vector_store = vector_store
+        self._bm25_store = bm25_store
+        self._rerank_fn = rerank_fn
+        self._rrf_k = rrf_k
+        self._candidate_top_k = candidate_top_k
+        self._filters = filters
+
+    async def retrieve(self, question: str, top_k: int) -> list[dict]:
+        pool_k = max(top_k, self._candidate_top_k)
+        vec_hits = self._vector_store.query(question, pool_k, filters=self._filters)
+        bm_hits = self._bm25_store.query(question, pool_k, filters=self._filters)
+        fused = fuse_hits([vec_hits, bm_hits], top_k=pool_k, k=self._rrf_k)
+        if not fused:
+            return []
+        scores = self._rerank_fn(question, [h["text"] for h in fused])
+        ranked = sorted(zip(fused, scores), key=lambda p: (-p[1], p[0]["node_id"]))
+        return [_to_source_ref({**h, "score": float(s)}) for h, s in ranked[:top_k]]
 
 
 def build_retriever(cfg, embed_fn=None):
