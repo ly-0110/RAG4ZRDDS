@@ -23,7 +23,12 @@ def build_reranker(cfg) -> Callable[[str, list[str]], list[float]]:
         if _model is None:
             from sentence_transformers import CrossEncoder
 
-            _model = CrossEncoder(resolve_model(model_name), device=cfg.embedding.device)
+            # max_length=512：不设时按模型上限 8192 处理，2500 字符的候选块
+            # 单题 30 候选实测 118s（120 题 4.9 小时）；512 为交叉编码器标准
+            # 截断（BAAI 官方用法一致），实测 39s/题。截断略损块尾信息，
+            # 但块首含章节标题通常最具区分度。
+            _model = CrossEncoder(resolve_model(model_name),
+                                  device=cfg.embedding.device, max_length=512)
         return [float(s) for s in _model.predict([(question, t) for t in texts])]
 
     return rerank
