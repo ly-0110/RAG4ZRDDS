@@ -77,7 +77,14 @@ class VectorStore:
             # chroma 1.5.9 本机对绝对 persist 路径有 flush 竞态（段数据文件
             # 写不出、首次加载回填即崩，semantic 1059 节点七连崩实测），
             # 相对路径稳定复现不出——见 test_vector_store_passes_relative_path_to_chroma
-            chroma_path = os.path.relpath(self._persist_path, Path.cwd())
+            try:
+                chroma_path = os.path.relpath(self._persist_path, Path.cwd())
+            except ValueError as e:  # Windows：索引目录与 cwd 跨盘符，无法相对化
+                raise ValueError(
+                    f"索引目录 {self._persist_path} 与工作目录 {Path.cwd()} 不在同一盘符："
+                    "无法用相对路径规避开 chroma 1.5.9 的段 flush 竞态，"
+                    "请把仓库与索引目录放到同一盘符后重建。"
+                ) from e
             self._client = chromadb.PersistentClient(path=str(chroma_path))
         if reset:
             # 幂等重建：先删后建。注意——删除后其他仍持有旧句柄的 VectorStore
