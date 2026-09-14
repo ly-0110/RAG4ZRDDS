@@ -1,5 +1,6 @@
 # 第四周交付记录（成员 D）
 
+> **v0.5（2026-09-14）**：新增 **D 交付五：Reranker 落地前的 D 侧配套**（§4.5）——引用制判定收敛为单一事实源 `experiment_config.uses_reference_index()`，`build_index` 跳过 / `--list` 父子标注 / `run_experiment` 子索引检查三处改判（避免 B 的 `hybrid_rerank` 复用子索引时被误建 25 分钟自有索引），schema 放宽 `hybrid_rerank.components` 为可选并新增拒绝 `vector/bm25` 误填。**回归矩阵已铺满 8 个实验**（§1.3）：首轮 3 pass/3 incomparable/2 no_baseline，提基准后第二轮 **8/8 pass**，零回归；全套 **314/314** 绿。未决新增第 6 项（reranker 权重离线预取，§7）。
 > **v0.4（2026-09-14）**：新增 **D 交付四：Feedback 落库接缝**（§4）——`POST /feedback` + `{LOG_DIR}/feedback.jsonl` 四级日志 + api.md **v0.10**（D 侧提案待 E/C 会签；既有端点形状零变化，不阻塞前端）。单测 7 例、live 实测三条（含跨重启归因与"未知 rid 零落盘"）。演示题单第 5 题（RapidIO QoS）实测补录：top-1 = 10.21 RapidIOConfigQosPolicy 印刷 147/物理 153。**至此指南 §8 的 D 三项全部落地**（回归自动化 / 打包与 README / Demo 环境）。
 > **v0.3（2026-09-14）**：新增 **D 交付三：打包与 README**（§3）——按用户决策走"make 链路真验证"。修掉 `make setup` 建 venv 而其余目标全用裸 `python` 的脱节（此前"三行命令可跑"名不副实），README 全文重写（含逐步骤耗时实测、live 后端三选、回归用法、已知限制如实登记），`.env.example` 补本地 Ollama 通路与 HF 离线提示；`make help` 中文在 GBK 控制台乱码已改 ASCII。**验证缺口如实标注**：`make setup` 的 venv 全新安装未在本机跑通（需重下 2GB+ 且改动在用环境）；Dockerfile/compose 未交付（本机无 docker）。
 > **v0.2（2026-09-14）**：新增 **D 交付二：Demo 环境打通**（§2）——生成侧实际出词首次在本机 live 通路实测成功（第三周至今的缺口销项），四段演示场景（单来源定位/无证据拒答/跨来源联合/Hybrid 走服务通路）全部落真值与耗时，成文 `docs/demo-runbook.md` v0.1。**同时更正第三周我自己写错的验收口径**：`source_url` 从未进入 `SourceRef` wire 与 `api.md`，故"HTML 引用跳 URL"并未闭环（缺口 W1，§2.3）。
@@ -33,18 +34,18 @@
 
 ### 1.3 实测证据（本机，2026-09-14）
 
-- `python -m pytest tests/` → **302/302 绿**（266 → +36）。
+- `python -m pytest tests/` → 本交付 **302/302 绿**（266 → +36）；随交付四/五追加至 **314/314**。
 - **正向闭环**：`--only struct_bm25` 首轮 `incomparable`（历史报告为 v1 无指纹）→ 重跑 → `pass（vs 上次 pass / vs 基准 pass）`，结论 PASS、退出码 0。
 - **真实实验复现性**：`--only struct_v1,struct_bm25` 连跑两轮，第二轮两实验均 `top-K 重合 1.0 / rank-1 一致 1.0 / hit_rate@5 delta +0.0000`，耗时 17.5s（真实 bge-m3 向量检索）与 0.6s（bm25）——同索引同产物的确定性复现得到实证。
 - **负向验证（不破坏基线的前提下）**：把阈值抬到 `--min-overlap 1.0001` → 判 `regression`、总体 FAIL、**退出码 1**；`--with-metrics` 在零差值重跑下仍 `pass`（闸门不误伤）。
-- **紧凑锚点**：`--promote` 后 `baseline/struct_v1.json` 100KB / `struct_bm25.json` 99KB，比对照常成立（有单测锁定）。
-- 落盘：`evaluation/reports/regression_latest.{json,md}`（矩阵摘要）+ `runs/` 归档（本机）。
+- **紧凑锚点**：`--promote` 后 `baseline/*.json` 由 340KB 级报告压到 46~108KB，比对照常成立（有单测锁定）。
+- **全量矩阵已就位**：8 个实验首轮 = `3 pass / 3 incomparable / 2 no_baseline`（历史报告无 artifacts 指纹 + multisrc 两份首次进矩阵）；`--promote` 提基准后**第二轮 8/8 pass**（vs 上次与 vs 基准双通道），零回归零失败。矩阵里 `hybrid_v1` top-K 重合 **0.9883**（其余 1.0），与第三周记录的"RRF 并列边界非确定性"同源，落在阈值内不误报——属"被机制看见、但没被误报成回归"的正例。
+- 落盘：`evaluation/reports/regression_latest.{json,md}`（矩阵摘要）+ `runs/` 归档（本机，已 gitignore）。
 
 ### 1.4 边界与未覆盖
 
-- `--changed-only` 的路径映射由单测覆盖，**未在真实多人 PR 流上跑过**；下周若有 B 的 reranker PR 合入即为首个实战样本。
-- 回归矩阵本轮实跑 `struct_v1` + `struct_bm25` 两个实验；hybrid / 多来源四配置**未进矩阵**（其 live 检索通路已在 §2.2 单独实测，但 `run_experiment` 报告与明细回归尚未跑）；semantic 待 A 处置超长块（§6）。
-- 指标闸门默认关闭，Week 4 验收项"有自动/半自动 Evaluation"目前只覆盖检索侧，回答侧阻塞在 C（§6）。
+- `--changed-only` 的路径映射由单测覆盖，**未在真实多人 PR 流上跑过**；B 的 reranker PR 合入即首个实战样本。
+- 检索侧八个实验均已进矩阵并有基准；**回答侧仍空**——`response_metrics` 需 C 的 runner（§6），Week 4 验收项"有自动/半自动 Evaluation"目前只覆盖检索侧。
 
 ---
 
@@ -123,7 +124,7 @@
 
 ---
 
-## 4. D 交付四：Feedback 落库接缝（指南 §8 成员 E 任务 1 的 D 侧承接）
+## 4. D 交付四 / 五：Feedback 落库接缝 + Reranker 配套前置
 
 E 的第四周任务是"反馈按钮与数据落库"，但**落库属 D 的日志设施**——按既定分工，D 先把服务端与契约做出来，E 只需在答案卡片加两个按钮发一次 POST。
 
@@ -148,14 +149,26 @@ E 的第四周任务是"反馈按钮与数据落库"，但**落库属 D 的日�
 
 契约标注为 **D 侧提案、待 E/C 会签**（两档 rating 是否够 E 的 UI 用、是否需 `answer_version` 之类归因字段由 E 定）。既有 `/query`、`/sources`、`/healthz` 形状零变化，**前端不改也能继续跑**，因此本项不阻塞任何人。
 
+### 4.5 D 交付五：Reranker 落地前的 D 侧配套（`717286e`）
+
+B 本周要交 `hybrid_rerank`。D 侧此前把"无自有索引（引用制）"按 `mode == "hybrid"` 字面写在三处（`build_index.cmd_build` 跳过、`--list` 父子标注、`run_experiment._ensure_index` 子索引检查）。**若 B 的精排同样复用子索引，这三处会各自漂移**，最坏情况是 `run_experiment` 为一个引用制精排实验白建 25 分钟没人用的索引并污染 `indexes/`。
+
+- 新增单一事实源 `experiment_config.uses_reference_index(cfg)`：`mode ∈ {hybrid, hybrid_rerank}` 且给了 `components` 即引用制；三处调用点全部改判。
+- schema 放宽但更严：`hybrid_rerank` 的 `components` **可选**（形态由 B 定——"引用制+精排"或"自有索引+精排"都走得通），给了就校验引用 yaml 存在；**新增拒绝** `vector`/`bm25` 误填 `components`（这类配置错误过去会静默生效）。
+- `configs/experiments/README.md` 的 `components` 行同步该语义，并注明判定唯一处。
+- 测试 **+5 例**（真值表 / 两类校验 / 门面跳过并断言"不应产生自有索引目录" / `run_experiment` 子索引复用路径）。
+- **端到端证据**：重构后 `make regression REG_ARGS=--only struct_hybrid` 正常复用两路子索引（`0a7830b7` + `677d777f`）并出报告；随后全量矩阵 8/8 pass（§1.3）。
+
+**未做（待批准）**：reranker 权重（bge-reranker 类，约 2GB）的离线预取——属大额下载且直连网络不稳，需用户同意后再拉，避免未经确认占用带宽与磁盘。B 落地时若 D 未预取，首次建库/精排会在联网上挂数分钟。
+
 ---
 
 ## 5. 分支与开工前置状态
 
 - 分支起点 `feature/server-platform` = `5d925c2`（与 origin 同步）；**PR#31 由用户提交，仍待 squash 合入 develop**（远端 develop 落后本地多个提交）。
 - 用户决策（2026-09-14）：**先把本周内容做完，再发新的 PR**；因此本地在 `5d925c2` 之上继续累积提交，暂不合入、暂不改远端。
-- 本周已入库（本地提交）：`2ecd6c4` 交付一 回归自动化、`ff929bf` 本记录 v0.1、`f05114f` 交付二 Demo 环境（`docs/demo-runbook.md` + 本记录 v0.2）、`dfff5da` 交付三 打包与 README（`Makefile` 解释器选择 + `README.md` 重写 + `.env.example` 补注 + 本记录 v0.3）、本次提交 交付四 Feedback 落库（`server/api/feedback.py` + `schema.py` + `main.py` 接线 + `tests/unit/server/test_feedback.py` + api.md v0.10 + 本记录 v0.4）。
-- **指南 §8 D 三项全部落地**：①回归自动化 ✅ 实测（§1）②打包 = README/make 链路 ✅ 实测，容器形态按决策未做（§3.4）③最终 Demo 环境 ✅ 四场景实测（§2）。**额外**：§8 E 任务 1 的落库侧已先行交付（§4），待 E 接按钮。
+- 本周本地提交：`2ecd6c4` 交付一 回归自动化 → `ff929bf` 本记录 v0.1 → `f05114f` 交付二 Demo 环境 + v0.2 → `dfff5da` 交付三 打包与 README + v0.3 → `b60f78f` 交付四 Feedback 落库 + api.md v0.10 + v0.4 → `717286e` 交付五 reranker 配套 → `69cd312` 回归矩阵基线（8 实验）→ 本记录 v0.5。
+- **指南 §8 D 三项全部落地**：①回归自动化 ✅ 实测（§1）②打包 = README/make 链路 ✅ 实测，容器形态按决策未做（§3.4）③最终 Demo 环境 ✅ 四场景实测（§2）。**额外先行交付**：§8 E 任务 1 的落库侧（§4.1~4.4）与 B reranker 的 D 侧配套（§4.5）。
 - 索引状态：六套全部可用且指纹匹配，本轮回归与全部 Demo **未触发任何重建**（复用链路正常；hybrid 走引用制）。
 
 ## 6. 跨成员依赖与阻塞（截至本版实测）
@@ -163,9 +176,9 @@ E 的第四周任务是"反馈按钮与数据落库"，但**落库属 D 的日�
 | 事项 | 归属 | 实测现状 | 对 D/Week4 的影响 |
 |---|---|---|---|
 | 真值标注（逐题对 PDF 核对） | E | `expected_sources.jsonl` 120 条仍在，但与规范索引报告 top-1 仅 **44/120** 吻合（本次实测），仍是循环 + 非规范模型副本产物 | 指标闸门只能默认关闭；6 份 void 报告无法刷新；Week4 验收项 1/2/3 继续阻塞 |
-| Reranker（§8.2） | B | `retrieval/retriever.py:154` 仍 `NotImplementedError("hybrid_rerank 待第四周实现")` | "Reranker 有实验数据"验收项拿不到；D 侧配套（build_index 跳过 / 子索引检查 / 权重离线缓存）待其落地 |
+| Reranker（§8.2） | B | `retrieval/retriever.py:154` 仍 `NotImplementedError("hybrid_rerank 待第四周实现")` | "Reranker 有实验数据"验收项拿不到；**D 侧配套已先行交付**（`uses_reference_index` 收敛 + 三处改判 + 5 测试，§4.5），仅剩权重离线预取待批准 |
 | `answer_eval.py` runner（X2） | C | `evaluation/runners/` 仍只有 `.gitkeep` | 回答侧指标无法进矩阵；D 的 `run_experiment` 保持 `response_metrics` 非空即拒绝的现有语义 |
-| semantic 超长块 | A | `data_pipeline/chunkers/semantic.py:63` 的 `self.max_chars` 仍无消费点 | semantic 索引/报告/错误案例三者仍挂起，矩阵里该实验暂不实跑 |
+| semantic 超长块 | A | `data_pipeline/chunkers/semantic.py:63` 的 `self.max_chars` 仍无消费点 | `semantic_v1` 已进矩阵（用旧代码产物的既有索引，pass）；A 一旦替换产物 → 指纹翻转 → 需重建索引（约 529s）+ `--promote` 重提基准 |
 | Prompt 版本一致性（议题 8） | C/D | `struct_bm25.yaml` 仍 `prompt_version: v0` | 配置在 D 域，改前需与 C 对齐 |
 | **W1 `source_url` 进 wire** | B/C/E | `SOURCE_REF_FIELDS` 七字段不含 `source_url`；`api.md` 0 处定义；`web/` 0 处引用（§2.3 实测） | 指南 §7 E 任务"HTML 引用跳 URL"无法达成；Week 4 "有 Citation" 降档；处置方案待拍板（§7 决策 5） |
 
@@ -184,6 +197,7 @@ E 的第四周任务是"反馈按钮与数据落库"，但**落库属 D 的日�
    - 方案 A（推荐，契约正确解）：会签新增可选第 8 字段 `source_url`（HTML 非空 / PDF 为 null）——D 起草提案 + 改 `api.md`，B 改 `SOURCE_REF_FIELDS` 投影、C 改 citation 组装、E 加前端跳转。四人均需动手，周五前完成取决于 B/C/E。
    - 方案 B（D 单方可做，权宜）：SSE 契约不动，仅在 `GET /sources/{rid}` 持久化记录里附带 `source_url`，E 从回查接口取 URL 渲染链接。代价 = 同一引用两处字段不一致。
    - 方案 C：本周记为已知缺口，Demo 只展示 HTML 引用显示文件名。
+6. **reranker 权重离线预取**：bge-reranker 类交叉编码器约 2GB，本机直连 huggingface.co 常超时。是否现在预取（占带宽与磁盘，但 B 落地当天不至于卡在下载上）？未预取的后果 = 首次精排在联网上挂数分钟。
 
 ## 8. Week 4 验收对照（指南 §19）· 本版现状
 
@@ -193,5 +207,5 @@ E 的第四周任务是"反馈按钮与数据落库"，但**落库属 D 的日�
 | Reranker 有实验数据 | ❌ 未开始 | B 域 `hybrid_rerank` 仍抛 NotImplementedError（§6） |
 | Unknown/Abstention 可工作 | ✅ **本版补实测** | 两条"确证无证据"题（E1003 不存在 / 第 300 页越界）live 通路均明确拒答且不虚构（§2.2）；20 题专项口径仍待 C 定版 |
 | 有 Citation | ◌ **降档** | 双页码/来源分型/`/sources` 回查均达标；**但 `source_url` 未进 wire，HTML 引用跳不回原文**（W1，§2.3；同时更正第三周口径） |
-| 有自动/半自动 Evaluation | ◌ 本版推进 | 检索侧自动化闭环（§1，可比性闸门 + 退出码）；回答侧待 C 的 runner |
+| 有自动/半自动 Evaluation | ◌ 本版推进 | 检索侧自动化闭环：8 实验全量矩阵 + 基准锚点（§1.3）、可比性闸门与退出码可挂 CI；回答侧待 C 的 runner |
 | 有最终 Demo | ◕ 本版落地 | `docs/demo-runbook.md` v0.1 + 四场景本机实测通过；剩余缺口是 reranker 与 W1（§7 决策 5） |
