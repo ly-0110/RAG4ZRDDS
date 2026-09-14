@@ -32,9 +32,11 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-# 注意：experiment_config 必须经 retrieval._bootstrap 导入——实测本机
-# 「REPO_ROOT + scripts/ 双 insert + 直接 import」的排列会让 chroma 1.5.9
-# 的段 flush 静默失效（semantic 1059 节点索引十连崩），机制不明但稳定复现。
+# experiment_config 统一经 retrieval._bootstrap 导入：scripts/ 无 __init__.py，
+# 双路径直 import 会让 sys.modules 出现两份实例、monkeypatch 与派生常量分叉。
+# 注：2026-09 曾把「此导入排列」误记为 chroma 段 flush 失效的诱因——真实根因
+# 是绝对 persist 路径的 flush 竞态（已由 relpath 相对化 + close() 轮询修复，
+# 见 retrieval/vector_store.py），与本导入方式无关（D 审查 2026-09-13 指正）。
 from retrieval._bootstrap import experiment_config as ec  # noqa: E402
 
 MANIFEST_NAME = "manifest.json"

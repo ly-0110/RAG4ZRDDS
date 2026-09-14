@@ -317,6 +317,22 @@ def test_vector_store_passes_relative_path_to_chroma(tmp_path, monkeypatch):
     assert not Path(captured["path"]).is_absolute()
 
 
+def test_vector_store_rejects_cross_drive_persist_path(tmp_path, monkeypatch):
+    # Windows 跨盘符（索引目录与 cwd 不同盘）无法相对化：给出明确指路的报错，
+    # 而不是裸 ValueError 崩在 os.path.relpath 里（D 审查 2026-09-13 提出）。
+    from types import SimpleNamespace
+
+    import retrieval.vector_store as vs
+
+    def _raise(*a, **k):
+        raise ValueError("path is on mount 'D:', start on mount 'C:'")
+
+    monkeypatch.setattr(vs, "os", SimpleNamespace(path=SimpleNamespace(relpath=_raise)))
+
+    with pytest.raises(ValueError, match="同一盘符"):
+        vs.VectorStore(embed_fn=FakeEmbedder({}), persist_path=str(tmp_path / "idx"))
+
+
 def test_store_query_returns_results_sorted_by_score():
     store, _ = make_store()
 

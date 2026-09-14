@@ -21,6 +21,11 @@
   单页口径」一致）。锚点只用于定位，绝不会进入 chunk 正文。
 - 碎块过滤：min_chunk_chars（默认 20）过滤过短碎块（62 块 <10 字符的图号/
   节号碎片、166 块 <50 字符的边角料）；过滤数量计入日志，便于复测比较。
+- 超长兜底：max_chunk_chars（默认 2500）在 chunk() 末统一消费。语义断点只按
+  相似度分位选取，**对块长无任何保证**；原「逐页 Document」曾由单页正文隐式
+  封顶，改全文档单 Document 后封顶变为整册，代码清单 / QoS 参数枚举等低方差
+  区域会连续多页无断点并成一块（实测 18 块 >2500、max 7175 字符）。与 hybrid
+  同款字符兜底切分，子块 id = f"{父块 id}_p{j:03d}"。详见 _enforce_max_chars。
 """
 from __future__ import annotations
 import bisect
@@ -189,12 +194,65 @@ class SemanticChunker(BaseChunker):
                 file=__import__("sys").stderr,
             )
 
+        # 超长兜底：消费 max_chunk_chars（此前该参数声明后从未被使用）。
+        # SemanticSplitterNodeParser 只按相似度分位选断点、**对块长没有任何保证**；
+        # 原「逐页 Document」曾由单页正文隐式封顶（实测单页 max 4297 字符），改全
+        # 文档单 Document 后封顶变成整册（319135 字符），于是代码清单 / QoS 参数枚
+        # 举等低方差区域连续多页无断点被并成一块——实测 583 块中 18 块 >2500、
+        # max 7175 字符，占语料 20.7%（见 docs/ingest-pipeline.md 已知边界表）。
+        all_chunks, split_oversize = self._enforce_max_chars(all_chunks)
+        if split_oversize:
+            print(
+                f"[semantic] 超 {self.max_chars} 字符块字符兜底切分 {split_oversize} 块"
+                f"（max_chunk_chars={self.max_chars}, "
+                f"overlap_chars={self.overlap}）",
+                file=__import__("sys").stderr,
+            )
+
         # 最终校验（冻结 Metadata Schema）
         for c in all_chunks:
             missing = validate_metadata(c.metadata)
             if missing:
                 raise ValueError(f"Chunk {c.chunk_id} 缺失元数据: {missing}")
         return all_chunks
+
+    # ========== 超长兜底 ==========
+    def _enforce_max_chars(self, chunks: List[Chunk]) -> Tuple[List[Chunk], int]:
+        """把超过 max_chunk_chars 的块做字符兜底切分（与 hybrid 同款）。
+
+        语义断点只按相似度分位选取，块长无上界；跨页低方差区（代码清单、参数枚举、
+        QoS 表格）会合并成远超上限的大块。子块 chunk_id = f"{父块 id}_p{j:03d}" 保证
+        全局唯一；chunk_prefix 仅供 base._split_long_text 内部生成临时 id，落盘前必须
+        pop（非 Schema 字段，否则管道契约校验判违规）。子块沿用父块的「起始页单页
+        口径」，与 struct/hybrid 的块级 Citation 取舍一致。
+
+        注意：base._split_long_text 按 overlap_chars 让相邻子块重叠，故切分后正文
+        总字符会略多于原块（实测 18 块 +7764 字符）；这是 struct/hybrid 兜底既有
+        语义，非缺陷。子块 char_start/char_end 归一为 (0, len(text))，与本类
+        _node_to_chunk「语义分块不保留原始字符偏移」的自相对口径一致（_split_long_text
+        默认给的是相对父块的偏移，会让子块看起来像有真实字符偏移）。
+
+        :return: (切分后的块列表, 被切分的原块数)
+        """
+        out: List[Chunk] = []
+        oversize = 0
+        for c in chunks:
+            if len(c.text) <= self.max_chars:
+                out.append(c)
+                continue
+            oversize += 1
+            meta = dict(c.metadata)
+            base_id = c.chunk_id
+            meta["chunk_prefix"] = base_id
+            for j, sub in enumerate(self._split_long_text(c.text, meta)):
+                sub_meta = dict(meta)
+                sub_meta["chunk_id"] = f"{base_id}_p{j:03d}"
+                sub_meta.pop("chunk_prefix", None)
+                sub.chunk_id = sub_meta["chunk_id"]
+                sub.metadata = sub_meta
+                sub.char_start, sub.char_end = 0, len(sub.text)
+                out.append(sub)
+        return out, oversize
 
     # ========== 句流索引与页码回填 ==========
     def _build_stream_index(self, full_text: str):
