@@ -553,8 +553,6 @@ def _write_config(
     components_block = ""
     if retrieval_mode == "hybrid":
         components_block = "\n  components: {vector: baseline_v1, bm25: baseline_v1}"
-    elif retrieval_mode == "hybrid_rerank":
-        components_block = "\n  rerank_model: bge-reranker-v2-m3"
     p = tmp_path / "baseline_v1.yaml"
     p.write_text(
         f"""
@@ -662,15 +660,15 @@ def test_build_index_rejects_unsupported_backend(tmp_path, monkeypatch):
         build_index(cfg, embed_fn=FakeEmbedder({}))
 
 
-def test_build_retriever_rejects_unsupported_mode(tmp_path, monkeypatch):
-    # hybrid 已实现（PR#27 设计 §2，B PR#30）；此处锁定 hybrid_rerank 仍被明确拒绝。
-    # （原「拒绝 hybrid」断言随 hybrid 落地过时，合并裁决取 B 侧；tmp 自引用夹具
-    # 不再需要——hybrid 配置校验在 PR#29 的 components schema 中已由真配置满足。）
+def test_build_retriever_rejects_unknown_mode_defensively(tmp_path, monkeypatch):
+    # 四种合法模式均已实现；此分支只拦「绕过 schema 的运行时篡改」（model_copy 不校验）。
     monkeypatch.setattr(experiment_config, "REPO_ROOT", tmp_path)
-    cfg = experiment_config.load(_write_config(tmp_path, retrieval_mode="hybrid_rerank"))
+    cfg = experiment_config.load(_write_config(tmp_path))
+    bad = cfg.model_copy(deep=True)
+    bad.retrieval.mode = "bogus_mode"
 
-    with pytest.raises(NotImplementedError, match="hybrid_rerank"):
-        build_retriever(cfg, embed_fn=FakeEmbedder({}))
+    with pytest.raises(NotImplementedError, match="bogus_mode"):
+        build_retriever(bad, embed_fn=FakeEmbedder({}))
 
 
 def test_sanitize_collection_name_replaces_invalid_chars():

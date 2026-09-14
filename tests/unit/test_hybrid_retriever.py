@@ -13,7 +13,7 @@ import pytest
 
 from retrieval._bootstrap import experiment_config
 from retrieval.index import build_index
-from retrieval.retriever import HybridRetriever, build_retriever
+from retrieval.retriever import HybridRerankRetriever, HybridRetriever, build_retriever
 
 
 class FakeEmbedder:
@@ -193,6 +193,84 @@ def test_build_index_rejects_hybrid_reference_mode(tmp_path, monkeypatch):
     # 引用制无自有索引：build_index 拦程序化误用（D 的 scripts/build_index.py 已提前短路）
     fake = _setup(tmp_path, monkeypatch)
     cfg = experiment_config.load(_write_hybrid(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+
+    with pytest.raises(ValueError, match="引用制"):
+        build_index(cfg, embed_fn=fake)
+
+
+HYBRID_RERANK_TEMPLATE = """schema_version: 1
+experiment:
+  name: {name}
+  stage: ablation
+sources:
+  - id: user_manual
+    type: pdf
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"
+chunking:
+  method: struct
+  version: v1
+embedding:
+  provider: local
+  model: bge-m3
+retrieval:
+  mode: hybrid_rerank
+  top_k: 5
+  candidate_top_k: 30
+  rerank_model: bge-reranker-v2-m3
+  params: {{rrf_k: 60}}
+  components: {{vector: {vec}, bm25: {bm}}}
+"""
+
+
+def _write_hybrid_rerank(tmp_path: Path, vec: str, bm: str, name: str = "usage_hr") -> Path:
+    d = tmp_path / "configs" / "experiments"
+    d.mkdir(parents=True, exist_ok=True)
+    p = d / f"{name}.yaml"
+    p.write_text(HYBRID_RERANK_TEMPLATE.format(name=name, vec=vec, bm=bm), encoding="utf-8")
+    return p
+
+
+def test_build_retriever_hybrid_rerank_uses_injected_rerank_fn(tmp_path, monkeypatch):
+    fake = _setup(tmp_path, monkeypatch)
+    cfg = experiment_config.load(_write_hybrid_rerank(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+    seen_texts: list[str] = []
+
+    def fake_rerank(question, texts):
+        seen_texts.extend(texts)
+        return [float(len(t)) for t in texts]
+
+    retriever = build_retriever(cfg, embed_fn=fake, rerank_fn=fake_rerank)
+
+    assert isinstance(retriever, HybridRerankRetriever)
+    results = asyncio.run(retriever.retrieve("alpha 连接", top_k=3))
+    assert results and seen_texts            # 精排被调用且拿到候选文本
+    scores = [r["score"] for r in results]
+    assert scores == sorted(scores, reverse=True)
+
+
+def test_hybrid_rerank_rejects_mismatched_node_sets(tmp_path, monkeypatch):
+    fake = _setup(tmp_path, monkeypatch, bm_method="fixed")
+    cfg = experiment_config.load(_write_hybrid_rerank(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+
+    with pytest.raises(ValueError, match="节点集"):
+        build_retriever(cfg, embed_fn=fake, rerank_fn=lambda q, t: [1.0] * len(t))
+
+
+def test_hybrid_rerank_missing_subindex_raises_with_build_hint(tmp_path, monkeypatch):
+    monkeypatch.setattr(experiment_config, "REPO_ROOT", tmp_path)
+    _write_component(tmp_path, "comp_vec_v1", "vector")
+    _write_component(tmp_path, "comp_bm25_v1", "bm25")
+    cfg = experiment_config.load(_write_hybrid_rerank(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+
+    with pytest.raises(FileNotFoundError, match="make index"):
+        build_retriever(cfg, embed_fn=FakeEmbedder(VECTORS),
+                        rerank_fn=lambda q, t: [1.0] * len(t))
+
+
+def test_build_index_rejects_hybrid_rerank_reference_mode(tmp_path, monkeypatch):
+    fake = _setup(tmp_path, monkeypatch)
+    cfg = experiment_config.load(_write_hybrid_rerank(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
 
     with pytest.raises(ValueError, match="引用制"):
         build_index(cfg, embed_fn=fake)

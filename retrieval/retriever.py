@@ -130,7 +130,50 @@ class HybridRerankRetriever:
         return [_to_source_ref({**h, "score": float(s)}) for h, s in ranked[:top_k]]
 
 
-def build_retriever(cfg, embed_fn=None):
+def _load_hybrid_stores(cfg, embed_fn):
+    """hybrid/hybrid_rerank 引用制公共装载段：校验 components 并载入两个子索引。"""
+    comps = cfg.retrieval.components or {}
+    missing_roles = [role for role in ("vector", "bm25") if role not in comps]
+    if missing_roles:
+        raise ValueError(
+            f"hybrid components 缺少角色: {missing_roles}"
+            "（需要 vector 与 bm25 两类引用，见 configs/experiments/README.md）"
+        )
+    vec_cfg = experiment_config.load(
+        experiment_config.experiment_yaml_path(comps["vector"]))
+    bm25_cfg = experiment_config.load(
+        experiment_config.experiment_yaml_path(comps["bm25"]))
+    vec_nodes = experiment_config.nodes_path(vec_cfg)
+    bm25_nodes = experiment_config.nodes_path(bm25_cfg)
+    if vec_nodes != bm25_nodes:
+        raise ValueError(
+            f"hybrid 两路节点集不一致：vector={comps['vector']} → {vec_nodes.name}，"
+            f"bm25={comps['bm25']} → {bm25_nodes.name}；"
+            "RRF 按 node_id 融合要求 components 产出同一节点集（chunking+sources 相同）"
+        )
+    vec_path = experiment_config.index_dir(vec_cfg)
+    bm25_path = experiment_config.index_dir(bm25_cfg)
+    for role, path in (("vector", vec_path), ("bm25", bm25_path)):
+        if not path.exists():
+            raise FileNotFoundError(
+                f"子索引不存在: {path}（role={role}，请先运行 "
+                f"make index CFG=configs/experiments/{comps[role]}.yaml）"
+            )
+    if embed_fn is None:
+        from retrieval.embeddings import build_embedding
+
+        embed_fn = build_embedding(vec_cfg)
+    vector_store = VectorStore(
+        embed_fn=embed_fn,
+        persist_path=str(vec_path),
+        metric=vec_cfg.index.metric,
+        collection_name=sanitize_collection_name(
+            experiment_config.index_dirname(vec_cfg)),
+    )
+    return vector_store, BM25Store.load(bm25_path)
+
+
+def build_retriever(cfg, embed_fn=None, rerank_fn=None):
     """按实验配置组装：索引目录/集合名由 configs 派生命名（D 的约定）。"""
     index_path = experiment_config.index_dir(cfg)
     if cfg.retrieval.mode == "bm25":
@@ -140,58 +183,33 @@ def build_retriever(cfg, embed_fn=None):
             )
         store = BM25Store.load(index_path)
         return BM25Retriever(store, filters=cfg.retrieval.filters or None)
-    if cfg.retrieval.mode == "hybrid":
-        comps = cfg.retrieval.components or {}
-        missing_roles = [role for role in ("vector", "bm25") if role not in comps]
-        if missing_roles:
-            raise ValueError(
-                f"hybrid components 缺少角色: {missing_roles}"
-                "（需要 vector 与 bm25 两类引用，见 configs/experiments/README.md）"
-            )
-        vec_cfg = experiment_config.load(
-            experiment_config.experiment_yaml_path(comps["vector"]))
-        bm25_cfg = experiment_config.load(
-            experiment_config.experiment_yaml_path(comps["bm25"]))
-        vec_nodes = experiment_config.nodes_path(vec_cfg)
-        bm25_nodes = experiment_config.nodes_path(bm25_cfg)
-        if vec_nodes != bm25_nodes:
-            raise ValueError(
-                f"hybrid 两路节点集不一致：vector={comps['vector']} → {vec_nodes.name}，"
-                f"bm25={comps['bm25']} → {bm25_nodes.name}；"
-                "RRF 按 node_id 融合要求 components 产出同一节点集（chunking+sources 相同）"
-            )
-        vec_path = experiment_config.index_dir(vec_cfg)
-        bm25_path = experiment_config.index_dir(bm25_cfg)
-        for role, path in (("vector", vec_path), ("bm25", bm25_path)):
-            if not path.exists():
-                raise FileNotFoundError(
-                    f"子索引不存在: {path}（role={role}，请先运行 "
-                    f"make index CFG=configs/experiments/{comps[role]}.yaml）"
-                )
-        if embed_fn is None:
-            from retrieval.embeddings import build_embedding
-
-            embed_fn = build_embedding(vec_cfg)
-        vector_store = VectorStore(
-            embed_fn=embed_fn,
-            persist_path=str(vec_path),
-            metric=vec_cfg.index.metric,
-            collection_name=sanitize_collection_name(
-                experiment_config.index_dirname(vec_cfg)),
-        )
-        bm25_store = BM25Store.load(bm25_path)
+    if cfg.retrieval.mode in ("hybrid", "hybrid_rerank"):
+        vector_store, bm25_store = _load_hybrid_stores(cfg, embed_fn)
         rrf_k = float((cfg.retrieval.params or {}).get("rrf_k", DEFAULT_RRF_K))
-        return HybridRetriever(
+        if cfg.retrieval.mode == "hybrid":
+            return HybridRetriever(
+                vector_store,
+                bm25_store,
+                rrf_k=rrf_k,
+                candidate_top_k=cfg.retrieval.candidate_top_k,
+                filters=cfg.retrieval.filters or None,
+            )
+        if rerank_fn is None:
+            from retrieval.rerank import build_reranker
+
+            rerank_fn = build_reranker(cfg)
+        return HybridRerankRetriever(
             vector_store,
             bm25_store,
+            rerank_fn,
             rrf_k=rrf_k,
             candidate_top_k=cfg.retrieval.candidate_top_k,
             filters=cfg.retrieval.filters or None,
         )
     if cfg.retrieval.mode != "vector":
         raise NotImplementedError(
-            f"当前支持 vector/bm25/hybrid 检索，收到 mode={cfg.retrieval.mode!r}"
-            "（hybrid_rerank 待第四周实现）"
+            f"当前支持 vector/bm25/hybrid/hybrid_rerank 四种检索模式，"
+            f"收到 mode={cfg.retrieval.mode!r}"
         )
     if not index_path.exists():
         raise FileNotFoundError(
