@@ -1,5 +1,6 @@
 # Demo 演练手册（成员 D · 第四周，指南 §8 D 任务 3）
 
+> **v0.3（2026-09-15）**：已知缺口 2 重写——B 的 PR#38 已落地 hybrid_rerank（四组对比入库），但 live 精排打分**阻塞事件循环**（本机实测热题 15.1s/题、首题 27.8s、B 机 ~63s/题，冻结期间整个服务不响应），演示动线不挂该配置，实测与解决方法见 `docs/week4-delivery-review.md` §3.5.1。
 > **v0.2（2026-09-15）**：LLM 后端叙述改为 **API 为主**（`.env.example` 默认 OpenRouter 免费档），本地 Ollama + 网关降为可选附录（`models/` 不入 Git，属本机个人研究）；同步 PR#36（E）事实：前端 feedback 按钮已接入、`source_url` 前端外链闭环、semantic 超长块已随 A 的 PR#32 销项、指标口径更新（audit 首次 pass 但正式指标仍冻结）。
 > **v0.1（2026-09-14）**：首版。四段演示场景已在**本机 live 通路实测**（真实 bge-m3 检索 + 真实本地 LLM 出词），耗时与引用页码均为实测值，非估算。
 > 目的：周五验收与最终汇报可照着敲；任何一步与本文不符即为环境异常，按 §5 兜底排查。
@@ -107,7 +108,7 @@ tail -n 1 logs/feedback.jsonl
 ## 4. 已知缺口（演示时必须如实说明）
 
 1. **SSE wire 第 8 字段待会签**：HTML 引用的 `source_url` 可经 `GET /sources/{rid}`（及 MCP `get_sources`）回查获得（api.md **v0.11**），前端（E PR#36）已消费该通道并渲染"打开 HTML 原文"外链；但 **SSE 的 `sources`/`done` 事件仍是 7 字段、不含该键**，正式扩进 wire 需 B/C/E 会签。演示话术："引用可溯源到原文页——引用卡上可直接点开外链。"
-2. **Reranker 未落地**：`retrieval/retriever.py` 对 `hybrid_rerank` 仍抛 `NotImplementedError`（B 域第四周任务），Demo 不讲精排。
+2. **Reranker 不进演示动线**（PR#38 后已落地、但有 live 阻塞）：`hybrid_rerank` 检索与四组对比已入库（`docs/evaluation.md`），但精排打分为同步 CPU 计算**阻塞事件循环**——本机实测热题 **15.1s/题**（首题含 2.2GB 冷加载 27.8s；B 机 ~63s/题），期间**整个服务冻结**、任何请求（含 `/healthz` 与并发提问）都排队（ticker 法实测 15s 内心跳 0 跳动，详见 `docs/week4-delivery-review.md` §3.5.1）。演示动线维持场景 1~4（vector/hybrid 通路检索秒级）；如被问及精排，话术："精排已在实验侧完成四组对比，live 通路待并发化改造（打分移线程 + 启动预热）后开放。"
 3. **指标数字不上汇报页**：标注经 E 重标（PR#36）后 `make audit` **首次 pass**（循环指纹 4/120），但六题题干编码损坏（P0）与宽区间 keyword 语义复核（P1）未完成（见 `docs/week4-delivery-review.md` §10.4）——正式 hit_rate/mrr 仍不得出现在汇报页，回归默认只走明细通道。
 
 ## 5. 现场故障与兜底

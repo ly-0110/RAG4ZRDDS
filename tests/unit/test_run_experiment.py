@@ -385,10 +385,17 @@ class TestRerankerReferenceMode:
 
         assert ec.uses_reference_index(variant("hybrid", comps)) is True
         assert ec.uses_reference_index(variant("hybrid_rerank", comps)) is True
-        # B 若把精排实现成"自有向量索引 + 精排"（不给 components），仍走普通建索引路径
-        assert ec.uses_reference_index(variant("hybrid_rerank", None)) is False
+        # hybrid_rerank 一律引用制（2026-09-15 B 拍板方案①）：按 mode 判定。
+        # model_copy 绕过校验，此处验证的正是"异常形状仍按引用制处理"的防线语义；
+        # 正常加载路径下无 components 的 hybrid_rerank 在校验层即被拒绝（见下）。
+        assert ec.uses_reference_index(variant("hybrid_rerank", None)) is True
         assert ec.uses_reference_index(variant("vector", comps)) is False
         assert ec.uses_reference_index(variant("bm25", None)) is False
+
+    def test_hybrid_rerank_requires_components(self):
+        """B 拍板方案①（PR#38 评论）：hybrid_rerank 的 components 由可选改必填。"""
+        with pytest.raises(Exception, match="mode=hybrid_rerank 必须提供 components"):
+            ec.RetrievalCfg(mode="hybrid_rerank", rerank_model="bge-reranker-v2-m3")
 
     def test_components_rejected_on_plain_modes(self):
         with pytest.raises(Exception, match="仅用于 hybrid/hybrid_rerank"):
