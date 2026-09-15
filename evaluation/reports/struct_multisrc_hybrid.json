@@ -8,8 +8,8 @@
     "questions_sha12": "4a5ddb1f1b5c",
     "expected_sources_sha12": null
   },
-  "generated_at": "2026-09-14T11:55:24+0800",
-  "duration_seconds": 11.0,
+  "generated_at": "2026-09-15T01:18:47+0800",
+  "duration_seconds": 22.5,
   "index": {
     "dirname": "struct_bge-m3_aae85ea1",
     "backend": "chroma",
@@ -1836,7 +1836,7 @@
           "section": "简化接口 / 函数说明 / DDS_ZeroCopyBytesCreate",
           "page_print": null,
           "page_physical": null,
-          "score": 0.028739
+          "score": 0.028589
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_00000",
@@ -1863,7 +1863,7 @@
           "section": "PART 2 基本概念 / 第7章 主题 / 7.2 Topic / 7.2.3 设置Topic的QoS策略 / 7.2.3.1 在创建Topic时配置QoS策略",
           "page_print": 63,
           "page_physical": 69,
-          "score": 0.025278
+          "score": 0.025141
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
