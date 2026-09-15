@@ -286,3 +286,56 @@ def test_build_retriever_passes_version_params(tmp_path, monkeypatch):
 
     assert retriever._version_pref == "2.4"
     assert retriever._version_boost == 0.1
+
+
+class _StubStore:
+    """最小 store：不建索引，直接把预设原始 hit 原样返回。"""
+
+    def __init__(self, hits: list[dict]):
+        self.hits = hits
+
+    def query(self, question: str, top_k: int, filters=None) -> list[dict]:
+        return [dict(h) for h in self.hits[:top_k]]
+
+
+def _raw_hit(node_id: str, text: str) -> dict:
+    return {"node_id": node_id, "text": text,
+            "metadata": {"source_id": "user_manual", "version": "2.0"}, "score": 0.5}
+
+
+def test_hybrid_rerank_scoring_does_not_block_event_loop():
+    """同步打分必须移出事件循环（D 审查 §3.5.1：留在循环内则 live 服务全程冻结）。
+
+    0.01s 心跳与 0.3s 打分并发：打分移出循环则心跳持续跳动（≥5）；
+    同步实现则打分期间 0 跳动（D 实测 15s/题时心跳 0 次）。
+    """
+    import time
+
+    def slow_rerank(question, texts):
+        time.sleep(0.3)              # 模拟 CrossEncoder 同步 CPU 推理
+        return [1.0] * len(texts)
+
+    retriever = HybridRerankRetriever(
+        _StubStore([_raw_hit("n_a", "alpha 连接说明")]),
+        _StubStore([_raw_hit("n_a", "alpha 连接说明")]),
+        slow_rerank)
+
+    ticks = 0
+
+    async def main():
+        nonlocal ticks
+        stop = asyncio.Event()
+
+        async def heartbeat():
+            nonlocal ticks
+            while not stop.is_set():
+                await asyncio.sleep(0.01)
+                ticks += 1
+
+        hb = asyncio.create_task(heartbeat())
+        await retriever.retrieve("alpha 连接", top_k=2)
+        stop.set()
+        await hb
+
+    asyncio.run(main())
+    assert ticks >= 5, f"打分期间心跳仅 {ticks} 跳——事件循环被阻塞"
