@@ -1,12 +1,11 @@
 {
   "schema": "rag4zrdds.annotation_audit/v1",
-  "verdict": "blocked",
+  "verdict": "pass",
   "counts": {
-    "QUESTION_TOKEN_ABSENT": 6,
     "NO_TOKEN_PROBE": 13,
     "CIRCULAR_TOP1": 4
   },
-  "blocking_total": 6,
+  "blocking_total": 0,
   "questions_total": 120,
   "annotations_total": 120,
   "missing_annotations": [],
@@ -383,27 +382,20 @@
     },
     {
       "question_id": "Q021",
-      "question": "DataReader 的 on_subscription_matched()回调函数中，matched_count 表示什么含义？如何获取当前订阅状态？",
+      "question": "DataReader ? on_subscription_matched() ???????? Listener???????? Status?",
       "source_id": "user_manual",
       "page_print": [
         4,
         275
       ],
       "section_keyword": "5",
-      "findings": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
-      "blocking": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
+      "findings": [],
+      "blocking": [],
       "probe": {
         "tokens": [
           "on_subscription_matched",
-          "matched_count",
-          "datareader"
-        ],
-        "absent": [
-          "matched_count"
+          "datareader",
+          "listener"
         ]
       }
     },
@@ -426,27 +418,20 @@
     },
     {
       "question_id": "Q023",
-      "question": "DataReader 的 on_liveliness_changed()回调函数中，status_kind 字段可能的取值有哪些？分别代表什么状态？",
+      "question": "DataReader ? on_liveliness_changed() ???????????????????? Status?",
       "source_id": "user_manual",
       "page_print": [
         4,
         275
       ],
       "section_keyword": "5",
-      "findings": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
-      "blocking": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
+      "findings": [],
+      "blocking": [],
       "probe": {
         "tokens": [
           "on_liveliness_changed",
-          "status_kind",
-          "datareader"
-        ],
-        "absent": [
-          "status_kind"
+          "datareader",
+          "status"
         ]
       }
     },
@@ -526,27 +511,20 @@
     },
     {
       "question_id": "Q028",
-      "question": "DataWriter 的 on_publication_matched()回调函数中，matched_count 大于零表示什么？该状态如何查询？",
+      "question": "DataWriter ? on_publication_matched() ???????? Listener???????? Status?",
       "source_id": "user_manual",
       "page_print": [
         4,
         275
       ],
       "section_keyword": "5",
-      "findings": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
-      "blocking": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
+      "findings": [],
+      "blocking": [],
       "probe": {
         "tokens": [
           "on_publication_matched",
-          "matched_count",
-          "datawriter"
-        ],
-        "absent": [
-          "matched_count"
+          "datawriter",
+          "listener"
         ]
       }
     },
@@ -1093,51 +1071,39 @@
     },
     {
       "question_id": "Q059",
-      "question": "如何设置 PartitionQosPolicy 的 keyindex 字段？该配置对逻辑分区的作用是什么？",
+      "question": "PartitionQosPolicy ? values ????????????????????? DataWriter ? DataReader ????",
       "source_id": "user_manual",
       "page_print": [
         1,
         275
       ],
       "section_keyword": "1",
-      "findings": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
-      "blocking": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
+      "findings": [],
+      "blocking": [],
       "probe": {
         "tokens": [
           "partitionqospolicy",
-          "keyindex"
-        ],
-        "absent": [
-          "keyindex"
+          "datareader",
+          "datawriter"
         ]
       }
     },
     {
       "question_id": "Q060",
-      "question": "如何设置 PresentationQosPolicy 的 encoding_vendor_id 字段？该配置对描述范围的作用是什么？",
+      "question": "PresentationQosPolicy ? access_scope?coherent_access ? ordered_access ?????????",
       "source_id": "user_manual",
       "page_print": [
         1,
         145
       ],
       "section_keyword": "1",
-      "findings": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
-      "blocking": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
+      "findings": [],
+      "blocking": [],
       "probe": {
         "tokens": [
           "presentationqospolicy",
-          "encoding_vendor_id"
-        ],
-        "absent": [
-          "encoding_vendor_id"
+          "coherent_access",
+          "ordered_access"
         ]
       }
     },
@@ -2145,25 +2111,19 @@
     },
     {
       "question_id": "Q119",
-      "question": "ZRDDS 的 ReaderThreadConfigQosPolicy 如何配置接收线程数量？该配置对系统资源的影响是什么？",
+      "question": "DomainParticipantQos ?? TransportConfigQosPolicy ?????????????",
       "source_id": "user_manual",
       "page_print": [
         1,
         270
       ],
       "section_keyword": "1",
-      "findings": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
-      "blocking": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
+      "findings": [],
+      "blocking": [],
       "probe": {
         "tokens": [
-          "readerthreadconfigqospolicy"
-        ],
-        "absent": [
-          "readerthreadconfigqospolicy"
+          "transportconfigqospolicy",
+          "domainparticipantqos"
         ]
       }
     },
