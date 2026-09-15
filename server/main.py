@@ -18,8 +18,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from server.api import feedback, query, sources
-from server.core.pipeline import build_pipeline
+from server.api import feedback, nodes, query, sources
+from server.core.pipeline import PipelineRegistry, available_experiments, build_pipeline
 from server.core.request_log import JsonlLog, PersistentSourcesStore
 from server.core.settings import REPO_ROOT, Settings, settings as app_settings
 
@@ -118,14 +118,25 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
 
     @app.get("/healthz", tags=["meta"])
     async def healthz() -> dict:
-        return {"status": "ok", "mode": cfg.rag_mode}
+        return {
+            "status": "ok",
+            "mode": cfg.rag_mode,
+            # F1（review §4.1）：知识库统计（mock 为 None）；experiments 供前端
+            # 做检索通路选择器（F4 白名单同源）。
+            "kb": getattr(pipeline, "kb_stats", None),
+            "experiments": available_experiments(),
+        }
 
     app.include_router(query.router, tags=["qa"])
+    app.include_router(nodes.router, tags=["qa"])
     app.include_router(sources.router, tags=["qa"])
     app.include_router(feedback.router, tags=["qa"])
 
     app.state.settings = cfg
     app.state.pipeline = pipeline
+    # F4：按实验懒组装并缓存的管线注册表（默认启动管线钉住，见 pipeline.py）。
+    default_key = Path(cfg.rag_experiment_config or "configs/experiments/struct_v1.yaml").stem
+    app.state.pipeline_registry = PipelineRegistry(default_key, pipeline)
     app.state.request_log = request_log
     app.state.sources_cache = sources_store
     app.state.feedback_log = feedback_log

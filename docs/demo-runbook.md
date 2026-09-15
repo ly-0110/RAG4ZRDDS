@@ -1,5 +1,6 @@
 # Demo 演练手册（成员 D · 第四周，指南 §8 D 任务 3）
 
+> **v0.4（2026-09-15）**：F4 落地（api.md v0.14）——**场景间切换检索实验不再需要重启服务**：`/query` 请求体带可选 `experiment`（白名单见 `/healthz` 的 `experiments`），见 §3 开头"通路切换"。
 > **v0.3（2026-09-15）**：已知缺口 2 重写——B 的 PR#38 已落地 hybrid_rerank（四组对比入库），但 live 精排打分**阻塞事件循环**（本机实测热题 15.1s/题、首题 27.8s、B 机 ~63s/题，冻结期间整个服务不响应），演示动线不挂该配置，实测与解决方法见 `docs/week4-delivery-review.md` §3.5.1。
 > **v0.2（2026-09-15）**：LLM 后端叙述改为 **API 为主**（`.env.example` 默认 OpenRouter 免费档），本地 Ollama + 网关降为可选附录（`models/` 不入 Git，属本机个人研究）；同步 PR#36（E）事实：前端 feedback 按钮已接入、`source_url` 前端外链闭环、semantic 超长块已随 A 的 PR#32 销项、指标口径更新（audit 首次 pass 但正式指标仍冻结）。
 > **v0.1（2026-09-14）**：首版。四段演示场景已在**本机 live 通路实测**（真实 bge-m3 检索 + 真实本地 LLM 出词），耗时与引用页码均为实测值，非估算。
@@ -54,6 +55,13 @@ netstat -ano | grep LISTENING | grep -E ":8000|:11500|:11434"
 ```
 
 ## 3. 四段演示脚本
+
+**通路切换（v0.4 起，无需重启）**：各场景的"配置"行记录的是该场景**实测时的启动配置**；现在同一服务内可直接切换——`/query` 请求体带 `"experiment": "<实验ID>"`（如 `struct_multisrc_v1`、`struct_multisrc_hybrid`），白名单 = `/healthz` 返回的 `experiments`。注意：**首次切换到某实验需现场装载模型/索引（数秒~数十秒），演示前先把要用到的实验各点一题预热**；`hybrid_rerank` 因精排阻塞事件循环（v0.3 缺口 2）仍不建议挂入演示动线。
+
+```bash
+curl -N -X POST http://127.0.0.1:8000/query -H "Content-Type: application/json" \
+     -d '{"question": "…", "experiment": "struct_multisrc_v1"}'
+```
 
 ### 场景 1 · 单来源精确定位 + 引用真值（基线）
 

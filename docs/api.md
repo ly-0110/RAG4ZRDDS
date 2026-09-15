@@ -1,4 +1,4 @@
-# RAG4ZRDDS API 契约（v0.12 · hybrid_rerank 精排分与 version_boost 语义）
+# RAG4ZRDDS API 契约（v0.14 · /healthz kb 统计 + /nodes/{node_id} + /query experiment）
 
 > 维护人：成员 D。前端（成员 E）以此文档对接；字段变更会同步更新本页。
 > 模式现状（2026-09-14）：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索与生成均已真实**（B 检索 + C 生成，需先 `make index` 并在 `.env` 填好 `LLM_BASE_URL`/`LLM_API_KEY`/`LLM_MODEL`，三者缺一即启动期报错）。生成后端已实测两种：云端 OpenAI 兼容 API，与本地 Ollama（经 `models/llm_gateway.py` 网关，见 `docs/demo-runbook.md`）。`sources` 事件为真实引用（SourceRef 7 字段；正文 text 仅生成侧使用，下发前由服务端投影剥离），随后 `token` 流式回答。接口形状两模式不变。
@@ -29,6 +29,28 @@ curl http://127.0.0.1:8000/healthz
 { "status": "ok", "mode": "mock" }
 ```
 
+v0.14 起附带知识库统计与可用实验（F1/F4，review §4.1）：
+
+```json
+{
+  "status": "ok", "mode": "live",
+  "kb": {
+    "experiment": "struct_multisrc_v1",
+    "retrieval_mode": "vector",
+    "index_dirname": "struct_bge-m3_d57f695e",
+    "node_total": 1606,
+    "sources": [
+      { "id": "user_manual", "version": "2.0", "chunks": 301 },
+      { "id": "zrdds_dev_guide", "version": "2.4", "chunks": 1305 }
+    ]
+  },
+  "experiments": ["struct_v1", "struct_bm25", "semantic_v1", "…"]
+}
+```
+
+- `kb`：**当前启动配置**的知识库统计（`experiments[].id`/`version` 来自实验配置 `sources[]`，`chunks` 按启动时 Node 产物逐来源实数）；`mock` 模式为 `null`。
+- `experiments`：可用实验 ID 白名单（= `configs/experiments/*.yaml` 文件名 stem），与 `/query` 的 `experiment` 参数同源；前端可据此渲染检索通路选择器（F4）。
+
 ## POST /query —— 流式问答（SSE）
 
 ### 请求
@@ -41,6 +63,7 @@ curl http://127.0.0.1:8000/healthz
 |---|---|---|---|
 | question | string | 是 | 1~2000 字符；纯空白会被拒绝 |
 | top_k | int | 否 | 1~20；缺省取服务端 `QUERY_TOP_K`（默认 5） |
+| experiment | string | 否 | **v0.14 新增**：实验 ID（`configs/experiments/*.yaml` 文件名 stem），live 模式下本次请求改用该实验的检索管线（服务端懒组装并缓存，首次切换需加载模型/索引，数秒~数十秒）；白名单见 `/healthz` 的 `experiments`，未知 ID 返回 422 并列出可用值。**mock 模式忽略该参数**；缺省用服务端启动配置（零破坏） |
 
 ### 响应事件流（`Content-Type: text/event-stream`）
 
@@ -135,6 +158,27 @@ curl -N -X POST http://127.0.0.1:8000/query \
 - 数据来源：服务端启动时从本实验的 Node 产物建 `node_id → source_url` 表（`node_id ← chunk_id` 映射已锁定），查不到即为 `null`。启动日志会打印装载规模。
 - 前端可**无条件读该键**（恒存在，值可为 null）；MCP 侧 `get_sources` 同语义。URL 的正式值仍待例会确认（现为文档站占位 base_url）。
 
+## GET /nodes/{node_id} —— 单节点详情回查（v0.14 新增）
+
+按 node_id 返回单个 Node 的**原文正文与元数据**，供前端"节点详情"展示该条引用的原文（F3，review §4.1）。数据来自服务端启动时装载的本实验 Node 产物表。
+
+```json
+{
+  "node_id": "struct_v1_00042",
+  "source_id": "user_manual",
+  "version": "2.0",
+  "page_print": 127,
+  "page_physical": 133,
+  "section_path": ["10", "10.7", "DurabilityQosPolicy"],
+  "text": "该 Node 的原文正文…",
+  "source_url": null
+}
+```
+
+- **正文出网范围（待 B/C/E 会签追认）**：SSE wire 仍为 SourceRef 7 字段不变，chunk 原文不进 `sources` 事件与 `sources.jsonl`；本端点是既有"正文不下发"立场的**定向放宽**——按需、单节点、仅回查方向。
+- **404**：`mock` 模式（无 Node 产物）或 node_id 不在当前启动实验的产物中，`error` 均给出可读说明。node_id 以 `/query` 的 `sources` 事件为准。
+- `text` 长度上限即分块上限（默认 2500 字符）；`page_print`/`page_physical`/`section_path`/`source_url` 可为 null（HTML 来源有 URL、PDF 来源为 null）。
+
 ## POST /feedback —— 回答反馈落库（v0.10 新增 · D 侧提案，待 E/C 会签）
 
 指南 §8 成员 E 任务「有帮助/无帮助反馈按钮与数据落库」的落库侧。前端只需按本契约发一次 POST，存储与聚合归 D 的日志设施。
@@ -179,6 +223,7 @@ cited_nodes, comment?, node_ids?
 
 | 版本 | 变更 |
 |---|---|
+| v0.14 | 2026-09-15：**F1/F3/F4 后端三件**（D，2026-09-15 前端实测四项问题 review §4.1；E 域前端接线待 E）——①`GET /healthz` 新增 `kb`（启动实验的知识库统计：experiment/retrieval_mode/index_dirname/node_total/sources[{id,version,chunks}]；mock 为 null）与 `experiments`（可用实验 ID 白名单）②新增 **`GET /nodes/{node_id}`**：单节点原文+元数据按需回查（F3）；**chunk 原文经此端点出网属"正文不下发"立场的定向放宽，待 B/C/E 会签追认**；SSE wire 7 字段不变 ③`POST /query` 请求体新增可选 **`experiment`**（F4，live 按请求切换检索实验，白名单外 422，registry 懒组装缓存 LRU≤3；mock 忽略）。既有端点既有字段零变化，前端不改也能继续跑 |
 | v0.13 | 2026-09-14：**B 回写 `hybrid_rerank` 精排分量纲实测**（PR#34 会签事项 2 闭环）——交叉编码器分 sigmoid 0~1（120 题实测 0.084~0.991），输入按 512 token 截断（不截断时按模型上限 8192 处理、单题 30 候选慢 3 倍）。仍不设绝对阈值，弱证据判定沿用「返回条数少于 top_k / 空 sources」信号。字段无增删，前端无需改解析 |
 | v0.12 | 2026-09-14：`hybrid_rerank` 精排分量纲条目 + `version_boost` 生效时的 score 语义（D，PR#34 会签事项 2）——`hybrid_rerank` 为交叉编码器精排分（bge-reranker-v2-m3，具体量纲 sigmoid 0~1 或原始 logits 待 B 冒烟实测定死后回写）；凡 `retrieval.params.version_pref` 生效的配置，score 改为**候选池内 min-max 归一化排序分 + 版本加成**，不再具跨查询/跨配置可比性；`hybrid_rerank` 不设绝对阈值，弱证据判定沿用「返回条数少于 top_k / 空 sources」信号。字段无增删，前端无需改解析 |
 | v0.11 | 2026-09-14：缺口 W1 的过渡处置（用户拍板方案 B，D 单方落地）——`GET /sources/{rid}` 与 MCP `get_sources` 的每条引用新增 **`source_url`**（HTML 非空 / PDF 为 `null`），取自本实验 Node 产物（启动时建 `node_id → source_url` 表；多来源实测 1606 条映射 / 1305 条带 URL）。**SSE 的 `sources`/`done` 事件仍是 7 字段、不含该键**（实测确认），因此前端解析零破坏；E 要用 HTML 跳转就从回查接口取。正式扩进 wire 仍需 B/C/E 会签 |
