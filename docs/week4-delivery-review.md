@@ -1,5 +1,6 @@
 # 第四周交付记录（成员 D）
 
+> **v0.9（2026-09-15）**：新增 §10——**E 第四周交付（PR#36）同步与审查**。要点：`make audit` 首次 **pass**（循环指纹 44/120→**4/120**，48 题 token 邻近阻断清零）；**W1 正式闭环**（前端经回查富化 `source_url` 并渲染外链）+ feedback 面板接入（api.md v0.10 契约）；D **追认** E 对审计脚本的页码区间扩展（实现干净、判据仍只来自产物）；**新 P0 = 六题题干中文被字面 `?` 损坏**，修复前不开正式指标。指标可算性已实证（`_page_in_range` 区间支持自 PR#14 即存在；AND 语义使全书区间不灌水，struct_bm25 实跑 hit@5=0.3667）。本轮审查在 review worktree 完成（Auto 权限分类器拦截分支级 git 操作，与 PR#23 收尾同类），分支同步命令交用户执行。
 > **v0.8（2026-09-14 下午）**：同步合入 origin/develop 三个新 PR（§9）——**PR#32（A）**闭环了我登记两周的 semantic 超长块（新产物 622 块 / max 2497 / 0 超限，D 独立复核），但**第三次**带入旧基线文档回退（week2 review §1 状态被擦回 09-07、ingest-pipeline 表行重复），已在合并中按事实恢复；**PR#33（B）**落实我 PR#30 审查的两条待办且交付习惯值得肯定（正文如实登记 1 failed 并 stash 自证与己无关）。B 点到的 `test_real_error_cases.py` 失败，第二层根因在**我**：采集脚本 `TRUTHS[qid]` 硬索引，题集 15→120 后恢复通道自 PR#22 起即坏 → 已修并显式打印真值覆盖度；semantic 索引重建 719.1s、报告重跑、案例 37→70、基准重锚，回归闸门全程判定正确。全套 **342/342 绿**。
 > **v0.7（2026-09-14）**：新增 **D 交付八：标注真值核对工具**（§4.8，`scripts/audit_annotations.py` + `make audit`）。判据**只来自 A 的产物与章节树、不调用检索器**，因此能抓出"标注=检索回显"这类自证循环；现库核对结果 verdict=blocked：120 题中 **48 题标注页答不对题**、**6 题题面实体全库零命中**（已逐一 grep 双产物核验为真阳性，且已导出为机器发现的真·拒答案例供 C 专项集）、13 题纯中文需人工、循环指纹 44/120=0.3667。它同时是 `--with-metrics` 的前置门禁——"宁缺毋滥"从约定变成可执行检查。全套单测 320 → **340**。
 > **v0.6（2026-09-14）**：新增 **D 交付六：W1 过渡处置（方案 B，api.md v0.11）**（§4.6）与 **交付七：reranker 权重离线预取**（§4.7）。回查通道（`/sources/{rid}` 与 MCP `get_sources`）每条引用附带 `source_url`，**SSE wire 仍严格 7 字段**（实测确认）；真实产物装载 1606 条映射 / 1305 条带 URL。**冒烟脚本抓到一个真实缺陷**：MCP 成功路径第二次 `store.put` 覆盖了未富化记录——已修并调整比对口径。`BAAI/bge-reranker-v2-m3` 2.2GB 已缓存，B 落地即可离线加载。全套单测 314 → **320**。
@@ -296,3 +297,48 @@ B 点到的 `test_real_error_cases.py` 失败有两层根因，第二层在我�
 ### 9.5 当前状态
 
 `pytest tests/` → **342/342 绿**（含 B 新增的跨盘符用例）；六套索引指纹全部匹配（semantic 为 719.1s 重建后的新指纹）；八份回归基准与新输入对齐。E 的标注回炉与 C 的 runner 状态不变（§6）。
+
+---
+
+## 10. E 第四周交付（PR#36）同步与审查（2026-09-15）
+
+### 10.1 同步与审查方法
+
+- PR#35（D 第四周全套）已由用户 squash 合入 develop（`b606e9f`）；E 随即在 feature/web 交付 **PR#36**（`957d281`，"多来源证据前端与问题集质量闭环"，16 文件 +3345/−7484）。**merge-base = `b606e9f`**——E 先同步 develop 再开工，基线纪律连续第三次达标；除 E 域外触碰了 D 的 `scripts/audit_annotations.py` 与 `tests/unit/test_audit_annotations.py`（追认见 10.2）。
+- 本轮 Auto 权限分类器拦截分支级 git 操作（`git merge` / `git reset --hard`，与 PR#23 收尾同类先例），审查改在**只读 review worktree（`e12418b`）**完成：`pytest` / `make audit` / 实验复跑证据均出自该 worktree，不触碰工作分支；分支同步命令交用户在终端执行。
+
+### 10.2 标注质量：审计门禁首次通过（week3 P0-1 循环论证实质改善）
+
+| 指标 | PR#22 版（循环版） | PR#36 版 |
+|---|---|---|
+| `make audit` verdict | **blocked** | **pass**（退出码 0） |
+| 循环论证指纹（标注=检索 top-1 回显） | 44/120 = 0.3667 | **4/120 = 0.0333** |
+| 48 题"标注页答不对题"（token 邻近阻断） | 阻断 | 清零（部分经区间放宽达成，见 10.4 P1） |
+| 6 题题面实体全库零命中 | 阻断 | 题干已改写（但引入 10.4 P0） |
+| 13 题纯中文待人工 | 阻断语境 | 保留为非阻断 NO_TOKEN_PROBE |
+
+- 标注格式升级为**页码区间** `page_print: [lo, hi]`。E 同步扩展了 D 的审计脚本：`annotation_pages()` 区间归一化（bool 剔除/逆序拒绝→PAGE_INVALID）、区间内任一页有块即算 PAGE_NO_CHUNK 通过、宽区间**不参与循环指纹**（代码注释言明理由：来源-backed 的宽区间撞上 top-1 属概率事件，不构成循环证据——D 认可该取舍）、`check_question_tokens` 开关（同题多条标注时跳过 token 探查，服务 multisource 场景）。**D 追认 ✅**：实现干净、判据仍只来自产物不调检索器，附 3 条新测试。纪律备注：跨域改动请在 PR 描述中声明（本轮靠 diff 发现）。
+- **指标可算性实证**：`run_experiment` 的 `_page_in_range` 区间支持自 PR#14（`6d91fc1`）即存在，E 的格式变更与消费端兼容、无需改 runner；`matches_expected` 为 **AND 语义**（source_id + 页码 + section_keyword 子串三者非空即全验），全书级区间**不会**把指标灌水成 1.0——worktree 实跑 `struct_bm25`（重建 0.3s + 全量 120 题）：**hit_rate@5 = 0.3667 / mrr@5 = 0.2575**，非平凡值（该报告为审查过程产物，未入库）。
+- **multisource 数据集补审**：E 新增 `questions_multisource.jsonl`（12 题）/ `expected_sources_multisource.jsonl`（25 条；HTML 标注 page=null + source_url），Makefile `audit` 目标未覆盖 → D 用 audit CLI 手工补审（`--nodes struct_v1__b95d1061.jsonl`）= **pass**。
+- `abstention_candidates.jsonl` 删除合理：6 个零命中题已改写，该导出失去对象（需要时可 `--emit-abstention` 再生成）。
+
+### 10.3 前端：契约全合规，W1 正式闭环
+
+- **Feedback 面板**（App.vue）：up/down → `POST /feedback {request_id, rating}`，与 api.md v0.10 契约一致；错误读 `payload.error`、提交/成功态禁用重复提交。
+- **W1 闭环**（§2.3 缺口销项）：SSE 结束后前端以 rid 调 `/sources/{rid}`，按 node_id 映射富化 `source_url`；`CitationsCard` 对 HTML 引用渲染"打开 HTML 原文"外链（`rel="noopener noreferrer"`，PDF 为 null 不渲染）。api.md v0.11 的回查通道从"可用"升级为"已被前端消费"——**§2.3 的 W1 教训（数据层事实≠端到端能力）至此闭环**。
+- 工程项：vitest + @vue/test-utils + jsdom 测试设施入 package.json；vite proxy 补 `/feedback`；ChatInput 的 Top-K 显示 6→5 与实际 top_k 对齐。
+
+### 10.4 发现的问题
+
+| 级别 | 问题 | 处置建议 |
+|---|---|---|
+| **P0** | **六题题干中文损坏**：Q021/Q023/Q028/Q059/Q060/Q119 的中文被字面 `?` 替换（如 `DataReader ? on_subscription_matched() ???????? Listener???????? Status?`）。改写意图可辨（消除零命中实体：matched_count/status_kind/keyindex/encoding_vendor_id/ReaderThreadConfigQosPolicy），但文本已废；乱码题干参与检索与计分会污染正式指标 | E 重写（推荐，改写意图在其域）；或 D 按 ASCII 骨架代拟中文（需用户授权）。**修复前不开正式 `--with-metrics`** |
+| **P1** | **宽区间标注的语义复核未完成**：114/120 为区间，其中 **69 题为全书级 [7,288/289]**——页码条件名存实亡，判对实际由 section_keyword 承担；审计的 token 邻近检查对宽区间设计上不生效，keyword 选错无法被机器抓出。实证：Q056 keyword 仍为 `10.34 DurabilityServiceQosPolicy`（PR#22 时代已知错标，真值 10.7 DurabilityQosPolicy @印刷127），被新区间 [61,163] 覆盖后审计不再报警；D 的主实体一致性探针因 QoS 汇总表干扰分辨力不足（0/120 报警不可信） | E 逐题收窄区间并**人工**复核 keyword 语义（机器探针到此为止）；在此之前指标可算但不宜对外作质量结论 |
+| **P2** | `evaluation/datasets/README.md` 的 `expected_sources.jsonl` 行仍写"尚无（占位版已移除）"，与现状矛盾；`questions.jsonl` 上轮大改写未经 C 口径会签（上轮遗留） | E 顺手更正 README 行；口径会签例会带 |
+
+- **pytest**：worktree 内 **340 passed / 2 failed / 3 skipped**（345 收集）。2 个失败（`test_ensure_index_hybrid_checks_subindexes` / `test_ensure_index_for_reference_hybrid_rerank_checks_subindexes`）为 **worktree 缺 `indexes/` 的环境性失败**——两个文件 E 未触碰、同代码在主工作区（有索引）历史全绿；合并后主工作区预期 **345/345**，待同步后复核确认。
+- **配置接线**：`struct_multisrc_*` 的 `expected_sources` 仍为 null（合理——标注定版前不开）；E 的 multisource 数据集尚无配置消费，dataset/expected_sources 指向与 Makefile audit 覆盖属 D 域，待标注定版一并接线。
+
+### 10.5 结论
+
+**改善显著、方向正确**：循环标注（week3 review P0-1）实质解决、`make audit` 门禁首次通过、W1 闭环、feedback 前端接入、基线纪律达标。**验收口径**：`make audit` 退出码已为 0，但 10.4 P0（六题乱码）修复 + P1（keyword 语义人工复核）完成前，正式指标与六份 void 报告刷新**暂不启动**（宁缺毋滥）；此后由 D 统一重跑 `make regression --with-metrics` 并刷新全部报告。

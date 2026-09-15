@@ -1,5 +1,6 @@
 # Demo 演练手册（成员 D · 第四周，指南 §8 D 任务 3）
 
+> **v0.2（2026-09-15）**：LLM 后端叙述改为 **API 为主**（`.env.example` 默认 OpenRouter 免费档），本地 Ollama + 网关降为可选附录（`models/` 不入 Git，属本机个人研究）；同步 PR#36（E）事实：前端 feedback 按钮已接入、`source_url` 前端外链闭环、semantic 超长块已随 A 的 PR#32 销项、指标口径更新（audit 首次 pass 但正式指标仍冻结）。
 > **v0.1（2026-09-14）**：首版。四段演示场景已在**本机 live 通路实测**（真实 bge-m3 检索 + 真实本地 LLM 出词），耗时与引用页码均为实测值，非估算。
 > 目的：周五验收与最终汇报可照着敲；任何一步与本文不符即为环境异常，按 §5 兜底排查。
 
@@ -9,18 +10,25 @@
 
 | 组件 | 要求 | 本机实测值 |
 |---|---|---|
-| Ollama | 监听 `127.0.0.1:11434` | v0.33.3；模型 `qwen3.5-9b`(8.8GB) / `qwen3.8-27b`(13GB) |
-| LLM 网关 | `python models/llm_gateway.py` → `127.0.0.1:11500` | 存在意义：Ollama 0.33.x 的 OpenAI 兼容层会静默丢弃 `think:false`，网关转原生 `/api/chat` 强制关思考（属 D 域基础设施，`models/` 不入 Git） |
+| LLM 后端 | 任何 OpenAI 兼容 API：`.env` 的 `LLM_BASE_URL` / `LLM_MODEL` / `LLM_API_KEY` 指向所选服务商（默认路线） | `.env.example` 预填 OpenRouter 免费档示例；密钥只引 env 名，不入库 |
 | Embedding | bge-m3 已在 HF 本地缓存 | **必须** `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1`，否则 SentenceTransformer 初始化对每个 config 文件反复 HEAD，挂数分钟 |
 | 索引 | 目标实验的索引目录存在且指纹匹配 | 六套索引全部可用（见 `docs/index-rebuild-drill.md`） |
-| `.env` | `RAG_MODE=live`、`RAG_EXPERIMENT_CONFIG=<实验 yaml>`、`LLM_BASE_URL=http://127.0.0.1:11500/v1` | 密钥只引 env 名，不入库 |
+| `.env` | `RAG_MODE=live`、`RAG_EXPERIMENT_CONFIG=<实验 yaml>` | — |
 
-## 2. 启动序列（三条命令）
+### 1.1 可选：本地 LLM 后端（Ollama + 网关，离线演示备选）
+
+`models/llm_gateway.py` **不入 Git**，属成员 D 本机个人研究；仅当本机具备以下组件时可用：
+
+| 组件 | 要求 | 本机实测值 |
+|---|---|---|
+| Ollama | 监听 `127.0.0.1:11434` | v0.33.3；模型 `qwen3.5-9b`(8.8GB) / `qwen3.8-27b`(13GB) |
+| LLM 网关 | `python models/llm_gateway.py` → `127.0.0.1:11500` | 存在意义：Ollama 0.33.x 的 OpenAI 兼容层会静默丢弃 `think:false`，网关转原生 `/api/chat` 强制关思考 |
+| `.env` | `LLM_BASE_URL=http://127.0.0.1:11500/v1`、`LLM_MODEL=<ollama list 里的名字>`、`LLM_API_KEY=ollama`（网关不校验，占位即可） | — |
+
+## 2. 启动序列
 
 ```bash
-python models/llm_gateway.py                    # 终端 A，长期驻留
-ollama list                                     # 若 11434 无服务，先跑任意 ollama 命令拉起
-make serve                                      # 终端 B：HF_HUB_OFFLINE=1 后 uvicorn
+make serve    # .env 指向所选 LLM 后端（API 或 §1.1 本地网关）
 ```
 
 预期（实测）：`make serve` 先做检索器预热再绑端口，随后
@@ -29,7 +37,15 @@ make serve                                      # 终端 B：HF_HUB_OFFLINE=1 �
 curl http://127.0.0.1:8000/healthz     # → {"status":"ok","mode":"live"}
 ```
 
-**收摊顺序**（演示结束或换配置前）：先停 `make serve` 的 uvicorn，再停 `llm_gateway.py`，
+**走 §1.1 本地后端时的完整序列**（三条命令）：
+
+```bash
+python models/llm_gateway.py                    # 终端 A，长期驻留
+ollama list                                     # 若 11434 无服务，先跑任意 ollama 命令拉起
+make serve                                      # 终端 B：HF_HUB_OFFLINE=1 后 uvicorn
+```
+
+**收摊顺序**（演示结束或换配置前）：先停 `make serve` 的 uvicorn，再停 `llm_gateway.py`（如用了 §1.1），
 最后按需 `ollama stop <模型>` 释放显存（只卸载模型、不终止 11434 服务进程）。核验端口是否释放：
 
 ```bash
@@ -86,14 +102,13 @@ tail -n 1 logs/feedback.jsonl
 
 反馈端点（api.md **v0.10**）三条实测：对**上一次服务会话遗留的 rid** `837a938406c8` 打 `up` → 201（记录持久化在 `sources.jsonl`，跨重启仍可归因）；未知 rid → **404「无法归因反馈」，且不落任何孤儿记录**；新生成的 rid 带 `node_ids` 打 `down` → 201。
 
-> 前端反馈按钮属 E 域，尚未接入；Demo 时用 curl 现场敲即可，讲点是"用户反馈可回流成评测语料"。
+> 前端反馈按钮已由 E 接入（PR#36：回答下方 up/down 面板，走同一端点）；Demo 时用 curl 现场敲亦可，讲点是"用户反馈可回流成评测语料"。
 
 ## 4. 已知缺口（演示时必须如实说明）
 
-1. **HTML 引用跳转 URL 只在回查通道可用**（缺口 W1 的过渡处置，api.md **v0.11**）：`GET /sources/{rid}`（及 MCP `get_sources`）的每条引用已带 `source_url`（实测多来源题 5 条引用中 4 条 HTML 带真实 URL、PDF 为 `null`），但 **SSE 的 `sources`/`done` 事件仍是 7 字段、不含该键**（实测确认），正式扩进 wire 需 B/C/E 会签。演示话术："引用可溯源到原文页——从回查接口拿 URL；前端按钮接入后即可点跳。"
+1. **SSE wire 第 8 字段待会签**：HTML 引用的 `source_url` 可经 `GET /sources/{rid}`（及 MCP `get_sources`）回查获得（api.md **v0.11**），前端（E PR#36）已消费该通道并渲染"打开 HTML 原文"外链；但 **SSE 的 `sources`/`done` 事件仍是 7 字段、不含该键**，正式扩进 wire 需 B/C/E 会签。演示话术："引用可溯源到原文页——引用卡上可直接点开外链。"
 2. **Reranker 未落地**：`retrieval/retriever.py` 对 `hybrid_rerank` 仍抛 `NotImplementedError`（B 域第四周任务），Demo 不讲精排。
-3. **指标不可讲**：现库 120 条标注仍是"检索 top-1 回显"的循环版（与规范检索仅 44/120 吻合），任何 hit_rate/mrr 数字都不得出现在汇报页（回归矩阵默认只走明细通道）。
-4. 第三周遗留：`semantic` 超长块待 A 处置，semantic 实验暂不进演示链路。
+3. **指标数字不上汇报页**：标注经 E 重标（PR#36）后 `make audit` **首次 pass**（循环指纹 4/120），但六题题干编码损坏（P0）与宽区间 keyword 语义复核（P1）未完成（见 `docs/week4-delivery-review.md` §10.4）——正式 hit_rate/mrr 仍不得出现在汇报页，回归默认只走明细通道。
 
 ## 5. 现场故障与兜底
 
@@ -101,7 +116,7 @@ tail -n 1 logs/feedback.jsonl
 |---|---|---|
 | `make serve` 卡在启动、端口迟迟不绑 | 未设 `HF_HUB_OFFLINE=1`，embedding 在线取文件 | 带上离线开关重启（本文 §1） |
 | `/healthz` 报 `mode:mock` | `.env` 未加载或 `RAG_MODE` 非 live | 检查仓库根 `.env`；live 组装失败会给一行可读拒绝 |
-| SSE 先出 `sources` 后紧跟 `error` | LLM 后端不可达（网关/Ollama 未起） | 起 `llm_gateway.py` → `ollama list` 验证；引用已下发可回查（X3 语义），不静默降级 |
+| SSE 先出 `sources` 后紧跟 `error` | LLM 后端不可达（API 密钥/网络，或 §1.1 网关/Ollama 未起） | 核对 `.env` 的 `LLM_*` 指向；本地后端则起 `llm_gateway.py` → `ollama list` 验证；引用已下发可回查（X3 语义），不静默降级 |
 | 中文问题在 curl 下 500 | Git Bash 按 GBK 发 body，网关 JSON 解码失败 | 用 UTF-8 客户端（Python/httpx、前端页面）发；不是服务缺陷 |
 | 首个问题特别慢 | 预热只做一次检索，模型首次出词含加载 | 演示前先跑一遍场景 1 当暖场 |
 
