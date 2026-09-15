@@ -9,6 +9,25 @@
             <span class="toolbar-caption">提问后自动检索文档上下文</span>
           </div>
         </div>
+
+        <!-- F4: 开发 mode chip UI - 从 healthData/experiments 渲染 -->
+        <div v-if="experiments.length > 0" class="mode-selector-group">
+          <span class="selector-label">检索模式：</span>
+          <div class="experiment-chips">
+            <button
+              v-for="exp in experiments"
+              :key="exp.id || exp"
+              type="button"
+              class="experiment-chip"
+              :class="{ 'is-active': selectedExperiment === exp }"
+              @click="selectExperiment(exp)"
+            >
+              <span>{{ exp.name || exp }}</span>
+              <span v-if="exp.description" class="chip-desc">{{ exp.description }}</span>
+            </button>
+          </div>
+        </div>
+
         <div class="toolbar-options">
           <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
           <span class="control-chip">Top-K 5</span>
@@ -68,16 +87,25 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
+// F4: 从 App 传递 experiments 白名单
 const props = defineProps({
   loading: { type: Boolean, default: false },
   hasAnswer: { type: Boolean, default: false },
+  // F4: backend 提供的检索模式白名单（GET /healthz?include_experiments=true）
+  experiments: {
+    type: Array,
+    default: () => [],
+  },
 })
+
 const emit = defineEmits(['submit'])
 
 const userInput = ref('')
 const MAX_LENGTH = 200
+const selectedExperiment = ref(null) // F4: 当前选中的实验
+
 const suggestions = [
   '如何调用 DataWriter API？',
   'ZRDDS 故障码 E1003 是什么意思？',
@@ -105,6 +133,12 @@ const handleEnterKey = (e) => {
   if (e.shiftKey) return
   e.preventDefault()
   handleSubmit()
+}
+
+// F4: 选择实验模式
+const selectExperiment = (exp) => {
+  selectedExperiment.value = selectedExperiment.value?.id === exp ? null : exp
+  console.log(`F4: 选中检索模式：${exp?.name || exp}`)
 }
 
 const handleSubmit = () => {
@@ -156,14 +190,6 @@ defineExpose({ question: userInput })
   padding: 0 2px 12px;
 }
 
-.input-mode,
-.toolbar-options,
-.control-chip,
-.tip-heading {
-  display: flex;
-  align-items: center;
-}
-
 .input-mode {
   gap: 9px;
 }
@@ -196,6 +222,61 @@ defineExpose({ question: userInput })
   margin-top: 2px;
   color: var(--text-subtle);
   font-size: 0.62rem;
+}
+
+.mode-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.selector-label {
+  color: var(--text-subtle);
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.experiment-chips {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.experiment-chip {
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease;
+}
+
+.experiment-chip:hover {
+  border-color: var(--primary-500);
+  background: rgba(94, 156, 173, 0.12);
+  transform: translateY(-1px);
+}
+
+.experiment-chip.is-active {
+  border-color: var(--primary-600);
+  background: linear-gradient(135deg, rgba(94, 156, 173, 0.2), rgba(118, 164, 178, 0.15));
+  color: var(--primary-800);
+}
+
+.experiment-chip.is-active:hover {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  color: #fff;
+}
+
+.chip-desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.6rem;
+  color: var(--text-subtle);
 }
 
 .toolbar-options {

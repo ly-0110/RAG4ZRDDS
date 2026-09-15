@@ -126,7 +126,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  mode: {
+    type: String,
+    default: 'mock', // 'mock' | 'live' - mock 模式显示空状态或静态数据，live 模式调用/nodes/{node_id}
+  },
 })
+
+// F3: 判断是否在 live 模式下需要真实 fetch
+const isInLiveMode = computed(() => props.mode === 'live')
 
 const detailsCache = ref({})
 const detailErrors = ref({})
@@ -214,13 +221,31 @@ const fetchAndShowDetails = async (source, index) => {
   expandedDetails.value = new Set([...expandedDetails.value, key])
 
   try {
-    const response = await fetch(`/sources/${props.requestId}`)
-    if (!response.ok) {
-      throw new Error(`获取详情失败：${response.status} ${response.statusText}`)
+    // F3: live 模式下调用 /nodes/{node_id} 获取节点详情
+    if (isInLiveMode.value && source.node_id) {
+      const response = await fetch(`/nodes/${source.node_id}`)
+      if (!response.ok) {
+        throw new Error(`获取节点详情失败：${response.status} ${response.statusText}`)
+      }
+      const nodeData = await response.json()
+      // 绑定 text/section_path/page_print/source_url 字段到 detailsCache
+      setRecord(detailsCache, key, {
+        text: nodeData.text || '',
+        section_path: nodeData.section_path || '',
+        page_print: nodeData.page_print || '-',
+        source_url: nodeData.source_url || source.source_url,
+        raw_node: nodeData, // 保留原始节点数据
+      })
+    } else {
+      // mock 模式：显示空状态或静态数据
+      setRecord(detailsCache, key, {
+        text: '（模拟数据）此来源无额外节点详情',
+        section_path: '-',
+        page_print: '-',
+        source_url: source.source_url || null,
+        raw_node: {},
+      })
     }
-
-    const data = await response.json()
-    setRecord(detailsCache, key, data)
   } catch (error) {
     setRecord(detailErrors, key, error.message || '获取详情失败')
     console.error('获取详情出错:', error)

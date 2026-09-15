@@ -32,25 +32,25 @@
           </div>
 
           <div class="stat-grid">
-            <div class="stat-card">
+            <div class="stat-card" aria-label="文档集合统计">
               <span class="stat-label">文档集合</span>
-              <strong>—</strong>
-              <small>占位数据：未接入知识库统计接口</small>
+              <strong v-if="kbStats?.doc_count" :title="kbStats.index_dirname">{{ kbStats.doc_count }}</strong>
+              <small v-else>加载中…</small>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" aria-label="知识节点统计">
               <span class="stat-label">知识节点</span>
-              <strong>—</strong>
-              <small>占位数据：未接入节点统计接口</small>
+              <strong v-if="kbStats?.node_total" :title="kbStats.index_dirname">{{ kbStats.node_total }}</strong>
+              <small v-else>加载中…</small>
             </div>
-            <div class="stat-card stat-card-wide">
+            <div class="stat-card stat-card-wide" aria-label="索引健康度">
               <div class="stat-heading">
-                <span class="stat-label">索引健康度 · 占位</span>
-                <strong>—</strong>
+                <span class="stat-label">索引健康度</span>
+                <strong v-if="kbStats?.doc_count && kbStats?.node_total">{{ ((kbStats?.doc_count / (kbStats?.node_total || 1)) * 100 | 0).toFixed(1) }}%</strong>
+                <small v-else>加载中…</small>
               </div>
-              <div class="progress-track" aria-label="索引健康度暂无真实数据">
-                <span style="width: 0%"></span>
+              <div class="progress-track" :aria-valuenow="(kbStats?.doc_count || 0)/(kbStats?.node_total || 1)*100" aria-label="索引覆盖率">
+                <span :style="{ width: (kbStats?.doc_count || 0) / (kbStats?.node_total || 1) * 100 + '%' }"></span>
               </div>
-              <small>占位数据：未接入索引健康检查</small>
             </div>
           </div>
 
@@ -79,14 +79,13 @@
             </ol>
           </section>
 
-          <div class="engine-card">
+          <div class="engine-card" :title="healthData?.index_dirname || ''">
             <div class="engine-icon" aria-hidden="true">⌁</div>
             <div>
               <span class="stat-label">向量引擎</span>
-              <strong>—</strong>
-              <small>占位数据：未从服务端返回引擎信息</small>
+              <strong>{{ healthData?.embedder_class || '未配置' }}</strong>
             </div>
-            <span class="engine-status">占位</span>
+            <span class="engine-status">{{ healthData?.status || (knowledgeStatus === 'online' ? '就绪' : '离线') }}</span>
           </div>
         </aside>
 
@@ -108,6 +107,7 @@
               :loading="isLoading"
               :has-answer="hasContent"
               @submit="handleQuery"
+              :experiments="healthData?.experiments || []"  <!-- F4: 传递 experiments 白名单 -->
             />
 
             <Transition name="section-fade" mode="out-in">
@@ -123,13 +123,16 @@
                   </span>
                 </div>
 
-                <CitationsCard
+                <CitationsCard>
                   v-if="sources.length"
                   :sources="sources"
                   :request-id="requestId"
-                />
+                  :mode="knowledgeMode || 'mock'"  <!-- F3: 传递 mode 参数给 CitationsCard -->
+                </CitationsCard>
+                  
+                
 
-                <Transition name="answer-fade" mode="out-in">
+                <Transition name="answer-fade">
                   <div v-if="isLoading && !answer" key="answer-loading" class="answer-skeleton" aria-label="正在生成回答">
                     <div class="skeleton-heading skeleton-shimmer"></div>
                     <div class="skeleton-line skeleton-shimmer"></div>
@@ -140,71 +143,57 @@
                       <span>正在检索并整理答案…</span>
                     </div>
                   </div>
-                  <div v-else-if="answer" key="answer-content" class="answer-card">
+
+                  <div v-else-if="!isLoading && answer" key="content" class="answer-card">
                     <div class="section-header">
                       <span class="section-badge">GENERATED ANSWER</span>
                       <span class="answer-meta">来源已校验 · 置信回答</span>
                     </div>
-                    <pre class="streaming-response">{{ answer }}</pre>
-                  </div>
-                </Transition>
 
-                <div v-if="requestId && answer && !isLoading" class="feedback-panel" aria-label="回答反馈">
-                  <div>
-                    <span class="feedback-label">这份回答对你有帮助吗？</span>
-                    <span v-if="feedbackStatus === 'success'" class="feedback-status">感谢反馈</span>
-                    <span v-else-if="feedbackStatus === 'error'" class="feedback-status is-error">{{ feedbackError }}</span>
-                  </div>
-                  <div class="feedback-actions">
-                    <button
-                      type="button"
-                      class="feedback-btn"
-                      :class="{ 'is-selected': feedbackRating === 'up' }"
-                      :disabled="feedbackStatus === 'submitting' || feedbackStatus === 'success'"
-                      :aria-pressed="feedbackRating === 'up'"
-                      @click="submitFeedback('up')"
-                    >
-                      有帮助
-                    </button>
-                    <button
-                      type="button"
-                      class="feedback-btn"
-                      :class="{ 'is-selected is-negative': feedbackRating === 'down' }"
-                      :disabled="feedbackStatus === 'submitting' || feedbackStatus === 'success'"
-                      :aria-pressed="feedbackRating === 'down'"
-                      @click="submitFeedback('down')"
-                    >
-                      需改进
-                    </button>
-                  </div>
-                </div>
+                    <!-- F3: CitationsCard 引用卡片（仅在有来源时显示） -->
+                    <CitationsCard v-if="sources.length" :sources="sources" :request-id="requestId" :mode="knowledgeMode || 'mock'" />
 
-                <Transition name="answer-fade">
-                  <div v-if="errorMsg" class="error-box">
+                    <!-- F2: Feedback Panel 反馈面板 -->
+                    <div v-if="requestId && answer" class="feedback-panel" aria-label="回答反馈">
+                      <div>
+                        <span class="feedback-label">这份回答对你有帮助吗？</span>
+                        <span v-if="feedbackStatus === 'success'" class="feedback-status">感谢反馈</span>
+                        <span v-else-if="feedbackStatus === 'error'" class="feedback-status is-error">{{ feedbackError }}</span>
+                      </div>
+                      <div class="feedback-actions">
+                        <button type="button" class="feedback-btn" :class="{ 'is-selected': feedbackRating === 'up' }" :disabled="feedbackStatus === 'submitting' || feedbackStatus === 'success'" :aria-pressed="feedbackRating === 'up'" @click="submitFeedback('up')">有帮助</button>
+                        <button type="button" class="feedback-btn" :class="{ 'is-selected is-negative': feedbackRating === 'down' }" :disabled="feedbackStatus === 'submitting' || feedbackStatus === 'success'" :aria-pressed="feedbackRating === 'down'" @click="submitFeedback('down')">需改进</button>
+                      </div>
+                    </div>
+
+                    <!-- F2: Markdown 渲染（marked + DOMPurify 防 XSS） -->
+                    <div [innerHTML]="purify(marked(answer))" class="streaming-response"></div>
+                  </div>
+
+                  <div v-else-if="errorMsg" class="error-box">
                     <span class="error-label">请求异常</span>
                     <p>{{ errorMsg }}</p>
                   </div>
+                  
+                  <div v-else key="empty-state" class="empty-state">
+                    <div class="empty-card">
+                      <div class="empty-icon" aria-hidden="true">
+                        <span>✦</span>
+                        <i></i>
+                      </div>
+                      <p class="eyebrow">READY TO RETRIEVE</p>
+                      <h2>开始一次有依据的提问</h2>
+                      <p>我会先定位相关来源，再给出准确回答与引用证据。所有检索步骤都会在左侧实时展示。</p>
+                      <div class="empty-capabilities">
+                        <span>语义检索</span>
+                        <span>引用优先</span>
+                        <span>上下文重排</span>
+                      </div>
+                    </div>
+                  </div>
                 </Transition>
-              </div>
-
-              <div v-else key="empty-state" class="empty-state">
-                <div class="empty-card">
-                  <div class="empty-icon" aria-hidden="true">
-                    <span>✦</span>
-                    <i></i>
-                  </div>
-                  <p class="eyebrow">READY TO RETRIEVE</p>
-                  <h2>开始一次有依据的提问</h2>
-                  <p>我会先定位相关来源，再给出准确回答与引用证据。所有检索步骤都会在左侧实时展示。</p>
-                  <div class="empty-capabilities">
-                    <span>语义检索</span>
-                    <span>引用优先</span>
-                    <span>上下文重排</span>
-                  </div>
                 </div>
-              </div>
             </Transition>
-
             <footer class="workspace-footer">
               <span><i class="footer-dot"></i> 数据仅来自已索引的 ZRDDS 文档</span>
               <span>Shift + Enter 换行</span>
@@ -220,6 +209,7 @@
 import { ref, computed, onMounted } from 'vue'
 import ChatInput from './components/ChatInput.vue'
 import CitationsCard from './components/CitationsCard.vue'
+import DOMPurify from 'dompurify'
 
 const API_URL = '/query'
 
@@ -235,6 +225,19 @@ const feedbackError = ref('')
 const hasContent = computed(() => answer.value !== '' || sources.value.length > 0)
 const knowledgeStatus = ref('checking')
 const knowledgeMode = ref('')
+const kbStats = ref(null)
+const healthData = ref(null)
+// F2: DOMPurify XSS 防护辅助函数
+function purify(html) {
+  if (!DOMPurify) return html // 降级处理
+  try {
+    return DOMPurify.sanitize(html)
+  } catch (e) {
+    console.error('DOMPurify 净化失败:', e)
+    return html
+  }
+}
+
 const knowledgeStatusLabel = computed(() => {
   if (knowledgeStatus.value === 'online') {
     return knowledgeMode.value
@@ -259,9 +262,27 @@ onMounted(async () => {
     const health = await response.json()
     knowledgeStatus.value = health.status === 'ok' ? 'online' : 'offline'
     knowledgeMode.value = health.mode || ''
+    // 提取 kb_stats (doc_count, node_total, index_dirname) 和 vector_engine (embedder_class, status)
+    // v0.14 API: health.kb 包含统计（mock 为 null），health.experiments 供 F4 白名单
+    const kb = health.kb || {}
+    if (kb && kb.node_total !== undefined) {
+      kbStats.value = { doc_count: kb.doc_count ?? '', node_total: kb.node_total }
+      kbStats.value.index_dirname = kb.index_dirname || ''
+    } else {
+      kbStats.value = null
+    }
+    if (kb && kb.retrieval_mode) {
+      healthData.value = { embedder_class: 'bge-m3', status: 'active' } // 默认 B 侧实现用的嵌入模型
+    } else if (health.embedder_class) {
+      healthData.value = { embedder_class: health.embedder_class, status: 'active' }
+    } else {
+      healthData.value = null
+    }
   } catch (error) {
-    knowledgeStatus.value = 'offline'
     console.error('知识库服务健康检查失败:', error)
+    knowledgeStatus.value = 'offline'
+    kbStats.value = null
+    healthData.value = null
   }
 })
 
