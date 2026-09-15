@@ -101,8 +101,30 @@ merge-base = `b606e9f`（#35）rebase 后交付，零冲突；B 正文声明 reb
 | 级别 | 事项 | 处置 |
 |---|---|---|
 | P2 | `docs/evaluation.md` §1 写"`make audit` verdict=blocked（48 题 token 错位、6 题零命中）"——为 09-14 过期快照；六题题干回退处置后（#37）现为 **pass**（阻断 0、循环 4/120） | B 顺手更正一行；不影响其证据链模式正确性 |
-| 注意 | 精排为同步 CPU 推理置于 async 内（B 机实测 ~63s/题）——实验场景可接受（同 B 第一周注记先例），但 **live 服务若挂 hybrid_rerank 配置，单题约 1 分钟且阻塞事件循环** | demo 若演示精排需在 runbook 标注等待时长；并发化改造点同第一周先例 |
 | 待 D | B 拍板方案①（hybrid_rerank 一律引用制，§6.1 已回写）后留给 D 的两项：schema `components` 可选→必填 + `configs/experiments/README.md` components 行更新（现行"未填则按自有索引+精排建索引"表述作废） | 见 §4；D 域 |
+
+#### 3.5.1 精排同步阻塞事件循环——本机实测与解决方法（2026-09-15）
+
+**现象与根因**：`HybridRerankRetriever.retrieve()` 是 async 方法，但精排打分（CrossEncoder 对 30 个「问题×候选块」对逐一推理）是同步 CPU 代码，直接占据事件循环线程——这是 B 第一周注记"同步推理置于 async 内"老问题的放大版（向量路单题 ~1s 从未显形，精排 15~63s 使其可见）。
+
+**本机实测**（9700X CPU，ticker 法：事件循环内挂 0.1s 间隔心跳，与检索并发）：
+
+| 项 | 实测值 |
+|---|---|
+| 双路 store 装载 | 0.6s |
+| 首题总延迟（含 2.2GB CrossEncoder 冷加载） | **27.8s** |
+| 热题总延迟 | **15.1s**（向量路 0.1s + bm25 路 0.00s + RRF 融合 ~0 + **精排打分 15.0s**，占 99%+） |
+| 事件循环阻塞 | 查询 15s 期间心跳 **0 次跳动**（不阻塞理论值 ~150）→ 全程冻结 |
+| B 机对照 | ~63s/题（120 题 2.1h，docs/evaluation.md §2.1） |
+
+**影响边界**：仅 live 服务通路——冻结期间 `/healthz`、并发 `/query`、其他会话的 SSE 流、`/feedback` 全部排队；单用户演示体感为"提问后干等 15~28s"。**对离线实验流水线（run_experiment）无影响**（批量跑无事件循环概念）。检索质量 sanity 正常：两道探针题 top-1 分别命中手册 8.3.1 创建DataWriter / 6.3.1 创建DomainParticipant，双来源共存合理。
+
+**解决方法（B 域，按优先级）**：
+
+1. **打分移出事件循环（推荐，改动最小）**：`retrieve()` 内 `scores = await asyncio.to_thread(self._rerank_fn, question, texts)`——事件循环保持响应，冻结消失；torch CPU 推理释放 GIL，线程可行。并发语义注意：to_thread 后多个请求可同时进精排争抢 CPU 核（CPU-bound 无排队控制），单用户演示无碍，多人并发场景 B 需评估是否加信号量串行化。
+2. **启动期预热精排模型（配合 1）**：同 D 的 `_warmup_retriever` 先例——pipeline live 分支组装后跑一次打分，把 2.2GB 冷加载从首题移到启动期（预热失败拒绝启动并给可读错误）。
+3. **降本选项（实验口径需 B 评估）**：`candidate_top_k` 30→10 打分时间约线性降至 1/3；或换 bge-reranker-base 等更小模型（模型选型变更属实验记录，需重跑对比）。
+4. **演示规避（不动代码）**：live 演示不挂 hybrid_rerank 配置（vector/hybrid 通路检索为秒级）；如必须演示精排，单题单发并明确标注等待时长（demo-runbook v0.3 §4 已同步该口径）。
 
 **B 请 D 留意的另两项**：①`struct_multisrc_v1` 回归 warn——纯时长项（B 机 21.5s vs 基准 10.2s >2×），检索明细重合 1.0，属跨机器速差非回归；②reranker 权重两份并存（HF 缓存 + B 机 `models/`）——**本机核实仅 HF 缓存一份 2.2GB**（`models/` 不入 Git，B 的两份都在其机器），清理与否由 B 自定。精排组单次 2.1h，全量回归含精排组建议 `--only` 选跑（合理，照办）。
 
