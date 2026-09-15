@@ -1,0 +1,80 @@
+# =====================================================================
+# RAG4ZRDDS 实验配置 · 第四周产品态终跑（final_v1，成员 C）
+# 在 struct_multisrc_v1（PDF 手册 2.0 + Doxygen HTML 开发指南 2.4）之上接入
+# 回答侧评测：source_priority 定稿 + response_metrics 四项（§9.2）。
+# 分块/embedding/index/retrieval 与 struct_multisrc_v1 逐字节一致 → hash8 相同，
+# 与 struct_multisrc_v1 共用同一索引目录（indexes/struct_bge-m3_d57f695e），不另建一套；
+# 该索引若尚未构建，首次运行会由 run_experiment 自动构建（等价 make index）。
+# 逐参数说明见同目录 README.md。
+#   * 一次实验一个 yaml；文件名 = 实验 ID，下游产物命名全部由此派生
+#   * 本文件入 Git：不要上传你的apikey，只允许引用 .env 的环境变量名
+# =====================================================================
+schema_version: 1
+
+experiment:                        # ── 实验身份
+  name: final_v1                  # 必须与文件名一致（脚本强制校验）
+  description: 第四周产品态终跑：多来源 × struct 分块 × bge-m3 向量检索 × 回答侧四指标
+  stage: product                   # baseline | ablation | regression | product
+
+sources:                           # ── 知识源注册表（多来源）
+  - id: user_manual                # metadata.source_id 引用名，全配置唯一
+    type: pdf                      # pdf | html
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"                 # 文档版本＝A 的 metadata.version 真值（手册标 2.0）
+    # url: https://...             # type: html 时必填；PDF 留空
+  - id: zrdds_dev_guide            # A 交付默认 source_id（generation/source_labels.py 已注册）
+    type: html
+    path: data/raw/developer-guides/cdoc_html
+    version: "2.4"                 # index.html 自称 ZRDDSv2.4.0 在线文档（A 实测）
+    url: https://docs.zrtechnology.com/cdoc/html   # 引用跳转基址（正式值待例会确认）
+
+ingest:                            # ── raw → cleaned 编排（D）
+  cleaned_output: data/cleaned/pages.jsonl
+  quality_check: true              # 流水线内执行 A 的质量检查（指南 §16 清单）
+
+chunking:                          # ── 分块方案（格式 D 定 / 参数 A 填）
+  method: struct                   # struct | semantic | hybrid | fixed
+  version: v1                      # 方案版本号；统一 Node 集 = {method}_{version}__{src8}.jsonl
+  params:                          # ◆ 参数袋：原样透传给 A 的 chunker 实现
+    max_chunk_chars: 2500          #   单块字符上限（§6.2：2500 附近）
+    overlap_chars: 200             #   超长段兜底切分的重叠窗口
+    large_section_thresh: 2500     #   超大节下切阈值（缺省=max_chunk_chars）
+
+embedding:                         # ── Embedding（B）
+  provider: local                  # local | api
+  model: bge-m3
+  batch_size: 32
+  device: cpu
+  # api_key_env: EMBED_API_KEY     # provider: api 时必填（值从 .env 读）
+
+index:                             # ── 索引生命周期（D）
+  backend: chroma                  # chroma | faiss
+  metric: cosine                   # cosine | ip | l2
+  # 子目录自动命名 = {chunking.method}_{embedding.model}_{hash8}；
+  # 与 struct_multisrc_v1 同 hash8（复用多来源索引，不重建）
+
+retrieval:                         # ── 检索（B）
+  mode: vector                     # vector | bm25 | hybrid | hybrid_rerank
+  top_k: 5                         # 各对比方案间必须一致（§6.2 公平性约束）
+  candidate_top_k: 30              # 仅 mode=hybrid_rerank 生效（§8.2 Top30→Top5）
+  # rerank_model: bge-reranker-v2-m3   # mode=hybrid_rerank 时必填
+  filters: {}                      # metadata 过滤条件，如 {version: "2.4"}
+  source_priority: [zrdds_dev_guide, user_manual]   # 第四周定稿：开发者指南 > 用户手册
+  params: {}                       # ◆ 参数袋：B 自由区（bm25 k1/b、融合权重…）
+
+generation:                        # ── 生成（C）
+  enabled: true                    # 第二周：接入生成与评测
+  prompt_version: v2               # 对应 generation/prompts/v2（§7 多来源 + §8.4 冲突披露/优先级）
+  llm_env_prefix: LLM_             # 读 .env 中 LLM_PROVIDER/BASE_URL/API_KEY/MODEL
+
+evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）
+  dataset: evaluation/datasets/questions.jsonl
+  expected_sources: null           # 检索正式指标仍被 E 标注 P0/P1 卡（week4 review §3.4）；
+                                   # 清零前不产 void 指标，回答侧指标不依赖 expected_sources
+  retrieval_metrics: [hit_rate@5, mrr@5]   # 另支持 precision@K / recall@K
+  response_metrics: [faithfulness, answer_relevance, correctness, citation_accuracy]   # §9.2 四项
+  sample_size: null                # null=全集；联调冒烟可设 10
+
+report:                            # ── 回归落盘（D，§10 机制的载体）
+  dir: evaluation/reports          # 报告 = {dir}/{experiment.name}.json
+  compare_baseline: null           # 检索指标 void 阶段不做回归对比；回答侧指标按均值记录
