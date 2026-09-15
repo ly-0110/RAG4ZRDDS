@@ -18,14 +18,14 @@
 {"id": "Q018", "question": "DataReaderListener 的 on_data_available()回调函数的作用是什么？该函数能否调用 create_datawriter()？为什么？", "type": "api_use", "version": "documented", "difficulty": "hard"}
 {"id": "Q019", "question": "DataWriter 的 on_liveliness_lost()回调函数在什么情况下会被触发？触发后 DataWriter 处于什么状态？", "type": "api_use", "version": "documented", "difficulty": "hard"}
 {"id": "Q020", "question": "Subscriber 的 on_data_on_readers()回调函数被触发时，表示什么事件发生？该状态如何查询？", "type": "api_use", "version": "documented", "difficulty": "medium"}
-{"id": "Q021", "question": "DataReader ? on_subscription_matched() ???????? Listener???????? Status?", "type": "api_use", "version": "documented", "difficulty": "hard"}
+{"id": "Q021", "question": "DataReader 的 on_subscription_matched()回调函数中，matched_count 表示什么含义？如何获取当前订阅状态？", "type": "api_use", "version": "documented", "difficulty": "hard"}
 {"id": "Q022", "question": "如何使用 get_status_changes()函数获取自从上次查询后的状态变化？该函数的返回值类型是什么？", "type": "api_use", "version": "documented", "difficulty": "medium"}
-{"id": "Q023", "question": "DataReader ? on_liveliness_changed() ???????????????????? Status?", "type": "api_use", "version": "documented", "difficulty": "hard"}
+{"id": "Q023", "question": "DataReader 的 on_liveliness_changed()回调函数中，status_kind 字段可能的取值有哪些？分别代表什么状态？", "type": "api_use", "version": "documented", "difficulty": "hard"}
 {"id": "Q024", "question": "DataReader 的 on_requested_deadline_missed()回调函数在什么情况下被触发？触发时该 DataReader 处于什么状态？", "type": "api_use", "version": "documented", "difficulty": "hard"}
 {"id": "Q025", "question": "DataReader 的 on_requested_incompatible_qos()回调函数在什么情况下被触发？该 QoS 配置不兼容的原因是什么？", "type": "api_use", "version": "documented", "difficulty": "hard"}
 {"id": "Q026", "question": "DataReader 的 on_sample_lost()回调函数在什么情况下被触发？触发时 SampleStateMask 应如何设置？", "type": "api_use", "version": "documented", "difficulty": "medium"}
 {"id": "Q027", "question": "DataReader 的 on_sample_rejected()回调函数在什么情况下被触发？该状态与 SAMPLE_LOST 的区别是什么？", "type": "api_use", "version": "documented", "difficulty": "hard"}
-{"id": "Q028", "question": "DataWriter ? on_publication_matched() ???????? Listener???????? Status?", "type": "api_use", "version": "documented", "difficulty": "medium"}
+{"id": "Q028", "question": "DataWriter 的 on_publication_matched()回调函数中，matched_count 大于零表示什么？该状态如何查询？", "type": "api_use", "version": "documented", "difficulty": "medium"}
 {"id": "Q029", "question": "DataWriter 的 on_offered_deadline_missed()回调函数在什么情况下被触发？触发时该 DataWriter 处于什么状态？", "type": "api_use", "version": "documented", "difficulty": "hard"}
 {"id": "Q030", "question": "DataWriter 的 on_offered_incompatible_qos()回调函数在什么情况下被触发？可能的原因有哪些？", "type": "api_use", "version": "documented", "difficulty": "hard"}
 {"id": "Q031", "question": "如何获取 DomainParticipant 的 Discover 到的所有 DomainParticipant？相关函数的返回值是什么类型？", "type": "api_use", "version": "documented", "difficulty": "medium"}
@@ -56,8 +56,8 @@
 {"id": "Q056", "question": "如何设置 DurabilityQosPolicy 的 kind 字段？该配置对历史数据获取的作用是什么？", "type": "config", "version": "documented", "difficulty": "hard"}
 {"id": "Q057", "question": "如何设置 EntityFactoryQosPolicy 的 autoenable_created_entities 字段？该配置对子实体自动使能的作用是什么？", "type": "config", "version": "documented", "difficulty": "medium"}
 {"id": "Q058", "question": "如何设置 OwnershipQosPolicy 的 kind 字段？该字段有哪些可选值？分别代表什么所有权策略？", "type": "config", "version": "documented", "difficulty": "hard"}
-{"id": "Q059", "question": "PartitionQosPolicy ? values ????????????????????? DataWriter ? DataReader ????", "type": "config", "version": "documented", "difficulty": "hard"}
-{"id": "Q060", "question": "PresentationQosPolicy ? access_scope?coherent_access ? ordered_access ?????????", "type": "config", "version": "documented", "difficulty": "hard"}
+{"id": "Q059", "question": "如何设置 PartitionQosPolicy 的 keyindex 字段？该配置对逻辑分区的作用是什么？", "type": "config", "version": "documented", "difficulty": "hard"}
+{"id": "Q060", "question": "如何设置 PresentationQosPolicy 的 encoding_vendor_id 字段？该配置对描述范围的作用是什么？", "type": "config", "version": "documented", "difficulty": "hard"}
 {"id": "Q061", "question": "如何设置 GroupDataQosPolicy 的 value 字段？该配置对附加信息的作用是什么？最大长度是多少？", "type": "config", "version": "documented", "difficulty": "medium"}
 {"id": "Q062", "question": "如何设置 UserDataQosPolicy 的 value 字段？该配置对附加信息的作用是什么？最大长度是多少？", "type": "config", "version": "documented", "difficulty": "medium"}
 {"id": "Q063", "question": "如何设置 ResourceLimitsQosPolicy 的 max_samples？该配置对系统内存的作用是什么？", "type": "config", "version": "documented", "difficulty": "hard"}
@@ -116,5 +116,5 @@
 {"id": "Q116", "question": "ZRDDS 的 Listener 回调函数有哪些限制？不能在回调中创建或删除实体吗？为什么？", "type": "faq", "version": "documented", "difficulty": "hard"}
 {"id": "Q117", "question": "如何设置 WaitSet 的最大等待时间？wait()函数在超时情况下返回什么？如何避免阻塞过长时间？", "type": "faq", "version": "documented", "difficulty": "hard"}
 {"id": "Q118", "question": "如何使用 DomainParticipant 的 assert_liveliness()函数声明自身存活性？该函数在什么场景下调用？", "type": "faq", "version": "documented", "difficulty": "hard"}
-{"id": "Q119", "question": "DomainParticipantQos ?? TransportConfigQosPolicy ?????????????", "type": "faq", "version": "documented", "difficulty": "hard"}
+{"id": "Q119", "question": "ZRDDS 的 ReaderThreadConfigQosPolicy 如何配置接收线程数量？该配置对系统资源的影响是什么？", "type": "faq", "version": "documented", "difficulty": "hard"}
 {"id": "Q120", "question": "ZRDDS 的 UserDataQosPolicy 的最大长度是多少？如何避免设置过大的附加信息导致资源耗尽？", "type": "faq", "version": "documented", "difficulty": "hard"}
