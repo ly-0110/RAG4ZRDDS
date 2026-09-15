@@ -8,6 +8,7 @@ server/core/schema.py 的 SourceRef 一致），避免把整段正文塞进 sour
 """
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable
 
 from retrieval._bootstrap import experiment_config
@@ -151,7 +152,8 @@ class HybridRerankRetriever:
         fused = fuse_hits([vec_hits, bm_hits], top_k=pool_k, k=self._rrf_k)
         if not fused:
             return []
-        scores = self._rerank_fn(question, [h["text"] for h in fused])
+        # 同步 CPU 打分移出事件循环：留在循环内会阻塞整个 live 服务（15s+/题）
+        scores = await asyncio.to_thread(self._rerank_fn, question, [h["text"] for h in fused])
         ranked = sorted(zip(fused, scores), key=lambda p: (-p[1], p[0]["node_id"]))
         hits = [{**h, "score": float(s)} for h, s in ranked]
         hits = apply_version_boost(hits, self._version_pref, self._version_boost)
