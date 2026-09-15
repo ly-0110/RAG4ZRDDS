@@ -20,6 +20,11 @@ class QueryRequest(BaseModel):
     top_k: int | None = Field(
         default=None, ge=1, le=20, description="检索条数；缺省用服务端 QUERY_TOP_K"
     )
+    experiment: str | None = Field(
+        default=None, min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_-]+$",
+        description="实验 ID（configs/experiments/*.yaml 文件名 stem）；仅 live 模式消费，"
+                    "白名单外返回 422。缺省用服务端启动配置；mock 模式忽略",
+    )
 
 
 class SourceRef(BaseModel):

@@ -1,5 +1,7 @@
 # 第四周交付记录（成员 D）
 
+> **v1.3（2026-09-15）**：§4.1 F1/F3/F4 的 D 侧后端落地回写（用户四问拍板：/healthz 扩 kb、新增 /nodes、/query experiment；E 域前端全部留 E）——api.md 升 **v0.14**，+15 测试，pytest 383/383。
+> **v1.2（2026-09-15）**：新增 §4.1（前端实测四项问题，D 逐条代码核实全部属实）；§4 总表加一行指向。
 > **v1.1（2026-09-15）**：新增 §3.5（PR#38 = B 第四周检索交付审查）；§1 总览、§4 未完成、§5 验收对照同步更新。
 > **v1.0（2026-09-15，结构重构）**：按"一个 PR 一个大点"重排——此前按交付时间线滚动追加的 §1~§8 收敛为「总览 + D 交付一张表 + 各 PR 审查」；删除过程性内容（逐版本变更史、分支累积记录、已执行完毕的拍板过程，见 git 历史与本文件旧版）。只保留对当前协作仍有效的结论。
 > 记录人：成员 D。验证口径：基线核对 → pytest 全套 → 契约核对 → 真值/端到端实测。
@@ -18,6 +20,9 @@
 | #36 | E | 多来源证据前端与问题集质量闭环 | 改善显著，1 个新 P0（§3.4） |
 | #37 | D | 第四周收尾（PR#36 合入 + review v1.0 + README/demo-runbook 改 API 为主） | 已 squash 合入 develop（`0050e6f`） |
 | #38 | B | 第四周检索：Hybrid+Reranker 通路 + Version-aware 加权 + 四组对比 | 合格（§3.5） |
+| #39 | D | 第四周收尾二（PR#38 审查 + hybrid_rerank components 必填 + 精排阻塞入册） | 已 squash 合入 develop（`d8134e5`） |
+| #40 | B | 审查跟进：审计状态更正 + 精排打分移出事件循环 | 合格，已闭环（§3.5.1.1） |
+| 本分支待发 | D | F1/F3/F4 后端三件（/healthz kb、/nodes/{node_id}、/query experiment）+ api.md v0.14 | 384/384，pytest 绿（§4.1） |
 
 
 
@@ -128,6 +133,21 @@ merge-base = `b606e9f`（#35）rebase 后交付，零冲突；B 正文声明 reb
 
 **B 请 D 留意的另两项**：①`struct_multisrc_v1` 回归 warn——纯时长项（B 机 21.5s vs 基准 10.2s >2×），检索明细重合 1.0，属跨机器速差非回归；②reranker 权重两份并存（HF 缓存 + B 机 `models/`）——**本机核实仅 HF 缓存一份 2.2GB**（`models/` 不入 Git，B 的两份都在其机器），清理与否由 B 自定。精排组单次 2.1h，全量回归含精排组建议 `--only` 选跑（合理，照办）。
 
+#### 3.5.1.1 状态更新（2026-09-15 晚，PR#40 后 · 已闭环）
+
+**B 已按建议①修复**（`60ee5b2`）：`retrieval/retriever.py` 单点改为 `scores = await asyncio.to_thread(self._rerank_fn, question, texts)`，并按 TDD 补"同步打分期间心跳持续跳动"回归用例（0.3s 假打分 + 0.01s 心跳，修复前 0 跳红 / 修复后 ≥5 跳绿）。
+
+**D 本机 ticker 复核**（真实产物 `struct_multisrc_hybrid_rerank`，非单测）：
+
+| 场景 | 耗时 | 心跳 ticks | 理论值 | 判定 |
+|---|---|---|---|---|
+| 热查询（纯精排打分 30 候选） | 16.1s | **159** | ~161 | 事件循环几乎不冻（修复前同口径 = 0 tick/15s） |
+| 冷查询（首题含 bge-m3 + CrossEncoder 冷加载） | 26.0s | 167 | ~260 | 约 9s 冷加载仍占循环 |
+
+**建议②（启动期预热精排模型）撤销，不再要求 B 实现**（用户 2026-09-15 拍板）——理由：①已消除主体阻塞；且本轮 F4 落地后，服务端切到 `hybrid_rerank` 时的管线组装（含预热）跑在 `PipelineRegistry` 的 worker 线程里，冷加载不落在事件循环上；②只在"hybrid_rerank 作为启动默认配置"时才有边际意义。**剩余的冷加载/首切等待（~26s）已由 demo-runbook v0.4 的"通路切换需预热"口径覆盖**。
+
+**仍留 B 自评**：并发信号量（to_thread 后多请求可同时进精排争抢 CPU 核；单用户演示无碍）——记 P3，不阻塞交付。
+
 ## 4. 未完成任务与阻塞
 
 | 事项 | 归属 | 现状与影响 |
@@ -137,8 +157,22 @@ merge-base = `b606e9f`（#35）rebase 后交付，零冲突；B 正文声明 reb
 | ~~`hybrid_rerank` 实现 + §3.3 设计一致性拍板~~ | ~~B~~ | **已随 PR#38 交付并拍板**（§3.5）；~~剩余 D 两项~~ **已落地（2026-09-15）**：schema `hybrid_rerank.components` 必填（含 `uses_reference_index()` 简化为按 mode 判定、注释更新）+ README components 行更新，+1 校验测试，pytest 368/368 |
 | `answer_eval.py` runner（X2） | C | `evaluation/runners/` 仍空；回答侧指标无法进矩阵 |
 | `source_url` 正式进 wire（方案 A） | B/C/E 会签 | 回查通道已落地且被前端消费；SSE 仍 7 字段 |
-| multisource 数据集接线 | D | 待标注定版：multisrc 配置 dataset/expected_sources 指向 + Makefile audit 覆盖 |
+| multisource 数据集接线 | D | 待标注定版：**命名已认可 B 的方案**（`questions_multisource.jsonl` / `expected_sources_multisource.jsonl`，B 在 evaluation.md §4 登记，用户 2026-09-15 拍板）+ multisrc 配置 dataset/expected_sources 指向 + Makefile audit 覆盖 |
+| ~~B1：BM25 零分过滤改了 B 的测试断言~~ | ~~B~~ | **视为默认接受、不再单独追认**（B 历经 PR#26/#30/#38/#40 均无异议；改动方向正确——零词面重叠不构成证据。用户 2026-09-15 拍板） |
+| ~~精排阻塞事件循环（§3.5.1）~~ | ~~B~~ | **已随 PR#40 修复并本机复核闭环**（热题 159/161 ticks；建议②经拍板撤销），详见 §3.5.1.1 |
+| **前端实测四项问题（F1~F4）** | E 为主（F1/F3/F4 涉契约会签） | 2026-09-15 用户实测反馈，D 逐条对照前端源码与 api.md 核实**全部属实**；同日用户拍板后 **F1/F3/F4 的 D 侧后端已落地**（api.md v0.14，§4.1）——剩 E 前端接线与 F2 markdown 渲染 |
 | 例会带回 | — | struct_bm25 prompt v0→v2（议题 8）、F1（filters 是否移出身份段）、feedback 字段会签（E/C）、base_url 正式域名、PR#34 两项通报 C、questions 大改写口径（C） |
+
+### 4.1 前端实测四项问题（2026-09-15，D 代码核实）
+
+| # | 问题 | 核实结论与证据 | 归属与处置 |
+|---|---|---|---|
+| F1 | 知识库状态无法查看，是摆设 | **属实**。`web/RAG4ZRDDS/src/App.vue` L34~55「文档集合 / 知识节点 / 索引健康度」三卡与 L82~90「向量引擎」卡全部写死「占位数据：未接入××接口」文案；唯一真实数据是顶栏 `/healthz` 状态徽标（服务在线 + mock/live 模式）。根因双向缺位：**API 层本就没有知识库统计端点**（api.md v0.13 仅 `/query`、`/sources/{rid}`、`/healthz`、`/feedback` 四个端点），E 无数据可接 | **D 侧已落地（2026-09-15 拍板）**：`/healthz` 附 `kb` 统计（experiment/retrieval_mode/index_dirname/node_total/sources[{id,version,chunks}]，启动时从 Node 产物实数）+ `experiments` 白名单（api.md **v0.14**）；剩余 E 按契约接线替换占位卡 |
+| F2 | 答案不解析 markdown，可读性低 | **属实**。`App.vue` L148 `<pre class="streaming-response">{{ answer }}</pre>` 纯文本插值；`web/RAG4ZRDDS/package.json` 无任何 markdown 渲染依赖。Prompt v2 输出含标题/列表/代码块 → `#`/`-`/反引号全部字面显示 | E 引入 markdown 渲染（marked / markdown-it + DOMPurify 防 XSS，LLM 输出属不可信输入） |
+| F3 | 「查看节点详情」显示的不是该节点原文，而是类似 /query 返回体且含 answer | **属实**（机制精确化：拉的是 `GET /sources/{rid}` 回查体，内容族与 /query 相同）。`CitationsCard.vue` L198~235：无论点开哪个节点，都 fetch **同一份** `/sources/{rid}` 整体记录并 `JSON.stringify` 全量展示 = `question + answer + 全部 sources[]`（落库形状见 `server/api/query.py` L67/L76）。且 chunk 正文在契约上就不下发（投影剥离，text 仅生成侧使用）——**「原文」当前 API 层不存在**，前端无从展示 | **D 侧已落地（2026-09-15 拍板）**：新增 **`GET /nodes/{node_id}`**（api.md **v0.14**）——启动时装载 node_id→详情表（同 source_url 表先例），按需返回单节点 text+section_path+双页码+source_url；**正文出网属"正文不下发"立场的定向放宽，待 B/C/E 追认**；SSE wire 仍 7 字段。剩余 E：详情面板改为取该端点（并消除"点谁都显示整包 JSON"） |
+| F4 | 前端只能使用单源 vector 检索 | **属实**（默认演示路径下）。`/query` 请求体契约仅 `question`/`top_k`（api.md v0.13），**无 mode/experiment 参数**；检索实验由服务端启动期 `RAG_EXPERIMENT_CONFIG` 定死（默认 struct_v1.yaml = 单源 vector）。前端零检索模式选择器，ChatInput 的「语义检索 / Top-K 5」chip 是静态装饰（`ChatInput.vue` L13~14）。multisrc / bm25 / hybrid / hybrid_rerank 通路从 UI 不可达 | **D 侧已落地（2026-09-15 拍板）**：`/query` 新增可选 **`experiment`**（api.md **v0.14**）——白名单 = `configs/experiments/*.yaml`（`/healthz` 的 `experiments` 同源），`PipelineRegistry` 懒组装 + LRU 缓存（≤3，默认管线钉住，worker 线程组装不冻事件循环，逐出尽力 close）；未知 ID 422 列可用值；mock 忽略。剩余 E：选择器从 `/healthz` 取白名单、请求带 `experiment`；演示口径＝首次切换某实验前先点一题预热 |
+
+**核实方法**：逐条对照 `web/RAG4ZRDDS/src/`（App.vue / CitationsCard.vue / ChatInput.vue / package.json）与 `docs/api.md` v0.13、`server/api/query.py`；未跑浏览器端到端（结论均来自源码与契约静态核实，与用户实测现象互证）。
 
 ## 5. Week 4 验收对照（指南 §19）
 

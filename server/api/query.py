@@ -22,6 +22,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from retrieval.retriever import to_source_refs
+from server.core.pipeline import available_experiments
 from server.core.request_log import request_log_scope
 from server.core.schema import QueryRequest, with_source_urls
 
@@ -42,7 +43,22 @@ async def query(req: QueryRequest, request: Request) -> StreamingResponse:
             detail="问题不能是空白内容；请输入要查询的问题后重试。",
         )
 
-    pipeline = request.app.state.pipeline
+    # F4（review §4.1）：live 模式下可按请求切换检索实验（白名单 =
+    # configs/experiments/*.yaml，注册表懒组装并缓存）；mock 忽略该参数。
+    mode = request.app.state.settings.rag_mode
+    if req.experiment and mode == "live":
+        available = available_experiments()
+        if req.experiment not in available:
+            raise HTTPException(
+                status_code=422,
+                detail=(f"未知实验 {req.experiment!r}；可用实验："
+                        f"{', '.join(available) or '（无）'}"
+                        "（白名单 = configs/experiments/*.yaml 文件名）"),
+            )
+        pipeline = await request.app.state.pipeline_registry.get_or_build(
+            req.experiment, f"configs/experiments/{req.experiment}.yaml")
+    else:
+        pipeline = request.app.state.pipeline
     cache = request.app.state.sources_cache
     top_k = req.top_k or request.app.state.settings.default_top_k
     rid: str = request.state.request_id

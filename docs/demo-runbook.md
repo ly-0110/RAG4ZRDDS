@@ -1,5 +1,7 @@
 # Demo 演练手册（成员 D · 第四周，指南 §8 D 任务 3）
 
+> **v0.5（2026-09-15 晚）**：§4 缺口 2 改写——精排阻塞已由 B 随 PR#40 修复（打分 to_thread），D 本机 ticker 复核热题 159/161 心跳；`hybrid_rerank` 从此**可进演示动线**（首切/冷加载 ~26s，靠 §3 预热口径覆盖）。
+> **v0.4（2026-09-15）**：F4 落地（api.md v0.14）——**场景间切换检索实验不再需要重启服务**：`/query` 请求体带可选 `experiment`（白名单见 `/healthz` 的 `experiments`），见 §3 开头"通路切换"。
 > **v0.3（2026-09-15）**：已知缺口 2 重写——B 的 PR#38 已落地 hybrid_rerank（四组对比入库），但 live 精排打分**阻塞事件循环**（本机实测热题 15.1s/题、首题 27.8s、B 机 ~63s/题，冻结期间整个服务不响应），演示动线不挂该配置，实测与解决方法见 `docs/week4-delivery-review.md` §3.5.1。
 > **v0.2（2026-09-15）**：LLM 后端叙述改为 **API 为主**（`.env.example` 默认 OpenRouter 免费档），本地 Ollama + 网关降为可选附录（`models/` 不入 Git，属本机个人研究）；同步 PR#36（E）事实：前端 feedback 按钮已接入、`source_url` 前端外链闭环、semantic 超长块已随 A 的 PR#32 销项、指标口径更新（audit 首次 pass 但正式指标仍冻结）。
 > **v0.1（2026-09-14）**：首版。四段演示场景已在**本机 live 通路实测**（真实 bge-m3 检索 + 真实本地 LLM 出词），耗时与引用页码均为实测值，非估算。
@@ -55,6 +57,13 @@ netstat -ano | grep LISTENING | grep -E ":8000|:11500|:11434"
 
 ## 3. 四段演示脚本
 
+**通路切换（v0.4 起，无需重启）**：各场景的"配置"行记录的是该场景**实测时的启动配置**；现在同一服务内可直接切换——`/query` 请求体带 `"experiment": "<实验ID>"`（如 `struct_multisrc_v1`、`struct_multisrc_hybrid`），白名单 = `/healthz` 返回的 `experiments`。注意：**首次切换到某实验需现场装载模型/索引（数秒~数十秒），演示前先把要用到的实验各点一题预热**；`hybrid_rerank` 因精排阻塞事件循环（v0.3 缺口 2）仍不建议挂入演示动线。
+
+```bash
+curl -N -X POST http://127.0.0.1:8000/query -H "Content-Type: application/json" \
+     -d '{"question": "…", "experiment": "struct_multisrc_v1"}'
+```
+
 ### 场景 1 · 单来源精确定位 + 引用真值（基线）
 
 - 配置：`RAG_EXPERIMENT_CONFIG=configs/experiments/struct_v1.yaml`
@@ -108,7 +117,7 @@ tail -n 1 logs/feedback.jsonl
 ## 4. 已知缺口（演示时必须如实说明）
 
 1. **SSE wire 第 8 字段待会签**：HTML 引用的 `source_url` 可经 `GET /sources/{rid}`（及 MCP `get_sources`）回查获得（api.md **v0.11**），前端（E PR#36）已消费该通道并渲染"打开 HTML 原文"外链；但 **SSE 的 `sources`/`done` 事件仍是 7 字段、不含该键**，正式扩进 wire 需 B/C/E 会签。演示话术："引用可溯源到原文页——引用卡上可直接点开外链。"
-2. **Reranker 不进演示动线**（PR#38 后已落地、但有 live 阻塞）：`hybrid_rerank` 检索与四组对比已入库（`docs/evaluation.md`），但精排打分为同步 CPU 计算**阻塞事件循环**——本机实测热题 **15.1s/题**（首题含 2.2GB 冷加载 27.8s；B 机 ~63s/题），期间**整个服务冻结**、任何请求（含 `/healthz` 与并发提问）都排队（ticker 法实测 15s 内心跳 0 跳动，详见 `docs/week4-delivery-review.md` §3.5.1）。演示动线维持场景 1~4（vector/hybrid 通路检索秒级）；如被问及精排，话术："精排已在实验侧完成四组对比，live 通路待并发化改造（打分移线程 + 启动预热）后开放。"
+2. **Reranker 可进演示动线（阻塞已修复）**：`hybrid_rerank` 检索与四组对比已入库（`docs/evaluation.md`）；**阻塞问题已由 B 随 PR#40 修复**（打分 `asyncio.to_thread` 移出事件循环），D 本机 ticker 复核：热题 16.1s 期间心跳 **159/161**（修复前同口径 0 跳动）——服务不再冻结。剩余成本是**首切/冷加载约 26s**（bge-m3 + CrossEncoder 冷加载），已由 §3"通路切换"的预热口径覆盖：演示前先把 `struct_multisrc_hybrid_rerank` 各点一题预热，现场再问即为热态。话术："精排通路已并发化（打分移线程），首次装载后单题约 16s、服务全程可响应。"
 3. **指标数字不上汇报页**：标注经 E 重标（PR#36）后 `make audit` **首次 pass**（循环指纹 4/120），但六题题干编码损坏（P0）与宽区间 keyword 语义复核（P1）未完成（见 `docs/week4-delivery-review.md` §10.4）——正式 hit_rate/mrr 仍不得出现在汇报页，回归默认只走明细通道。
 
 ## 5. 现场故障与兜底
