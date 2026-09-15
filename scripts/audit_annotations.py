@@ -47,6 +47,7 @@ BLOCKING_CODES = {
     "TERM_PAGE_MISMATCH",         # 术语只出现在与标注页相距很远的页 → 页码与语义矛盾
     "SECTION_PAGE_MISMATCH",      # 关键词命中的章节页区间不含标注页
     "HTML_PAGE_SHOULD_BE_NULL",   # HTML 来源无页码概念却标了页码
+    "PAGE_INVALID",               # 页码不是整数或合法闭区间
     "QUESTION_TOKEN_OFF_PAGE",    # 题干的技术 token 不在被标注页附近 → 这页回答不了这题
     "QUESTION_TOKEN_ABSENT",      # 题面技术 token 在该来源全书零命中 → 实体不存在，应转拒答集
 }
@@ -98,6 +99,19 @@ def load_jsonl(path: Path) -> list[dict]:
 def _norm(text: str | None) -> str:
     """归一化：去空白 + 小写。中文关键词与 C 标识符大小写/空格差异不该影响命中。"""
     return "".join((text or "").split()).lower()
+
+
+def annotation_pages(page: Any) -> tuple[int, int] | None:
+    """Normalize a single page or an inclusive [start, end] page range."""
+    if isinstance(page, bool):
+        return None
+    if isinstance(page, int):
+        return page, page
+    if (isinstance(page, list) and len(page) == 2
+            and all(isinstance(value, int) and not isinstance(value, bool) for value in page)
+            and page[0] <= page[1]):
+        return page[0], page[1]
+    return None
 
 
 class ProductTruth:
@@ -216,7 +230,8 @@ class ProductTruth:
 
 def audit_annotation(ann: dict, truth: ProductTruth, top1_page: int | None,
                      questions_ids: set[str],
-                     question_text: str = "") -> tuple[list[str], dict]:
+                     question_text: str = "",
+                     check_question_tokens: bool = True) -> tuple[list[str], dict]:
     """返回 (判定码列表, token 探查明细)。判据只来自产物，绝不查检索器。"""
     findings: list[str] = []
     qid = ann.get("question_id")
@@ -238,12 +253,17 @@ def audit_annotation(ann: dict, truth: ProductTruth, top1_page: int | None,
         # 该来源在产物里根本没有页码（HTML 来源）→ 不该标印刷页
         findings.append("HTML_PAGE_SHOULD_BE_NULL")
 
-    if isinstance(page, int) and bounds:
+    page_span = annotation_pages(page)
+    if page_span and bounds:
         lo, hi = bounds
-        if not (lo <= page <= hi):
+        page_lo, page_hi = page_span
+        if page_lo < lo or page_hi > hi:
             findings.append("PAGE_OUT_OF_RANGE")
-        elif not truth.has_page(source, page):
+        elif not any(truth.has_page(source, candidate)
+                     for candidate in range(page_lo, page_hi + 1)):
             findings.append("PAGE_NO_CHUNK")
+    elif page is not None and page_span is None:
+        findings.append("PAGE_INVALID")
 
     if keyword:
         span = truth.section_span(source, keyword)
@@ -251,26 +271,33 @@ def audit_annotation(ann: dict, truth: ProductTruth, top1_page: int | None,
         pages_with_term = truth.term_pages(source, keyword) if source else set()
         if not in_title and not pages_with_term:
             findings.append("TERM_NOT_FOUND")               # 标题与正文都找不到 → 疑似编造
-        if span and isinstance(page, int) \
-                and not (span[0] - PAGE_TOLERANCE <= page <= span[1] + PAGE_TOLERANCE):
+        if span and page_span \
+                and (page_span[1] < span[0] - PAGE_TOLERANCE
+                     or page_span[0] > span[1] + PAGE_TOLERANCE):
             findings.append("SECTION_PAGE_MISMATCH")        # 关键词章节的页区间不含标注页
-        if pages_with_term and isinstance(page, int) \
-                and all(abs(page - p) > PAGE_TOLERANCE for p in pages_with_term):
+        if pages_with_term and page_span \
+                and all(p < page_span[0] - PAGE_TOLERANCE
+                        or p > page_span[1] + PAGE_TOLERANCE
+                        for p in pages_with_term):
             findings.append("TERM_PAGE_MISMATCH")           # 术语只出现在远处的页
 
     # 题干 token 必须落在被标注页附近——否则"这页回答不了这题"
     probe: dict[str, Any] = {}
-    tokens = question_tokens(question_text)
+    tokens = question_tokens(question_text) if check_question_tokens else []
     probe["tokens"] = tokens
-    if not tokens:
+    if not check_question_tokens:
+        probe["tokens"] = []
+    elif not tokens:
         findings.append("NO_TOKEN_PROBE")        # 纯中文题干，交人工核对
-    elif isinstance(page, int) and source:
+    elif page_span and source:
         absent, off_page = [], []
+        page_lo, page_hi = page_span
         for tok in tokens:
             pages = truth.term_pages(source, tok)
             if not pages:
                 absent.append(tok)
-            elif not any(abs(page - p) <= PAGE_TOLERANCE for p in pages):
+            elif not any(page_lo - PAGE_TOLERANCE <= p <= page_hi + PAGE_TOLERANCE
+                         for p in pages):
                 off_page.append({"token": tok, "appears_on": sorted(pages)[:8]})
         if absent:
             probe["absent"] = absent
@@ -279,7 +306,9 @@ def audit_annotation(ann: dict, truth: ProductTruth, top1_page: int | None,
             probe["unmatched"] = off_page
             findings.append("QUESTION_TOKEN_OFF_PAGE")
 
-    if top1_page is not None and page == top1_page:
+    # A range is intentionally excluded: broad, source-backed ranges commonly
+    # contain the retrieved top-1 by chance and are not evidence of circularity.
+    if top1_page is not None and isinstance(page, int) and page == top1_page:
         findings.append("CIRCULAR_TOP1")         # 指纹项：聚合后看比例，不单独阻断
     return findings, probe
 
@@ -293,10 +322,15 @@ def audit(expected: list[dict], questions: list[dict], truth: ProductTruth,
     counts: dict[str, int] = {}
     annotated_ids = {a.get("question_id") for a in expected}
 
+    source_counts: dict[str, int] = {}
+    for ann in expected:
+        source_counts[ann.get("question_id")] = source_counts.get(ann.get("question_id"), 0) + 1
+
     for ann in expected:
         codes, probe = audit_annotation(
             ann, truth, report_top1.get(ann.get("question_id")), qids,
-            qtexts.get(ann.get("question_id"), ""))
+            qtexts.get(ann.get("question_id"), ""),
+            check_question_tokens=source_counts.get(ann.get("question_id"), 0) <= 1)
         for c in codes:
             counts[c] = counts.get(c, 0) + 1
         per_question.append({
