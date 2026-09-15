@@ -1,5 +1,6 @@
 # 第四周交付记录（成员 D）
 
+> **v1.1（2026-09-15）**：新增 §3.5（PR#38 = B 第四周检索交付审查）；§1 总览、§4 未完成、§5 验收对照同步更新。
 > **v1.0（2026-09-15，结构重构）**：按"一个 PR 一个大点"重排——此前按交付时间线滚动追加的 §1~§8 收敛为「总览 + D 交付一张表 + 各 PR 审查」；删除过程性内容（逐版本变更史、分支累积记录、已执行完毕的拍板过程，见 git 历史与本文件旧版）。只保留对当前协作仍有效的结论。
 > 记录人：成员 D。验证口径：基线核对 → pytest 全套 → 契约核对 → 真值/端到端实测。
 
@@ -15,6 +16,8 @@
 | #34 | B | 第四周检索设计文档 | D 会签完毕（§3.3） |
 | #35 | D | 第四周全套交付（8 项，§2） | 已 squash 合入 develop（`b606e9f`） |
 | #36 | E | 多来源证据前端与问题集质量闭环 | 改善显著，1 个新 P0（§3.4） |
+| #37 | D | 第四周收尾（PR#36 合入 + review v1.0 + README/demo-runbook 改 API 为主） | 已 squash 合入 develop（`0050e6f`） |
+| #38 | B | 第四周检索：Hybrid+Reranker 通路 + Version-aware 加权 + 四组对比 | 合格（§3.5） |
 
 
 
@@ -79,13 +82,37 @@ merge-base = develop 合并前 HEAD，**基线纪律连续第三次达标**；16
 | **P1** | 宽区间语义复核未完成：114/120 为区间、69 题全书级 [7,288/289]——页码条件名存实亡，keyword 选错机器抓不出；Q056 仍 `10.34 DurabilityServiceQosPolicy` 错标（真值 10.7 @印刷127），被区间 [61,163] 洗白后审计不再报警 | E 逐题收窄区间并**人工**复核 keyword（机器探针因 QoS 汇总表干扰分辨力不足） |
 | **P2** | datasets README 的 expected_sources 行仍写"尚无"（过期）；questions.jsonl 大改写未经 C 口径会签（上轮遗留） | E 顺手更正；口径例会带 |
 
+### 3.5 PR#38（B 第四周检索）= 合格
+
+merge-base = `b606e9f`（#35）rebase 后交付，零冲突；B 正文声明 rebase 时丢弃两项已被上游取代的改动——**核实属实**（scripts 两处 gate 已用 `uses_reference_index()`、README params 行已由 D 写好，B 均未重复）。本机 merge 后 **pytest 367/367**（B 报 362+2 skip，差异 = 本机真实产物齐全、2 个守卫测试实跑）。
+
+**交付内容**：
+
+1. **Hybrid+Reranker 通路**：`retrieval/rerank.py` 精排工厂（懒加载 CrossEncoder、models/ 本地优先复用 D 的 `resolve_model`、别名映射）+ `HybridRerankRetriever`（RRF 30 → 精排 → Top5）。走原始 hit 通路的原因（版本加权需要 metadata、`_to_source_ref` 投影后丢失）在 docstring 写明；`rerank_fn` 可注入可测。`max_length=512` 性能修复（不设时按模型上限 8192 处理，120 题 4.9h → 512 截断 2.1h，BAAI 官方用法）有实测依据。
+2. **Version-aware（§8.3）**：`retrieval/boosts.py::apply_version_boost` = 池内 min-max 归一 + 版本加成。量纲免疫论证正确（乘法在负分翻转、加法在 RRF 量纲淹没，均排除）；未配置时零回归；node_id 决定性 tie-break。三模式 retrieve 统一挂接，仅 boost 生效时扩候选池。ver24/ver20 双向对照配置齐备。
+3. **四组对比 + 方法学**：`docs/evaluation.md`（B 域新文档）——指标纪律好：真值标注未定版期间按宁缺毋滥走**证据链模式**（`expected_sources: null`，不产 hit/mrr 数字），结构性证据（来源分布、top-1 漂移 59/120、token 覆盖率）均明示"非真值指标"。回归快照 11 实验 **10 pass 1 warn 且 `with_metrics=false`——B 遵守了指标闸门**。
+
+**D 域触碰（均追认）**：api.md 升 **v0.13**——B 冒烟定死精排分量纲（sigmoid 0~1，120 题实测 0.084~0.991，输入 512 token 截断），PR#34 会签事项 2 闭环，字段无增删；三份既有报告重跑刷新（`struct_multisrc_v1/bm25/hybrid`）——同索引同题集，仅两处 top-5 近平局换序（0.7098/0.6657，**集合不变，与回归明细重合 1.0 自洽**）+ 时间戳/耗时。
+
+**本机端到端实测（D）**：`make audit` = **pass**（阻断 0，循环 4/120）；`struct_multisrc_hybrid_ver24` 全量 120 题 17.9s 跑通，**boost 生效实证**（score 落在 [0,1.1] 归一化空间，非 RRF ~0.03 量纲）；引用制零新索引，六套既有索引全部复用。
+
+**问题与注意**：
+
+| 级别 | 事项 | 处置 |
+|---|---|---|
+| P2 | `docs/evaluation.md` §1 写"`make audit` verdict=blocked（48 题 token 错位、6 题零命中）"——为 09-14 过期快照；六题题干回退处置后（#37）现为 **pass**（阻断 0、循环 4/120） | B 顺手更正一行；不影响其证据链模式正确性 |
+| 注意 | 精排为同步 CPU 推理置于 async 内（B 机实测 ~63s/题）——实验场景可接受（同 B 第一周注记先例），但 **live 服务若挂 hybrid_rerank 配置，单题约 1 分钟且阻塞事件循环** | demo 若演示精排需在 runbook 标注等待时长；并发化改造点同第一周先例 |
+| 待 D | B 拍板方案①（hybrid_rerank 一律引用制，§6.1 已回写）后留给 D 的两项：schema `components` 可选→必填 + `configs/experiments/README.md` components 行更新（现行"未填则按自有索引+精排建索引"表述作废） | 见 §4；D 域 |
+
+**B 请 D 留意的另两项**：①`struct_multisrc_v1` 回归 warn——纯时长项（B 机 21.5s vs 基准 10.2s >2×），检索明细重合 1.0，属跨机器速差非回归；②reranker 权重两份并存（HF 缓存 + B 机 `models/`）——**本机核实仅 HF 缓存一份 2.2GB**（`models/` 不入 Git，B 的两份都在其机器），清理与否由 B 自定。精排组单次 2.1h，全量回归含精排组建议 `--only` 选跑（合理，照办）。
+
 ## 4. 未完成任务与阻塞
 
 | 事项 | 归属 | 现状与影响 |
 |---|---|---|
 | 六题题干重做| E（或 C 定拒答口径） | 重写务必 UTF-8 全程（勿经 ASCII/ANSI 转码环节） |
 | PR#36 P1 宽区间 keyword 复核 | E | 69 题全书级区间页码条件名存实亡；Q056 仍 10.34 错标 |
-| `hybrid_rerank` 实现 + §3.3 设计一致性拍板 | B | 仍 `NotImplementedError`；D 侧配套与 2.2GB 权重已备好 |
+| ~~`hybrid_rerank` 实现 + §3.3 设计一致性拍板~~ | ~~B~~ | **已随 PR#38 交付并拍板**（§3.5）；~~剩余 D 两项~~ **已落地（2026-09-15）**：schema `hybrid_rerank.components` 必填（含 `uses_reference_index()` 简化为按 mode 判定、注释更新）+ README components 行更新，+1 校验测试，pytest 368/368 |
 | `answer_eval.py` runner（X2） | C | `evaluation/runners/` 仍空；回答侧指标无法进矩阵 |
 | `source_url` 正式进 wire（方案 A） | B/C/E 会签 | 回查通道已落地且被前端消费；SSE 仍 7 字段 |
 | multisource 数据集接线 | D | 待标注定版：multisrc 配置 dataset/expected_sources 指向 + Makefile audit 覆盖 |
@@ -96,7 +123,7 @@ merge-base = develop 合并前 HEAD，**基线纪律连续第三次达标**；16
 | 通过标准 | 现状 | 依据 |
 |---|---|---|
 | Hybrid Retrieval 可运行 | ✅ | 实验通路 + live 服务通路实测（RRF 0.0276~0.0318、引用制零重建） |
-| Reranker 有实验数据 | ❌ | B 域 `hybrid_rerank` 仍 `NotImplementedError`（D 侧配套就绪） |
+| Reranker 有实验数据 | ✅ | PR#38：四组对比报告 + 精排漂移/token 覆盖结构性证据（§3.5）；精排分量纲 v0.13 定死 |
 | Unknown/Abstention 可工作 | ✅ | E1003 不存在 / 第 300 页越界两例 live 明确拒答且不虚构；20 题专项口径待 C |
 | 有 Citation | ◕ | 双页码/来源分型/回查达标；回查通道带 `source_url` 且前端已消费；SSE 扩第 8 字段待会签 |
 | 有自动/半自动 Evaluation | ◌ | 检索侧矩阵与闸门闭环、`make audit` 首次 pass；正式指标冻结至 PR#36 P0/P1 清零 |
