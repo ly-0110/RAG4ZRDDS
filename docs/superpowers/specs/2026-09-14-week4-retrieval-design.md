@@ -220,7 +220,7 @@ apply_version_boost(hits, pref, boost):
 | 事项 | D 结论 |
 |---|---|
 | 三处引用制 gate | **D 侧两处已完成，无需 B 出补丁**：`scripts/build_index.py` / `run_experiment.py` 已由 D 第四周交付五收敛为单一事实源 `experiment_config.uses_reference_index()`（判定 `mode in ("hybrid","hybrid_rerank") and components`，hybrid_rerank 引用制形态已覆盖；提交在 feature/server-platform 待 push，合入 develop 后 B 复核即可）。`retrieval/index.py` 属 B 域按原计划直改——但见下方「设计一致性」条。**B 实现时请勿再对两个 D 脚本出补丁**，避免与 D 侧提交冲突 |
-| 设计一致性（新增，需 B 拍板） | §2.3 计划让 `retrieval/index.py` 一刀切拒绝 `hybrid_rerank`，但 schema 刻意**不强制** hybrid_rerank 填 components（experiment_config.py L132 注释）、configs README components 行也写明"未填则按自有索引 + 精排建索引"——`uses_reference_index()` 对无 components 的 hybrid_rerank 返回 False，D 侧脚本会走自有索引路径，核心层却拒绝，两侧矛盾。二选一：①hybrid_rerank 一律引用制 → schema 收紧 components 必填 + README 行更新，`retrieval/index.py` 可一刀切拒绝；②保留自有索引形态 → `retrieval/index.py` 按 `uses_reference_index()`（或等价判定）分派拒绝，只拦引用制形态。D 无倾向，B 实现时定并回写本表 |
+| 设计一致性（**B 拍板①，2026-09-15 回写**） | **结论：hybrid_rerank 一律引用制（方案①）**。依据：(1) 四组对比与全部实验配置均为引用制形态，`HybridRerankRetriever`（§2.2）本身就是组合 vector+bm25 两个 store 的类，"自有索引+精排"无任何消费方（YAGNI）；(2) 双形态需并行维护两条粗排通路与两套测试矩阵；(3) 与 PR#34 已会签设计一致。**落地**：`retrieval/index.py` 保持一刀切拒绝（B 域，随 PR#38 提交）；**请 D 顺手收紧 schema**（hybrid_rerank 的 `components` 由可选改必填）并更新 `configs/experiments/README.md` components 行中"未填则按自有索引+精排建索引"的表述——均为 D 域，B 未动。若后续实验确需"自有索引+精排"，届时按方案②给 `retrieval/index.py` 补 `uses_reference_index()` 分派（本行留作依据） |
 | api.md 量纲补条目 | **已落 v0.12（D 落笔）**：score 字段表补 `hybrid_rerank` 交叉编码器分条目（具体量纲 sigmoid 0~1 或原始 logits **以 B 冒烟实测为准，B 定死后回写字段表**）；version_boost 生效配置 score = 池内归一化排序分 + 加成，跨查询/跨配置不可比；阈值注记补 `hybrid_rerank` 不设绝对阈值（沿用条数/top_k 信号）、boost 生效配置一律不适用绝对阈值 |
 | configs README params 行 | **已由 D 直接写**（不走 B 出稿往返）：`version_pref`/`version_boost` 作用与典型值 + 与 `filters` 硬过滤的分工 + F1 提示 |
 | 弱证据阈值口径（C） | **D 认可**：按 mode/配置定标与 X1 决议（api.md v0.7）同向，boost 生效配置下 score 不可跨查询比较，绝对阈值一律不适用（已写入 api.md v0.12）。例会通报 C |
@@ -231,7 +231,7 @@ apply_version_boost(hits, pref, boost):
 
 ## 7. 风险与开放问题
 
-- **A 的终版 Node 集变更 → 全部索引作废**（向量重建 CPU ~87 分钟）：本周对比先跑；A 冻结后需复核索引指纹，若产物已变则重建后重跑四组（约 1.5h 机器时间）。例会同步该依赖。
+- **A 的终版 Node 集变更 → 全部索引作废**（向量重建 CPU：D 机实测约 25 分钟、本机冷启首建实测 87 分钟，见 §6.1 成本修正）：本周对比先跑；A 冻结后需复核索引指纹，若产物已变则重建后重跑四组（本机口径约 2.5h 机器时间）。例会同步该依赖。
 - **transformers 5.16 较新**，bge-reranker-v2-m3 加载可能有兼容问题：冒烟不过则退用 `CrossEncoder` 直载 + `trust_remote_code`，仍不过则降级 bge-reranker-base 并记录（模型选型变更是实验记录的一部分）。
 - **CPU 精排耗时**：30 候选 × 120 题 ≈ 5~10 分钟/组；若明显超预期，`candidate_top_k` 保持 30 不动（对比较口径的影响最小），改为减少重复运行次数。
 - **归一化分的解读风险**：boost 生效时 score 不再是原始分——报告与前端展示需带 mode/配置上下文，防止跨配置比较（会签 §6 已列）。
