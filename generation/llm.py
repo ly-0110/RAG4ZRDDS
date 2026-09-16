@@ -46,13 +46,9 @@ class LLMConfig:
 
 
 async def stream_chat(
-    config: LLMConfig, messages: list[dict[str, str]], *, temperature: float | None = None
+    config: LLMConfig, messages: list[dict[str, str]]
 ) -> AsyncIterator[str]:
-    """OpenAI 兼容 /chat/completions 流式调用，逐段产出回答文本增量。
-
-    temperature 为 None 时不显式下发（走服务端默认）；评测判分要求确定性时
-    由调用方传 0.0（C3）。
-    """
+    """OpenAI 兼容 /chat/completions 流式调用，逐段产出回答文本增量。"""
     try:
         from openai import AsyncOpenAI
     except ImportError as e:  # pragma: no cover —— 依赖缺失时给可读错误
@@ -63,10 +59,11 @@ async def stream_chat(
 
     client = AsyncOpenAI(base_url=config.base_url, api_key=config.api_key)
     try:
-        kwargs: dict = {"model": config.model, "messages": messages, "stream": True}
-        if temperature is not None:
-            kwargs["temperature"] = temperature
-        stream = await client.chat.completions.create(**kwargs)
+        stream = await client.chat.completions.create(
+            model=config.model,
+            messages=messages,
+            stream=True,
+        )
         async for chunk in stream:
             if not chunk.choices:
                 continue
@@ -78,14 +75,12 @@ async def stream_chat(
 
 
 async def complete_chat(
-    config: LLMConfig, messages: list[dict[str, str]], *,
-    max_tokens: int = 512, temperature: float | None = None
+    config: LLMConfig, messages: list[dict[str, str]], *, max_tokens: int = 512
 ) -> str:
     """OpenAI 兼容 /chat/completions 非流式调用，返回完整回答文本。
 
     供评测判分（evaluation/judges/）使用：judge 需要一次性拿到完整回答再解析，
-    流式增量不适合；与 stream_chat 共用同一 LLM 配置。judge 调用传 temperature=0.0
-    以稳定判分（C3）。
+    流式增量不适合；与 stream_chat 共用同一 LLM 配置。
     """
     try:
         from openai import AsyncOpenAI
@@ -97,15 +92,12 @@ async def complete_chat(
 
     client = AsyncOpenAI(base_url=config.base_url, api_key=config.api_key)
     try:
-        kwargs: dict = {
-            "model": config.model,
-            "messages": messages,
-            "stream": False,
-            "max_tokens": max_tokens,
-        }
-        if temperature is not None:
-            kwargs["temperature"] = temperature
-        resp = await client.chat.completions.create(**kwargs)
+        resp = await client.chat.completions.create(
+            model=config.model,
+            messages=messages,
+            stream=False,
+            max_tokens=max_tokens,
+        )
         if not resp.choices:
             return ""
         return (resp.choices[0].message.content or "").strip()

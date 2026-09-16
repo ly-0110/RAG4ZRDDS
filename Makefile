@@ -1,8 +1,6 @@
-.PHONY: setup ingest index experiment answer-eval abstention manual-review regression audit test serve inspect mcp smoke-mcp help
+.PHONY: setup ingest index experiment regression audit test serve inspect mcp smoke-mcp help
 
 CFG ?= configs/experiments/struct_v1.yaml
-ANSWER_CFG ?= configs/experiments/final_v1.yaml
-SAMPLE ?=
 REG_ARGS ?=
 APP_HOST ?= 127.0.0.1
 APP_PORT ?= 8000
@@ -21,7 +19,7 @@ endif
 PY := $(if $(wildcard $(VENV_PY)),$(VENV_PY),python)
 
 help:
-	@echo "targets: setup | ingest/index/experiment CFG=... | answer-eval/abstention/manual-review (C 第四周) | regression REG_ARGS='--only a,b' | test | serve | inspect | mcp | smoke-mcp"
+	@echo "targets: setup | ingest/index/experiment CFG=... | regression REG_ARGS='--only a,b' | test | serve | inspect | mcp | smoke-mcp"
 	@echo "interpreter: $(PY)   (uses $(VENV_PY) when present, else system python)"
 	@echo "first real index build: ~8 min for 301 nodes, ~25 min for 1606 nodes (bge-m3 on CPU)"
 	@echo "if HF weights are cached, export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 to avoid network stalls"
@@ -41,19 +39,6 @@ index:
 
 experiment:
 	$(PY) scripts/run_experiment.py --config $(CFG)
-
-# 第四周 C：回答侧评测（逐题生成 + judges 判分）。SAMPLE=30 只评前 30 题冒烟；
-# 全量终跑 = make experiment CFG=$(ANSWER_CFG)（见 docs/reliability-report.md）
-answer-eval:
-	$(PY) scripts/run_experiment.py --config $(ANSWER_CFG) $(if $(SAMPLE),--sample $(SAMPLE))
-
-# 第四周 C：20 题「不存在信息」拒答专项（20/20 拒答则退出码 0）
-abstention:
-	$(PY) evaluation/runners/abstention_eval.py --config $(ANSWER_CFG)
-
-# 第四周 C：人工抽检 30 题（§9.3）——生成六问检查清单 markdown 供人工签署
-manual-review:
-	$(PY) scripts/sample_manual_review.py
 
 # 指南 §10 回归机制：变更 → 一键跑相关实验 → 与历史/基准报告比对 → 退出码判定
 regression:
