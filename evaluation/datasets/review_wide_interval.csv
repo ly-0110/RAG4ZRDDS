@@ -1,4 +1,4 @@
-question_id,question_text,source_id,current_page_range_start,current_page_range_end,current_keyword,suggested_keyword,note
+﻿question_id,question_text,source_id,current_page_range_start,current_page_range_end,current_keyword,suggested_keyword,note
 Q001,如何创建一个属于特定域的 DomainParticipant？请说明所需参数及其作用。,user_manual,7,288,'6.3.6 选择Domain ID和创建多个域',,
 Q002,DomainParticipantFactory 的 create_participant()函数中，domainId 参数的取值范围是多少？为什么需要限定这个范围？,user_manual,7,288,'6.2.4 搜索DomainParticipant',,
 Q003,在创建 DomainParticipant 时，如果希望其 Listener 不响应任何事件，mask 参数应如何设置？,user_manual,7,288,'5.3.5 Listener的继承机制',,
