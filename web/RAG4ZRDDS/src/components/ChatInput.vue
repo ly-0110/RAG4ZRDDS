@@ -43,16 +43,28 @@
           <span class="word-count">{{ userInput.length }}/{{ MAX_LENGTH }}</span>
           <span class="keyboard-hint">Enter 提交 · Shift + Enter 换行</span>
         </div>
-        <button
-          :disabled="!canSubmit"
-          @click="handleSubmit"
-          class="submit-btn"
-          type="button"
-        >
-          <span>{{ loading ? '正在检索' : '开始检索' }}</span>
-          <span v-if="loading" class="loading-icon" aria-hidden="true"></span>
-          <span v-else class="submit-arrow" aria-hidden="true">↗</span>
-        </button>
+        <div class="submit-actions">
+          <button
+            v-if="loading"
+            type="button"
+            class="stop-btn"
+            aria-label="停止生成"
+            @click="handleStop"
+          >
+            <span class="stop-icon" aria-hidden="true"></span>
+            <span>停止生成</span>
+          </button>
+          <button
+            :disabled="!canSubmit"
+            @click="handleSubmit"
+            class="submit-btn"
+            type="button"
+          >
+            <span>{{ loading ? '正在检索' : '开始检索' }}</span>
+            <span v-if="loading" class="loading-icon" aria-hidden="true"></span>
+            <span v-else class="submit-arrow" aria-hidden="true">↗</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -87,7 +99,7 @@ const props = defineProps({
   hasAnswer: { type: Boolean, default: false },
   availableExperiments: { type: Array, default: () => [] },
 })
-const emit = defineEmits(['submit'])
+const emit = defineEmits(['submit', 'stop'])
 
 const userInput = ref('')
 const MAX_LENGTH = 200
@@ -136,6 +148,12 @@ const handleSubmit = () => {
 const useSuggestion = (suggestion) => {
   if (props.loading) return
   userInput.value = suggestion
+}
+
+// 终止当前回答：请求由 App 侧 abort（后端生成器随之取消、上游 LLM 流关闭）
+const handleStop = () => {
+  if (!props.loading) return
+  emit('stop')
 }
 
 defineExpose({ question: userInput })
@@ -378,6 +396,52 @@ textarea:disabled {
   box-shadow: none;
   cursor: not-allowed;
   opacity: 0.83;
+}
+
+.submit-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* 停止生成（生成中才出现）：与主按钮同尺寸、低饱和描边，避免误点 */
+.stop-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 13px;
+  border: 1px solid rgba(180, 96, 96, 0.42);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #9a4a4a;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.stop-btn:hover {
+  background: rgba(255, 244, 244, 0.96);
+  border-color: rgba(180, 96, 96, 0.7);
+  transform: translateY(-1px);
+}
+
+.stop-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.stop-btn:focus-visible {
+  outline: 3px solid rgba(180, 96, 96, 0.24);
+  outline-offset: 3px;
+}
+
+.stop-icon {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: currentColor;
 }
 
 .submit-arrow {

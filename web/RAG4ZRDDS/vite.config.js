@@ -30,6 +30,7 @@ export default defineConfig({
       '/query': { target: BACKEND_URL, changeOrigin: true },
       '/sources': { target: BACKEND_URL, changeOrigin: true },
       '/nodes': { target: BACKEND_URL, changeOrigin: true },
+      '/documents': { target: BACKEND_URL, changeOrigin: true },  // v0.16 本地文档原文
       '/healthz': { target: BACKEND_URL, changeOrigin: true },
       '/feedback': { target: BACKEND_URL, changeOrigin: true },
     },

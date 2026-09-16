@@ -13,8 +13,8 @@
       <div class="evidence-stat">
         <span class="summary-icon">◎</span>
         <div>
-          <span>平均相关度</span>
-          <strong>{{ averageScore }}%</strong>
+          <span>{{ scoreLabel }}<template v-if="!scoreComparable">（池内相对）</template></span>
+          <strong>{{ averageScoreText }}</strong>
         </div>
       </div>
       <div class="evidence-stat">
@@ -73,21 +73,25 @@
 
           <div class="relevance-container">
             <div class="relevance-label">
-              <span class="label-text">向量相关度</span>
-              <strong class="score-value">{{ displayScore(s) }}</strong>
+              <span class="label-text">{{ scoreLabel }}</span>
+              <strong class="score-value">{{ scoreValueText(s) }}</strong>
             </div>
             <div
               class="relevance-progress-wrapper"
               role="progressbar"
-              :aria-valuenow="Math.round(normalizedScore(s) * 100)"
+              :aria-valuenow="Math.round(scoreFraction(s) * 100)"
               aria-valuemin="0"
               aria-valuemax="100"
-              :aria-label="`向量相关度 ${displayScore(s)}`"
+              :aria-label="`${scoreLabel} ${scoreValueText(s)}`"
             >
-              <span class="progress-bar" :style="{ width: scorePercent(s) }"></span>
+              <span class="progress-bar" :style="{ width: scoreBarWidth(s) }"></span>
             </div>
-            <span class="relevance-tag">{{ relationLabel(s) }}</span>
+            <span class="relevance-tag">{{ scoreComparable ? relationLabel(s) : rankLabel(i) }}</span>
           </div>
+
+          <p v-if="!scoreComparable" class="score-caveat">
+            {{ scoreCaveat }}
+          </p>
 
           <div class="action-area">
             <button
@@ -123,10 +127,13 @@
                 <div class="details-meta">
                   <span class="details-chip">{{ detailOf(s, i).source_id || '未知来源' }}</span>
                   <span v-if="detailOf(s, i).version" class="details-chip">v{{ detailOf(s, i).version }}</span>
-                  <span class="details-pages">
-                    印刷页 {{ detailOf(s, i).page_print ?? '—' }} · 物理页 {{ detailOf(s, i).page_physical ?? '—' }}
+                  <span class="details-chip is-format">{{ formatLabel(detailOf(s, i)) }}</span>
+                  <!-- 页码只对 PDF 有意义（HTML 无页面概念，产物里页字段为 None） -->
+                  <span v-if="pageRangeText(detailOf(s, i))" class="details-pages">
+                    {{ pageRangeText(detailOf(s, i)) }}
                   </span>
                 </div>
+                <p v-if="detailOf(s, i).title" class="details-title">{{ detailOf(s, i).title }}</p>
                 <p v-if="sectionPathText(detailOf(s, i).section_path)" class="details-section">
                   {{ sectionPathText(detailOf(s, i).section_path) }}
                 </p>
@@ -138,7 +145,8 @@
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  查看该节点 HTML 原文 <span aria-hidden="true">↗</span>
+                  {{ detailOf(s, i).source_type === 'html' ? '打开该节点 HTML 原文' : '打开来源文件' }}
+                  <span aria-hidden="true">↗</span>
                 </a>
               </div>
             </div>
@@ -165,7 +173,25 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  // 当前检索模式（/healthz 的 experiment_modes）：决定分数怎么显示。
+  // vector/hybrid_rerank 的分数量纲可跨查询比较；bm25 是原始词面分（7~56）、
+  // hybrid 是 RRF（~0.03）——把它们当"相关度百分比"渲染会系统性误导（api.md v0.16）。
+  scoreMode: {
+    type: String,
+    default: 'vector',
+  },
 })
+
+const scoreComparable = computed(() => ['vector', 'hybrid_rerank'].includes(props.scoreMode))
+const scoreLabel = computed(() => ({
+  vector: '向量相关度',
+  hybrid_rerank: '精排相关度',
+  bm25: 'BM25 词面分',
+  hybrid: 'RRF 融合分',
+}[props.scoreMode] || '检索得分'))
+const scoreCaveat = computed(() => (props.scoreMode === 'bm25'
+  ? 'BM25 为词面统计分（无上界），跨查询不可比；进度与"池内最强"为本批引用内的相对值。'
+  : 'RRF 只有排序意义、分值与相关性不成比例；进度与"池内最强"为本批引用内的相对值。'))
 
 const detailsCache = ref({})
 const detailErrors = ref({})
@@ -174,17 +200,41 @@ const loadingDetails = ref({})
 const expandedDetails = ref(new Set())
 
 const canFetchDetails = computed(() => props.requestId && props.requestId.length > 0)
-const normalizedScore = (source) => {
-  const rawScore = Number(source?.score)
-  if (!Number.isFinite(rawScore)) return 0
-  return Math.max(0, Math.min(1, rawScore > 1 ? rawScore / 100 : rawScore))
+
+// ---- 分数展示（按模式分两路）---------------------------------------------
+// 可比模式（vector cosine / hybrid_rerank sigmoid）：直接当百分比。
+// 不可比模式（bm25 原始分 / hybrid RRF）：只在“本批引用内”做 min-max 归一，
+// 作为相对强弱与排序提示，同时把原始分原样显示出来，不伪造百分比。
+const rawScore = (source) => {
+  const value = Number(source?.score)
+  return Number.isFinite(value) ? value : 0
 }
-const scorePercent = (source) => `${Math.max(8, normalizedScore(source) * 100)}%`
-const displayScore = (source) => `${(normalizedScore(source) * 100).toFixed(1)}%`
-const averageScore = computed(() => {
-  const total = props.sources.reduce((sum, source) => sum + normalizedScore(source), 0)
-  return props.sources.length ? (total / props.sources.length * 100).toFixed(1) : '0.0'
+const comparableFraction = (source) => Math.max(0, Math.min(1, rawScore(source)))
+const scoreBounds = computed(() => {
+  const values = props.sources.map(rawScore)
+  if (!values.length) return { min: 0, max: 0 }
+  return { min: Math.min(...values), max: Math.max(...values) }
 })
+const relativeFraction = (source) => {
+  const { min, max } = scoreBounds.value
+  if (max <= min) return 1
+  return Math.max(0, Math.min(1, (rawScore(source) - min) / (max - min)))
+}
+const scoreFraction = (source) => (scoreComparable.value ? comparableFraction(source) : relativeFraction(source))
+const scoreBarWidth = (source) => `${Math.max(6, scoreFraction(source) * 100)}%`
+const scoreValueText = (source) => (scoreComparable.value
+  ? `${(comparableFraction(source) * 100).toFixed(1)}%`
+  : rawScore(source).toFixed(3))
+const averageScoreText = computed(() => {
+  if (!props.sources.length) return '0.0%'
+  if (!scoreComparable.value) {
+    const total = props.sources.reduce((sum, source) => sum + rawScore(source), 0)
+    return `${(total / props.sources.length).toFixed(3)}（原始分均值）`
+  }
+  const total = props.sources.reduce((sum, source) => sum + comparableFraction(source), 0)
+  return `${(total / props.sources.length * 100).toFixed(1)}%`
+})
+const rankLabel = (index) => `第 ${index + 1} 位`
 const uniqueDocuments = computed(() => new Set(props.sources.map((source) => source.source_name || '未命名文档')).size)
 const graphLinksTotal = computed(() =>
   props.sources.reduce((sum, source) => sum + graphLinkCount(source), 0),
@@ -207,7 +257,7 @@ const graphLinkLabel = (source) => {
 }
 
 const relationLabel = (source) => {
-  const score = normalizedScore(source)
+  const score = comparableFraction(source)
   if (score >= 0.78) return '强关联'
   if (score >= 0.55) return '中关联'
   return '弱关联'
@@ -235,6 +285,26 @@ const detailOf = (source, index) => detailsCache.value[sourceKey(source, index)]
 const detailErrorOf = (source, index) => detailErrors.value[sourceKey(source, index)] || ''
 const detailNoteOf = (source, index) => detailNotes.value[sourceKey(source, index)] || ''
 const sectionPathText = (path) => (Array.isArray(path) ? path.join(' › ') : path || '')
+
+// 按来源格式渲染详情（item 4）：PDF 有印刷/物理页（可能跨页，显示区间），
+// HTML 摘自 Doxygen 站点、无页面概念（产物页字段为 "None" → 归一为 null，
+// 故不显示页码），改为展示文件与标题。
+const formatLabel = (node) => {
+  const type = String(node?.source_type || '').toLowerCase()
+  if (type === 'html') return 'HTML 文档'
+  if (type === 'pdf') return 'PDF 手册'
+  return type ? type.toUpperCase() : '文档'
+}
+const pageRangeText = (node) => {
+  const printStart = node?.page_print
+  const physStart = node?.page_physical
+  if (printStart == null && physStart == null) return ''
+  const range = (start, end) => (end && end !== start ? `${start}–${end}` : `${start}`)
+  const parts = []
+  if (printStart != null) parts.push(`印刷页 ${range(printStart, node.page_print_end)}`)
+  if (physStart != null) parts.push(`物理页 ${range(physStart, node.page_physical_end)}`)
+  return parts.join(' · ')
+}
 
 const setRecord = (record, key, value) => {
   record.value = { ...record.value, [key]: value }
@@ -545,6 +615,14 @@ const fetchAndShowDetails = async (source, index) => {
   font-weight: 700;
 }
 
+/* 不可比量纲（bm25/hybrid）的说明行：避免把原始分误读成"相关度很低" */
+.score-caveat {
+  margin: 6px 0 0;
+  color: var(--text-subtle);
+  font-size: 0.6rem;
+  line-height: 1.5;
+}
+
 /* 相关度进度条：标签行（左）+ 进度条（中）+ 关联标签（右） */
 .relevance-progress-wrapper {
   flex: 1;
@@ -717,6 +795,19 @@ const fetchAndShowDetails = async (source, index) => {
   margin: 0;
   color: var(--text-subtle);
   font-size: 0.72rem;
+}
+
+.details-chip.is-format {
+  border-color: rgba(120, 150, 190, 0.3);
+  background: rgba(120, 150, 190, 0.12);
+  color: #4a5f7a;
+}
+
+.details-title {
+  margin: 0;
+  color: var(--ink-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .details-error {

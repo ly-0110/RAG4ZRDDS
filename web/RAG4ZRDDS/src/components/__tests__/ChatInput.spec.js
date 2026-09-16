@@ -45,3 +45,24 @@ describe('ChatInput 检索模式选择器（F4）', () => {
     expect(wrapper.find('.submit-btn').attributes('disabled')).toBeDefined()
   })
 })
+
+describe('终止当前回答（ChatInput 侧）', () => {
+  it('生成中显示"停止生成"按钮，点击后 emit stop', async () => {
+    const wrapper = mountInput({ loading: true })
+    const stop = wrapper.find('.stop-btn')
+    expect(stop.exists()).toBe(true)
+    await stop.trigger('click')
+    expect(wrapper.emitted('stop')).toHaveLength(1)
+  })
+
+  it('非生成状态不显示停止按钮', () => {
+    const wrapper = mountInput({ loading: false })
+    expect(wrapper.find('.stop-btn').exists()).toBe(false)
+  })
+
+  it('loading 期间停止按钮可用（提交按钮此时是禁用的）', () => {
+    const wrapper = mountInput({ loading: true })
+    expect(wrapper.find('.stop-btn').attributes('disabled')).toBeUndefined()
+    expect(wrapper.find('.submit-btn').attributes('disabled')).toBeDefined()
+  })
+})

@@ -6,6 +6,10 @@
     event: done     完整答案 + 引用汇总（正常结束标志）
     event: error    流中途出错（HTTP 已 200，错误只能走事件通道）
 
+客户端中止（v0.16）：前端"停止生成"直接 abort 请求，服务端生成器被取消、
+上游 LLM 流随之关闭；已产出的部分答案以 `…（已终止）` 标注留档，仍可经
+/sources/{rid} 回查。
+
 引用一经 sources 事件下发即持久化（answer 暂为 None），此后生成侧失败客户端
 已拿到的引用仍可经 /sources/{rid} 回查；成功路径在 done 后二次 put 覆盖为最终
 答案（JSONL 保留两条生命周期记录，回读取最后一条）。检索失败时无引用可下发，
@@ -15,6 +19,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from typing import AsyncIterator
 
@@ -27,6 +32,9 @@ from server.core.request_log import request_log_scope
 from server.core.schema import QueryRequest, with_source_urls
 
 router = APIRouter()
+
+# 客户端中止时，部分答案存进回查记录时追加的标注（前端另有"已终止"提示）
+PARTIAL_SUFFIX = "…（已终止）"
 
 
 def _sse(event: str, payload: dict) -> str:
@@ -83,9 +91,22 @@ async def query(req: QueryRequest, request: Request) -> StreamingResponse:
                 cache.put(rid, {"question": question, "answer": None, "sources": recorded})
 
                 parts: list[str] = []
-                async for token in pipeline.answer_stream.stream(question, chunks):
-                    parts.append(token)
-                    yield _sse("token", {"request_id": rid, "text": token})
+                try:
+                    async for token in pipeline.answer_stream.stream(question, chunks):
+                        parts.append(token)
+                        yield _sse("token", {"request_id": rid, "text": token})
+                except asyncio.CancelledError:
+                    # 客户端"停止生成"（前端 abort → 连接断开 → 本生成器被取消）：
+                    # 上游 LLM 流随 async 生成器关闭而中断（generation/llm.py 的
+                    # finally 会 close 掉 AsyncOpenAI 客户端），这里把已产出的
+                    # 部分答案留档，便于 /sources/{rid} 回查与反馈归因。
+                    partial = "".join(parts)
+                    cache.put(rid, {
+                        "question": question,
+                        "answer": f"{partial}{PARTIAL_SUFFIX}" if partial else None,
+                        "sources": recorded,
+                    })
+                    raise
 
                 answer = "".join(parts)
                 yield _sse("done", {"request_id": rid, "answer": answer, "sources": wire_sources})

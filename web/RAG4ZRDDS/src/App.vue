@@ -142,7 +142,12 @@
               :has-answer="hasContent"
               :available-experiments="experiments"
               @submit="handleQuery"
+              @stop="stopGeneration"
             />
+
+            <p v-if="aborted" class="aborted-note" role="status">
+              已终止生成（回答为已产出部分）；引用与请求标识已保留，可继续提问或提交反馈。
+            </p>
 
             <!-- 2026-09-16（D 代修，演示可用性）：此处原为 <Transition mode="out-in">——
                  Vue 的离场完成依赖 requestAnimationFrame，而 rAF 在未被合成的标签页
@@ -157,7 +162,7 @@
                   </div>
                   <span class="response-state" :class="{ 'is-loading': isLoading }">
                     <span class="state-dot"></span>
-                    {{ isLoading ? '流式生成中' : '已完成' }}
+                    {{ isLoading ? '流式生成中' : (aborted ? '已终止' : '已完成') }}
                   </span>
                 </div>
 
@@ -166,6 +171,7 @@
                   :sources="sources"
                   :request-id="requestId"
                   :health="health"
+                  :score-mode="activeMode"
                 />
 
                 <!-- 同理去过渡包装：答案/骨架/错误提示必须无条件可见 -->
@@ -275,6 +281,8 @@ const renderedAnswer = computed(() => {
 const errorMsg = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
+const aborted = ref(false)
+const activeExperiment = ref('')
 const requestId = ref('')
 const feedbackRating = ref('')
 const feedbackStatus = ref('')
@@ -285,6 +293,15 @@ const knowledgeMode = ref('')
 const kbStats = ref(null)
 const health = ref(null)
 const experiments = computed(() => health.value?.experiments || [])
+// 当前生效的检索模式：决定"相关度"这类指标怎么显示——vector/hybrid_rerank 的
+// 分数量纲可跨查询比较；bm25（原始词面分）与 hybrid（RRF）不可比（api.md v0.16）。
+const activeMode = computed(() => {
+  const modes = health.value?.experiment_modes || {}
+  const name = activeExperiment.value
+  if (name && modes[name]) return modes[name]
+  return kbStats.value?.retrieval_mode || modes[defaultExperiment.value] || 'vector'
+})
+const defaultExperiment = computed(() => kbStats.value?.experiment || '')
 const knowledgeStatusLabel = computed(() => {
   if (knowledgeStatus.value === 'online') {
     return knowledgeMode.value
@@ -377,6 +394,7 @@ const handleQuery = async (payload) => {
   if (experiment) {
     requestBody.experiment = experiment
   }
+  activeExperiment.value = experiment
 
   abortController?.abort()
   abortController = new AbortController()
@@ -387,6 +405,7 @@ const handleQuery = async (payload) => {
   feedbackRating.value = ''
   feedbackStatus.value = ''
   feedbackError.value = ''
+  aborted.value = false
   isStreaming.value = true
   isLoading.value = true
 
@@ -422,13 +441,24 @@ const handleQuery = async (payload) => {
       await enrichSources(requestId.value)
     }
   } catch (error) {
-    if (error.name !== 'AbortError') {
+    if (error.name === 'AbortError') {
+      // 用户主动"停止生成"：保留已产出部分，不报错
+      aborted.value = true
+    } else {
       errorMsg.value = `请求失败：${error.message}（请确认后端已启动：make serve）`
       console.error('查询失败:', error)
     }
   } finally {
     isLoading.value = false
   }
+}
+
+// 终止当前回答：中止请求（后端生成器被取消、上游 LLM 流关闭）。已产出的
+// token 保留在 answer 里，引用与 rid 也已到手，故回查/反馈仍可用。
+function stopGeneration() {
+  if (!isLoading.value) return
+  aborted.value = true
+  abortController?.abort()
 }
 
 async function enrichSources(rid) {
@@ -1251,6 +1281,16 @@ async function submitFeedback(rating) {
   margin: 14px 0;
   border: 0;
   border-top: 1px solid var(--line);
+}
+
+.aborted-note {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(180, 140, 90, 0.35);
+  border-radius: 9px;
+  background: rgba(253, 248, 238, 0.9);
+  color: #8a6a3a;
+  font-size: 0.68rem;
 }
 
 .error-box {

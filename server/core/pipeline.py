@@ -106,7 +106,8 @@ class Pipeline:
     def __init__(self, retriever: Retriever, answer_stream: AnswerStream,
                  source_urls: dict[str, str | None] | None = None,
                  node_details: dict[str, dict] | None = None,
-                 kb_stats: dict | None = None) -> None:
+                 kb_stats: dict | None = None,
+                 source_roots: dict[str, Path] | None = None) -> None:
         self.retriever = retriever
         self.answer_stream = answer_stream
         self.source_urls = source_urls or {}
@@ -115,6 +116,29 @@ class Pipeline:
         # 回查单节点原文。chunk 原文只经 /nodes 端点出网，SSE wire 仍 7 字段。
         self.node_details = node_details or {}
         self.kb_stats = kb_stats
+        # 本地文档根（source_id → 目录）：GET /documents/{source_id}/{file} 的
+        # 读取白名单，来源是实验配置的 sources[].path（PDF 目录同样登记，但只有
+        # HTML 来源会被前端当原文打开）。
+        self.source_roots = source_roots or {}
+
+
+def _as_int(value) -> int | None:
+    """产物里的页字段可能是 int / 字符串数字 / 字符串 "None" / 空串——统一成 int|None。
+
+    HTML 来源的 printed/physical 页字段在产物里是字面量 "None"（A 的 ingest 写入
+    形态），直接当页码下发会让前端把"无页面概念"渲染成数字。
+    """
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    text = str(value).strip()
+    if not text or text.lower() in {"none", "null"}:
+        return None
+    try:
+        return int(float(text))
+    except ValueError:
+        return None
 
 
 def load_nodes_artifacts(nodes_file) -> tuple[dict[str, str | None], dict[str, dict], list[dict]]:
@@ -152,12 +176,21 @@ def load_nodes_artifacts(nodes_file) -> tuple[dict[str, str | None], dict[str, d
             agg["chunks"] += 1
             if agg["version"] is None:
                 agg["version"] = meta.get("version")
+            # 页码字段名以 A 的 metadata 契约为准（printed/physical_page_start|end）；
+            # HTML 来源在产物里写的是字符串 "None"，统一归一为 None。
+            # 2026-09-16 修复：此前误用 SourceRef 的 page_print/page_physical 命名，
+            # 导致"节点详情"里 PDF 的页码恒为空。
             details[node_id] = {
                 "source_id": sid,
+                "source_type": meta.get("source_type") or "pdf",
                 "version": meta.get("version"),
-                "page_print": meta.get("page_print"),
-                "page_physical": meta.get("page_physical"),
+                "title": meta.get("title"),
+                "source_file": meta.get("source_file"),
                 "section_path": meta.get("section_path"),
+                "page_print": _as_int(meta.get("printed_page_start")),
+                "page_print_end": _as_int(meta.get("printed_page_end")),
+                "page_physical": _as_int(meta.get("physical_page_start")),
+                "page_physical_end": _as_int(meta.get("physical_page_end")),
                 "text": rec.get("text"),
                 "source_url": url,
             }
@@ -216,10 +249,14 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
         # 而非等首个请求才报错（与 D 的"接线问题在启动期暴露"一致）。
         answer_stream = build_answer_stream(cfg)
         _warmup_retriever(retriever)
-        source_urls, node_details, source_stats = load_nodes_artifacts(ec.nodes_path(cfg))
+        # 单一装载入口：产物详情 + URL 本地化（产物里的 source_url 指向配置里的
+        # 占位外部域名 docs.zrtechnology.com，实际不可达；改写成本服务的
+        # /documents/{source_id}/{file}，文件从该来源配置的本地根目录读取）。
+        source_urls, node_details, source_stats, source_roots = load_nodes_for_config(cfg, repo_root)
+        localized = sum(1 for v in source_urls.values() if isinstance(v, str) and v.startswith("/documents/"))
         with_url = sum(1 for v in source_urls.values() if v)
         print(f"[server] 引用回查 URL 表：{len(source_urls)} 节点，其中 {with_url} 条带原文 URL"
-              f"（HTML 来源；PDF 为 null）", flush=True)
+              f"（{localized} 条已改写为本地文档地址 /documents/…；PDF 为 null）", flush=True)
         kb_stats = {
             "experiment": cfg.experiment.name,
             "retrieval_mode": cfg.retrieval.mode,
@@ -228,8 +265,129 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
             "sources": source_stats,
         }
         return Pipeline(retriever, answer_stream, source_urls,
-                        node_details=node_details, kb_stats=kb_stats)
+                        node_details=node_details, kb_stats=kb_stats,
+                        source_roots=source_roots)
     raise RuntimeError(f"未知 RAG_MODE={mode!r}，可选值：mock | live")
+
+
+def _attr(obj, key):
+    """配置项取字段：sources 元素是 SourceCfg 对象，测试夹具可能是 dict。"""
+    if isinstance(obj, dict):
+        return obj.get(key)
+    return getattr(obj, key, None)
+
+
+def _resolve_source_roots(repo_root: Path, sources) -> dict[str, Path]:
+    """实验配置的 sources[] → {source_id: 本地文档根目录}（只登记存在的目录）。
+
+    PDF 来源的 path 指向文件本身（不是目录），故按目录过滤——本地文档服务只
+    服务 HTML 快照这类目录型来源。**sources 元素是 SourceCfg 对象而非 dict**
+    （2026-09-16 实测踩过：按 isinstance(dict) 过滤会把他们全跳过，URL 本地化
+    静默失效）。
+    """
+    roots: dict[str, Path] = {}
+    for src in sources:
+        sid, path = _attr(src, "id"), _attr(src, "path")
+        if not sid or not path:
+            continue
+        root = (repo_root / str(path)).resolve()
+        if root.is_dir():
+            roots[str(sid)] = root
+    return roots
+
+
+def load_nodes_for_config(cfg, repo_root: Path) -> tuple[dict, dict, list, dict]:
+    """按实验配置装载 Node 产物（详情表 + URL 表 + 来源统计 + 本地文档根）。
+
+    **单一装载入口**：启动期管线与 NodeDetailIndex 的按需装载都走这里，避免
+    两条路径行为不一致——2026-09-16 实测踩过：按需装载绕过了 URL 本地化，
+    切实验后"打开原文"又退回不可达的外部占位域名。
+    """
+    from retrieval._bootstrap import experiment_config as ec
+
+    urls, details, stats = load_nodes_artifacts(ec.nodes_path(cfg))
+    roots = _resolve_source_roots(repo_root, getattr(cfg, "sources", None) or [])
+    _localize_doc_urls(urls, details, roots)
+    return urls, details, stats, roots
+
+
+def _localize_doc_urls(urls: dict[str, str | None],
+                       details: dict[str, dict],
+                       roots: dict[str, Path]) -> int:
+    """把外部文档地址改写成本服务的本地地址，返回改写条数。
+
+    文件名取产物 metadata 的 `source_file`（干净的文件名），缺失时退化为 URL
+    末段；只有当该文件确实存在于来源根目录下才改写——不存在就保留原值，
+    避免把"打不开"换成"404"。
+    """
+    if not roots:
+        return 0
+    changed = 0
+    for node_id, url in list(urls.items()):
+        rec = details.get(node_id) or {}
+        sid = rec.get("source_id")
+        root = roots.get(sid) if sid else None
+        if root is None:
+            continue
+        filename = rec.get("source_file")
+        if not filename and isinstance(url, str) and url:
+            filename = url.rstrip("/").rsplit("/", 1)[-1]
+        if not filename:
+            continue
+        try:
+            target = (root / str(filename)).resolve()
+        except OSError:
+            continue
+        if not target.is_file() or root not in target.parents:
+            continue
+        local = f"/documents/{sid}/{target.name}"
+        urls[node_id] = local
+        if node_id in details:
+            details[node_id]["source_url"] = local
+        changed += 1
+    return changed
+
+
+def available_source_roots(repo_root: Path | None = None) -> dict[str, Path]:
+    """全局本地文档目录注册表：跨所有实验配置合并 {source_id: 目录}。
+
+    单个实验的 sources 未必覆盖全部来源（如默认 struct_v1 只有 PDF 手册），
+    而"打开原文"链接可能来自任意实验产生的引用（如多来源实验的 HTML 节点）。
+    因此端点用的是全实验合并的白名单，而不是当前管线的 sources——否则切实验
+    后链接就会 404（2026-09-16 实测踩过）。
+    """
+    from retrieval._bootstrap import experiment_config as ec
+
+    root = (repo_root or Path(__file__).resolve().parents[2]) / "configs" / "experiments"
+    roots: dict[str, Path] = {}
+    for name in available_experiments():
+        try:
+            cfg = ec.load(root / f"{name}.yaml")
+        except Exception:
+            continue
+        for sid, path in _resolve_source_roots(root.parents[1], getattr(cfg, "sources", None) or []).items():
+            roots.setdefault(sid, path)
+    return roots
+
+
+def experiment_modes() -> dict[str, str]:
+    """实验 ID → 检索模式（供 /healthz 下发；前端据此决定相关度指标怎么显示）。
+
+    vector/hybrid_rerank 的分数量纲自带可比性（cosine / sigmoid 0~1），
+    bm25（原始词面分 7~56）与 hybrid（RRF ~0.03）跨查询不可比——前端不能把
+    它们当"相关度百分比"渲染。读不到的配置跳过（模板/未完成配置不影响服务）。
+    """
+    from retrieval._bootstrap import experiment_config as ec
+
+    root = Path(__file__).resolve().parents[2] / "configs" / "experiments"
+    modes: dict[str, str] = {}
+    for name in available_experiments():
+        try:
+            cfg = ec.load(root / f"{name}.yaml")
+            modes[name] = str(cfg.retrieval.mode)
+        except Exception:
+            continue
+    return modes
 
 
 def _warmup_retriever(retriever) -> None:
@@ -324,7 +482,9 @@ class NodeDetailIndex:
 
             repo_root = Path(__file__).resolve().parents[2]
             cfg = ec.load(repo_root / "configs" / "experiments" / f"{key}.yaml")
-            _, details, _ = load_nodes_artifacts(ec.nodes_path(cfg))
+            # 与启动期同一装载入口：URL 本地化也在这里生效（否则切实验后
+            # "打开原文"会退回不可达的外部占位域名——2026-09-16 实测踩过）
+            _, details, _, _ = load_nodes_for_config(cfg, repo_root)
         except Exception as exc:  # 坏配置/产物缺失不阻断其它实验的回查
             self._failures[key] = f"{type(exc).__name__}: {exc}"
             return None
