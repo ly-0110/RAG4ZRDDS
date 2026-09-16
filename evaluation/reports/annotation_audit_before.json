@@ -1,12 +1,11 @@
 {
   "schema": "rag4zrdds.annotation_audit/v1",
-  "verdict": "blocked",
+  "verdict": "pass",
   "counts": {
-    "QUESTION_TOKEN_ABSENT": 3,
     "NO_TOKEN_PROBE": 13,
     "CIRCULAR_TOP1": 4
   },
-  "blocking_total": 3,
+  "blocking_total": 0,
   "questions_total": 120,
   "annotations_total": 120,
   "missing_annotations": [],
@@ -390,20 +389,13 @@
         275
       ],
       "section_keyword": "5",
-      "findings": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
-      "blocking": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
+      "findings": [],
+      "blocking": [],
       "probe": {
         "tokens": [
           "on_subscription_matched",
-          "subscriptionmatched",
+          "subscription_matched",
           "datareader"
-        ],
-        "absent": [
-          "subscriptionmatched"
         ]
       }
     },
@@ -433,20 +425,13 @@
         275
       ],
       "section_keyword": "5",
-      "findings": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
-      "blocking": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
+      "findings": [],
+      "blocking": [],
       "probe": {
         "tokens": [
           "on_liveliness_changed",
-          "livelinesschanged",
+          "liveliness_changed",
           "datareader"
-        ],
-        "absent": [
-          "livelinesschanged"
         ]
       }
     },
@@ -533,20 +518,13 @@
         275
       ],
       "section_keyword": "5",
-      "findings": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
-      "blocking": [
-        "QUESTION_TOKEN_ABSENT"
-      ],
+      "findings": [],
+      "blocking": [],
       "probe": {
         "tokens": [
           "on_publication_matched",
-          "publicationmatched",
+          "publication_matched",
           "datawriter"
-        ],
-        "absent": [
-          "publicationmatched"
         ]
       }
     },
@@ -2014,7 +1992,7 @@
     },
     {
       "question_id": "Q112",
-      "question": "如何在 Linux 平台上配置 ZRDDS 应用？需要执行哪些命令？如何检查 License 授权方式？",
+      "question": "如何在 Linux 平台上配置 ZRDDS 应用？需要执行哪些命令？如何检查 Licence 授权方式？",
       "source_id": "user_manual",
       "page_print": [
         23,
@@ -2025,7 +2003,7 @@
       "blocking": [],
       "probe": {
         "tokens": [
-          "license",
+          "licence",
           "linux"
         ]
       }
@@ -2169,7 +2147,7 @@
   ],
   "inputs": {
     "questions": "evaluation\\datasets\\questions.jsonl",
-    "expected": "evaluation\\datasets\\expected_sources.jsonl",
+    "expected": "evaluation\\datasets\\expected_sources_pre_narrow.jsonl",
     "nodes": "data\\processed\\struct_v1.jsonl",
     "tree": "data\\processed\\section_tree_v1.jsonl",
     "report": "evaluation\\reports\\struct_v1.json"

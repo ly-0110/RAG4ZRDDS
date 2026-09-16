@@ -51,10 +51,7 @@ retrieval:                         # ── 检索（B）
 
 generation:                        # ── 生成（C）
   enabled: false
-  # 与向量实验（struct_v1/hybrid_v1/semantic_v1 均 v2）对齐 prompt：week2 复审 §2 指出
-  # bm25 对照臂若后续开生成，两臂 prompt 不同会破坏公平性。gen 关闭 → 当前无功能影响，
-  # 且 prompt_version 不进 config_hash8（索引身份只含 chunking/embedding/index/retrieval）。
-  prompt_version: v2
+  prompt_version: v0
   llm_env_prefix: LLM_
 
 evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）

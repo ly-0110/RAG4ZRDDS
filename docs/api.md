@@ -39,7 +39,6 @@ v0.14 起附带知识库统计与可用实验（F1/F4，review §4.1）：
     "retrieval_mode": "vector",
     "index_dirname": "struct_bge-m3_d57f695e",
     "node_total": 1606,
-    "top_k": 5,
     "sources": [
       { "id": "user_manual", "version": "2.0", "chunks": 301 },
       { "id": "zrdds_dev_guide", "version": "2.4", "chunks": 1305 }
@@ -51,8 +50,6 @@ v0.14 起附带知识库统计与可用实验（F1/F4，review §4.1）：
 ```
 
 - `kb`：**当前启动配置**的知识库统计（`experiments[].id`/`version` 来自实验配置 `sources[]`，`chunks` 按启动时 Node 产物逐来源实数）；`mock` 模式为 `null`。
-  `top_k`（**v0.17 新增**）＝**运行时**单次回答最多带几条引用（`QUERY_TOP_K`，默认 5），前端工具栏 chip 应显示此值而非写死——
-  注意它**不是**实验配置里的 `retrieval.top_k`：请求不带 `top_k` 时 `POST /query` 用的是 `settings.default_top_k`，配置里那个只作用于离线实验，两者可以不等。
 - `experiments`：可用实验 ID 白名单（= `configs/experiments/*.yaml` 文件名 stem），与 `/query` 的 `experiment` 参数同源；前端可据此渲染检索通路选择器（F4）。
 - `experiment_modes`（**v0.16 新增**）：实验 ID → 检索模式（读不到的配置跳过，如模板文件）。**用途是让前端按模式决定"分数怎么显示"**：
   `vector`（cosine 0~1）与 `hybrid_rerank`（sigmoid 0~1）的分数量纲可跨查询比较；`bm25`（原始词面分，无上界）与 `hybrid`（RRF，~0.03）
@@ -267,7 +264,6 @@ cited_nodes, comment?, node_ids?
 
 | 版本 | 变更 |
 |---|---|
-| v0.17 | 2026-09-16：**前端 chip 去写死**（D）——`GET /healthz` 的 `kb` 新增 **`top_k`**（运行时 `QUERY_TOP_K`，即请求未带 `top_k` 时实际返回的引用条数上限）。前端工具栏原先静态显示 `Top-K 5`，改 `QUERY_TOP_K` 后即与后端实际条数不符（F4 同类静态装饰）。既有字段零增删，前端不改也能跑 |
 | v0.16 | 2026-09-16：**演示可用性三项 + 语义澄清**（D）——①新增 **`GET /documents/{source_id}/{filename}`**本地文档原文端点；产物里的占位外部域名统一改写为该本地地址（`/nodes`、`/sources/{rid}`、MCP 一并生效）；②`GET /nodes/{node_id}` **字段修正**：页码改按产物契约（`printed/physical_page_start|end`，此前恒空）+ 新增 `source_type`/`source_file`/`title`（前端按来源格式渲染）；③`/healthz` 新增 **`experiment_modes`**（前端按模式决定分数显示口径：bm25/hybrid 不可比，改用池内相对 + 位次）；④明确**客户端中止语义**（生成器取消、上游流关闭、部分答案留档）。既有字段零增删，前端不改也能跑 |
 | v0.15 | 2026-09-16：**`GET /nodes/{node_id}` 扩为跨实验查找**（D，演示可用性修复）——切换检索模式后拿到的 node_id 不再 404（此前只查默认实验的产物表，与 F4 的 experiment 参数互斥）；响应新增 **`experiment`** 字段标识实际命中的实验。既有字段零增删，前端不改也能跑 |
 | v0.14 | 2026-09-15：**F1/F3/F4 后端三件**（D，2026-09-15 前端实测四项问题 review §4.1；E 域前端接线待 E）——①`GET /healthz` 新增 `kb`（启动实验的知识库统计：experiment/retrieval_mode/index_dirname/node_total/sources[{id,version,chunks}]；mock 为 null）与 `experiments`（可用实验 ID 白名单）②新增 **`GET /nodes/{node_id}`**：单节点原文+元数据按需回查（F3）；**chunk 原文经此端点出网属"正文不下发"立场的定向放宽，待 B/C/E 会签追认**；SSE wire 7 字段不变 ③`POST /query` 请求体新增可选 **`experiment`**（F4，live 按请求切换检索实验，白名单外 422，registry 懒组装缓存 LRU≤3；mock 忽略）。既有端点既有字段零变化，前端不改也能继续跑 |

@@ -1,6 +1,6 @@
 # 标注真值核对报告
 
-- 结论: **blocked**（阻断项 3，缺标注 0，多余 0）
+- 结论: **pass**（阻断项 0，缺标注 0，多余 0）
 - 题量: 问题集 120 / 标注 120
 - 循环论证指纹: 与 evaluation\reports\struct_v1.json top-1 页码吻合 4/120（比例 0.0333，阈值 0.9） → 未见异常
 
@@ -10,9 +10,6 @@
 
 | 题号 | 页码 | 关键词 | 判定 | token 实况 |
 |---|---|---|---|---|
-| Q021 | [4, 275] | 5 | QUESTION_TOKEN_ABSENT | subscriptionmatched→全书零命中 |
-| Q023 | [4, 275] | 5 | QUESTION_TOKEN_ABSENT | livelinesschanged→全书零命中 |
-| Q028 | [4, 275] | 5 | QUESTION_TOKEN_ABSENT | publicationmatched→全书零命中 |
 | Q068 | [280, 281] | 25.4.1 日志QoS | NO_TOKEN_PROBE | — |
 | Q069 | 248 | 20.1 XML配置说明 | NO_TOKEN_PROBE, CIRCULAR_TOP1 | — |
 | Q070 | [172, 173] | 11.3.2 使用zrddsgen编译器 | NO_TOKEN_PROBE | — |
@@ -31,7 +28,6 @@
 
 - `NO_TOKEN_PROBE` = 13（指纹）
 - `CIRCULAR_TOP1` = 4（指纹）
-- `QUESTION_TOKEN_ABSENT` = 3（阻断）
 
 ## 闸门含义
 

@@ -104,8 +104,9 @@ const props = defineProps({
   // 点名 chip 是静态装饰）。
   activeMode: { type: String, default: 'vector' },
   experimentModes: { type: Object, default: () => ({}) },
-  // 单次回答最多带几条引用（App 取自 /healthz 的 kb.top_k）——原先这个 chip 写死
-  // "Top-K 5"，QUERY_TOP_K 一改就与后端实际条数不符（F4 同类静态装饰问题）。
+  // 单次回答最多带几条引用（App 取自 /healthz 的可选 kb.top_k，缺省回落 5，即
+  // QUERY_TOP_K）——原先这个 chip 写死 "Top-K 5"，后端一改就与实际条数不符
+  // （F4 同类静态装饰问题）。
   topK: { type: Number, default: 5 },
 })
 const emit = defineEmits(['submit', 'stop'])

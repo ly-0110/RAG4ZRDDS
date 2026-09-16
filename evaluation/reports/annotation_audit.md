@@ -1,6 +1,6 @@
 # 标注真值核对报告
 
-- 结论: **pass**（阻断项 0，缺标注 0，多余 0）
+- 结论: **blocked**（阻断项 4，缺标注 0，多余 0）
 - 题量: 问题集 120 / 标注 120
 - 循环论证指纹: 与 evaluation\reports\struct_v1.json top-1 页码吻合 0/120（比例 0.0，阈值 0.9） → 未见异常
 
@@ -10,10 +10,10 @@
 
 | 题号 | 页码 | 关键词 | 判定 | token 实况 |
 |---|---|---|---|---|
-| Q018 | [34, 38] | 5.3 Listener | QUESTION_TOKEN_CROSS_CHAPTER | create_datawriter→实际在 [25, 26, 29, 30] |
-| Q026 | [106, 106] | 9.3.5.5 SAMPLE_LOST Status | QUESTION_TOKEN_CROSS_CHAPTER | samplestatemask→实际在 [39, 40, 41, 42] |
-| Q065 | [160, 161] | 10.32 WriterDataLifecycleQos | QUESTION_TOKEN_CROSS_CHAPTER | writer_data_lifecycle→实际在 [81, 82, 83, 84] |
-| Q066 | [148, 150] | 10.23 ReaderDataLifecycleQos | QUESTION_TOKEN_CROSS_CHAPTER | reader_data_lifecycle→实际在 [100, 101, 102, 103] |
+| Q018 | [34, 38] | 5.3 Listener | QUESTION_TOKEN_OFF_PAGE | create_datawriter→实际在 [25, 26, 29, 30] |
+| Q026 | [106, 106] | 9.3.5.5 SAMPLE_LOST Status | QUESTION_TOKEN_OFF_PAGE | samplestatemask→实际在 [39, 40, 41, 42] |
+| Q065 | [160, 161] | 10.32 WriterDataLifecycleQos | QUESTION_TOKEN_OFF_PAGE | writer_data_lifecycle→实际在 [81, 82, 83, 84] |
+| Q066 | [148, 150] | 10.23 ReaderDataLifecycleQos | QUESTION_TOKEN_OFF_PAGE | reader_data_lifecycle→实际在 [100, 101, 102, 103] |
 | Q068 | [280, 281] | 25.4.1 日志QoS | NO_TOKEN_PROBE | — |
 | Q069 | [248, 248] | 20.1 XML配置说明 | NO_TOKEN_PROBE | — |
 | Q070 | [172, 173] | 11.3.2 使用zrddsgen编译器 | NO_TOKEN_PROBE | — |
@@ -31,7 +31,7 @@
 ## 判定码计数
 
 - `NO_TOKEN_PROBE` = 13（指纹）
-- `QUESTION_TOKEN_CROSS_CHAPTER` = 4（非阻断（需人工确认：题目是否天然跨章节））
+- `QUESTION_TOKEN_OFF_PAGE` = 4（阻断）
 
 ## 闸门含义
 

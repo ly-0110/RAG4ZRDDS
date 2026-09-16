@@ -7,10 +7,11 @@
 - **规则**：由 `section_keyword` 的章节号定位产物章节 → `page_print` 收紧为该章节的
   印刷页闭区间；关键词同时改写为产物里的规范写法 `<章节号> <标题>`，保证与检索结果的
   `section` 字段（`section_path`）可子串匹配。
-- **复现**：`python scripts/narrow_interval.py`（`--check` 只报告不写入）。
-  要从收窄前的版本重新生成本报告：
-  `python -c "import subprocess,pathlib;pathlib.Path('before.jsonl').write_bytes(subprocess.check_output(['git','show','HEAD:evaluation/datasets/expected_sources.jsonl']))"`
-  然后 `python scripts/narrow_interval.py --input before.jsonl`。
+- **复现**：`python evaluation/narrow_interval.py`（`--check` 只报告不写入）。
+  要从收窄前的区间重新生成本报告，用仓库内的收窄前快照
+  `evaluation/datasets/expected_sources_pre_narrow.jsonl`（内容 = `origin/develop` 的
+  `expected_sources.jsonl`，仅供 before/after 对照，勿用于实验）：
+  `python evaluation/narrow_interval.py --input evaluation/datasets/expected_sources_pre_narrow.jsonl`。
 
 ## 统计
 
@@ -221,12 +222,12 @@
 
 ## 遗留问题
 
-### 1. 仍被判为 `QUESTION_TOKEN_OFF_PAGE` 的 5 题（审计口径的假阳性）
+### 1. 仍被判为 `QUESTION_TOKEN_OFF_PAGE` 的 4 题（审计口径的假阳性）
 
 | question_id | 章节 | 页区间 | 说明 |
 |---|---|---|---|
-| Q018 | 5.3 Listener | 34-38 | 回调语义在 5.3，但题干追问的 `create_datawriter()` 只出现在
-  25/26/29/30/64/73 页，任一章节都无法同时容纳两个 token |
+| Q018 | 5.3 Listener | 34-38 | 回调语义在 5.3（5.3.6「Listener 的使用限制」正是作答处），但题干追问的
+  `create_datawriter()` 只出现在 25/26/29/30/64/73 页，任一章节都无法同时容纳两个 token |
 | Q026 | 9.3.5.5 SAMPLE_LOST Status | 106-106 | 题干 `samplestatemask` 的说明在 5.5.5 ReadConditions 与
   9.3.10.3-9.3.10.7 的读取接口，与回调 `on_sample_lost` 不在同一章节；
   当前标注是回调对应的 Status，故不改 |
@@ -234,11 +235,13 @@
   字段名只出现在 81-84 页的 DataWriter QoS 设置里 |
 | Q066 | 10.23 ReaderDataLifecycleQosPolicy | 148-150 | 同上，`reader_data_lifecycle` 字段名只在
   100-103 页 |
-| Q112 | 24.2 Licence授权方式 | 276-276 | 手册写 `licence`、题干写 `license`，拼写变体导致 token 不命中 |
 
-这 5 题的标注本身正确，是审计的"题干 token 必须落在标注页 ±2 页内"启发式不适用于
-跨章节提问（题干同时问两件事、术语拼写与手册不一致）。建议审计侧为这类题加白名单，
-或把题干拆成单点问题。
+这 4 题的标注本身正确（逐题读过产物正文），是审计的"题干 token 必须落在标注页 ±2 页内"
+启发式不适用于跨章节提问：题干同时问两件事，第一件的 token 在标注页内，第二件只在别章节
+出现。建议审计侧为这类题加白名单，或把题干拆成单点问题。
+
+Q112 曾以同一方式判为离页（手册写 `licence`、题干写 `license`，拼写变体）——
+该题已由问题集侧改用手册写法消解，见文末「后续修订」。
 
 ### 2. 问题集侧缺陷（改标注无法解决）
 
@@ -246,51 +249,69 @@ Q021 / Q023 / Q028 题干中的字段名 `subscriptionMatched` / `livelinessChan
 `publicationMatched` 在手册全文零命中——手册只写 `on_*_matched()` 回调与
 `*_MATCHED Status` 状态。`make audit` 会将这三题判为 `QUESTION_TOKEN_ABSENT`
 （按审计口径应转拒答集）。这不属区间收窄范围，需问题集负责人改写成手册术语，
-或明确移入拒答案例集。
+或明确移入拒答案例集（**2026-09-16 已按手册写法修正**，见文末「后续修订」）。
 
 ## 校验
 
-`python scripts/audit_annotations.py`（判定口径不变，只换被检数据集）：
+同一份 `scripts/audit_annotations.py`（判定口径不变，只换被检数据集）复跑三种状态：
 
-| 指标 | 收窄前（全书级区间） | 仅收窄后 | 收窄 + 重定向后（本版本） |
+| 指标 | 上游基线（宽区间 + 修订前问题集） | 宽区间 + 已修问题集 | 本版本（收窄 + 已修问题集） |
 |---|---|---|---|
-| 判定 | blocked | blocked | blocked |
-| QUESTION_TOKEN_OFF_PAGE | 0 | 45 | **5** |
-| QUESTION_TOKEN_ABSENT | 3 | 3 | 3 |
+| 判定 | blocked | pass | blocked |
+| QUESTION_TOKEN_OFF_PAGE（阻断） | 0 | 0 | **4** |
+| QUESTION_TOKEN_ABSENT（阻断） | 3 | 0 | 0 |
 | NO_TOKEN_PROBE（非阻断指纹） | 13 | 13 | 13 |
-| CIRCULAR_TOP1（非阻断指纹） | 4 | 0 | 0 |
+| CIRCULAR_TOP1（非阻断指纹） | 4 | 4 | 0 |
 
-报告：`evaluation/reports/annotation_audit_before.*`（收窄前）、
-`evaluation/reports/annotation_audit_after.*`（本版本）。
-`QUESTION_TOKEN_OFF_PAGE` 收窄前恒为 0 不是"没问题"，而是整本书的区间把什么问题都盖住了
-——这正是本报告存在的意义。
+命令（在仓库根目录执行）：
 
+```bash
+python scripts/audit_annotations.py --out-prefix evaluation/reports/annotation_audit
+python scripts/audit_annotations.py --expected evaluation/datasets/expected_sources_pre_narrow.jsonl \
+    --out-prefix evaluation/reports/annotation_audit_before
+```
+
+报告：`evaluation/reports/annotation_audit_before.*`（宽区间 + 已修问题集，pass）、
+`evaluation/reports/annotation_audit.*`（本版本，blocked）；上游基线那一列可用
+`git show origin/develop:evaluation/datasets/{questions,expected_sources}.jsonl` 复跑。
+`QUESTION_TOKEN_OFF_PAGE` 在宽区间下恒为 0 不是"没问题"，而是整本书的区间把什么问题都
+盖住了——这正是本报告存在的意义：收窄后它才第一次指出"这一页答不了这一题"。
+
+- `python -m pytest tests/ -q`（本机 CPython 3.11.9）：29 failed / 383 passed / 3 skipped / 5 errors。
+  其中 32 项（`test_html_loader` 9 + `test_semantic_hybrid` 9 + `test_chunking_defects` 7 +
+  `test_multi_source_ingest` 7）是同一条 `ValueError: Missing required metadata fields`，
+  根因在 `data_pipeline/metadata.py:140-145`：必填字段校验写成列表推导式内的 `locals()`
+  判断，CPython ≤3.12 的推导式有独立作用域 → 11 个必填字段被整串误判缺失（3.13 起推导式
+  内联，问题自消）。属 `data_pipeline/`（本报告范围外）的既有缺陷，与数据集改动无关。
 - `python -m pytest tests/unit/test_run_experiment.py tests/unit/test_audit_annotations.py -q`：
-  60 passed，3 failed（失败项为环境缺依赖 `rank_bm25` / 未构建索引，与数据集改动无关）。
-  `python -m pytest tests/ -q` 在本机无法整体收集（17 个测试文件因缺 `starlette`
-  等依赖收集失败），同样与本次改动无关。
+  61 passed / 2 failed（`rank_bm25`/重排模型缺依赖、`data/indexes/` 未构建，环境问题）。
+- 消费本数据集的套件（`test_run_experiment / test_audit_annotations / test_abstention /
+  test_real_error_cases / test_run_regression`）：109 passed / 2 failed（同上，环境问题）。
 
-## 后续修订（2026-09-16：audit 口径与问题集同步）
+## 后续修订（2026-09-16）
 
-上面「遗留问题」的两类结论当日已处理，故 §1/§2 描述的是**修订前**的状态：
+「遗留问题」描述的是修订前的状态。当日做了两件事，一件在本报告范围内，一件不在：
 
-- **§2 问题集侧缺陷（已修）**：Q021/Q023/Q028 题干改用手册实际写法
+- **§2 问题集侧缺陷（已修，属 `evaluation/`）**：Q021/Q023/Q028 题干改用手册实际写法
   （`subscription_matched` / `liveliness_changed` / `publication_matched`），
-  Q112 的 `License` 改用手册写法 `Licence` → `QUESTION_TOKEN_ABSENT` 3 → 0。
-- **§1 跨章节题（已定性，不阻断）**：`scripts/audit_annotations.py` 新增判定码
-  `QUESTION_TOKEN_CROSS_CHAPTER`（非阻断，需人工确认）——只有题干**全部 token 都离页**
-  才判阻断的 `QUESTION_TOKEN_OFF_PAGE`；Q018/Q026/Q065/Q066 这类「一题同时问两件事」
-  不再关闸。Q112 改名后 token 落在标注页内，已不在该列（5 → 4 题）。
+  Q112 的 `License` 改用手册写法 `Licence` → `QUESTION_TOKEN_ABSENT` 3 → 0，
+  Q112 也不再被判 `QUESTION_TOKEN_OFF_PAGE`（5 → 4 题）。
+- **§1 跨章节题（未动，落在 `scripts/`）**：曾以在 `scripts/audit_annotations.py` 增加
+  非阻断判定码 `QUESTION_TOKEN_CROSS_CHAPTER`（只有题干**全部** token 离页才判阻断）
+  的方式来消掉这 4 题。该改动属审计口径变更、落在 `scripts/`（成员 D 的目录），
+  按本周「只改 `/web` 与 `/evaluation`」的范围约束**已撤回**，故当前判定仍是 blocked。
 
 复跑（`python scripts/audit_annotations.py --out-prefix evaluation/reports/annotation_audit`）：
 
 | 指标 | 本报告（修订前） | 现在 |
 |---|---|---|
-| 判定 | blocked | **pass** |
-| QUESTION_TOKEN_OFF_PAGE（阻断） | 5 | 0 |
-| QUESTION_TOKEN_CROSS_CHAPTER（非阻断） | — | 4 |
+| 判定 | blocked | blocked |
+| QUESTION_TOKEN_OFF_PAGE（阻断） | 5 | 4 |
 | QUESTION_TOKEN_ABSENT（阻断） | 3 | 0 |
 | NO_TOKEN_PROBE（非阻断指纹） | 13 | 13 |
+| CIRCULAR_TOP1（非阻断指纹） | 4 | 0 |
 
-判定码放宽属审计口径变更（等于打开 `make regression --with-metrics` 的闸门），
-需 E/B 会签追认；`final_v1` 的 `expected_sources` 仍为 `null`，正式指标不解冻。
+阻断项 7 → 4，剩下的 4 项见 §1（4 题都是"一题两问"的假阳性，标注本身正确）。
+要开指标闸门（`run_regression --with-metrics`），仍需 D 在 `scripts/audit_annotations.py`
+定口径（白名单或非阻断码）并由 B 会签；在那之前 `final_v1` 的 `expected_sources`
+保持 `null`，正式指标不解冻。本报告的改动全部落在 `evaluation/` 内，与 `/web` 无关。

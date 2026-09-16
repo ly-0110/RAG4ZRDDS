@@ -299,8 +299,9 @@ const experiments = computed(() => health.value?.experiments || [])
 // 实验 → 检索模式（/healthz 的 experiment_modes）：既用于工具栏 chip 反映所选通路，
 // 也用于"相关度"口径的判定（见 activeMode）。
 const experimentModes = computed(() => health.value?.experiment_modes || {})
-// 单次回答最多带几条引用（/healthz 的 kb.top_k）：请求不带 top_k 时后端实际用的是
-// QUERY_TOP_K（settings.default_top_k），故 chip 不写死；mock 无 kb 时按默认 5 显示。
+// 单次回答最多带几条引用：读 /healthz 的 kb.top_k（可选字段）。请求不带 top_k 时后端
+// 实际用 QUERY_TOP_K（默认 5），故 chip 不写死；当前 server 的 kb_stats 尚未下发该字段
+// （待后端接线），缺失时按默认 5 显示——mock 与 live 走的都是这条回退路径。
 const topK = computed(() => kbStats.value?.top_k ?? 5)
 // 当前生效的检索模式：决定"相关度"这类指标怎么显示——vector/hybrid_rerank 的
 // 分数量纲可跨查询比较；bm25（原始词面分）与 hybrid（RRF）不可比（api.md v0.16）。

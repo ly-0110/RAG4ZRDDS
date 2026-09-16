@@ -67,11 +67,10 @@ generation:                        # ── 生成（C）
   llm_env_prefix: LLM_             # 读 .env 中 LLM_PROVIDER/BASE_URL/API_KEY/MODEL
 
 evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）
-  # 多来源实验的评测对象 = 12 题跨来源集 + 25 条已核对标注（真值核对：make audit-multisrc → pass）。
-  # 注意：库内既有 struct_multisrc_* 报告是切库前用 120 题单来源集 + expected=null 跑的
-  # （metrics 全空），切换后须 `make experiment CFG=<本配置>` 重跑才与新口径可比。
-  dataset: evaluation/datasets/questions_multisource.jsonl
-  expected_sources: evaluation/datasets/expected_sources_multisource.jsonl
+  dataset: evaluation/datasets/questions.jsonl
+  expected_sources: null           # 宁缺毋滥：现库中标注为检索 top-1 回显（循环论证，见
+                                   # docs/week3-delivery-review.md §2），不产出 void 指标；
+                                   # 真值标注会签定稿后改回 evaluation/datasets/expected_sources.jsonl
   retrieval_metrics: [hit_rate@5, mrr@5]   # 另支持 precision@K / recall@K
   response_metrics: []             # 第二周起：faithfulness / answer_relevance 等
   sample_size: null                # null=全集；联调冒烟可设 10

@@ -26,7 +26,8 @@ describe('F4：检索模式选择器与 chip（/healthz 白名单驱动）', () 
       body: {
         status: 'ok',
         mode: 'live',
-        // top_k 由后端按运行时 QUERY_TOP_K 下发（api.md v0.17），故意取非 5 以证明 chip 不再写死
+        // top_k：/healthz 的 kb.top_k 为可选字段（后端按运行时 QUERY_TOP_K 下发，
+        // 当前 server 尚未接线），这里故意取非 5 以证明 chip 不再写死
         kb: {
           experiment: 'struct_v1',
           retrieval_mode: 'vector',
