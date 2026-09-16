@@ -17,13 +17,6 @@
           <strong>{{ averageScoreText }}</strong>
         </div>
       </div>
-      <div class="evidence-stat">
-        <span class="summary-icon">◇</span>
-        <div>
-          <span>图谱关联 · 后端未提供</span>
-          <strong>{{ graphLinksTotal ? `${graphLinksTotal} 条` : '暂无数据' }}</strong>
-        </div>
-      </div>
       <div class="evidence-stat request-stat">
         <span class="summary-icon">#</span>
         <div>
@@ -52,13 +45,17 @@
             <span class="source-kind">{{ sourceKind(s) }}</span>
           </div>
 
+          <!-- 页码只对 PDF 来源有意义：HTML 快照（Doxygen）没有页面概念，
+               产物里页字段为 null——此前渲染成"第 — 页 · 物理页 —"，无信息且误导。
+               图谱关联功能未实现（后端无该字段），不再占位展示。 -->
           <div class="source-meta">
-            <span class="page-info">第 <span class="page-print">{{ s.page_print || '—' }}</span> 页</span>
-            <span class="meta-divider">·</span>
-            <span>物理页 {{ s.page_physical || '—' }}</span>
-            <span class="meta-divider">·</span>
-            <span>{{ graphLinkLabel(s) }}</span>
-            <span v-if="s.source_id" class="source-id">· {{ s.source_id }}</span>
+            <template v-if="s.page_print || s.page_physical">
+              <span v-if="s.page_print" class="page-info">第 <span class="page-print">{{ s.page_print }}</span> 页</span>
+              <span v-if="s.page_print && s.page_physical" class="meta-divider">·</span>
+              <span v-if="s.page_physical">物理页 {{ s.page_physical }}</span>
+              <span v-if="s.source_id" class="meta-divider">·</span>
+            </template>
+            <span v-if="s.source_id" class="source-id">{{ s.source_id }}</span>
           </div>
 
           <a
@@ -236,26 +233,6 @@ const averageScoreText = computed(() => {
 })
 const rankLabel = (index) => `第 ${index + 1} 位`
 const uniqueDocuments = computed(() => new Set(props.sources.map((source) => source.source_name || '未命名文档')).size)
-const graphLinksTotal = computed(() =>
-  props.sources.reduce((sum, source) => sum + graphLinkCount(source), 0),
-)
-
-const graphLinkCount = (source) => {
-  const links = source?.graph_links ?? source?.related_nodes ?? source?.relation_count
-  if (Array.isArray(links)) return links.length
-  const parsed = Number(links)
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
-}
-
-const graphLinkLabel = (source) => {
-  const links = source?.graph_links ?? source?.related_nodes ?? source?.relation_count
-  if (Array.isArray(links)) return `${links.length} 个相邻节点`
-  const parsed = Number(links)
-  return Number.isFinite(parsed) && parsed >= 0
-    ? `${parsed} 个相邻节点`
-    : '图谱数据暂无（占位区域）'
-}
-
 const relationLabel = (source) => {
   const score = comparableFraction(source)
   if (score >= 0.78) return '强关联'

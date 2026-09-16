@@ -95,3 +95,27 @@ describe('节点详情按来源格式展示', () => {
     expect(panel.text()).toContain('打开该节点 HTML 原文')
   })
 })
+
+describe('来源卡元信息（页码只对 PDF 有意义 + 去掉未实现的图谱占位）', () => {
+  it('PDF：正常显示印刷页/物理页与来源 id', () => {
+    const text = mountCard({ scoreMode: 'vector' }).text()
+    expect(text).toContain('第 80 页')
+    expect(text).toContain('物理页 86')
+    expect(text).toContain('user_manual')
+  })
+
+  it('HTML（页字段为 null）：不出现空页码占位，也不出现图谱占位', () => {
+    const wrapper = mountCard({
+      scoreMode: 'vector',
+      sources: [{
+        node_id: 'h1', source_id: 'zrdds_dev_guide', source_name: 'cdoc_html',
+        section: '发布模块 / 函数说明', page_print: null, page_physical: null, score: 0.71,
+      }],
+    })
+    const text = wrapper.text()
+    expect(text).not.toContain('第 — 页')
+    expect(text).not.toContain('物理页 —')
+    expect(text).not.toContain('图谱')
+    expect(text).toContain('zrdds_dev_guide')
+  })
+})
