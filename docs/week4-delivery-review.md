@@ -1,5 +1,6 @@
 # 第四周交付记录（成员 D）
 
+> **v1.6（2026-09-16 晚）**：新增 §3.8（PR#45 = E 前端与 P0/P1 复核）——**E 误删 C 第三周交付的事故**（Revert 事故，D 已按 `adf69f0` 恢复）+ E 任务完成度逐项核实（F1/F2/F3 ✅、F4 ❌ 运行时不可用、P0 编码 ✅ 但三题新实体零命中、P1 未完成）；§1 总览补 #44/#45；§4/§5 同步。pytest **402/402**。
 > **v1.5（2026-09-16）**：新增 §3.6（PR#42 = C 第四周回答侧评测，**X2 闭环**，合格）与 §3.7（PR#43 = E 名不副实的空交付 + feature/web 基线漂移警告）；§1 总览补 #41/#42/#43；§4 销项 X2、E 行补分支警告；§5 验收对照更新。pytest **402/402**。
 > **v1.3（2026-09-15）**：§4.1 F1/F3/F4 的 D 侧后端落地回写（用户四问拍板：/healthz 扩 kb、新增 /nodes、/query experiment；E 域前端全部留 E）——api.md 升 **v0.14**，+15 测试，pytest 383/383。
 > **v1.2（2026-09-15）**：新增 §4.1（前端实测四项问题，D 逐条代码核实全部属实）；§4 总表加一行指向。
@@ -26,6 +27,8 @@
 | #41 | D | F1/F3/F4 后端三件（/healthz kb、/nodes/{node_id}、/query experiment）+ api.md v0.14 | 已 squash 合入 develop（`d6774b1`，diff 验证零丢失） |
 | #42 | C | 第四周回答侧评测：answer_eval runner + 20 题拒答专项 + C2~C5 落实 + 可靠性报告 | **合格，X2 闭环（§3.6）** |
 | #43 | E | 「前端修复与 P1 复核数据交付」 | **名不副实的空交付；feature/web 基线漂移警告（§3.7）** |
+| #44 | D | PR#42/#43 审查落笔（review v1.5） | 已 squash 合入 develop（`adf69f0`） |
+| #45 | E | 前端 F1~F4 接线 + P0 题干修复 + P1 复核清单 | **P0 编码 ✅、F1/F2/F3 ✅、F4 ❌ 运行时不可用、P1 未完成；⚠ 误删 C 交付（§3.8）** |
 
 
 
@@ -200,20 +203,61 @@ head = `feature/web`（`7c309f0`），squash 合入 `e6b1243`。
 
 **P0/P1 门禁未动**：六题乱码（Q021/Q023/Q028/Q059/Q060/Q119）与宽区间复核（69 题全书级）依旧未解决——检索正式指标继续冻结，`--with-metrics` 继续禁开。
 
+### 3.8 PR#45（E 前端 F1~F4 与 P0/P1）= 部分完成，且误删 C 的交付
+
+head = `feature/web`（`900fe08`），合入 `c401c78`。本轮 E 的提交内容**有实质工作量**（前端接线、题干修复、复核清单导出），但夹带了一次**跨域数据事故**，且三项任务只完成一半。
+
+#### 3.8.1 ⚠ 事故：E 的 Revert 抹掉了 C 的第四周交付（D 已恢复）
+
+**事实链**（`git log` 可复核）：E 的分支基于 `d6774b1`（**PR#41 时代，早于 PR#42**）→ `6946093`/`4313fb2` 提交自己的 P1 清单与前端 → `37aeca9` merge develop（此时 C 的 PR#42 内容进入分支）→ **`9703784` `git revert` 掉了这个 merge**（把 merge 带来的 develop 内容整体撤回，**含 C 的全部交付**）→ `900fe08` 再 merge 自己的工作树 → squash 合入 develop。
+
+**被抹掉的内容**（`git diff adf69f0..c401c78`）：C 的 `evaluation/runners/{answer_eval,abstention_eval,__init__}.py`、`evaluation/datasets/abstention.py` + `abstention_questions.jsonl`、`generation/abstention.py`、`scripts/sample_manual_review.py`、`tests/unit/test_{abstention,answer_eval,test_judges}.py`、`docs/reliability-report.md`（132 行）、**`configs/experiments/final_v1.yaml`**（终跑配置），以及 `judges/judge.py`、`generation/llm.py`、`scripts/run_experiment.py`、`Makefile` 三目标被**逐个回退到 PR#42 之前**。**这正是 §3.7 预警的 R1/R4 型事故，第一次真正落到 develop 上。**
+
+**为什么没被冲突拦住**：合并基线里 C 的文件在我的分支未被改动，develop 侧的删除因此被 git 静默应用——**零冲突不等于零丢失**，这也是我在 PR#34 会签时坚持"只比 `config_hash8` 不足以判可比"的同一类问题（这里连产物指纹都比不出）。
+
+**D 的恢复动作**（提交 `c263234`，18 文件 +1165/−61，与 PR#42 原始增量逐位一致）：按 `adf69f0`（上一良好状态）`checkout` 回 6 个纯回退文件（`Makefile`/`judges/judge.py`/`llm.py`/`run_experiment.py`/`test_judges.py`/`datasets/README.md`）+ 11 个被删文件，保留 E 的实质改动（题干修复、P1 清单、前端）；顺手删除空文件 `scripts/fix_wide_interval.py`（PR#43 那个 0 字节 `commit_message.txt` 改名而来）。恢复后 **pytest 402/402**。
+
+**给 E 的流程反馈**：①`git revert` 一个 merge 是危险操作，会把对方全部内容反向应用——要撤回自己的合并请用 `git reset --hard <自己的上一个提交>` 或 `git revert <自己的提交>`，**绝不要 revert merge 提交**；②开工前先 `git merge origin/develop`，本次若从最新 develop 切分支就不会有这一串；③提交前核对 `git diff --stat origin/develop` 只应出现自己域的文件。
+
+#### 3.8.2 任务完成度逐项核实
+
+| 任务（来自 §3.7/§4 的 D 反馈） | 结论 | 证据 |
+|---|---|---|
+| **F1 知识库状态** | ✅ 完成 | `App.vue` onMounted 取 `/healthz`，`kbStats` 绑定文档集合/知识节点/索引健康度/向量引擎四卡；离线态文案改为"服务离线"（原"占位数据"） |
+| **F2 markdown 渲染** | ✅ 完成 | `marked` + `DOMPurify.sanitize`（`renderedAnswer` computed，异常降级纯文本）；依赖 `marked ^11.0.0`/`dompurify ^3.0.0` 已入 package.json 且 lockfile 登记（11.2.0/3.4.15）；**D 本机 `npm install` + `vite build` 通过**（33 模块） |
+| **F3 节点详情** | ✅ 完成 | `CitationsCard.vue` 改用 `fetch('/nodes/' + source.node_id)`（api.md v0.14），不再拉整包 `/sources/{rid}` |
+| **F4 检索模式选择** | ❌ **运行时不可用** | App 侧请求体正确（选了才带 `experiment`，`experiments` 取自 `/healthz`），但组件内 `const availableExperiments = ref([])` **遮蔽了同名 prop**（第 87 行），模板 `v-for` 绑到那个空 ref。**D 双重实证**：Vue 官方编译器 `bindingMetadata.availableExperiments = "setup-ref"`；运行时挂载测试传入两个实验，下拉实际只有 `["选择检索模式..."]`。修法＝删除该行局部 ref（保留 prop 并在模板用 `props.availableExperiments`） |
+| **P0 六题题干重做** | ✅ 编码修复完成 / ◕ 衍生新问题 | `questions.jsonl` 全库 **0 处** ASCII `?` 乱码，Q021/023/028/059/060/119（+Q120）已是通顺中文；**但 `make audit` 仍判 blocked**（`QUESTION_TOKEN_ABSENT 3` = Q021/Q023/Q028）——三题新题干用了 camelCase 字段名（`subscriptionMatched`/`livelinessChanged`/`publicationMatched`），**双产物中零出现**（语料为 snake_case `subscription_matched` 等各 6 处）→ 换了另一类零命中实体。Q059/Q060/Q119 已转正 |
+| **P1 宽区间复核** | ❌ 未完成 | `review_wide_interval.csv` 31 行 = **待办导出**：`suggested_keyword`/`note` **0/30 非空**，30 题中 26 题仍是全书级区间 `[7,288]`；`expected_sources.jsonl` **零改动**（标注未收窄）→ P1 遗留原样保留 |
+
+#### 3.8.3 其他问题
+
+| 级别 | 事项 | 处置建议 |
+|---|---|---|
+| P2 | `requirements.txt` 把 `numpy/pandas/tqdm/scikit-learn` 由 `==` 锁定改为 `>=` | 与"B 锁定版 + 干净环境可复现"约定冲突；建议回退到 `==`，或经 B/团队会签（D 未代改，属项目级依赖策略） |
+| P2 | `evaluation/dataload_review_wide_interval.py` 硬编码个人路径 `c:\Users\ycfnc\Documents\Downloads\ZRDDS 用户手册.pdf` | 同 PR#22 的镜像私货一类问题；建议改参数化/相对路径 |
+| P2 | 新增 `commits/todo_v1.2.0.md`（提交信息草稿，280 行）与仓库结构（指南 §4）无关；`web/RAG4ZRDDS/MOCK_MODE_TESTING.md`(801 行)、`docs/Mock_Mode_Testing.md`(291 行) 属过程文档 | 建议移出或合并到一份；`docs/` 与 `evaluation/` 的权威位置需保持 |
+| P3 | `package.json` 脚本由 `vite` 改为 `npx vite`；`package-lock.json` 大范围重写 | `npx` 在无本地依赖时会尝试联网拉包，建议回退；lockfile 抖动建议只提交增量 |
+| P3 | `server/core/pipeline.py` 加 `source_url: None`（MockRetriever，D 域，E 未声明） | 内容无害（mock 与 live 字段对齐），**D 追认**；纪律备注：跨域改动应在 PR 描述声明 |
+| P3 | E 提交信息写"pytest 384/384 passed" | 那是 PR#42 合并前的用例数（现 402）；E 未跑其分支上的完整套件——**若其分支跑过 C 的测试就不会漏掉"误删 C 交付"** |
+
+**一句话结论**：**任务完成度约 60%**——前端四项里 F1/F2/F3 真做了且质量不错、F4 是"接线接了一半"（App 侧对了、组件内部断了）；P0 的编码问题根治但换成零命中实体，闸门仍 blocked；P1 只产出待办清单。**外加一次必须通报的跨域误删事故（C 的交付全灭，D 已恢复）。**
+
 ## 4. 未完成任务与阻塞
 
 | 事项 | 归属 | 现状与影响 |
 |---|---|---|
-| 六题题干重做| E（或 C 定拒答口径） | 重写务必 UTF-8 全程（勿经 ASCII/ANSI 转码环节） |
-| PR#36 P1 宽区间 keyword 复核 | E | 69 题全书级区间页码条件名存实亡；Q056 仍 10.34 错标 |
+| ~~六题题干重做~~ | ~~E~~ | **编码已修复（PR#45，全库 0 处 `?` 乱码）**；但 Q021/Q023/Q028 新题干改用 camelCase 字段名（`subscriptionMatched` 等）在双产物中零出现 → `make audit` 仍判 blocked（`QUESTION_TOKEN_ABSENT 3`）。**待 E 改用产物中的实际写法（snake_case）后重跑 `make audit`** |
+| PR#36 P1 宽区间 keyword 复核 | E | **仍未完成**（PR#45 只导出待办清单 `review_wide_interval.csv`：30 题、`suggested_keyword`/`note` 全空、26 题仍全书级区间；`expected_sources.jsonl` 零改动） |
 | ~~`hybrid_rerank` 实现 + §3.3 设计一致性拍板~~ | ~~B~~ | **已随 PR#38 交付并拍板**（§3.5）；~~剩余 D 两项~~ **已落地（2026-09-15）**：schema `hybrid_rerank.components` 必填（含 `uses_reference_index()` 简化为按 mode 判定、注释更新）+ README components 行更新，+1 校验测试，pytest 368/368 |
 | ~~`answer_eval.py` runner（X2）~~ | ~~C~~ | **已随 PR#42 交付并审查合格（§3.6，X2 闭环）**：runner + judges 四指标 + 20 题拒答专项；剩余 = 全量终跑实测数字（`make experiment CFG=final_v1.yaml`，待 E 标注清零 + LLM 就绪，一条命令补齐） |
 | `source_url` 正式进 wire（方案 A） | B/C/E 会签 | 回查通道已落地且被前端消费；SSE 仍 7 字段 |
 | multisource 数据集接线 | D | 待标注定版：**命名已认可 B 的方案**（`questions_multisource.jsonl` / `expected_sources_multisource.jsonl`，B 在 evaluation.md §4 登记，用户 2026-09-15 拍板）+ multisrc 配置 dataset/expected_sources 指向 + Makefile audit 覆盖 |
-| **feature/web 基线漂移（§3.7）** | E | 远端 feature/web（`7c309f0`）基于 PR#36 时代，缺 PR#37~#42 全部（约 2.4 万行）；后续 PR 不先同步 develop 必触发大面积回退。**例会通报 + E 开工前 `git merge origin/develop`** |
+| **feature/web 基线漂移（§3.7）** | E | 分支已在 PR#45 补做 merge develop（`900fe08`），但**过程中 revert merge 造成 C 交付被抹掉并进入 develop**（D 已按 `adf69f0` 恢复，§3.8.1）。**例会必须通报：①开工前先 merge develop ②禁止 revert merge 提交 ③提交前核对 `git diff --stat origin/develop`** |
 | ~~B1：BM25 零分过滤改了 B 的测试断言~~ | ~~B~~ | **视为默认接受、不再单独追认**（B 历经 PR#26/#30/#38/#40 均无异议；改动方向正确——零词面重叠不构成证据。用户 2026-09-15 拍板） |
 | ~~精排阻塞事件循环（§3.5.1）~~ | ~~B~~ | **已随 PR#40 修复并本机复核闭环**（热题 159/161 ticks；建议②经拍板撤销），详见 §3.5.1.1 |
-| **前端实测四项问题（F1~F4）** | E 为主（F1/F3/F4 涉契约会签） | 2026-09-15 用户实测反馈，D 逐条对照前端源码与 api.md 核实**全部属实**；同日用户拍板后 **F1/F3/F4 的 D 侧后端已落地**（api.md v0.14，§4.1）——剩 E 前端接线与 F2 markdown 渲染 |
+| **前端实测四项问题（F1~F4）** | E 为主（F1/F3/F4 涉契约会签） | 2026-09-15 用户实测反馈，D 逐条对照前端源码与 api.md 核实**全部属实**；同日用户拍板后 F1/F3/F4 的 D 侧后端已落地（api.md v0.14，§4.1）。**PR#45 后现状：F1/F2/F3 ✅ 完成（构建通过）；F4 ❌ 组件内 prop 遮蔽致选择器恒空（§3.8.2，一行可修）** |
+| E 的 P2 项（PR#45 夹带） | E | requirements 锁定改 `>=`（建议回退或 B 会签）、`dataload_review_wide_interval.py` 硬编码个人 PDF 路径、`commits/` 与两份 MOCK 文档属过程文件（§3.8.3） |
 | 例会带回 | — | struct_bm25 prompt v0→v2（议题 8）、F1（filters 是否移出身份段）、feedback 字段会签（E/C）、base_url 正式域名、PR#34 两项通报 C、questions 大改写口径（C） |
 
 ### 4.1 前端实测四项问题（2026-09-15，D 代码核实）
@@ -236,4 +280,4 @@ head = `feature/web`（`7c309f0`），squash 合入 `e6b1243`。
 | Unknown/Abstention 可工作 | ✅ | E1003 不存在 / 第 300 页越界两例 live 明确拒答且不虚构；**20 题专项 + 机器可读拒答判定已随 PR#42 交付（§3.6），待 `make abstention` 实测 20/20** |
 | 有 Citation | ◕ | 双页码/来源分型/回查达标；回查通道带 `source_url` 且前端已消费；SSE 扩第 8 字段待会签 |
 | 有自动/半自动 Evaluation | ◕ | 工具链闭环：检索矩阵与三指纹闸门 8/8 实测、`make audit` pass、回答侧 runner + 拒答专项 + 人工抽检清单交付（§3.6）且 402 单测绿；正式指标数字仍冻结（E P0/P1 未清零）、回答侧全量终跑待 LLM 就绪 |
-| 有最终 Demo | ◕ | demo-runbook v0.2 + 四场景实测；缺口只剩 reranker |
+| 有最终 Demo | ◕ | demo-runbook v0.2 + 四场景实测；前端 PR#45 后 F1（知识库状态真实数据）/F2（markdown）/F3（节点原文）已接线并可构建，**F4 检索模式切换仍不可用（一行可修）**；其余缺口只有 reranker |
