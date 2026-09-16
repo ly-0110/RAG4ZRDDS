@@ -19,7 +19,12 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from server.api import feedback, nodes, query, sources
-from server.core.pipeline import PipelineRegistry, available_experiments, build_pipeline
+from server.core.pipeline import (
+    NodeDetailIndex,
+    PipelineRegistry,
+    available_experiments,
+    build_pipeline,
+)
 from server.core.request_log import JsonlLog, PersistentSourcesStore
 from server.core.settings import REPO_ROOT, Settings, settings as app_settings
 
@@ -137,6 +142,12 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
     # F4：按实验懒组装并缓存的管线注册表（默认启动管线钉住，见 pipeline.py）。
     default_key = Path(cfg.rag_experiment_config or "configs/experiments/struct_v1.yaml").stem
     app.state.pipeline_registry = PipelineRegistry(default_key, pipeline)
+    # F3 × F4：节点详情跨实验按需装载（切换检索模式后仍能查节点原文）
+    app.state.node_detail_index = NodeDetailIndex(
+        default_key,
+        getattr(pipeline, "node_details", None) or {},
+        available_experiments(),
+    )
     app.state.request_log = request_log
     app.state.sources_cache = sources_store
     app.state.feedback_log = feedback_log

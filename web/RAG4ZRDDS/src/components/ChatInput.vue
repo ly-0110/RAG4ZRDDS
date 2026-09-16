@@ -10,13 +10,21 @@
           </div>
         </div>
         <div class="toolbar-options">
-        <select v-model="selectedExperiment" class="experiment-selector" :disabled="props.loading">
-          <option value="">选择检索模式...</option>
-          <option v-for="exp in availableExperiments" :key="exp" :value="exp">{{ exp }}</option>
-        </select>
-        <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
-        <span class="control-chip">Top-K 5</span>
-      </div>
+          <label class="experiment-picker">
+            <span class="picker-label">检索模式</span>
+            <select
+              v-model="selectedExperiment"
+              class="experiment-selector"
+              :disabled="props.loading"
+              aria-label="选择检索实验（后端白名单）"
+            >
+              <option value="">默认（服务端配置）</option>
+              <option v-for="exp in props.availableExperiments" :key="exp" :value="exp">{{ exp }}</option>
+            </select>
+          </label>
+          <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
+          <span class="control-chip">Top-K 5</span>
+        </div>
       </div>
 
       <textarea
@@ -84,7 +92,6 @@ const emit = defineEmits(['submit'])
 const userInput = ref('')
 const MAX_LENGTH = 200
 const selectedExperiment = ref('')
-const availableExperiments = ref([])
 const suggestions = [
   '如何调用 DataWriter API？',
   'ZRDDS 故障码 E1003 是什么意思？',
@@ -213,6 +220,51 @@ defineExpose({ question: userInput })
 
 .toolbar-options {
   gap: 6px;
+}
+
+.experiment-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px 4px 8px;
+  border: 1px solid rgba(94, 156, 173, 0.34);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.picker-label {
+  color: var(--text-subtle);
+  font-size: 0.6rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.experiment-selector {
+  max-width: 190px;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--primary-700);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+}
+
+.experiment-selector:hover:not(:disabled) {
+  background: rgba(94, 156, 173, 0.1);
+}
+
+.experiment-selector:focus-visible {
+  outline: 2px solid rgba(94, 156, 173, 0.4);
+  outline-offset: 2px;
+}
+
+.experiment-selector:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .control-chip {

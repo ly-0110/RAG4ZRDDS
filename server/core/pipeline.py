@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import threading
 from collections import OrderedDict
 from pathlib import Path
 from typing import AsyncIterator, Protocol
@@ -262,6 +263,79 @@ def available_experiments() -> list[str]:
     if not root.is_dir():
         return []
     return sorted(p.stem for p in root.glob("*.yaml"))
+
+
+class NodeDetailIndex:
+    """跨实验的节点详情按需索引（F3 × F4 整合修复，2026-09-16）。
+
+    启动期只装载**默认实验**的 Node 详情表；前端经 F4 切到其它实验后拿到的
+    node_id 不在这张表里，`/nodes/{node_id}` 就会 404——两个同批交付的功能
+    各自可用、合起来不可用（本机实测复现）。
+
+    本索引在缓存未命中时按需解析其余实验的 Node 产物并缓存：纯 JSONL 解析
+    （无 embedding / 模型加载，1606 节点约亚秒级），因此懒装载代价可接受；
+    失败的配置记入 `failures` 避免每次请求重试。表数上限 `max_tables`，超出
+    时逐出最久未用的非默认实验表，避免多实验把内存撑大。
+    """
+
+    def __init__(self, default_key: str, default_details: dict[str, dict],
+                 experiments: list[str] | None = None, max_tables: int = 3) -> None:
+        self._default_key = default_key
+        self._max_tables = max(2, max_tables)
+        self._tables: OrderedDict[str, dict[str, dict]] = OrderedDict(
+            [(default_key, default_details)]
+        )
+        self._order = [k for k in (experiments or []) if k != default_key]
+        self._failures: dict[str, str] = {}
+        self._lock = threading.Lock()
+
+    @property
+    def loaded_experiments(self) -> list[str]:
+        return list(self._tables)
+
+    def lookup(self, node_id: str) -> tuple[str, dict] | None:
+        """返回 (实验 ID, 节点记录)；未在任何实验产物中找到返回 None。"""
+        with self._lock:
+            for key, table in self._tables.items():
+                rec = table.get(node_id)
+                if rec is not None:
+                    self._tables.move_to_end(key)
+                    return key, rec
+            for key in self._order:
+                if key in self._tables or key in self._failures:
+                    continue
+                try:
+                    table = self._load(key)
+                except Exception as exc:  # 装载失败只记不抛：不能连累其它实验回查
+                    self._failures[key] = f"{type(exc).__name__}: {exc}"
+                    continue
+                if table is None:
+                    continue
+                self._tables[key] = table
+                self._evict()
+                rec = table.get(node_id)
+                if rec is not None:
+                    return key, rec
+        return None
+
+    def _load(self, key: str) -> dict[str, dict] | None:
+        try:
+            from retrieval._bootstrap import experiment_config as ec
+
+            repo_root = Path(__file__).resolve().parents[2]
+            cfg = ec.load(repo_root / "configs" / "experiments" / f"{key}.yaml")
+            _, details, _ = load_nodes_artifacts(ec.nodes_path(cfg))
+        except Exception as exc:  # 坏配置/产物缺失不阻断其它实验的回查
+            self._failures[key] = f"{type(exc).__name__}: {exc}"
+            return None
+        return details
+
+    def _evict(self) -> None:
+        while len(self._tables) > self._max_tables:
+            evictable = next((k for k in self._tables if k != self._default_key), None)
+            if evictable is None:
+                return
+            self._tables.pop(evictable)
 
 
 class PipelineRegistry:

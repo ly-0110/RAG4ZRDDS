@@ -1,5 +1,6 @@
 # 第四周交付记录（成员 D）
 
+> **v1.7（2026-09-16 深夜）**：新增 §3.9 —— **D 代修 E 域前端 + 一处必须的整合修复**（用户授权，为次日演示）：F4 选择器空列表、vite 代理缺 `/nodes`、markdown 无样式、重复相关度条、节点详情 JSON 堆、**展示路径依赖 rAF 导致回答区可能永不挂载**（本机实证并修复）、`/nodes` 跨实验回查。全链路 live 实测通过；api.md 升 **v0.15**；pytest 408/408、前端 vitest 5/5、`vite build` 通过。
 > **v1.6（2026-09-16 晚）**：新增 §3.8（PR#45 = E 前端与 P0/P1 复核）——**E 误删 C 第三周交付的事故**（Revert 事故，D 已按 `adf69f0` 恢复）+ E 任务完成度逐项核实（F1/F2/F3 ✅、F4 ❌ 运行时不可用、P0 编码 ✅ 但三题新实体零命中、P1 未完成）；§1 总览补 #44/#45；§4/§5 同步。pytest **402/402**。
 > **v1.5（2026-09-16）**：新增 §3.6（PR#42 = C 第四周回答侧评测，**X2 闭环**，合格）与 §3.7（PR#43 = E 名不副实的空交付 + feature/web 基线漂移警告）；§1 总览补 #41/#42/#43；§4 销项 X2、E 行补分支警告；§5 验收对照更新。pytest **402/402**。
 > **v1.3（2026-09-15）**：§4.1 F1/F3/F4 的 D 侧后端落地回写（用户四问拍板：/healthz 扩 kb、新增 /nodes、/query experiment；E 域前端全部留 E）——api.md 升 **v0.14**，+15 测试，pytest 383/383。
@@ -29,6 +30,7 @@
 | #43 | E | 「前端修复与 P1 复核数据交付」 | **名不副实的空交付；feature/web 基线漂移警告（§3.7）** |
 | #44 | D | PR#42/#43 审查落笔（review v1.5） | 已 squash 合入 develop（`adf69f0`） |
 | #45 | E | 前端 F1~F4 接线 + P0 题干修复 + P1 复核清单 | **P0 编码 ✅、F1/F2/F3 ✅、F4 ❌ 运行时不可用、P1 未完成；⚠ 误删 C 交付（§3.8）** |
+| 本分支待发 | D | 代修 E 域前端可见缺陷（含 rAF 不渲染）+ F3×F4 整合修复 + api.md v0.15 | **408/408 + 前端构建/测试 + 全链路 live 与浏览器实测通过（§3.9）** |
 
 
 
@@ -243,6 +245,54 @@ head = `feature/web`（`900fe08`），合入 `c401c78`。本轮 E 的提交内�
 
 **一句话结论**：**任务完成度约 60%**——前端四项里 F1/F2/F3 真做了且质量不错、F4 是"接线接了一半"（App 侧对了、组件内部断了）；P0 的编码问题根治但换成零命中实体，闸门仍 blocked；P1 只产出待办清单。**外加一次必须通报的跨域误删事故（C 的交付全灭，D 已恢复）。**
 
+### 3.9 D 代修：E 域前端明面缺陷 + 一处整合修复（2026-09-16 深夜，用户授权）
+
+**触发**：次日演示需系统"看起来真的能用"。用户在 §3.8 审查后授权 D 直接修 E 域前端的可见缺陷。修完经**全链路 live 实测**（后端 408/408、前端构建 + 5 例组件测试、浏览器端到端）。
+
+#### 3.9.1 修了什么
+
+| # | 缺陷 | 性质 | 修法 |
+|---|---|---|---|
+| 1 | **F4 检索模式下拉恒为空** | 阻塞（§3.8 已实证） | `ChatInput.vue` 删掉遮蔽 prop 的局部 `const availableExperiments = ref([])`，模板改用 `props.availableExperiments`；**补 4 例回归测试**（含防护力验证：还原旧代码 2 例变红） |
+| 2 | **vite 代理缺 `/nodes`** | 阻塞（F3 在 dev 下必然失败） | `vite.config.js` 补 `/nodes` → 后端；此前请求被 SPA fallback 当页面路由吞掉 |
+| 3 | **markdown 答案无样式** | 观感（演示第一眼） | `App.vue` 给渲染容器加 `.answer-markdown` + `:deep()` 样式（标题/列表/代码/表格/引用）——**scoped 样式够不到 `v-html` 注入内容**，此前 markdown 结构虽有、样式全丢 |
+| 4 | **相关度条重复且无样式** | 观感 | `CitationsCard.vue` 删掉遗留的 `.relevance-track`（与新的 `.relevance-container` 重复）；E 改了模板类名但 CSS 仍挂在旧类名上（`.relevance-row`/`.relevance-track`），已对齐并补进度条样式 |
+| 5 | **节点详情是一堆 JSON** | 观感 + 可用性 | 改为结构化渲染：来源/v 徽标、印刷页·物理页、章节路径、正文（等宽、可滚动）、HTML 原文外链；mock 模式给可读提示而非 JSON |
+| 6 | **外链改成了 `window.open`** | 可用性 | 恢复真实 `<a href target=_blank rel=noopener>`（E 原来加 `role=link`+`tabindex` 却无键盘处理，且弹窗可能被拦截） |
+| 7 | **展示路径依赖 rAF，回答区可能永不挂载** | **严重（演示致命）** | 见 §3.9.2 |
+| 8 | `package.json` 脚本改回 `vite`（E 改成 `npx vite`，无本地依赖时会联网拉包）；`start-dev.ps1` 重写为合法 PowerShell（原文件是批处理语法，`.ps1` 跑必报错） | 可用性 | 见对应文件 |
+
+#### 3.9.2 必须记下的一处发现：Vue 过渡 + rAF 节流 = 回答区永不渲染
+
+**现象**：浏览器里点"开始检索"，左侧流程四步全绿（检索与生成确实跑完），**主区始终停在空状态**，无任何 JS 报错。
+
+**根因**：`App.vue` 的 `<Transition name="section-fade" mode="out-in">` 包着「空状态 ↔ 回答区」。`mode="out-in"` 要求**离场过渡完成后才挂载**新元素，而 Vue 结束离场靠 `requestAnimationFrame` 回调；本机实测该标签页 **`document.hidden === false` 但 rAF 一秒触发 0 次**（页面未被合成，如标签页被遮挡/在后台/部分 webview），于是离场永远停在 `leave-from leave-active`、回答区永不挂载。同理 `-enter-from` 是 `opacity: 0`，即便挂载也会不可见。
+
+**修法**：把展示路径上的过渡包装全部换成普通元素（`App.vue` 三处 + `CitationsCard.vue` 两处：来源列表 `TransitionGroup`、详情面板、答案/骨架、错误提示、空状态切换）；**CSS 规则保留**，环境确认可靠后可恢复。修后在同一 rAF=0 环境下复测：回答区挂载且 `opacity: 1`、5 条来源卡可见、节点详情面板可见。
+
+**为什么值得记**：①演示机器上任何"标签页被遮挡/切到后台再切回"都可能复现同类不渲染；②这类缺陷**不报错、测试也抓不到**（单测不跑过渡），只能靠真实浏览器看；③`-enter-from` 隐藏内容 = 所有"淡入"过渡在 rAF 停摆时都会静默吞掉内容，值得全队知道。
+
+#### 3.9.3 整合修复：`/nodes` 跨实验回查（F3 × F4）
+
+**问题**（本机实测复现）：F4 切到 `struct_multisrc_v1` 提问，拿到的 HTML node_id 去查 `/nodes/{node_id}` → **404**——节点详情表只在启动时按**默认实验**装载。两个同批交付的功能各自可用、**合起来不可用**。
+
+**修法**：新增 `server/core/pipeline.py::NodeDetailIndex`——默认实验表随启动就绪，其余实验**首次回查时按需解析**其 Node 产物并缓存（纯 JSONL 解析，实测 1606 节点首次 0.04s、缓存命中 0.002s；表数上限 3 逐出最久未用；失败只记不重试），端点经 `asyncio.to_thread` 调用以免卡事件循环。响应新增 `experiment` 字段（api.md **v0.15**）。+6 例回归测试。
+
+#### 3.9.4 本机全链路实测（2026-09-16 深夜）
+
+| 环节 | 结果 |
+|---|---|
+| 后端 `pytest tests/` | **408/408**（402 + 6 例新回归） |
+| 前端 `vite build` / `vitest run` | 构建通过（33 模块）/ **5/5**（HelloWorld + ChatInput 4 例） |
+| live 服务启动 | 预热 7.7s 在端口绑定前完成；`/healthz` 报 `mode:live`、`kb` 真实（struct_v1 / 301 节点 / `struct_bge-m3_0a7830b7`）、白名单 13 个实验 |
+| 真实查询（默认实验） | `DurabilityQosPolicy kind` → sources 1 + token 487 + done，**top-1 = 印刷 127/物理 133（真值）**；`connect()` 不存在题 → 正确拒答（9.0s） |
+| 真实查询（F4 切换） | `struct_multisrc_v1` → 多来源共存（HTML `zrdds_dev_guide` + PDF `user_manual`），28.7s（含该实验首次装载）；`struct_bm25` → 15.8s，score 20.04（bm25 原始分量纲，与 api.md 量纲说明一致） |
+| F3 端点（切模式后） | HTML 节点回查 200：`experiment=final_v1`（同 Node 集先命中）、v2.4、章节路径、真实 C API 原文、`source_url` 正确 |
+| 浏览器端到端（IAB） | F1 四卡真实数据；F4 下拉 13 个实验可选、选 `struct_multisrc_v1` 后检索确为多来源；F2 答案 1131 字、markdown 元素齐全（P/STRONG/CODE/H3/UL/LI/**TABLE**/TR/TD）且 `opacity: 1`；F3 详情面板可见、显示节点原文与参数表、外链正确、无 JSON 堆；反馈面板出现 |
+| 未完成验证 | **截图取不到**（IAB 面板未被合成，`screenshot` 报 guest capture failed）——视觉判断以 DOM/计算样式断言替代；`make setup` 的干净 venv 安装仍未跑（沿用 §2 缺口） |
+
+**给 E 的交接**：D 代改的 5 个前端文件（`App.vue`/`ChatInput.vue`/`CitationsCard.vue`/`vite.config.js`/`package.json`/`start-dev.ps1`）均已加注释说明改因为何；`ChatInput.spec.js` 是新增的回归测试（防 F4 缺陷复发）。若 E 要恢复过渡动画，请在**未被遮挡的标签页**里验证后再启用。
+
 ## 4. 未完成任务与阻塞
 
 | 事项 | 归属 | 现状与影响 |
@@ -256,7 +306,7 @@ head = `feature/web`（`900fe08`），合入 `c401c78`。本轮 E 的提交内�
 | **feature/web 基线漂移（§3.7）** | E | 分支已在 PR#45 补做 merge develop（`900fe08`），但**过程中 revert merge 造成 C 交付被抹掉并进入 develop**（D 已按 `adf69f0` 恢复，§3.8.1）。**例会必须通报：①开工前先 merge develop ②禁止 revert merge 提交 ③提交前核对 `git diff --stat origin/develop`** |
 | ~~B1：BM25 零分过滤改了 B 的测试断言~~ | ~~B~~ | **视为默认接受、不再单独追认**（B 历经 PR#26/#30/#38/#40 均无异议；改动方向正确——零词面重叠不构成证据。用户 2026-09-15 拍板） |
 | ~~精排阻塞事件循环（§3.5.1）~~ | ~~B~~ | **已随 PR#40 修复并本机复核闭环**（热题 159/161 ticks；建议②经拍板撤销），详见 §3.5.1.1 |
-| **前端实测四项问题（F1~F4）** | E 为主（F1/F3/F4 涉契约会签） | 2026-09-15 用户实测反馈，D 逐条对照前端源码与 api.md 核实**全部属实**；同日用户拍板后 F1/F3/F4 的 D 侧后端已落地（api.md v0.14，§4.1）。**PR#45 后现状：F1/F2/F3 ✅ 完成（构建通过）；F4 ❌ 组件内 prop 遮蔽致选择器恒空（§3.8.2，一行可修）** |
+| **前端实测四项问题（F1~F4）** | E 为主（F1/F3/F4 涉契约会签） | 2026-09-15 用户实测反馈，D 逐条对照前端源码与 api.md 核实**全部属实**；同日用户拍板后 F1/F3/F4 的 D 侧后端已落地（api.md v0.14，§4.1）。**PR#45 后 F1/F2/F3 ✅；F4 由 D 代修完成（§3.9，含 4 例回归）——四项经浏览器端到端实测全部可用** |
 | E 的 P2 项（PR#45 夹带） | E | requirements 锁定改 `>=`（建议回退或 B 会签）、`dataload_review_wide_interval.py` 硬编码个人 PDF 路径、`commits/` 与两份 MOCK 文档属过程文件（§3.8.3） |
 | 例会带回 | — | struct_bm25 prompt v0→v2（议题 8）、F1（filters 是否移出身份段）、feedback 字段会签（E/C）、base_url 正式域名、PR#34 两项通报 C、questions 大改写口径（C） |
 
@@ -280,4 +330,4 @@ head = `feature/web`（`900fe08`），合入 `c401c78`。本轮 E 的提交内�
 | Unknown/Abstention 可工作 | ✅ | E1003 不存在 / 第 300 页越界两例 live 明确拒答且不虚构；**20 题专项 + 机器可读拒答判定已随 PR#42 交付（§3.6），待 `make abstention` 实测 20/20** |
 | 有 Citation | ◕ | 双页码/来源分型/回查达标；回查通道带 `source_url` 且前端已消费；SSE 扩第 8 字段待会签 |
 | 有自动/半自动 Evaluation | ◕ | 工具链闭环：检索矩阵与三指纹闸门 8/8 实测、`make audit` pass、回答侧 runner + 拒答专项 + 人工抽检清单交付（§3.6）且 402 单测绿；正式指标数字仍冻结（E P0/P1 未清零）、回答侧全量终跑待 LLM 就绪 |
-| 有最终 Demo | ◕ | demo-runbook v0.2 + 四场景实测；前端 PR#45 后 F1（知识库状态真实数据）/F2（markdown）/F3（节点原文）已接线并可构建，**F4 检索模式切换仍不可用（一行可修）**；其余缺口只有 reranker |
+| 有最终 Demo | ✅ | demo-runbook v0.2 + 四场景实测；前端四项（F1 知识库状态/F2 markdown/F3 节点原文/F4 模式切换）**经 §3.9 代修后浏览器端到端实测全部可用**，并消除了"回答区在 rAF 停摆时不渲染"的演示致命风险；reranker 组可按 runbook 可选演示 |
