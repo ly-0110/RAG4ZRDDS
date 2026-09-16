@@ -18,8 +18,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from server.api import feedback, nodes, query, sources
-from server.core.pipeline import PipelineRegistry, available_experiments, build_pipeline
+from server.api import documents, feedback, nodes, query, sources
+from server.core.pipeline import (
+    NodeDetailIndex,
+    PipelineRegistry,
+    available_experiments,
+    available_source_roots,
+    build_pipeline,
+    experiment_modes,
+)
 from server.core.request_log import JsonlLog, PersistentSourcesStore
 from server.core.settings import REPO_ROOT, Settings, settings as app_settings
 
@@ -125,18 +132,31 @@ def create_app(cfg: Settings | None = None) -> FastAPI:
             # 做检索通路选择器（F4 白名单同源）。
             "kb": getattr(pipeline, "kb_stats", None),
             "experiments": available_experiments(),
+            # v0.16：实验 → 检索模式，前端据此决定相关度指标怎么显示
+            # （vector/hybrid_rerank 的分数量纲可比；bm25/hybrid 不可比）。
+            "experiment_modes": experiment_modes(),
         }
 
     app.include_router(query.router, tags=["qa"])
     app.include_router(nodes.router, tags=["qa"])
+    app.include_router(documents.router, tags=["docs"])
     app.include_router(sources.router, tags=["qa"])
     app.include_router(feedback.router, tags=["qa"])
 
     app.state.settings = cfg
     app.state.pipeline = pipeline
+    # v0.16：本地文档服务白名单（跨全部实验配置合并；与当前管线无关，切实验后
+    # 旧的引用链接依然可用）
+    app.state.source_roots = available_source_roots()
     # F4：按实验懒组装并缓存的管线注册表（默认启动管线钉住，见 pipeline.py）。
     default_key = Path(cfg.rag_experiment_config or "configs/experiments/struct_v1.yaml").stem
     app.state.pipeline_registry = PipelineRegistry(default_key, pipeline)
+    # F3 × F4：节点详情跨实验按需装载（切换检索模式后仍能查节点原文）
+    app.state.node_detail_index = NodeDetailIndex(
+        default_key,
+        getattr(pipeline, "node_details", None) or {},
+        available_experiments(),
+    )
     app.state.request_log = request_log
     app.state.sources_cache = sources_store
     app.state.feedback_log = feedback_log

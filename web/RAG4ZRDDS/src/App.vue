@@ -142,10 +142,19 @@
               :has-answer="hasContent"
               :available-experiments="experiments"
               @submit="handleQuery"
+              @stop="stopGeneration"
             />
 
-            <Transition name="section-fade" mode="out-in">
-              <div v-if="isStreaming" class="response-section" aria-live="polite" :aria-busy="isLoading">
+            <p v-if="aborted" class="aborted-note" role="status">
+              已终止生成（回答为已产出部分）；引用与请求标识已保留，可继续提问或提交反馈。
+            </p>
+
+            <!-- 2026-09-16（D 代修，演示可用性）：此处原为 <Transition mode="out-in">——
+                 Vue 的离场完成依赖 requestAnimationFrame，而 rAF 在未被合成的标签页
+                 （后台/遮挡/部分 webview，实测 IAB 里 document.hidden=false 但 rAF
+                 一秒钟 0 次）不触发，导致回答区永远不挂载。改为普通元素切换：内容
+                 可见性不再依赖动画帧。CSS 规则保留，环境确认可靠后可恢复。 -->
+            <div v-if="isStreaming" class="response-section" aria-live="polite" :aria-busy="isLoading">
                 <div class="response-heading">
                   <div>
                     <p class="eyebrow">RETRIEVAL OUTPUT</p>
@@ -153,7 +162,7 @@
                   </div>
                   <span class="response-state" :class="{ 'is-loading': isLoading }">
                     <span class="state-dot"></span>
-                    {{ isLoading ? '流式生成中' : '已完成' }}
+                    {{ isLoading ? '流式生成中' : (aborted ? '已终止' : '已完成') }}
                   </span>
                 </div>
 
@@ -162,27 +171,27 @@
                   :sources="sources"
                   :request-id="requestId"
                   :health="health"
+                  :score-mode="activeMode"
                 />
 
-                <Transition name="answer-fade" mode="out-in">
-                  <div v-if="isLoading && !answer" key="answer-loading" class="answer-skeleton" aria-label="正在生成回答">
-                    <div class="skeleton-heading skeleton-shimmer"></div>
-                    <div class="skeleton-line skeleton-shimmer"></div>
-                    <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
-                    <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
-                    <div class="skeleton-status">
-                      <span class="loading-dot"></span>
-                      <span>正在检索并整理答案…</span>
-                    </div>
+                <!-- 同理去过渡包装：答案/骨架/错误提示必须无条件可见 -->
+                <div v-if="isLoading && !answer" key="answer-loading" class="answer-skeleton" aria-label="正在生成回答">
+                  <div class="skeleton-heading skeleton-shimmer"></div>
+                  <div class="skeleton-line skeleton-shimmer"></div>
+                  <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
+                  <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
+                  <div class="skeleton-status">
+                    <span class="loading-dot"></span>
+                    <span>正在检索并整理答案…</span>
                   </div>
-                  <div v-else-if="answer" key="answer-content" class="answer-card">
-                    <div class="section-header">
-                      <span class="section-badge">GENERATED ANSWER</span>
-                      <span class="answer-meta">来源已校验 · 置信回答</span>
-                    </div>
-                    <div :innerHTML="renderedAnswer" aria-busy="false"></div>
+                </div>
+                <div v-else-if="answer" key="answer-content" class="answer-card">
+                  <div class="section-header">
+                    <span class="section-badge">GENERATED ANSWER</span>
+                    <span class="answer-meta">来源已校验 · 置信回答</span>
                   </div>
-                </Transition>
+                  <div class="answer-markdown" :innerHTML="renderedAnswer" aria-busy="false"></div>
+                </div>
 
                 <div v-if="requestId && answer && !isLoading" class="feedback-panel" aria-label="回答反馈">
                   <div>
@@ -214,12 +223,10 @@
                   </div>
                 </div>
 
-                <Transition name="answer-fade">
-                  <div v-if="errorMsg" class="error-box">
-                    <span class="error-label">请求异常</span>
-                    <p>{{ errorMsg }}</p>
-                  </div>
-                </Transition>
+                <div v-if="errorMsg" class="error-box">
+                  <span class="error-label">请求异常</span>
+                  <p>{{ errorMsg }}</p>
+                </div>
               </div>
 
               <div v-else key="empty-state" class="empty-state">
@@ -238,7 +245,6 @@
                   </div>
                 </div>
               </div>
-            </Transition>
 
             <footer class="workspace-footer">
               <span><i class="footer-dot"></i> 数据仅来自已索引的 ZRDDS 文档</span>
@@ -275,6 +281,8 @@ const renderedAnswer = computed(() => {
 const errorMsg = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
+const aborted = ref(false)
+const activeExperiment = ref('')
 const requestId = ref('')
 const feedbackRating = ref('')
 const feedbackStatus = ref('')
@@ -285,6 +293,15 @@ const knowledgeMode = ref('')
 const kbStats = ref(null)
 const health = ref(null)
 const experiments = computed(() => health.value?.experiments || [])
+// 当前生效的检索模式：决定"相关度"这类指标怎么显示——vector/hybrid_rerank 的
+// 分数量纲可跨查询比较；bm25（原始词面分）与 hybrid（RRF）不可比（api.md v0.16）。
+const activeMode = computed(() => {
+  const modes = health.value?.experiment_modes || {}
+  const name = activeExperiment.value
+  if (name && modes[name]) return modes[name]
+  return kbStats.value?.retrieval_mode || modes[defaultExperiment.value] || 'vector'
+})
+const defaultExperiment = computed(() => kbStats.value?.experiment || '')
 const knowledgeStatusLabel = computed(() => {
   if (knowledgeStatus.value === 'online') {
     return knowledgeMode.value
@@ -377,6 +394,7 @@ const handleQuery = async (payload) => {
   if (experiment) {
     requestBody.experiment = experiment
   }
+  activeExperiment.value = experiment
 
   abortController?.abort()
   abortController = new AbortController()
@@ -387,6 +405,7 @@ const handleQuery = async (payload) => {
   feedbackRating.value = ''
   feedbackStatus.value = ''
   feedbackError.value = ''
+  aborted.value = false
   isStreaming.value = true
   isLoading.value = true
 
@@ -422,13 +441,24 @@ const handleQuery = async (payload) => {
       await enrichSources(requestId.value)
     }
   } catch (error) {
-    if (error.name !== 'AbortError') {
+    if (error.name === 'AbortError') {
+      // 用户主动"停止生成"：保留已产出部分，不报错
+      aborted.value = true
+    } else {
       errorMsg.value = `请求失败：${error.message}（请确认后端已启动：make serve）`
       console.error('查询失败:', error)
     }
   } finally {
     isLoading.value = false
   }
+}
+
+// 终止当前回答：中止请求（后端生成器被取消、上游 LLM 流关闭）。已产出的
+// token 保留在 answer 里，引用与 rid 也已到手，故回查/反馈仍可用。
+function stopGeneration() {
+  if (!isLoading.value) return
+  aborted.value = true
+  abortController?.abort()
 }
 
 async function enrichSources(rid) {
@@ -1149,13 +1179,118 @@ async function submitFeedback(rating) {
   line-height: 1.78;
 }
 
-.streaming-response {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+/* markdown 正文样式：v-html 注入的内容不带 scoped 属性，必须用 :deep() 才能命中 */
+.answer-markdown :deep(h1),
+.answer-markdown :deep(h2),
+.answer-markdown :deep(h3),
+.answer-markdown :deep(h4) {
+  margin: 14px 0 8px;
+  color: var(--ink-deep);
+  line-height: 1.4;
+}
+
+.answer-markdown :deep(h1) { font-size: 1.12rem; }
+.answer-markdown :deep(h2) { font-size: 1.02rem; }
+.answer-markdown :deep(h3),
+.answer-markdown :deep(h4) { font-size: 0.94rem; }
+
+.answer-markdown :deep(> :first-child) {
+  margin-top: 0;
+}
+
+.answer-markdown :deep(p) {
+  margin: 0 0 10px;
+}
+
+.answer-markdown :deep(ul),
+.answer-markdown :deep(ol) {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+
+.answer-markdown :deep(li) {
+  margin: 3px 0;
+}
+
+.answer-markdown :deep(li::marker) {
+  color: var(--primary-500);
+}
+
+.answer-markdown :deep(code) {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgba(94, 156, 173, 0.12);
+  color: var(--primary-700);
+  font: 0.8rem 'Consolas', 'SFMono-Regular', monospace;
+}
+
+.answer-markdown :deep(pre) {
+  overflow: auto;
+  margin: 0 0 10px;
+  padding: 11px 12px;
+  border: 1px solid rgba(138, 175, 202, 0.26);
+  border-radius: 9px;
+  background: rgba(247, 251, 252, 0.86);
+}
+
+.answer-markdown :deep(pre code) {
+  padding: 0;
+  background: transparent;
   color: var(--text);
-  font-size: 0.92rem;
-  line-height: 1.78;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.answer-markdown :deep(blockquote) {
+  margin: 0 0 10px;
+  padding: 6px 11px;
+  border-left: 3px solid rgba(94, 156, 173, 0.45);
+  background: rgba(94, 156, 173, 0.06);
+  color: var(--text-muted);
+}
+
+.answer-markdown :deep(table) {
+  width: 100%;
+  margin: 0 0 10px;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.answer-markdown :deep(th),
+.answer-markdown :deep(td) {
+  padding: 6px 9px;
+  border: 1px solid rgba(138, 175, 202, 0.28);
+  text-align: left;
+}
+
+.answer-markdown :deep(th) {
+  background: rgba(94, 156, 173, 0.08);
+  color: var(--ink-deep);
+}
+
+.answer-markdown :deep(a) {
+  color: var(--primary-700);
+  text-decoration: underline;
+}
+
+.answer-markdown :deep(strong) {
+  color: var(--ink-deep);
+}
+
+.answer-markdown :deep(hr) {
+  margin: 14px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.aborted-note {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(180, 140, 90, 0.35);
+  border-radius: 9px;
+  background: rgba(253, 248, 238, 0.9);
+  color: #8a6a3a;
+  font-size: 0.68rem;
 }
 
 .error-box {

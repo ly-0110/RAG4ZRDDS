@@ -10,13 +10,21 @@
           </div>
         </div>
         <div class="toolbar-options">
-        <select v-model="selectedExperiment" class="experiment-selector" :disabled="props.loading">
-          <option value="">选择检索模式...</option>
-          <option v-for="exp in availableExperiments" :key="exp" :value="exp">{{ exp }}</option>
-        </select>
-        <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
-        <span class="control-chip">Top-K 5</span>
-      </div>
+          <label class="experiment-picker">
+            <span class="picker-label">检索模式</span>
+            <select
+              v-model="selectedExperiment"
+              class="experiment-selector"
+              :disabled="props.loading"
+              aria-label="选择检索实验（后端白名单）"
+            >
+              <option value="">默认（服务端配置）</option>
+              <option v-for="exp in props.availableExperiments" :key="exp" :value="exp">{{ exp }}</option>
+            </select>
+          </label>
+          <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
+          <span class="control-chip">Top-K 5</span>
+        </div>
       </div>
 
       <textarea
@@ -35,16 +43,28 @@
           <span class="word-count">{{ userInput.length }}/{{ MAX_LENGTH }}</span>
           <span class="keyboard-hint">Enter 提交 · Shift + Enter 换行</span>
         </div>
-        <button
-          :disabled="!canSubmit"
-          @click="handleSubmit"
-          class="submit-btn"
-          type="button"
-        >
-          <span>{{ loading ? '正在检索' : '开始检索' }}</span>
-          <span v-if="loading" class="loading-icon" aria-hidden="true"></span>
-          <span v-else class="submit-arrow" aria-hidden="true">↗</span>
-        </button>
+        <div class="submit-actions">
+          <button
+            v-if="loading"
+            type="button"
+            class="stop-btn"
+            aria-label="停止生成"
+            @click="handleStop"
+          >
+            <span class="stop-icon" aria-hidden="true"></span>
+            <span>停止生成</span>
+          </button>
+          <button
+            :disabled="!canSubmit"
+            @click="handleSubmit"
+            class="submit-btn"
+            type="button"
+          >
+            <span>{{ loading ? '正在检索' : '开始检索' }}</span>
+            <span v-if="loading" class="loading-icon" aria-hidden="true"></span>
+            <span v-else class="submit-arrow" aria-hidden="true">↗</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -79,12 +99,11 @@ const props = defineProps({
   hasAnswer: { type: Boolean, default: false },
   availableExperiments: { type: Array, default: () => [] },
 })
-const emit = defineEmits(['submit'])
+const emit = defineEmits(['submit', 'stop'])
 
 const userInput = ref('')
 const MAX_LENGTH = 200
 const selectedExperiment = ref('')
-const availableExperiments = ref([])
 const suggestions = [
   '如何调用 DataWriter API？',
   'ZRDDS 故障码 E1003 是什么意思？',
@@ -129,6 +148,12 @@ const handleSubmit = () => {
 const useSuggestion = (suggestion) => {
   if (props.loading) return
   userInput.value = suggestion
+}
+
+// 终止当前回答：请求由 App 侧 abort（后端生成器随之取消、上游 LLM 流关闭）
+const handleStop = () => {
+  if (!props.loading) return
+  emit('stop')
 }
 
 defineExpose({ question: userInput })
@@ -213,6 +238,51 @@ defineExpose({ question: userInput })
 
 .toolbar-options {
   gap: 6px;
+}
+
+.experiment-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px 4px 8px;
+  border: 1px solid rgba(94, 156, 173, 0.34);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.picker-label {
+  color: var(--text-subtle);
+  font-size: 0.6rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.experiment-selector {
+  max-width: 190px;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--primary-700);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+}
+
+.experiment-selector:hover:not(:disabled) {
+  background: rgba(94, 156, 173, 0.1);
+}
+
+.experiment-selector:focus-visible {
+  outline: 2px solid rgba(94, 156, 173, 0.4);
+  outline-offset: 2px;
+}
+
+.experiment-selector:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .control-chip {
@@ -326,6 +396,52 @@ textarea:disabled {
   box-shadow: none;
   cursor: not-allowed;
   opacity: 0.83;
+}
+
+.submit-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* 停止生成（生成中才出现）：与主按钮同尺寸、低饱和描边，避免误点 */
+.stop-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 13px;
+  border: 1px solid rgba(180, 96, 96, 0.42);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #9a4a4a;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.stop-btn:hover {
+  background: rgba(255, 244, 244, 0.96);
+  border-color: rgba(180, 96, 96, 0.7);
+  transform: translateY(-1px);
+}
+
+.stop-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.stop-btn:focus-visible {
+  outline: 3px solid rgba(180, 96, 96, 0.24);
+  outline-offset: 3px;
+}
+
+.stop-icon {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: currentColor;
 }
 
 .submit-arrow {

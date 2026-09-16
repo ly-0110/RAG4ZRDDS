@@ -6,10 +6,14 @@ import asyncio
 import pytest
 
 from evaluation.judges.judge import (
+    CITATION_SYSTEM,
+    CORRECTNESS_SYSTEM,
     FAITHFULNESS_SYSTEM,
     RELEVANCE_SYSTEM,
     JudgeResult,
     _parse,
+    judge_citation_accuracy,
+    judge_correctness,
     judge_faithfulness,
 )
 from generation.llm import LLMConfig
@@ -19,20 +23,26 @@ def _cfg() -> LLMConfig:
     return LLMConfig(provider="openai", base_url="http://x/v1", api_key="sk-test", model="m")
 
 
+# ---------------------------------------------------------------- 解析
+
+
 def test_parse_clean_json():
-    raw, rationale = _parse('{"score": 4, "rationale": "基本忠实"}')
+    raw, rationale, ok = _parse('{"score": 4, "rationale": "基本忠实"}')
     assert raw == 4
     assert rationale == "基本忠实"
+    assert ok is True
 
 
 def test_parse_fenced_json():
-    raw, _ = _parse('```json\n{"score": 3, "rationale": "x"}\n```')
+    raw, _, ok = _parse('```json\n{"score": 3, "rationale": "x"}\n```')
     assert raw == 3
+    assert ok is True
 
 
 def test_parse_regex_fallback():
-    raw, _ = _parse('评分："score": 5，很忠实')
+    raw, _, ok = _parse('评分："score": 5，很忠实')
     assert raw == 5
+    assert ok is True
 
 
 def test_parse_clamps_out_of_range():
@@ -40,23 +50,76 @@ def test_parse_clamps_out_of_range():
     assert _parse('{"score": -3}')[0] == 0
 
 
+def test_parse_ok_false_on_garbage():
+    """C2：解析失败要能显式标记（ok=False），而非静默记 0。"""
+    score, rationale, ok = _parse("这根本不是评分")
+    assert score == 0
+    assert ok is False
+    assert rationale == "这根本不是评分"
+
+
 def test_judge_result_normalizes_to_unit():
     r = JudgeResult.from_model_output("faithfulness", '{"score": 5, "rationale": "ok"}')
     assert r.metric == "faithfulness"
     assert r.raw_score == 5
     assert r.score == 1.0
+    assert r.parse_ok is True
+
+
+def test_judge_result_marks_parse_failure():
+    r = JudgeResult.from_model_output("faithfulness", "无法解析")
+    assert r.score == 0.0
+    assert r.parse_ok is False
 
 
 def test_judge_prompts_request_score():
     assert "score" in FAITHFULNESS_SYSTEM
     assert "忠实度" in FAITHFULNESS_SYSTEM
     assert "相关性" in RELEVANCE_SYSTEM
+    assert "正确性" in CORRECTNESS_SYSTEM
+    assert "引用" in CITATION_SYSTEM
+
+
+def test_relevance_prompt_rewards_correct_abstention():
+    """C4：正确拒答应评满分，不得因未正面回答扣分。"""
+    assert "拒答" in RELEVANCE_SYSTEM
+    assert "5 分" in RELEVANCE_SYSTEM
+
+
+# ---------------------------------------------------------------- 空检索跳过 LLM
+
+
+@pytest.mark.parametrize(
+    "judge_fn",
+    [judge_faithfulness, judge_correctness, judge_citation_accuracy],
+)
+def test_context_judges_empty_chunks_skip_llm(judge_fn):
+    r = asyncio.run(judge_fn(_cfg(), "问题", [], "回答"))
+    assert r.score == 0.0
+    assert "无检索内容" in r.rationale
 
 
 def test_judge_faithfulness_empty_chunks_skips_llm():
     r = asyncio.run(judge_faithfulness(_cfg(), "问题", [], "回答"))
     assert r.score == 0.0
     assert r.rationale == "无检索内容可供对照"
+
+
+# ---------------------------------------------------------------- 温度固定（C3）
+
+
+def test_judge_pins_temperature_zero(monkeypatch):
+    captured: dict = {}
+
+    async def fake_complete(config, messages, *, temperature=None, max_tokens=512):
+        captured["temperature"] = temperature
+        return '{"score": 5, "rationale": "ok"}'
+
+    monkeypatch.setattr("evaluation.judges.judge.complete_chat", fake_complete)
+    from evaluation.judges import judge as J
+
+    asyncio.run(J.judge_answer_relevance(_cfg(), "问题", "回答"))
+    assert captured["temperature"] == 0.0
 
 
 # ------------------------------------------------- 回归：非对象 JSON 不得抛异常
@@ -66,12 +129,14 @@ def test_judge_faithfulness_empty_chunks_skips_llm():
 
 @pytest.mark.parametrize("raw", ['[1,2,3]', '"just a string"', "null", "true", "123"])
 def test_parse_non_object_json_does_not_raise(raw):
-    score, rationale = _parse(raw)
+    score, rationale, ok = _parse(raw)
     assert score == 0
     assert rationale == raw
+    assert ok is False
 
 
 def test_parse_array_with_embedded_score_recovers_via_regex():
     # 顶层是数组但内部含 score：正则兜底应捞回分数，而非直接判 0
-    score, _ = _parse('[{"score": 4, "rationale": "基本忠实"}]')
+    score, _, ok = _parse('[{"score": 4, "rationale": "基本忠实"}]')
     assert score == 4
+    assert ok is True

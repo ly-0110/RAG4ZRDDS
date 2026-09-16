@@ -13,15 +13,8 @@
       <div class="evidence-stat">
         <span class="summary-icon">◎</span>
         <div>
-          <span>平均相关度</span>
-          <strong>{{ averageScore }}%</strong>
-        </div>
-      </div>
-      <div class="evidence-stat">
-        <span class="summary-icon">◇</span>
-        <div>
-          <span>图谱关联 · 后端未提供</span>
-          <strong>{{ graphLinksTotal ? `${graphLinksTotal} 条` : '暂无数据' }}</strong>
+          <span>{{ scoreLabel }}<template v-if="!scoreComparable">（池内相对）</template></span>
+          <strong>{{ averageScoreText }}</strong>
         </div>
       </div>
       <div class="evidence-stat request-stat">
@@ -33,7 +26,10 @@
       </div>
     </div>
 
-    <TransitionGroup name="source-list" tag="div" class="sources-list">
+    <!-- 2026-09-16（D 代修）：原为 <TransitionGroup name="source-list">，其 enter-from
+         是 opacity:0，而 Vue 靠 requestAnimationFrame 移除该类；rAF 在未被合成的
+         标签页不触发时来源卡会永久不可见。改普通容器，CSS 保留。 -->
+    <div class="sources-list">
       <article
         v-for="(s, i) in sources"
         :key="sourceKey(s, i)"
@@ -49,40 +45,50 @@
             <span class="source-kind">{{ sourceKind(s) }}</span>
           </div>
 
+          <!-- 页码只对 PDF 来源有意义：HTML 快照（Doxygen）没有页面概念，
+               产物里页字段为 null——此前渲染成"第 — 页 · 物理页 —"，无信息且误导。
+               图谱关联功能未实现（后端无该字段），不再占位展示。 -->
           <div class="source-meta">
-            <span class="page-info">第 <span class="page-print">{{ s.page_print || '—' }}</span> 页</span>
-            <span class="meta-divider">·</span>
-            <span>物理页 {{ s.page_physical || '—' }}</span>
-            <span class="meta-divider">·</span>
-            <span>{{ graphLinkLabel(s) }}</span>
-            <span v-if="s.source_id" class="source-id">· {{ s.source_id }}</span>
+            <template v-if="s.page_print || s.page_physical">
+              <span v-if="s.page_print" class="page-info">第 <span class="page-print">{{ s.page_print }}</span> 页</span>
+              <span v-if="s.page_print && s.page_physical" class="meta-divider">·</span>
+              <span v-if="s.page_physical">物理页 {{ s.page_physical }}</span>
+              <span v-if="s.source_id" class="meta-divider">·</span>
+            </template>
+            <span v-if="s.source_id" class="source-id">{{ s.source_id }}</span>
           </div>
 
           <a
             v-if="s.source_url"
             class="source-link"
             :href="s.source_url"
-            role="link"
-            tabindex="0"
-            @click="handleSourceLinkClick(s.source_url)"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             打开 HTML 原文 <span aria-hidden="true">↗</span>
           </a>
 
           <div class="relevance-container">
             <div class="relevance-label">
-              <span class="label-text">向量相关度</span>
-              <strong class="score-value">{{ displayScore(s) }}</strong>
+              <span class="label-text">{{ scoreLabel }}</span>
+              <strong class="score-value">{{ scoreValueText(s) }}</strong>
             </div>
-            <div class="relevance-progress-wrapper" role="progressbar" aria-valuenow="scorePercent(s)" aria-valuemin="0" aria-valuemax="100">
-              <span class="progress-bar" :style="{ width: scorePercent(s) }"></span>
+            <div
+              class="relevance-progress-wrapper"
+              role="progressbar"
+              :aria-valuenow="Math.round(scoreFraction(s) * 100)"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              :aria-label="`${scoreLabel} ${scoreValueText(s)}`"
+            >
+              <span class="progress-bar" :style="{ width: scoreBarWidth(s) }"></span>
             </div>
-            <span class="relevance-tag">{{ relationLabel(s) }}</span>
+            <span class="relevance-tag">{{ scoreComparable ? relationLabel(s) : rankLabel(i) }}</span>
           </div>
 
-          <div class="relevance-track" :aria-label="`相关度 ${displayScore(s)}`">
-            <span :style="{ width: scorePercent(s) }"></span>
-          </div>
+          <p v-if="!scoreComparable" class="score-caveat">
+            {{ scoreCaveat }}
+          </p>
 
           <div class="action-area">
             <button
@@ -100,22 +106,50 @@
             <span v-else class="no-details-tip">节点详情未开放</span>
           </div>
 
-          <Transition name="details-expand">
-            <div v-if="isExpanded(s, i)" class="details-panel">
+          <!-- 同理去过渡：节点原文必须无条件可见（rAF 停摆时 enter-from 的
+               max-height:0/opacity:0 会让展开的面板永远看不见） -->
+          <div v-if="isExpanded(s, i)" class="details-panel">
               <div v-if="isLoading(s, i)" class="details-skeleton" aria-label="正在加载来源详情">
                 <span class="skeleton-line skeleton-line-wide"></span>
                 <span class="skeleton-line"></span>
                 <span class="skeleton-line skeleton-line-short"></span>
               </div>
-              <p v-else-if="detailErrors[sourceKey(s, i)]" class="details-error">
-                暂时无法加载详情，请稍后重试。
+              <p v-else-if="detailErrorOf(s, i)" class="details-error">
+                {{ detailErrorOf(s, i) }}
               </p>
-              <pre v-else class="details-content">{{ formatDetails(detailsCache[sourceKey(s, i)]) }}</pre>
+              <p v-else-if="detailNoteOf(s, i)" class="details-note">
+                {{ detailNoteOf(s, i) }}
+              </p>
+              <div v-else-if="detailOf(s, i)" class="details-node">
+                <div class="details-meta">
+                  <span class="details-chip">{{ detailOf(s, i).source_id || '未知来源' }}</span>
+                  <span v-if="detailOf(s, i).version" class="details-chip">v{{ detailOf(s, i).version }}</span>
+                  <span class="details-chip is-format">{{ formatLabel(detailOf(s, i)) }}</span>
+                  <!-- 页码只对 PDF 有意义（HTML 无页面概念，产物里页字段为 None） -->
+                  <span v-if="pageRangeText(detailOf(s, i))" class="details-pages">
+                    {{ pageRangeText(detailOf(s, i)) }}
+                  </span>
+                </div>
+                <p v-if="detailOf(s, i).title" class="details-title">{{ detailOf(s, i).title }}</p>
+                <p v-if="sectionPathText(detailOf(s, i).section_path)" class="details-section">
+                  {{ sectionPathText(detailOf(s, i).section_path) }}
+                </p>
+                <p class="details-text">{{ detailOf(s, i).text || '（该节点无正文）' }}</p>
+                <a
+                  v-if="detailOf(s, i).source_url"
+                  class="source-link"
+                  :href="detailOf(s, i).source_url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ detailOf(s, i).source_type === 'html' ? '打开该节点 HTML 原文' : '打开来源文件' }}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
             </div>
-          </Transition>
         </div>
       </article>
-    </TransitionGroup>
+    </div>
   </div>
 </template>
 
@@ -136,48 +170,71 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  // 当前检索模式（/healthz 的 experiment_modes）：决定分数怎么显示。
+  // vector/hybrid_rerank 的分数量纲可跨查询比较；bm25 是原始词面分（7~56）、
+  // hybrid 是 RRF（~0.03）——把它们当"相关度百分比"渲染会系统性误导（api.md v0.16）。
+  scoreMode: {
+    type: String,
+    default: 'vector',
+  },
 })
+
+const scoreComparable = computed(() => ['vector', 'hybrid_rerank'].includes(props.scoreMode))
+const scoreLabel = computed(() => ({
+  vector: '向量相关度',
+  hybrid_rerank: '精排相关度',
+  bm25: 'BM25 词面分',
+  hybrid: 'RRF 融合分',
+}[props.scoreMode] || '检索得分'))
+const scoreCaveat = computed(() => (props.scoreMode === 'bm25'
+  ? 'BM25 为词面统计分（无上界），跨查询不可比；进度与"池内最强"为本批引用内的相对值。'
+  : 'RRF 只有排序意义、分值与相关性不成比例；进度与"池内最强"为本批引用内的相对值。'))
 
 const detailsCache = ref({})
 const detailErrors = ref({})
+const detailNotes = ref({})
 const loadingDetails = ref({})
 const expandedDetails = ref(new Set())
 
 const canFetchDetails = computed(() => props.requestId && props.requestId.length > 0)
-const normalizedScore = (source) => {
-  const rawScore = Number(source?.score)
-  if (!Number.isFinite(rawScore)) return 0
-  return Math.max(0, Math.min(1, rawScore > 1 ? rawScore / 100 : rawScore))
+
+// ---- 分数展示（按模式分两路）---------------------------------------------
+// 可比模式（vector cosine / hybrid_rerank sigmoid）：直接当百分比。
+// 不可比模式（bm25 原始分 / hybrid RRF）：只在“本批引用内”做 min-max 归一，
+// 作为相对强弱与排序提示，同时把原始分原样显示出来，不伪造百分比。
+const rawScore = (source) => {
+  const value = Number(source?.score)
+  return Number.isFinite(value) ? value : 0
 }
-const scorePercent = (source) => `${Math.max(8, normalizedScore(source) * 100)}%`
-const displayScore = (source) => `${(normalizedScore(source) * 100).toFixed(1)}%`
-const averageScore = computed(() => {
-  const total = props.sources.reduce((sum, source) => sum + normalizedScore(source), 0)
-  return props.sources.length ? (total / props.sources.length * 100).toFixed(1) : '0.0'
+const comparableFraction = (source) => Math.max(0, Math.min(1, rawScore(source)))
+const scoreBounds = computed(() => {
+  const values = props.sources.map(rawScore)
+  if (!values.length) return { min: 0, max: 0 }
+  return { min: Math.min(...values), max: Math.max(...values) }
 })
+const relativeFraction = (source) => {
+  const { min, max } = scoreBounds.value
+  if (max <= min) return 1
+  return Math.max(0, Math.min(1, (rawScore(source) - min) / (max - min)))
+}
+const scoreFraction = (source) => (scoreComparable.value ? comparableFraction(source) : relativeFraction(source))
+const scoreBarWidth = (source) => `${Math.max(6, scoreFraction(source) * 100)}%`
+const scoreValueText = (source) => (scoreComparable.value
+  ? `${(comparableFraction(source) * 100).toFixed(1)}%`
+  : rawScore(source).toFixed(3))
+const averageScoreText = computed(() => {
+  if (!props.sources.length) return '0.0%'
+  if (!scoreComparable.value) {
+    const total = props.sources.reduce((sum, source) => sum + rawScore(source), 0)
+    return `${(total / props.sources.length).toFixed(3)}（原始分均值）`
+  }
+  const total = props.sources.reduce((sum, source) => sum + comparableFraction(source), 0)
+  return `${(total / props.sources.length * 100).toFixed(1)}%`
+})
+const rankLabel = (index) => `第 ${index + 1} 位`
 const uniqueDocuments = computed(() => new Set(props.sources.map((source) => source.source_name || '未命名文档')).size)
-const graphLinksTotal = computed(() =>
-  props.sources.reduce((sum, source) => sum + graphLinkCount(source), 0),
-)
-
-const graphLinkCount = (source) => {
-  const links = source?.graph_links ?? source?.related_nodes ?? source?.relation_count
-  if (Array.isArray(links)) return links.length
-  const parsed = Number(links)
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
-}
-
-const graphLinkLabel = (source) => {
-  const links = source?.graph_links ?? source?.related_nodes ?? source?.relation_count
-  if (Array.isArray(links)) return `${links.length} 个相邻节点`
-  const parsed = Number(links)
-  return Number.isFinite(parsed) && parsed >= 0
-    ? `${parsed} 个相邻节点`
-    : '图谱数据暂无（占位区域）'
-}
-
 const relationLabel = (source) => {
-  const score = normalizedScore(source)
+  const score = comparableFraction(source)
   if (score >= 0.78) return '强关联'
   if (score >= 0.55) return '中关联'
   return '弱关联'
@@ -190,13 +247,10 @@ const sourceKind = (source) => {
   return extension ? extension.toUpperCase() : 'DOC'
 }
 
-const handleSourceLinkClick = (url) => {
-  window.open(url, '_blank', 'noopener,noreferrer')
-}
-
 watch(() => props.requestId, () => {
   detailsCache.value = {}
   detailErrors.value = {}
+  detailNotes.value = {}
   loadingDetails.value = {}
   expandedDetails.value = new Set()
 })
@@ -204,6 +258,30 @@ watch(() => props.requestId, () => {
 const sourceKey = (source, index) => source?.node_id || `${source?.source_name || 'source'}-${source?.section || 'section'}-${index}`
 const isExpanded = (source, index) => expandedDetails.value.has(sourceKey(source, index))
 const isLoading = (source, index) => Boolean(loadingDetails.value[sourceKey(source, index)])
+const detailOf = (source, index) => detailsCache.value[sourceKey(source, index)] || null
+const detailErrorOf = (source, index) => detailErrors.value[sourceKey(source, index)] || ''
+const detailNoteOf = (source, index) => detailNotes.value[sourceKey(source, index)] || ''
+const sectionPathText = (path) => (Array.isArray(path) ? path.join(' › ') : path || '')
+
+// 按来源格式渲染详情（item 4）：PDF 有印刷/物理页（可能跨页，显示区间），
+// HTML 摘自 Doxygen 站点、无页面概念（产物页字段为 "None" → 归一为 null，
+// 故不显示页码），改为展示文件与标题。
+const formatLabel = (node) => {
+  const type = String(node?.source_type || '').toLowerCase()
+  if (type === 'html') return 'HTML 文档'
+  if (type === 'pdf') return 'PDF 手册'
+  return type ? type.toUpperCase() : '文档'
+}
+const pageRangeText = (node) => {
+  const printStart = node?.page_print
+  const physStart = node?.page_physical
+  if (printStart == null && physStart == null) return ''
+  const range = (start, end) => (end && end !== start ? `${start}–${end}` : `${start}`)
+  const parts = []
+  if (printStart != null) parts.push(`印刷页 ${range(printStart, node.page_print_end)}`)
+  if (physStart != null) parts.push(`物理页 ${range(physStart, node.page_physical_end)}`)
+  return parts.join(' · ')
+}
 
 const setRecord = (record, key, value) => {
   record.value = { ...record.value, [key]: value }
@@ -215,7 +293,8 @@ const fetchAndShowDetails = async (source, index) => {
   const key = sourceKey(source, index)
   if (isLoading(source, index)) return
 
-  if (Object.prototype.hasOwnProperty.call(detailsCache.value, key)) {
+  if (Object.prototype.hasOwnProperty.call(detailsCache.value, key)
+    || detailNotes.value[key]) {
     const nextExpanded = new Set(expandedDetails.value)
     if (nextExpanded.has(key)) nextExpanded.delete(key)
     else nextExpanded.add(key)
@@ -228,21 +307,20 @@ const fetchAndShowDetails = async (source, index) => {
   expandedDetails.value = new Set([...expandedDetails.value, key])
 
   try {
-    // F3 修复：使用 /nodes/{node_id} 端点获取单节点详情，而非全量 /sources/{rid}
-    // Mock 模式下后端无 node_details 数据，直接展示 sources 内容
-    const kb = props.health?.kb
-    if (kb === null || kb === undefined) {
-      // Mock 模式：跳过节点详情请求，直接使用 sources 数据
-      setRecord(detailsCache, key, source)
+    // F3（api.md v0.14）：单节点原文走 GET /nodes/{node_id}。mock 模式后端无
+    // Node 产物（/healthz 的 kb 为 null），给出可读说明而非请求注定 404。
+    const isMock = props.health == null || props.health.kb == null
+    if (isMock) {
+      setRecord(detailNotes, key, '当前为 mock 模式，节点原文需 live 模式（RAG_MODE=live）下查询。')
+    } else if (!source?.node_id) {
+      setRecord(detailNotes, key, '该引用未携带 node_id，无法定位原文。')
     } else {
-      // Live 模式：请求节点详情
-      const response = await fetch(`/nodes/${source?.node_id}`)
+      const response = await fetch(`/nodes/${encodeURIComponent(source.node_id)}`)
       if (!response.ok) {
-        throw new Error(`获取节点详情失败：${response.status} ${response.statusText}`)
+        const body = await response.json().catch(() => null)
+        throw new Error(body?.detail || `获取节点详情失败：${response.status}`)
       }
-
-      const data = await response.json()
-      setRecord(detailsCache, key, data)
+      setRecord(detailsCache, key, await response.json())
     }
   } catch (error) {
     setRecord(detailErrors, key, error.message || '获取节点详情失败')
@@ -250,12 +328,6 @@ const fetchAndShowDetails = async (source, index) => {
   } finally {
     setRecord(loadingDetails, key, false)
   }
-}
-
-
-const formatDetails = (details) => {
-  if (typeof details === 'string') return details
-  return JSON.stringify(details, null, 2)
 }
 </script>
 
@@ -490,7 +562,7 @@ const formatDetails = (details) => {
   font: 0.62rem 'Consolas', monospace;
 }
 
-.relevance-row {
+.relevance-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -520,15 +592,25 @@ const formatDetails = (details) => {
   font-weight: 700;
 }
 
-.relevance-track {
-  height: 4px;
-  margin-top: 6px;
-  overflow: hidden;
-  border-radius: 99px;
-  background: rgba(94, 156, 173, 0.12);
+/* 不可比量纲（bm25/hybrid）的说明行：避免把原始分误读成"相关度很低" */
+.score-caveat {
+  margin: 6px 0 0;
+  color: var(--text-subtle);
+  font-size: 0.6rem;
+  line-height: 1.5;
 }
 
-.relevance-track span {
+/* 相关度进度条：标签行（左）+ 进度条（中）+ 关联标签（右） */
+.relevance-progress-wrapper {
+  flex: 1;
+  min-width: 72px;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(94, 156, 173, 0.14);
+}
+
+.progress-bar {
   display: block;
   height: 100%;
   border-radius: inherit;
@@ -635,6 +717,74 @@ const formatDetails = (details) => {
   word-break: break-word;
   color: var(--text-muted);
   font: 0.72rem/1.6 'Consolas', monospace;
+}
+
+/* 节点详情（GET /nodes/{node_id}）：元信息行 + 章节路径 + 正文 */
+.details-node {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.details-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.details-chip {
+  padding: 2px 7px;
+  border: 1px solid rgba(94, 156, 173, 0.2);
+  border-radius: 999px;
+  background: rgba(94, 156, 173, 0.1);
+  color: var(--primary-700);
+  font: 0.62rem 'Consolas', monospace;
+}
+
+.details-pages {
+  color: var(--text-subtle);
+  font: 0.62rem 'Consolas', monospace;
+}
+
+.details-section {
+  margin: 0;
+  color: var(--primary-700);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.details-text {
+  max-height: 300px;
+  overflow: auto;
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(138, 175, 202, 0.26);
+  border-radius: 9px;
+  background: rgba(247, 251, 252, 0.72);
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text-muted);
+  font: 0.72rem/1.65 'Consolas', monospace;
+}
+
+.details-note {
+  margin: 0;
+  color: var(--text-subtle);
+  font-size: 0.72rem;
+}
+
+.details-chip.is-format {
+  border-color: rgba(120, 150, 190, 0.3);
+  background: rgba(120, 150, 190, 0.12);
+  color: #4a5f7a;
+}
+
+.details-title {
+  margin: 0;
+  color: var(--ink-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .details-error {
