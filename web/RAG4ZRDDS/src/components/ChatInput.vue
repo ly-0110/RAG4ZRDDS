@@ -10,9 +10,13 @@
           </div>
         </div>
         <div class="toolbar-options">
-          <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
-          <span class="control-chip">Top-K 5</span>
-        </div>
+        <select v-model="selectedExperiment" class="experiment-selector" :disabled="props.loading">
+          <option value="">选择检索模式...</option>
+          <option v-for="exp in availableExperiments" :key="exp" :value="exp">{{ exp }}</option>
+        </select>
+        <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
+        <span class="control-chip">Top-K 5</span>
+      </div>
       </div>
 
       <textarea
@@ -73,11 +77,14 @@ import { ref, computed } from 'vue'
 const props = defineProps({
   loading: { type: Boolean, default: false },
   hasAnswer: { type: Boolean, default: false },
+  availableExperiments: { type: Array, default: () => [] },
 })
 const emit = defineEmits(['submit'])
 
 const userInput = ref('')
 const MAX_LENGTH = 200
+const selectedExperiment = ref('')
+const availableExperiments = ref([])
 const suggestions = [
   '如何调用 DataWriter API？',
   'ZRDDS 故障码 E1003 是什么意思？',
@@ -110,7 +117,13 @@ const handleEnterKey = (e) => {
 const handleSubmit = () => {
   const question = userInput.value.trim()
   if (!question || props.loading) return
-  emit('submit', question)
+  
+  // F4: 将 experiment 参数附加到问题中，传递给后端
+  const payload = selectedExperiment.value 
+    ? { question, experiment: selectedExperiment.value }
+    : { question }
+  
+  emit('submit', payload)
 }
 
 const useSuggestion = (suggestion) => {

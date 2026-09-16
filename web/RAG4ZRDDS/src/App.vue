@@ -31,26 +31,49 @@
             <span class="online-mark" :aria-label="knowledgeStatusLabel"></span>
           </div>
 
-          <div class="stat-grid">
+          <div class="stat-grid" v-if="knowledgeStatus === 'online'">
+            <div class="stat-card">
+              <span class="stat-label">文档集合</span>
+              <strong>{{ kbStats?.experiment || 'N/A' }}</strong>
+              <small v-if="kbStats?.sources?.length">来源：{{ kbStats.sources.length }}</small>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">知识节点</span>
+              <strong>{{ kbStats?.node_total || 0 }}</strong>
+              <small v-if="kbStats?.sources?.length">版本：{{ kbStats.version }}</small>
+            </div>
+            <div class="stat-card stat-card-wide">
+              <div class="stat-heading">
+                <span class="stat-label">索引健康度</span>
+                <strong>{{ kbStats?.index_dirname || 'N/A' }}</strong>
+              </div>
+              <div class="progress-track" :aria-label="`索引健康度：${kbStats?.sources?.length || 0} 个来源`">
+                <span :style="{ width: kbStats?.sources?.length ? '100%' : '0%' }"></span>
+              </div>
+              <small v-if="kbStats?.sources?.length">{{ kbStats.sources.length }} 个来源已索引</small>
+            </div>
+          </div>
+
+          <div class="stat-grid" v-else>
             <div class="stat-card">
               <span class="stat-label">文档集合</span>
               <strong>—</strong>
-              <small>占位数据：未接入知识库统计接口</small>
+              <small>服务离线</small>
             </div>
             <div class="stat-card">
               <span class="stat-label">知识节点</span>
               <strong>—</strong>
-              <small>占位数据：未接入节点统计接口</small>
+              <small>服务离线</small>
             </div>
             <div class="stat-card stat-card-wide">
               <div class="stat-heading">
-                <span class="stat-label">索引健康度 · 占位</span>
+                <span class="stat-label">索引健康度</span>
                 <strong>—</strong>
               </div>
-              <div class="progress-track" aria-label="索引健康度暂无真实数据">
+              <div class="progress-track" aria-label="暂无真实数据">
                 <span style="width: 0%"></span>
               </div>
-              <small>占位数据：未接入索引健康检查</small>
+              <small>服务离线</small>
             </div>
           </div>
 
@@ -60,7 +83,7 @@
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">LIVE TRACE · SSE 状态推断</p>
-                <h3 id="pipeline-title">检索流程 · 前端推断</h3>
+                <h3 id="pipeline-title">检索流程 · {{ knowledgeStatus === 'online' ? '实时追踪' : '服务离线' }}</h3>
               </div>
               <span class="trace-id">{{ requestId ? requestId.slice(-6) : 'IDLE' }}</span>
             </div>
@@ -79,14 +102,24 @@
             </ol>
           </section>
 
-          <div class="engine-card">
+          <div class="engine-card" v-if="knowledgeStatus === 'online'">
+            <div class="engine-icon" aria-hidden="true">⌁</div>
+            <div>
+              <span class="stat-label">向量引擎</span>
+              <strong>{{ kbStats?.retrieval_mode || 'N/A' }}</strong>
+              <small v-if="kbStats?.experiment">{{ kbStats.experiment }} 实验</small>
+            </div>
+            <span class="engine-status">{{ kbStats?.index_dirname || '加载中…' }}</span>
+          </div>
+
+          <div class="engine-card" v-else>
             <div class="engine-icon" aria-hidden="true">⌁</div>
             <div>
               <span class="stat-label">向量引擎</span>
               <strong>—</strong>
-              <small>占位数据：未从服务端返回引擎信息</small>
+              <small>服务离线</small>
             </div>
-            <span class="engine-status">占位</span>
+            <span class="engine-status">离线</span>
           </div>
         </aside>
 
@@ -107,6 +140,7 @@
             <ChatInput
               :loading="isLoading"
               :has-answer="hasContent"
+              :available-experiments="experiments"
               @submit="handleQuery"
             />
 
@@ -127,13 +161,14 @@
                   v-if="sources.length"
                   :sources="sources"
                   :request-id="requestId"
+                  :health="health"
                 />
 
                 <Transition name="answer-fade" mode="out-in">
                   <div v-if="isLoading && !answer" key="answer-loading" class="answer-skeleton" aria-label="正在生成回答">
                     <div class="skeleton-heading skeleton-shimmer"></div>
                     <div class="skeleton-line skeleton-shimmer"></div>
-                    <div class="skeleton-line skeleton-line-wide skeleton-shimmer"></div>
+                    <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
                     <div class="skeleton-line skeleton-line-short skeleton-shimmer"></div>
                     <div class="skeleton-status">
                       <span class="loading-dot"></span>
@@ -145,7 +180,7 @@
                       <span class="section-badge">GENERATED ANSWER</span>
                       <span class="answer-meta">来源已校验 · 置信回答</span>
                     </div>
-                    <pre class="streaming-response">{{ answer }}</pre>
+                    <div :innerHTML="renderedAnswer" aria-busy="false"></div>
                   </div>
                 </Transition>
 
@@ -218,6 +253,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import ChatInput from './components/ChatInput.vue'
 import CitationsCard from './components/CitationsCard.vue'
 
@@ -225,6 +262,16 @@ const API_URL = '/query'
 
 const answer = ref('')
 const sources = ref([])
+const renderedAnswer = computed(() => {
+  if (!answer.value) return ''
+  try {
+    const html = marked(answer.value)
+    return DOMPurify.sanitize(html)
+  } catch (e) {
+    console.error('Markdown 渲染失败:', e)
+    return answer.value // 降级为纯文本
+  }
+})
 const errorMsg = ref('')
 const isLoading = ref(false)
 const isStreaming = ref(false)
@@ -235,6 +282,9 @@ const feedbackError = ref('')
 const hasContent = computed(() => answer.value !== '' || sources.value.length > 0)
 const knowledgeStatus = ref('checking')
 const knowledgeMode = ref('')
+const kbStats = ref(null)
+const health = ref(null)
+const experiments = computed(() => health.value?.experiments || [])
 const knowledgeStatusLabel = computed(() => {
   if (knowledgeStatus.value === 'online') {
     return knowledgeMode.value
@@ -256,9 +306,11 @@ onMounted(async () => {
   try {
     const response = await fetch('/healthz')
     if (!response.ok) throw new Error(`健康检查失败：${response.status}`)
-    const health = await response.json()
-    knowledgeStatus.value = health.status === 'ok' ? 'online' : 'offline'
-    knowledgeMode.value = health.mode || ''
+    const healthData = await response.json()
+    knowledgeStatus.value = healthData.status === 'ok' ? 'online' : 'offline'
+    knowledgeMode.value = healthData.mode || ''
+    kbStats.value = healthData.kb || null
+    health.value = healthData // 保存 health 数据供 experiments 使用
   } catch (error) {
     knowledgeStatus.value = 'offline'
     console.error('知识库服务健康检查失败:', error)
@@ -314,8 +366,17 @@ function handleFrame(frame) {
   }
 }
 
-const handleQuery = async (question) => {
+const handleQuery = async (payload) => {
+  const question = payload.question || payload
+  const experiment = payload.experiment?.trim() || ''
+
   if (!question.trim()) return
+
+  // F4: 仅当选择了检索模式时才传递 experiment 参数
+  const requestBody = { question }
+  if (experiment) {
+    requestBody.experiment = experiment
+  }
 
   abortController?.abort()
   abortController = new AbortController()
@@ -333,7 +394,7 @@ const handleQuery = async (question) => {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify(requestBody),
       signal: abortController.signal,
     })
 
@@ -1077,6 +1138,15 @@ async function submitFeedback(rating) {
 .answer-meta {
   color: var(--text-subtle);
   font-size: 0.65rem;
+}
+
+.answer-card {
+  margin: 0;
+  white-space: normal;
+  word-wrap: break-word;
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.78;
 }
 
 .streaming-response {
