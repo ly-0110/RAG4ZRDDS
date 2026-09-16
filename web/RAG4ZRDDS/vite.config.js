@@ -23,10 +23,14 @@ export default defineConfig({
   },
   // 开发联调代理（2026-08-29 接线修复）：前端请求 /query 等 API 路径
   // 由 Vite 转发到后端，避免跨域与"打到 dev server 自己 404"的问题。
+  // 2026-09-16 补 /nodes：F3 单节点原文端点（api.md v0.14）——此前缺失，
+  // 请求会被 SPA fallback 当成页面路由吞掉，"查看节点详情"在 dev 下必然报错。
   server: {
     proxy: {
       '/query': { target: BACKEND_URL, changeOrigin: true },
       '/sources': { target: BACKEND_URL, changeOrigin: true },
+      '/nodes': { target: BACKEND_URL, changeOrigin: true },
+      '/documents': { target: BACKEND_URL, changeOrigin: true },  // v0.16 本地文档原文
       '/healthz': { target: BACKEND_URL, changeOrigin: true },
       '/feedback': { target: BACKEND_URL, changeOrigin: true },
     },
