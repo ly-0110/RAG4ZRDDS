@@ -43,6 +43,7 @@
         <div class="source-index">{{ String(i + 1).padStart(2, '0') }}</div>
 
         <div class="source-body">
+
           <div class="source-card-heading">
             <div class="source-title">{{ s.source_name || '未命名文档' }} · {{ s.section || '相关片段' }}</div>
             <span class="source-kind">{{ sourceKind(s) }}</span>
@@ -61,19 +62,24 @@
             v-if="s.source_url"
             class="source-link"
             :href="s.source_url"
-            target="_blank"
-            rel="noopener noreferrer"
+            role="link"
+            tabindex="0"
+            @click="handleSourceLinkClick(s.source_url)"
           >
             打开 HTML 原文 <span aria-hidden="true">↗</span>
           </a>
 
-          <div class="relevance-row">
+          <div class="relevance-container">
             <div class="relevance-label">
-              <span>向量相关度</span>
-              <strong>{{ displayScore(s) }}</strong>
+              <span class="label-text">向量相关度</span>
+              <strong class="score-value">{{ displayScore(s) }}</strong>
+            </div>
+            <div class="relevance-progress-wrapper" role="progressbar" aria-valuenow="scorePercent(s)" aria-valuemin="0" aria-valuemax="100">
+              <span class="progress-bar" :style="{ width: scorePercent(s) }"></span>
             </div>
             <span class="relevance-tag">{{ relationLabel(s) }}</span>
           </div>
+
           <div class="relevance-track" :aria-label="`相关度 ${displayScore(s)}`">
             <span :style="{ width: scorePercent(s) }"></span>
           </div>
@@ -126,14 +132,11 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  mode: {
-    type: String,
-    default: 'mock', // 'mock' | 'live' - mock 模式显示空状态或静态数据，live 模式调用/nodes/{node_id}
+  health: {
+    type: Object,
+    default: null,
   },
 })
-
-// F3: 判断是否在 live 模式下需要真实 fetch
-const isInLiveMode = computed(() => props.mode === 'live')
 
 const detailsCache = ref({})
 const detailErrors = ref({})
@@ -187,6 +190,10 @@ const sourceKind = (source) => {
   return extension ? extension.toUpperCase() : 'DOC'
 }
 
+const handleSourceLinkClick = (url) => {
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
+
 watch(() => props.requestId, () => {
   detailsCache.value = {}
   detailErrors.value = {}
@@ -221,38 +228,30 @@ const fetchAndShowDetails = async (source, index) => {
   expandedDetails.value = new Set([...expandedDetails.value, key])
 
   try {
-    // F3: live 模式下调用 /nodes/{node_id} 获取节点详情
-    if (isInLiveMode.value && source.node_id) {
-      const response = await fetch(`/nodes/${source.node_id}`)
+    // F3 修复：使用 /nodes/{node_id} 端点获取单节点详情，而非全量 /sources/{rid}
+    // Mock 模式下后端无 node_details 数据，直接展示 sources 内容
+    const kb = props.health?.kb
+    if (kb === null || kb === undefined) {
+      // Mock 模式：跳过节点详情请求，直接使用 sources 数据
+      setRecord(detailsCache, key, source)
+    } else {
+      // Live 模式：请求节点详情
+      const response = await fetch(`/nodes/${source?.node_id}`)
       if (!response.ok) {
         throw new Error(`获取节点详情失败：${response.status} ${response.statusText}`)
       }
-      const nodeData = await response.json()
-      // 绑定 text/section_path/page_print/source_url 字段到 detailsCache
-      setRecord(detailsCache, key, {
-        text: nodeData.text || '',
-        section_path: nodeData.section_path || '',
-        page_print: nodeData.page_print || '-',
-        source_url: nodeData.source_url || source.source_url,
-        raw_node: nodeData, // 保留原始节点数据
-      })
-    } else {
-      // mock 模式：显示空状态或静态数据
-      setRecord(detailsCache, key, {
-        text: '（模拟数据）此来源无额外节点详情',
-        section_path: '-',
-        page_print: '-',
-        source_url: source.source_url || null,
-        raw_node: {},
-      })
+
+      const data = await response.json()
+      setRecord(detailsCache, key, data)
     }
   } catch (error) {
-    setRecord(detailErrors, key, error.message || '获取详情失败')
-    console.error('获取详情出错:', error)
+    setRecord(detailErrors, key, error.message || '获取节点详情失败')
+    console.error('获取节点详情出错:', error)
   } finally {
     setRecord(loadingDetails, key, false)
   }
 }
+
 
 const formatDetails = (details) => {
   if (typeof details === 'string') return details

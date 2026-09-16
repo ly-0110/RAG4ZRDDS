@@ -76,6 +76,7 @@ class MockRetriever:
                     "page_print": page - 6,
                     "page_physical": page,
                     "score": round(max(0.30, 0.95 - i * 0.07), 4),
+                    "source_url": None,  # Mock 模式无原文 URL，Live 模式下由后端填充
                 }
             )
         return results

@@ -4,15 +4,14 @@
   "type": "module",
   "scripts": {
     "dev": "npx vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "npx vite build",
+    "preview": "npx vite preview",
     "test:unit": "vitest",
     "lint": "eslint . --fix"
   },
   "dependencies": {
-    "dompurify": "3.0.0",
-    "marked": "10.0.0",
-    "npx": "^10.2.2",
+    "dompurify": "^3.0.0",
+    "marked": "^11.0.0",
     "pinia": "^2.1.7",
     "vue": "^3.4.0",
     "vue-router": "^4.2.5"
@@ -22,7 +21,7 @@
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^30.0.1",
-    "vite": "^5.4.21",
+    "vite": "^5.0.0",
     "vite-plugin-vue-devtools": "^7.0.0",
     "vitest": "^2.1.9"
   }
