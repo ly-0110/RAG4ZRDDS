@@ -1,0 +1,72 @@
+# =====================================================================
+# RAG4ZRDDS 实验配置 · 第四周四组对比之四（Hybrid+Reranker，指南 §8.2）
+# 引用制：components 引用 struct_multisrc_v1(vector) 与 struct_multisrc_bm25(bm25)，
+# RRF 粗排 candidate_top_k=30 → bge-reranker-v2-m3 精排 top_k=5。
+# =====================================================================
+schema_version: 1
+
+experiment:
+  name: struct_multisrc_hybrid_rerank
+  description: 第四周四组对比之四：多来源 Hybrid RRF 粗排 + bge-reranker-v2-m3 交叉编码器精排
+  stage: ablation
+
+sources:
+  - id: user_manual
+    type: pdf
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"
+  - id: zrdds_dev_guide
+    type: html
+    path: data/raw/developer-guides/cdoc_html
+    version: "2.4"
+    url: https://docs.zrtechnology.com/cdoc/html
+
+ingest:
+  cleaned_output: data/cleaned/pages.jsonl
+  quality_check: true
+
+chunking:                          # 与两个子配置一致（同一节点集）
+  method: struct
+  version: v1
+  params:
+    max_chunk_chars: 2500
+    overlap_chars: 200
+    large_section_thresh: 2500
+
+embedding:
+  provider: local
+  model: bge-m3
+  batch_size: 32
+  device: cpu
+
+index:
+  backend: chroma
+  metric: cosine
+
+retrieval:
+  mode: hybrid_rerank
+  top_k: 5
+  candidate_top_k: 30
+  rerank_model: bge-reranker-v2-m3
+  filters: {}
+  params:
+    rrf_k: 60
+  components:
+    vector: struct_multisrc_v1
+    bm25: struct_multisrc_bm25
+
+generation:
+  enabled: false
+  prompt_version: v0
+  llm_env_prefix: LLM_
+
+evaluation:
+  dataset: evaluation/datasets/questions.jsonl
+  expected_sources: null           # 宁缺毋滥：真值标注到位后翻回 expected_sources.jsonl 补指标
+  retrieval_metrics: [hit_rate@5, mrr@5]
+  response_metrics: []
+  sample_size: null
+
+report:
+  dir: evaluation/reports
+  compare_baseline: struct_multisrc_hybrid

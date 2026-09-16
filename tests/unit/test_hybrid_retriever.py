@@ -13,7 +13,7 @@ import pytest
 
 from retrieval._bootstrap import experiment_config
 from retrieval.index import build_index
-from retrieval.retriever import HybridRetriever, build_retriever
+from retrieval.retriever import HybridRerankRetriever, HybridRetriever, build_retriever
 
 
 class FakeEmbedder:
@@ -196,3 +196,146 @@ def test_build_index_rejects_hybrid_reference_mode(tmp_path, monkeypatch):
 
     with pytest.raises(ValueError, match="引用制"):
         build_index(cfg, embed_fn=fake)
+
+
+HYBRID_RERANK_TEMPLATE = """schema_version: 1
+experiment:
+  name: {name}
+  stage: ablation
+sources:
+  - id: user_manual
+    type: pdf
+    path: data/raw/manuals/ZRDDS用户手册.pdf
+    version: "2.0"
+chunking:
+  method: struct
+  version: v1
+embedding:
+  provider: local
+  model: bge-m3
+retrieval:
+  mode: hybrid_rerank
+  top_k: 5
+  candidate_top_k: 30
+  rerank_model: bge-reranker-v2-m3
+  params: {{rrf_k: 60}}
+  components: {{vector: {vec}, bm25: {bm}}}
+"""
+
+
+def _write_hybrid_rerank(tmp_path: Path, vec: str, bm: str, name: str = "usage_hr") -> Path:
+    d = tmp_path / "configs" / "experiments"
+    d.mkdir(parents=True, exist_ok=True)
+    p = d / f"{name}.yaml"
+    p.write_text(HYBRID_RERANK_TEMPLATE.format(name=name, vec=vec, bm=bm), encoding="utf-8")
+    return p
+
+
+def test_build_retriever_hybrid_rerank_uses_injected_rerank_fn(tmp_path, monkeypatch):
+    fake = _setup(tmp_path, monkeypatch)
+    cfg = experiment_config.load(_write_hybrid_rerank(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+    seen_texts: list[str] = []
+
+    def fake_rerank(question, texts):
+        seen_texts.extend(texts)
+        return [float(len(t)) for t in texts]
+
+    retriever = build_retriever(cfg, embed_fn=fake, rerank_fn=fake_rerank)
+
+    assert isinstance(retriever, HybridRerankRetriever)
+    results = asyncio.run(retriever.retrieve("alpha 连接", top_k=3))
+    assert results and seen_texts            # 精排被调用且拿到候选文本
+    scores = [r["score"] for r in results]
+    assert scores == sorted(scores, reverse=True)
+
+
+def test_hybrid_rerank_rejects_mismatched_node_sets(tmp_path, monkeypatch):
+    fake = _setup(tmp_path, monkeypatch, bm_method="fixed")
+    cfg = experiment_config.load(_write_hybrid_rerank(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+
+    with pytest.raises(ValueError, match="节点集"):
+        build_retriever(cfg, embed_fn=fake, rerank_fn=lambda q, t: [1.0] * len(t))
+
+
+def test_hybrid_rerank_missing_subindex_raises_with_build_hint(tmp_path, monkeypatch):
+    monkeypatch.setattr(experiment_config, "REPO_ROOT", tmp_path)
+    _write_component(tmp_path, "comp_vec_v1", "vector")
+    _write_component(tmp_path, "comp_bm25_v1", "bm25")
+    cfg = experiment_config.load(_write_hybrid_rerank(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+
+    with pytest.raises(FileNotFoundError, match="make index"):
+        build_retriever(cfg, embed_fn=FakeEmbedder(VECTORS),
+                        rerank_fn=lambda q, t: [1.0] * len(t))
+
+
+def test_build_index_rejects_hybrid_rerank_reference_mode(tmp_path, monkeypatch):
+    fake = _setup(tmp_path, monkeypatch)
+    cfg = experiment_config.load(_write_hybrid_rerank(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+
+    with pytest.raises(ValueError, match="引用制"):
+        build_index(cfg, embed_fn=fake)
+
+
+def test_build_retriever_passes_version_params(tmp_path, monkeypatch):
+    fake = _setup(tmp_path, monkeypatch)
+    cfg = experiment_config.load(_write_hybrid(tmp_path, "comp_vec_v1", "comp_bm25_v1"))
+    probe = cfg.model_copy(deep=True)
+    probe.retrieval.params = {"rrf_k": 60, "version_pref": "2.4", "version_boost": 0.1}
+
+    retriever = build_retriever(probe, embed_fn=fake)
+
+    assert retriever._version_pref == "2.4"
+    assert retriever._version_boost == 0.1
+
+
+class _StubStore:
+    """最小 store：不建索引，直接把预设原始 hit 原样返回。"""
+
+    def __init__(self, hits: list[dict]):
+        self.hits = hits
+
+    def query(self, question: str, top_k: int, filters=None) -> list[dict]:
+        return [dict(h) for h in self.hits[:top_k]]
+
+
+def _raw_hit(node_id: str, text: str) -> dict:
+    return {"node_id": node_id, "text": text,
+            "metadata": {"source_id": "user_manual", "version": "2.0"}, "score": 0.5}
+
+
+def test_hybrid_rerank_scoring_does_not_block_event_loop():
+    """同步打分必须移出事件循环（D 审查 §3.5.1：留在循环内则 live 服务全程冻结）。
+
+    0.01s 心跳与 0.3s 打分并发：打分移出循环则心跳持续跳动（≥5）；
+    同步实现则打分期间 0 跳动（D 实测 15s/题时心跳 0 次）。
+    """
+    import time
+
+    def slow_rerank(question, texts):
+        time.sleep(0.3)              # 模拟 CrossEncoder 同步 CPU 推理
+        return [1.0] * len(texts)
+
+    retriever = HybridRerankRetriever(
+        _StubStore([_raw_hit("n_a", "alpha 连接说明")]),
+        _StubStore([_raw_hit("n_a", "alpha 连接说明")]),
+        slow_rerank)
+
+    ticks = 0
+
+    async def main():
+        nonlocal ticks
+        stop = asyncio.Event()
+
+        async def heartbeat():
+            nonlocal ticks
+            while not stop.is_set():
+                await asyncio.sleep(0.01)
+                ticks += 1
+
+        hb = asyncio.create_task(heartbeat())
+        await retriever.retrieve("alpha 连接", top_k=2)
+        stop.set()
+        await hb
+
+    asyncio.run(main())
+    assert ticks >= 5, f"打分期间心跳仅 {ticks} 跳——事件循环被阻塞"

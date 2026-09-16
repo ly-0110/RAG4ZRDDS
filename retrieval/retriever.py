@@ -8,8 +8,12 @@ server/core/schema.py 的 SourceRef 一致），避免把整段正文塞进 sour
 """
 from __future__ import annotations
 
+import asyncio
+from collections.abc import Callable
+
 from retrieval._bootstrap import experiment_config
 from retrieval.bm25 import BM25Store
+from retrieval.boosts import apply_version_boost
 from retrieval.nodes import NodeRecord
 from retrieval.rrf import DEFAULT_RRF_K, fuse_hits
 from retrieval.vector_store import VectorStore, sanitize_collection_name
@@ -45,25 +49,41 @@ def _to_source_ref(r: dict) -> dict:
 
 
 class VectorRetriever:
-    def __init__(self, store: VectorStore, filters: dict | None = None) -> None:
+    def __init__(self, store: VectorStore, filters: dict | None = None,
+                 candidate_top_k: int = 30, version_pref: str | None = None,
+                 version_boost: float = 0.0) -> None:
         self._store = store
         self._filters = filters
+        self._candidate_top_k = candidate_top_k
+        self._version_pref = version_pref
+        self._version_boost = version_boost
+        self._boost_active = bool(version_pref) and version_boost > 0
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
         # 第一周为同步实现（CPU 推理），直接放在 async 方法内；
         # D 服务端接线时若发现阻塞事件循环，用 anyio.to_thread 包裹。
-        results = self._store.query(question, top_k, filters=self._filters)
-        return [_to_source_ref(r) for r in results]
+        pool_k = max(top_k, self._candidate_top_k) if self._boost_active else top_k
+        results = self._store.query(question, pool_k, filters=self._filters)
+        results = apply_version_boost(results, self._version_pref, self._version_boost)
+        return [_to_source_ref(r) for r in results[:top_k]]
 
 
 class BM25Retriever:
-    def __init__(self, store: BM25Store, filters: dict | None = None) -> None:
+    def __init__(self, store: BM25Store, filters: dict | None = None,
+                 candidate_top_k: int = 30, version_pref: str | None = None,
+                 version_boost: float = 0.0) -> None:
         self._store = store
         self._filters = filters
+        self._candidate_top_k = candidate_top_k
+        self._version_pref = version_pref
+        self._version_boost = version_boost
+        self._boost_active = bool(version_pref) and version_boost > 0
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
-        results = self._store.query(question, top_k, filters=self._filters)
-        return [_to_source_ref(r) for r in results]
+        pool_k = max(top_k, self._candidate_top_k) if self._boost_active else top_k
+        results = self._store.query(question, pool_k, filters=self._filters)
+        results = apply_version_boost(results, self._version_pref, self._version_boost)
+        return [_to_source_ref(r) for r in results[:top_k]]
 
 
 class HybridRetriever:
@@ -76,24 +96,118 @@ class HybridRetriever:
         rrf_k: float = DEFAULT_RRF_K,
         candidate_top_k: int = 30,
         filters: dict | None = None,
+        version_pref: str | None = None,
+        version_boost: float = 0.0,
     ) -> None:
         self._vector_store = vector_store
         self._bm25_store = bm25_store
         self._rrf_k = rrf_k
         self._candidate_top_k = candidate_top_k
         self._filters = filters
+        self._version_pref = version_pref
+        self._version_boost = version_boost
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
         # 子检索各取候选池；top_k 大于池容量时以 top_k 兜底（防融合池不足）
         sub_k = max(top_k, self._candidate_top_k)
         vec_hits = self._vector_store.query(question, sub_k, filters=self._filters)
         bm_hits = self._bm25_store.query(question, sub_k, filters=self._filters)
-        fused = fuse_hits([vec_hits, bm_hits], top_k=top_k, k=self._rrf_k)
-        return [_to_source_ref(r) for r in fused]
+        fused = fuse_hits([vec_hits, bm_hits], top_k=sub_k, k=self._rrf_k)
+        fused = apply_version_boost(fused, self._version_pref, self._version_boost)
+        return [_to_source_ref(r) for r in fused[:top_k]]
 
 
-def build_retriever(cfg, embed_fn=None):
+class HybridRerankRetriever:
+    """多来源 Hybrid 粗排（RRF）+ 交叉编码器精排（指南 §8.2 Top30→Top5）。
+
+    走原始 hit 通路：版本加权需要 metadata，而富引用经 _to_source_ref 投影后
+    不再携带 metadata——加权必须在投影前、精排后完成，故本类直接持有两个
+    store 而非包一层通用装饰器。
+    """
+
+    def __init__(
+        self,
+        vector_store: VectorStore,
+        bm25_store: BM25Store,
+        rerank_fn: Callable[[str, list[str]], list[float]],
+        rrf_k: float = DEFAULT_RRF_K,
+        candidate_top_k: int = 30,
+        filters: dict | None = None,
+        version_pref: str | None = None,
+        version_boost: float = 0.0,
+    ) -> None:
+        self._vector_store = vector_store
+        self._bm25_store = bm25_store
+        self._rerank_fn = rerank_fn
+        self._rrf_k = rrf_k
+        self._candidate_top_k = candidate_top_k
+        self._filters = filters
+        self._version_pref = version_pref
+        self._version_boost = version_boost
+
+    async def retrieve(self, question: str, top_k: int) -> list[dict]:
+        pool_k = max(top_k, self._candidate_top_k)
+        vec_hits = self._vector_store.query(question, pool_k, filters=self._filters)
+        bm_hits = self._bm25_store.query(question, pool_k, filters=self._filters)
+        fused = fuse_hits([vec_hits, bm_hits], top_k=pool_k, k=self._rrf_k)
+        if not fused:
+            return []
+        # 同步 CPU 打分移出事件循环：留在循环内会阻塞整个 live 服务（15s+/题）
+        scores = await asyncio.to_thread(self._rerank_fn, question, [h["text"] for h in fused])
+        ranked = sorted(zip(fused, scores), key=lambda p: (-p[1], p[0]["node_id"]))
+        hits = [{**h, "score": float(s)} for h, s in ranked]
+        hits = apply_version_boost(hits, self._version_pref, self._version_boost)
+        return [_to_source_ref(r) for r in hits[:top_k]]
+
+
+def _load_hybrid_stores(cfg, embed_fn):
+    """hybrid/hybrid_rerank 引用制公共装载段：校验 components 并载入两个子索引。"""
+    comps = cfg.retrieval.components or {}
+    missing_roles = [role for role in ("vector", "bm25") if role not in comps]
+    if missing_roles:
+        raise ValueError(
+            f"hybrid components 缺少角色: {missing_roles}"
+            "（需要 vector 与 bm25 两类引用，见 configs/experiments/README.md）"
+        )
+    vec_cfg = experiment_config.load(
+        experiment_config.experiment_yaml_path(comps["vector"]))
+    bm25_cfg = experiment_config.load(
+        experiment_config.experiment_yaml_path(comps["bm25"]))
+    vec_nodes = experiment_config.nodes_path(vec_cfg)
+    bm25_nodes = experiment_config.nodes_path(bm25_cfg)
+    if vec_nodes != bm25_nodes:
+        raise ValueError(
+            f"hybrid 两路节点集不一致：vector={comps['vector']} → {vec_nodes.name}，"
+            f"bm25={comps['bm25']} → {bm25_nodes.name}；"
+            "RRF 按 node_id 融合要求 components 产出同一节点集（chunking+sources 相同）"
+        )
+    vec_path = experiment_config.index_dir(vec_cfg)
+    bm25_path = experiment_config.index_dir(bm25_cfg)
+    for role, path in (("vector", vec_path), ("bm25", bm25_path)):
+        if not path.exists():
+            raise FileNotFoundError(
+                f"子索引不存在: {path}（role={role}，请先运行 "
+                f"make index CFG=configs/experiments/{comps[role]}.yaml）"
+            )
+    if embed_fn is None:
+        from retrieval.embeddings import build_embedding
+
+        embed_fn = build_embedding(vec_cfg)
+    vector_store = VectorStore(
+        embed_fn=embed_fn,
+        persist_path=str(vec_path),
+        metric=vec_cfg.index.metric,
+        collection_name=sanitize_collection_name(
+            experiment_config.index_dirname(vec_cfg)),
+    )
+    return vector_store, BM25Store.load(bm25_path)
+
+
+def build_retriever(cfg, embed_fn=None, rerank_fn=None):
     """按实验配置组装：索引目录/集合名由 configs 派生命名（D 的约定）。"""
+    params = cfg.retrieval.params or {}
+    version_pref = params.get("version_pref")
+    version_boost = float(params.get("version_boost", 0.0))
     index_path = experiment_config.index_dir(cfg)
     if cfg.retrieval.mode == "bm25":
         if not index_path.exists():
@@ -101,59 +215,40 @@ def build_retriever(cfg, embed_fn=None):
                 f"索引不存在: {index_path}（请先运行 build_index 建索引，再启动 live 检索）"
             )
         store = BM25Store.load(index_path)
-        return BM25Retriever(store, filters=cfg.retrieval.filters or None)
-    if cfg.retrieval.mode == "hybrid":
-        comps = cfg.retrieval.components or {}
-        missing_roles = [role for role in ("vector", "bm25") if role not in comps]
-        if missing_roles:
-            raise ValueError(
-                f"hybrid components 缺少角色: {missing_roles}"
-                "（需要 vector 与 bm25 两类引用，见 configs/experiments/README.md）"
+        return BM25Retriever(store, filters=cfg.retrieval.filters or None,
+                             candidate_top_k=cfg.retrieval.candidate_top_k,
+                             version_pref=version_pref, version_boost=version_boost)
+    if cfg.retrieval.mode in ("hybrid", "hybrid_rerank"):
+        vector_store, bm25_store = _load_hybrid_stores(cfg, embed_fn)
+        rrf_k = float(params.get("rrf_k", DEFAULT_RRF_K))
+        if cfg.retrieval.mode == "hybrid":
+            return HybridRetriever(
+                vector_store,
+                bm25_store,
+                rrf_k=rrf_k,
+                candidate_top_k=cfg.retrieval.candidate_top_k,
+                filters=cfg.retrieval.filters or None,
+                version_pref=version_pref,
+                version_boost=version_boost,
             )
-        vec_cfg = experiment_config.load(
-            experiment_config.experiment_yaml_path(comps["vector"]))
-        bm25_cfg = experiment_config.load(
-            experiment_config.experiment_yaml_path(comps["bm25"]))
-        vec_nodes = experiment_config.nodes_path(vec_cfg)
-        bm25_nodes = experiment_config.nodes_path(bm25_cfg)
-        if vec_nodes != bm25_nodes:
-            raise ValueError(
-                f"hybrid 两路节点集不一致：vector={comps['vector']} → {vec_nodes.name}，"
-                f"bm25={comps['bm25']} → {bm25_nodes.name}；"
-                "RRF 按 node_id 融合要求 components 产出同一节点集（chunking+sources 相同）"
-            )
-        vec_path = experiment_config.index_dir(vec_cfg)
-        bm25_path = experiment_config.index_dir(bm25_cfg)
-        for role, path in (("vector", vec_path), ("bm25", bm25_path)):
-            if not path.exists():
-                raise FileNotFoundError(
-                    f"子索引不存在: {path}（role={role}，请先运行 "
-                    f"make index CFG=configs/experiments/{comps[role]}.yaml）"
-                )
-        if embed_fn is None:
-            from retrieval.embeddings import build_embedding
+        if rerank_fn is None:
+            from retrieval.rerank import build_reranker
 
-            embed_fn = build_embedding(vec_cfg)
-        vector_store = VectorStore(
-            embed_fn=embed_fn,
-            persist_path=str(vec_path),
-            metric=vec_cfg.index.metric,
-            collection_name=sanitize_collection_name(
-                experiment_config.index_dirname(vec_cfg)),
-        )
-        bm25_store = BM25Store.load(bm25_path)
-        rrf_k = float((cfg.retrieval.params or {}).get("rrf_k", DEFAULT_RRF_K))
-        return HybridRetriever(
+            rerank_fn = build_reranker(cfg)
+        return HybridRerankRetriever(
             vector_store,
             bm25_store,
+            rerank_fn,
             rrf_k=rrf_k,
             candidate_top_k=cfg.retrieval.candidate_top_k,
             filters=cfg.retrieval.filters or None,
+            version_pref=version_pref,
+            version_boost=version_boost,
         )
     if cfg.retrieval.mode != "vector":
         raise NotImplementedError(
-            f"当前支持 vector/bm25/hybrid 检索，收到 mode={cfg.retrieval.mode!r}"
-            "（hybrid_rerank 待第四周实现）"
+            f"当前支持 vector/bm25/hybrid/hybrid_rerank 四种检索模式，"
+            f"收到 mode={cfg.retrieval.mode!r}"
         )
     if not index_path.exists():
         raise FileNotFoundError(
@@ -169,4 +264,6 @@ def build_retriever(cfg, embed_fn=None):
         metric=cfg.index.metric,
         collection_name=sanitize_collection_name(experiment_config.index_dirname(cfg)),
     )
-    return VectorRetriever(store, filters=cfg.retrieval.filters or None)
+    return VectorRetriever(store, filters=cfg.retrieval.filters or None,
+                           candidate_top_k=cfg.retrieval.candidate_top_k,
+                           version_pref=version_pref, version_boost=version_boost)

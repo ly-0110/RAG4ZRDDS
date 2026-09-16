@@ -16,10 +16,12 @@ MODEL_DIR = Path(__file__).resolve().parents[1] / "models"
 # 配置允许用短名（也参与索引目录命名）；联网拉取时必须换成 HF 全 repo id。
 HF_REPO_ALIASES = {
     "bge-m3": "BAAI/bge-m3",
+    "bge-reranker-v2-m3": "BAAI/bge-reranker-v2-m3",
 }
 
 
-def _resolve_model(name: str) -> str:
+def resolve_model(name: str) -> str:
+    """短名 → 本地目录（优先）或 HF 全 repo id；rerank.py 与 build_embedding 共用。"""
     local = MODEL_DIR / name
     if local.exists():
         return str(local)
@@ -41,7 +43,7 @@ def build_embedding(cfg) -> Callable[[list[str]], list[list[float]]]:
             from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
             _model = HuggingFaceEmbedding(
-                model_name=_resolve_model(cfg.embedding.model),
+                model_name=resolve_model(cfg.embedding.model),
                 device=cfg.embedding.device,
                 embed_batch_size=cfg.embedding.batch_size,
             )

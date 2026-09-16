@@ -113,7 +113,7 @@ class RetrievalCfg(_Strict):
     filters: dict[str, Any] = {}
     source_priority: list[str] = []
     params: dict[str, Any] = {}
-    components: dict[str, str] | None = None  # hybrid 引用制（PR#27 会签①）：{vector: 实验名, bm25: 实验名}
+    components: dict[str, str] | None = None  # hybrid/hybrid_rerank 引用制（PR#27 会签①；hybrid_rerank 必填见 _reference_rules）：{vector: 实验名, bm25: 实验名}
 
     @model_validator(mode="after")
     def _rerank_rules(self) -> "RetrievalCfg":
@@ -129,16 +129,15 @@ class RetrievalCfg(_Strict):
 
     @model_validator(mode="after")
     def _reference_rules(self) -> "RetrievalCfg":
-        """引用制（PR#27 会签①）：hybrid 必填 components；hybrid_rerank 给了就同样校验。
+        """引用制（PR#27 会签①）：hybrid 与 hybrid_rerank 均必填 components。
 
-        hybrid_rerank 刻意**不**强制 components——第四周精排由 B 实现，形态可能是
-        "hybrid 引用制 + 精排"，也可能是"自有向量索引 + 精排"。给出 components 即按
-        引用制对待（无自有索引），未给出则走普通建索引路径。判定统一走
-        uses_reference_index()，门面与流水线不得各自猜。
+        hybrid_rerank 必填为 2026-09-15 B 拍板（PR#38 评论，设计 §6.1 方案①）：
+        一律引用制，"自有索引 + 精排"形态无消费方（YAGNI）。若将来确需该形态，
+        按方案②给 retrieval/index.py 补 uses_reference_index() 分派并放宽本处。
         """
-        if self.mode == "hybrid" and not self.components:
+        if self.mode in ("hybrid", "hybrid_rerank") and not self.components:
             raise ValueError(
-                "mode=hybrid 必须提供 components（引用制，无自有索引），"
+                f"mode={self.mode} 必须提供 components（引用制，无自有索引），"
                 "如 {vector: struct_v1, bm25: struct_bm25}"
             )
         if self.components:
@@ -368,10 +367,10 @@ def uses_reference_index(cfg: ExperimentConfig) -> bool:
     """该实验是否走引用制（无自有索引，运行时融合 components 指向的子索引）。
 
     build_index 据此跳过建索引、run_experiment 据此只做子索引存在性检查。
-    判定集中一处：mode 与 components 的组合语义将来由 B 扩到 hybrid_rerank 时，
-    两侧不会各自漂移。
+    hybrid 与 hybrid_rerank 一律引用制（2026-09-15 B 拍板方案①，设计 §6.1）；
+    components 必填由 _reference_rules 校验，此处按 mode 判定即可。
     """
-    return cfg.retrieval.mode in ("hybrid", "hybrid_rerank") and bool(cfg.retrieval.components)
+    return cfg.retrieval.mode in ("hybrid", "hybrid_rerank")
 
 
 def index_dir(cfg: ExperimentConfig) -> Path:

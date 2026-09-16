@@ -18,8 +18,8 @@ scripts/run_experiment.py — 实验流水线门面（成员 D · 第二周核�
   * 判对 = expected_sources.jsonl 中该题的任一期望记录与检索结果匹配
     （来源 id / 印刷页区间 / 章节关键词，非空条件需同时满足）
   * hit_rate@K / mrr@K / precision@K / recall@K 为经典 IR 定义
-  * response_metrics 非空时报可读错误——judges 已落地（evaluation/judges），
-    缺的是「逐题生成答案 → 调用 judges」的 runner（落点 evaluation/runners/answer_eval.py）
+  * response_metrics 非空时，检索后调用 evaluation/runners/answer_eval.py 逐题
+    生成答案并判分，结果并入报告 response 段（第四周 C 接入）
 
 用法:
   make experiment                                # 默认配置（struct_v1 基线）
@@ -167,14 +167,15 @@ def question_metric_values(retrieved: list[dict], expected_list: list[dict],
 
 
 async def _run_queries(retriever, questions: list[dict], top_k: int) -> dict[str, list[dict]]:
-    """顺序执行（CPU 单用户演示口径）；保持确定性顺序便于复现与排错。"""
-    from retrieval.retriever import to_source_refs
+    """顺序执行（CPU 单用户演示口径）；保持确定性顺序便于复现与排错。
 
+    返回富引用（含 text）：回答侧评测（response_metrics）需要正文做生成与判分；
+    报告落盘时再经 to_source_refs 剥离（见 build_report）。
+    """
     results: dict[str, list[dict]] = {}
     for q in questions:
         refs = await retriever.retrieve(q["question"], top_k)
-        # 报告只落盘 SourceRef 7 字段（检索器返回富引用含 text，正文不随报告入库）
-        results[q["id"]] = to_source_refs(refs)
+        results[q["id"]] = refs
         print(f"[experiment]   检索 {q['id']} → {len(refs)} 条引用", flush=True)
     return results
 
@@ -185,7 +186,10 @@ async def _run_queries(retriever, questions: list[dict], top_k: int) -> dict[str
 def build_report(cfg, retrievals: dict[str, list[dict]], questions: list[dict],
                  expected: dict[str, list[dict]], metrics: list[str],
                  elapsed: float, fake_embed: bool,
-                 artifacts: dict | None = None) -> dict:
+                 artifacts: dict | None = None,
+                 response: dict | None = None) -> dict:
+    from retrieval.retriever import to_source_refs
+
     per_question: list[dict] = []
     evaluated: list[str] = []
     skipped: list[str] = []
@@ -195,7 +199,8 @@ def build_report(cfg, retrievals: dict[str, list[dict]], questions: list[dict],
         entry = {
             "id": q["id"],
             "question": q["question"],
-            "retrieved": refs,
+            # 报告只落盘 SourceRef 7 字段（正文不随报告入库）；富引用留待回答侧评测
+            "retrieved": to_source_refs(refs),
         }
         if exp_list:
             entry["metric_values"] = {
@@ -251,6 +256,8 @@ def build_report(cfg, retrievals: dict[str, list[dict]], questions: list[dict],
             "本次无期望来源标注（expected_sources 缺失）：仅记录检索结果，指标为空；"
             "正式标注由成员 E 随问题集交付、成员 C 定口径（见 evaluation/datasets/README.md）。"
         )
+    if response is not None:
+        report["response"] = response
     return report
 
 
@@ -438,16 +445,9 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if cfg.evaluation.response_metrics:
-        print(
-            "[experiment] response_metrics 评测暂未接入。判分模块本身已就绪"
-            "（evaluation/judges：judge_faithfulness / judge_answer_relevance），"
-            "缺的是调用它的前置通路：本脚本只跑检索、不生成回答，而判分需要"
-            "「逐题生成答案 → 对答案调用 judges」的 runner（C 在 evaluation/__init__.py "
-            "已把落点写为 evaluation/runners/answer_eval.py，尚未实现，归属待会签）。"
-            "接入前请将 response_metrics 置空。",
-            file=sys.stderr,
-        )
-        return 1
+        from generation.llm import LLMConfig
+
+        LLMConfig.from_env(cfg.generation.llm_env_prefix)  # 前置校验：缺 LLM env 早失败
 
     nodes_file = ec.nodes_path(cfg)
     if not nodes_file.exists():
@@ -489,10 +489,26 @@ def main(argv: list[str] | None = None) -> int:
     retrievals = asyncio.run(_run_queries(retriever, questions, cfg.retrieval.top_k))
     elapsed = time.monotonic() - t0
 
+    response_section = None
+    if cfg.evaluation.response_metrics:
+        from evaluation.runners import answer_eval
+
+        print(f"[experiment] 回答侧评测 {cfg.evaluation.response_metrics} …")
+        response_results = asyncio.run(
+            answer_eval.evaluate_answers(cfg, questions, retrievals))
+        response_section = answer_eval.build_response_section(
+            response_results, cfg.evaluation.response_metrics)
+        for m, v in response_section["metrics"].items():
+            mean = f"{v['mean']:.4f}" if v["mean"] is not None else "n/a"
+            print(f"[experiment]   {m:<16} = {mean}  "
+                  f"(n={v['n']}, parse_failed={v['parse_failed']})")
+        print(f"[experiment]   拒答 {response_section['abstained']}/{response_section['total']}")
+
     metrics = cfg.evaluation.retrieval_metrics
     report = build_report(cfg, retrievals, questions, expected, metrics,
                           elapsed, args.fake_embed,
-                          artifacts=_artifact_fingerprints(cfg))
+                          artifacts=_artifact_fingerprints(cfg),
+                          response=response_section)
     path = write_report(cfg, report)
 
     print(f"[experiment] ✓ 完成，耗时 {elapsed:.1f}s")

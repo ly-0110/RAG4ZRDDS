@@ -13,7 +13,10 @@ RAG_MODE=live 加载 B 的真实检索（retrieval/，按 RAG_EXPERIMENT_CONFIG 
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
+from collections import OrderedDict
+from pathlib import Path
 from typing import AsyncIterator, Protocol
 
 MOCK_ANSWER = """【Mock 模式回答】这是集成平台的确定性示例答案，用于前端联调与链路冒烟。
@@ -99,25 +102,33 @@ class Pipeline:
     """
 
     def __init__(self, retriever: Retriever, answer_stream: AnswerStream,
-                 source_urls: dict[str, str | None] | None = None) -> None:
+                 source_urls: dict[str, str | None] | None = None,
+                 node_details: dict[str, dict] | None = None,
+                 kb_stats: dict | None = None) -> None:
         self.retriever = retriever
         self.answer_stream = answer_stream
         self.source_urls = source_urls or {}
+        # F1/F3（docs/week4-delivery-review.md §4.1）：kb_stats 供 /healthz 下发
+        # 知识库统计（mock 为 None）；node_details 供 GET /nodes/{node_id} 按需
+        # 回查单节点原文。chunk 原文只经 /nodes 端点出网，SSE wire 仍 7 字段。
+        self.node_details = node_details or {}
+        self.kb_stats = kb_stats
 
 
-def _load_source_urls(nodes_file) -> dict[str, str | None]:
-    """从实验的 Node 产物读 node_id → source_url（node_id ← chunk_id 映射已锁定）。
+def load_nodes_artifacts(nodes_file) -> tuple[dict[str, str | None], dict[str, dict], list[dict]]:
+    """一次遍历实验 Node 产物，产出（回查 URL 表，节点详情表，来源统计）。
 
-    A 的产物里 HTML 块 100% 带 source_url、PDF 块为 None；检索层投影到
-    SourceRef 时该字段被丢弃，故回查侧从产物补齐。文件缺失返回空表（不报错，
-    回查记录只是不带 URL）。
+    文件缺失返回全空（mock 兼容、产物缺失不拒启动）；坏行与无 chunk_id 的
+    记录跳过不中断（node_id ← chunk_id 映射已会签锁定）。
     """
     import json
 
     urls: dict[str, str | None] = {}
-    if not nodes_file or not nodes_file.exists():
-        return urls
-    with nodes_file.open("r", encoding="utf-8") as f:
+    details: dict[str, dict] = {}
+    per_source: dict[str, dict] = {}
+    if not nodes_file or not Path(nodes_file).exists():
+        return urls, details, []
+    with Path(nodes_file).open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -126,11 +137,36 @@ def _load_source_urls(nodes_file) -> dict[str, str | None]:
                 rec = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            node_id = rec.get("chunk_id") or (rec.get("metadata") or {}).get("chunk_id")
+            if not isinstance(rec, dict):
+                continue
+            meta = rec.get("metadata") or {}
+            node_id = rec.get("chunk_id") or meta.get("chunk_id")
             if not node_id:
                 continue
-            urls[node_id] = rec.get("source_url") or (rec.get("metadata") or {}).get("source_url")
-    return urls
+            url = rec.get("source_url") or meta.get("source_url")
+            urls[node_id] = url
+            sid = meta.get("source_id") or "unknown"
+            agg = per_source.setdefault(sid, {"chunks": 0, "version": meta.get("version")})
+            agg["chunks"] += 1
+            if agg["version"] is None:
+                agg["version"] = meta.get("version")
+            details[node_id] = {
+                "source_id": sid,
+                "version": meta.get("version"),
+                "page_print": meta.get("page_print"),
+                "page_physical": meta.get("page_physical"),
+                "section_path": meta.get("section_path"),
+                "text": rec.get("text"),
+                "source_url": url,
+            }
+    stats = [{"id": k, "version": v["version"], "chunks": v["chunks"]}
+             for k, v in sorted(per_source.items())]
+    return urls, details, stats
+
+
+def _load_source_urls(nodes_file) -> dict[str, str | None]:
+    """兼容入口：只要 URL 表（完整三产物见 load_nodes_artifacts）。"""
+    return load_nodes_artifacts(nodes_file)[0]
 
 
 def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
@@ -138,8 +174,6 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
     if mode == "mock":
         return Pipeline(MockRetriever(), MockAnswerStream())
     if mode == "live":
-        from pathlib import Path
-
         from generation.query_engine import build_answer_stream
         from retrieval._bootstrap import experiment_config as ec
         from retrieval.retriever import build_retriever
@@ -180,11 +214,19 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
         # 而非等首个请求才报错（与 D 的"接线问题在启动期暴露"一致）。
         answer_stream = build_answer_stream(cfg)
         _warmup_retriever(retriever)
-        source_urls = _load_source_urls(ec.nodes_path(cfg))
+        source_urls, node_details, source_stats = load_nodes_artifacts(ec.nodes_path(cfg))
         with_url = sum(1 for v in source_urls.values() if v)
         print(f"[server] 引用回查 URL 表：{len(source_urls)} 节点，其中 {with_url} 条带原文 URL"
               f"（HTML 来源；PDF 为 null）", flush=True)
-        return Pipeline(retriever, answer_stream, source_urls)
+        kb_stats = {
+            "experiment": cfg.experiment.name,
+            "retrieval_mode": cfg.retrieval.mode,
+            "index_dirname": ec.index_dirname(cfg),
+            "node_total": len(node_details),
+            "sources": source_stats,
+        }
+        return Pipeline(retriever, answer_stream, source_urls,
+                        node_details=node_details, kb_stats=kb_stats)
     raise RuntimeError(f"未知 RAG_MODE={mode!r}，可选值：mock | live")
 
 
@@ -195,7 +237,6 @@ def _warmup_retriever(retriever) -> None:
     且同步 CPU 推理会阻塞事件循环（期间 healthz 都无响应）。预热失败即拒绝
     启动——把接线/索引/模型问题暴露在启动阶段，而非首个用户请求。
     """
-    import asyncio
     import time
 
     t0 = time.perf_counter()
@@ -208,3 +249,69 @@ def _warmup_retriever(retriever) -> None:
             f"{type(e).__name__}: {e}"
         ) from e
     print(f"[server] live 模式预热完成，耗时 {time.perf_counter() - t0:.1f}s", flush=True)
+
+
+def available_experiments() -> list[str]:
+    """configs/experiments/ 下已注册实验 ID（yaml 文件名 stem，文件名即实验 ID）。
+
+    F4 /query experiment 参数的白名单单一事实源，也随 /healthz 下发供前端做
+    选择器；按文件系统现状即时计算，新增实验配置无需重启服务。
+    """
+    root = Path(__file__).resolve().parents[2] / "configs" / "experiments"
+    if not root.is_dir():
+        return []
+    return sorted(p.stem for p in root.glob("*.yaml"))
+
+
+class PipelineRegistry:
+    """F4：live 模式按实验 ID 懒组装并缓存 Pipeline（LRU，默认管线钉住不逐出）。
+
+    组装（模型加载 + 预热，数秒~数十秒）在 worker 线程执行，事件循环保持
+    响应；并发同键请求经 asyncio.Lock 合并为一次组装。max_size 为缓存管线
+    总数上限（含默认，最小 2）——每个 live 管线各持一份 embedding/索引内存，
+    演示机按 32GB 内存保守取值；逐出时尽力调检索器 close() 释放句柄。
+    """
+
+    def __init__(self, default_key: str, default_pipeline: Pipeline,
+                 max_size: int = 3) -> None:
+        self._default_key = default_key
+        self._max_size = max(2, max_size)
+        self._items: OrderedDict[str, Pipeline] = OrderedDict()
+        self._items[default_key] = default_pipeline
+        self._lock = asyncio.Lock()
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._items
+
+    def get(self, key: str) -> Pipeline | None:
+        if key not in self._items:
+            return None
+        self._items.move_to_end(key)
+        return self._items[key]
+
+    def put(self, key: str, pipeline: Pipeline) -> None:
+        self._items[key] = pipeline
+        self._items.move_to_end(key)
+        while len(self._items) > self._max_size:
+            evictable = next((k for k in self._items if k != self._default_key), None)
+            if evictable is None:
+                return
+            old = self._items.pop(evictable)
+            closer = getattr(old.retriever, "close", None)
+            if callable(closer):
+                try:
+                    closer()
+                except Exception:
+                    pass  # 逐出尽力而为，清理失败不影响服务
+
+    async def get_or_build(self, key: str, config_relpath: str) -> Pipeline:
+        hit = self.get(key)
+        if hit is not None:
+            return hit
+        async with self._lock:
+            hit = self.get(key)
+            if hit is not None:
+                return hit
+            pipeline = await asyncio.to_thread(build_pipeline, "live", config_relpath)
+            self.put(key, pipeline)
+            return pipeline
