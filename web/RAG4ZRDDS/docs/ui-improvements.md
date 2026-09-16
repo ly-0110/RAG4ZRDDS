@@ -226,6 +226,8 @@ CREATE TABLE feedback (
 - [x] "有帮助/无帮助"反馈按钮 ✅
 - [x] 反馈数据落库（`POST /feedback` → `{log_dir}/feedback.jsonl`）
 - [x] 全量回归与兼容性检查（待执行）
+  - 可离线复现部分已完成并出报告：[week4_regression_compat.md](../../../evaluation/reports/week4_regression_compat.md)（vitest 25/25、cypress 4/4、ESLint、build、浏览器/视口矩阵、标注审计）
+  - 仍待解锁：10 题冒烟矩阵、检索矩阵重建基准（D）、答案侧指标（需 LLM 与定版标注）
 
 ---
 
@@ -327,9 +329,10 @@ CREATE TABLE feedback (
 #### 测试验证（TODO）
 
 - [x] 反馈链路单测（`src/__tests__/App.spec.js`：面板显隐、提交体、后端 `detail` 透出）
-- [ ] 执行冒烟测试（10 个基础问题）
-- [ ] 全量回归测试（等待 live 管线就绪）
-- [ ] 兼容性检查（不同浏览器/设备）
+- [x] 前端全量回归（vitest 25/25、cypress 4/4、ESLint 0 warning、生产构建通过）
+- [x] 兼容性检查（不同浏览器/设备）：Chromium(Electron 146) + Edge 153 通过，视口 1280×720 / 1920×1080 / 390×844 三档通过；Firefox/Safari 因本机未安装未覆盖
+- [ ] 执行冒烟测试（10 个基础问题，需 live 管线）
+- [ ] 检索/答案侧全量回归（等待 live 管线与定版标注就绪）
 
 ### 📈 验收标准
 
@@ -338,6 +341,8 @@ CREATE TABLE feedback (
 - [x] "有帮助/无帮助"反馈按钮 ✅
 - [x] 反馈数据落库（`POST /feedback` → `{log_dir}/feedback.jsonl`）
 - [ ] 全量回归与兼容性检查（待执行）
+  - 可离线复现部分已完成并出报告：[week4_regression_compat.md](../../../evaluation/reports/week4_regression_compat.md)（vitest 25/25、cypress 4/4、ESLint、build、浏览器/视口矩阵、标注审计）
+  - 仍待解锁：10 题冒烟矩阵、检索矩阵重建基准（D）、答案侧指标（需 LLM 与定版标注）
 
 ### 📚 相关文档
 

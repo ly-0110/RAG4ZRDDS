@@ -103,7 +103,7 @@
 
 6. **文档工作**
    - [ ] Demo README
-   - [ ] 整理测试报告
+   - [x] 整理测试报告：前端全量回归 + 兼容性检查 + 标注审计 → `evaluation/reports/week4_regression_compat.md`（检索矩阵待 D 依新输入重建基准，答案侧指标待 live 管线）
    - [ ] 准备汇报材料
 
 ---
