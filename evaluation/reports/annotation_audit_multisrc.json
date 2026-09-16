@@ -1,0 +1,363 @@
+{
+  "schema": "rag4zrdds.annotation_audit/v1",
+  "verdict": "pass",
+  "counts": {},
+  "blocking_total": 0,
+  "questions_total": 12,
+  "annotations_total": 25,
+  "missing_annotations": [],
+  "unknown_question_ids": [],
+  "circularity": {
+    "compared_with": "报告 top-1 页码（仅作反推指纹，不作真值判据）",
+    "matched": 0,
+    "comparable": 0,
+    "ratio": null,
+    "threshold": 0.9,
+    "suspect": false
+  },
+  "per_question": [
+    {
+      "question_id": "MS001",
+      "question": "用户手册说明了创建 DataWriter 时可以配置 QoS；HTML BatchQoS 示例实际按什么顺序获取 DomainParticipant、Topic",
+      "source_id": "user_manual",
+      "page_print": [
+        82,
+        83
+      ],
+      "section_keyword": "8.3.3.1 创建DataWriter时配置QoS策略",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS001",
+      "question": "用户手册说明了创建 DataWriter 时可以配置 QoS；HTML BatchQoS 示例实际按什么顺序获取 DomainParticipant、Topic",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_pub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS002",
+      "question": "用户手册说明 DataWriter 的 write() 用于发布样本；HTML BatchQoS 示例如何设置批量发送策略并调用 write()？",
+      "source_id": "user_manual",
+      "page_print": [
+        87,
+        88
+      ],
+      "section_keyword": "8.3.10 发布数据",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS002",
+      "question": "用户手册说明 DataWriter 的 write() 用于发布样本；HTML BatchQoS 示例如何设置批量发送策略并调用 write()？",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_pub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS003",
+      "question": "用户手册说明 DataReader 可以通过 Listener 接收数据；HTML BatchQoS 订阅示例如何创建 DataReader 并注册 on_da",
+      "source_id": "user_manual",
+      "page_print": [
+        101,
+        101
+      ],
+      "section_keyword": "9.3.3.1 创建DataReader时配置QoS策略",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS003",
+      "question": "用户手册说明 DataReader 可以通过 Listener 接收数据；HTML BatchQoS 订阅示例如何创建 DataReader 并注册 on_da",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_sub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS004",
+      "question": "HTML 开发指南中的 DDS_Publisher_create_datawriter 示例使用了哪些输入对象和 QoS 参数？用户手册中的 DataWrite",
+      "source_id": "user_manual",
+      "page_print": [
+        82,
+        83
+      ],
+      "section_keyword": "8.3.3.1 创建DataWriter时配置QoS策略",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS004",
+      "question": "HTML 开发指南中的 DDS_Publisher_create_datawriter 示例使用了哪些输入对象和 QoS 参数？用户手册中的 DataWrite",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "DDS_Publisher_create_datawriter",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS005",
+      "question": "HTML BatchQoS 发布示例中的 domain_id、Topic 名称和 Publisher 创建步骤，如何与用户手册的域、主题和发布者模型对应？",
+      "source_id": "user_manual",
+      "page_print": [
+        8,
+        9
+      ],
+      "section_keyword": "2.5 发布者/订阅者",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS005",
+      "question": "HTML BatchQoS 发布示例中的 domain_id、Topic 名称和 Publisher 创建步骤，如何与用户手册的域、主题和发布者模型对应？",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_pub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS006",
+      "question": "用户手册指出 PresentationQosPolicy 可以影响数据提交方式；HTML 开发指南中的发布示例是否展示了 coherent_access 或 o",
+      "source_id": "user_manual",
+      "page_print": [
+        142,
+        145
+      ],
+      "section_keyword": "10.18 PresentationQosPolicy",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS006",
+      "question": "用户手册指出 PresentationQosPolicy 可以影响数据提交方式；HTML 开发指南中的发布示例是否展示了 coherent_access 或 o",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_pub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS007",
+      "question": "用户手册说明 DataReader 的 QoS 可以在创建时配置；HTML BatchQoS 订阅示例实际设置了哪些 DataReader QoS 字段？",
+      "source_id": "user_manual",
+      "page_print": [
+        101,
+        103
+      ],
+      "section_keyword": "9.3.3 设置DataReader的QoS策略",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS007",
+      "question": "用户手册说明 DataReader 的 QoS 可以在创建时配置；HTML BatchQoS 订阅示例实际设置了哪些 DataReader QoS 字段？",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_sub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS008",
+      "question": "HTML BatchQoS 示例出现创建失败检查和返回码判断；结合用户手册的错误处理约定，回答时应报告哪些失败分支，哪些内容不能从材料中推断？",
+      "source_id": "user_manual",
+      "page_print": [
+        38,
+        39
+      ],
+      "section_keyword": "5.4 Status",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS008",
+      "question": "HTML BatchQoS 示例出现创建失败检查和返回码判断；结合用户手册的错误处理约定，回答时应报告哪些失败分支，哪些内容不能从材料中推断？",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_pub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS009",
+      "question": "用户手册介绍 Publisher/Subscriber 必须通过匹配的 Topic 通信；HTML BatchQoS 发布端和订阅端如何使用相同的 Topic ",
+      "source_id": "user_manual",
+      "page_print": [
+        8,
+        9
+      ],
+      "section_keyword": "2.5 发布者/订阅者",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS009",
+      "question": "用户手册介绍 Publisher/Subscriber 必须通过匹配的 Topic 通信；HTML BatchQoS 发布端和订阅端如何使用相同的 Topic ",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_pub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS009",
+      "question": "用户手册介绍 Publisher/Subscriber 必须通过匹配的 Topic 通信；HTML BatchQoS 发布端和订阅端如何使用相同的 Topic ",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_sub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS010",
+      "question": "HTML 开发指南提供了 BatchQoS C 示例；用户手册的 BatchQosPolicy 章节说明了该策略的什么用途？请区分规范说明与示例实现。",
+      "source_id": "user_manual",
+      "page_print": [
+        120,
+        123
+      ],
+      "section_keyword": "10.2 BatchQosPolicy",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS010",
+      "question": "HTML 开发指南提供了 BatchQoS C 示例；用户手册的 BatchQosPolicy 章节说明了该策略的什么用途？请区分规范说明与示例实现。",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_pub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS011",
+      "question": "用户手册说明 wait_for_acknowledgments() 的等待语义；HTML BatchQoS 发布示例是否调用该接口？若未出现，能否据此断言发送数",
+      "source_id": "user_manual",
+      "page_print": [
+        79,
+        80
+      ],
+      "section_keyword": "8.2.8.1 Wait for Acknowledgment",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS011",
+      "question": "用户手册说明 wait_for_acknowledgments() 的等待语义；HTML BatchQoS 发布示例是否调用该接口？若未出现，能否据此断言发送数",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_pub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS012",
+      "question": "对比用户手册与 HTML 开发指南：用户手册提供概念和 API 语义，HTML 提供可运行示例时，回答 BatchQoS 发布问题应如何标注两个来源及其职责？",
+      "source_id": "user_manual",
+      "page_print": [
+        120,
+        123
+      ],
+      "section_keyword": "10.2 BatchQosPolicy",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    },
+    {
+      "question_id": "MS012",
+      "question": "对比用户手册与 HTML 开发指南：用户手册提供概念和 API 语义，HTML 提供可运行示例时，回答 BatchQoS 发布问题应如何标注两个来源及其职责？",
+      "source_id": "zrdds_dev_guide",
+      "page_print": null,
+      "section_keyword": "BatchQos/main_pub.c",
+      "findings": [],
+      "blocking": [],
+      "probe": {
+        "tokens": []
+      }
+    }
+  ],
+  "inputs": {
+    "questions": "evaluation\\datasets\\questions_multisource.jsonl",
+    "expected": "evaluation\\datasets\\expected_sources_multisource.jsonl",
+    "nodes": "data\\processed\\struct_v1__b95d1061.jsonl",
+    "tree": "data\\processed\\section_tree_v1.jsonl",
+    "report": "evaluation\\reports\\struct_multisrc_v1.json"
+  }
+}

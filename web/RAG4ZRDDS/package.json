@@ -7,6 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:unit": "vitest",
+    "test:e2e": "cypress run",
     "lint": "eslint . --fix"
   },
   "dependencies": {
@@ -17,9 +18,18 @@
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@vitejs/plugin-vue": "^5.0.0",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
+    "@vitest/eslint-plugin": "^1.6.27",
     "@vue/test-utils": "^2.4.6",
+    "cypress": "^16.1.0",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-cypress": "^7.0.2",
+    "eslint-plugin-oxlint": "^1.83.0",
+    "eslint-plugin-vue": "^10.11.0",
+    "globals": "^17.12.0",
     "jsdom": "^30.0.1",
     "vite": "^5.0.0",
     "vite-plugin-vue-devtools": "^7.0.0",

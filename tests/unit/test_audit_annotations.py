@@ -149,6 +149,25 @@ class TestAuditAnnotation:
         assert "QUESTION_TOKEN_ABSENT" in codes
         assert probe["absent"] == ["matched_count"]
 
+    def test_partial_off_page_token_is_cross_chapter_not_blocking(self, truth):
+        """部分 token 离页 = 跨章节 API（如回调在 Listener 章节、类型在 IDL 章节），
+        记录但不阻断；只有全部 token 离页才算"这页答不了这题"。"""
+        codes, probe = aa.audit_annotation(
+            _ann(), truth, None, {"Q001"},
+            "DurabilityQosPolicy 与 DomainParticipant 有什么关系？")
+        assert "QUESTION_TOKEN_CROSS_CHAPTER" in codes
+        assert "QUESTION_TOKEN_OFF_PAGE" not in codes
+        assert not (set(codes) & aa.BLOCKING_CODES)
+        assert probe["unmatched"] == [{"token": "domainparticipant", "appears_on": [10, 11, 12]}]
+
+    def test_all_tokens_off_page_still_blocked(self, truth):
+        """标注页与题面实体完全无关时仍须阻断（不能靠"部分离页"的放宽蒙过去）。"""
+        codes, _ = aa.audit_annotation(
+            _ann(page_print=11, section_keyword="1.1 分布式系统"), truth, None, {"Q001"},
+            "DurabilityQosPolicy 与 matched_count 有什么关系？")
+        assert "QUESTION_TOKEN_OFF_PAGE" in codes
+        assert "QUESTION_TOKEN_CROSS_CHAPTER" not in codes
+
     def test_keyword_section_pages_contradict_annotation(self, truth):
         codes, _ = aa.audit_annotation(
             _ann(page_print=10), truth, None, {"Q001"},
@@ -198,6 +217,13 @@ class TestAuditVerdict:
         res = aa.audit([_ann(page_print=300, section_keyword=None)], self.QUESTIONS[:1],
                        truth, {"Q001": 300}, 0.9)
         assert res["verdict"] == "blocked"
+
+    def test_cross_chapter_only_keeps_gate_open(self, truth):
+        qs = [{"id": "Q001",
+               "question": "DurabilityQosPolicy 与 DomainParticipant 有什么关系？"}]
+        res = aa.audit([_ann()], qs, truth, {}, 0.9)
+        assert res["verdict"] == "pass", res["counts"]
+        assert res["counts"]["QUESTION_TOKEN_CROSS_CHAPTER"] == 1
 
 
 # ---------------------------------------------------------------- CLI

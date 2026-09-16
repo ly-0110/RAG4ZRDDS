@@ -22,8 +22,8 @@
               <option v-for="exp in props.availableExperiments" :key="exp" :value="exp">{{ exp }}</option>
             </select>
           </label>
-          <span class="control-chip"><i class="chip-dot"></i>语义检索</span>
-          <span class="control-chip">Top-K 5</span>
+          <span class="control-chip"><i class="chip-dot"></i>{{ modeLabel }}</span>
+          <span class="control-chip">Top-K {{ topK }}</span>
         </div>
       </div>
 
@@ -98,8 +98,25 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
   hasAnswer: { type: Boolean, default: false },
   availableExperiments: { type: Array, default: () => [] },
+  // 当前生效的检索模式（App 取自 /healthz 的 kb.retrieval_mode）与"实验 → 模式"
+  // 表（/healthz 的 experiment_modes）。工具栏 chip 原先写死"语义检索"，切到
+  // bm25/hybrid 后与引用卡按模式渲染的分数口径自相矛盾（week4 复审 §4.1 F4
+  // 点名 chip 是静态装饰）。
+  activeMode: { type: String, default: 'vector' },
+  experimentModes: { type: Object, default: () => ({}) },
+  // 单次回答最多带几条引用（App 取自 /healthz 的 kb.top_k）——原先这个 chip 写死
+  // "Top-K 5"，QUERY_TOP_K 一改就与后端实际条数不符（F4 同类静态装饰问题）。
+  topK: { type: Number, default: 5 },
 })
 const emit = defineEmits(['submit', 'stop'])
+
+// 通路命名与引用卡的分数口径同源（CitationsCard.vue 的 scoreLabel）
+const MODE_LABELS = {
+  vector: '语义检索',
+  hybrid_rerank: '语义检索 + 精排',
+  bm25: 'BM25 词面',
+  hybrid: 'Hybrid RRF',
+}
 
 const userInput = ref('')
 const MAX_LENGTH = 200
@@ -114,6 +131,12 @@ const suggestions = [
 const canSubmit = computed(
   () => userInput.value.trim().length > 0 && !props.loading,
 )
+
+// 待提交的检索通路：选了实验就按该实验配置的 mode，否则维持服务端当前模式
+const effectiveMode = computed(
+  () => props.experimentModes[selectedExperiment.value] || props.activeMode || 'vector',
+)
+const modeLabel = computed(() => MODE_LABELS[effectiveMode.value] || MODE_LABELS.vector)
 
 const placeholder = computed(() =>
   userInput.value.length >= MAX_LENGTH
@@ -560,11 +583,29 @@ textarea:disabled {
 
 @media (max-width: 560px) {
   .input-toolbar {
+    flex-wrap: wrap;
     align-items: flex-start;
   }
 
+  /* F4 的检索模式选择器必须始终可用：这里原先整块 `display: none`，把选择器
+     连同装饰 chip 一起隐藏——窄窗口/分屏/未合成标签页（此时媒体查询按窄视口
+     命中）下"检索模式"直接消失，F4 等于不可用。改为换行排布，只收起装饰 chip。 */
   .toolbar-options {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .toolbar-options .control-chip {
     display: none;
+  }
+
+  .experiment-picker {
+    max-width: 100%;
+  }
+
+  .experiment-selector {
+    max-width: none;
   }
 
   .keyboard-hint {

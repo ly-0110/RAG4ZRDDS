@@ -16,8 +16,11 @@ E（标注 Owner）在提交前自查、D 在开指标闸门前验收，都用�
 
 判定与退出码：
   0  无阻断项且未见循环论证指纹 → 可以开 `run_regression --with-metrics`
-  1  存在阻断项（格式违约 / 页码越界 / 页码无承载块 / 术语零命中 / 章节-页码矛盾）
+  1  存在阻断项（格式违约 / 页码越界 / 页码无承载块 / 术语零命中 / 章节-页码矛盾 /
+     题干全部 token 离页）
      或 循环论证指纹 ≥ --circular-threshold
+  另外，题干"部分 token 离页"记为 `QUESTION_TOKEN_CROSS_CHAPTER`：跨章节 API 的正常
+  形态，记录但不阻断（判定语义见 QUESTION_TOKEN_REVIEW_CODES 的注释）。
   2  参数或文件缺失
 
 依赖: 仅标准库；产物路径全部可参数化（单测用 tmp_path 喂小样本）。
@@ -48,9 +51,18 @@ BLOCKING_CODES = {
     "SECTION_PAGE_MISMATCH",      # 关键词命中的章节页区间不含标注页
     "HTML_PAGE_SHOULD_BE_NULL",   # HTML 来源无页码概念却标了页码
     "PAGE_INVALID",               # 页码不是整数或合法闭区间
-    "QUESTION_TOKEN_OFF_PAGE",    # 题干的技术 token 不在被标注页附近 → 这页回答不了这题
+    "QUESTION_TOKEN_OFF_PAGE",    # 题干的**全部** token 都不在被标注页附近 → 这页回答不了这题
     "QUESTION_TOKEN_ABSENT",      # 题面技术 token 在该来源全书零命中 → 实体不存在，应转拒答集
 }
+
+# 非阻断但需人工确认：题干只有**部分** token 离页。这是跨章节 API 的正常形态
+# （回调在 Listener 章节、字段类型在 IDL/类型章节；手册按 QoS 策略分章列字段名），
+# 用它把"标注页选错"与"题目天然跨章"区分开：
+#   - 全部 token 离页 → QUESTION_TOKEN_OFF_PAGE（阻断：这页确实答不了这题）
+#   - 至少一个 token 落在标注页附近 → QUESTION_TOKEN_CROSS_CHAPTER（记录，不阻断）
+# 2026-09-16 实测：Q018/Q026/Q065/Q066 都属后者（如 Q065 标注 Policy 章节 160-161，
+# `writer_data_lifecycle` 字段名只在该策略的 IDL 字段表 81-84 出现）。
+QUESTION_TOKEN_REVIEW_CODES = {"QUESTION_TOKEN_CROSS_CHAPTER"}
 
 # 题干 token 抽取：太通用的词不算"问题主体"
 TOKEN_STOP = {
@@ -290,21 +302,25 @@ def audit_annotation(ann: dict, truth: ProductTruth, top1_page: int | None,
     elif not tokens:
         findings.append("NO_TOKEN_PROBE")        # 纯中文题干，交人工核对
     elif page_span and source:
-        absent, off_page = [], []
+        absent, off_page, on_page = [], [], []
         page_lo, page_hi = page_span
         for tok in tokens:
             pages = truth.term_pages(source, tok)
             if not pages:
                 absent.append(tok)
-            elif not any(page_lo - PAGE_TOLERANCE <= p <= page_hi + PAGE_TOLERANCE
-                         for p in pages):
+            elif any(page_lo - PAGE_TOLERANCE <= p <= page_hi + PAGE_TOLERANCE
+                     for p in pages):
+                on_page.append(tok)
+            else:
                 off_page.append({"token": tok, "appears_on": sorted(pages)[:8]})
         if absent:
             probe["absent"] = absent
             findings.append("QUESTION_TOKEN_ABSENT")
         if off_page:
             probe["unmatched"] = off_page
-            findings.append("QUESTION_TOKEN_OFF_PAGE")
+            # 只有"全部 token 都离页"才是这页答不了这题；部分离页是跨章节引用
+            findings.append("QUESTION_TOKEN_OFF_PAGE" if not on_page
+                            else "QUESTION_TOKEN_CROSS_CHAPTER")
 
     # A range is intentionally excluded: broad, source-backed ranges commonly
     # contain the retrieved top-1 by chance and are not evidence of circularity.
@@ -419,8 +435,13 @@ def render_markdown(result: dict, sources: dict[str, str]) -> str:
         lines.append("| … | | | | 另有 {0} 题同类问题 |".format(len(bad) - 60))
     lines += ["", "## 判定码计数", ""]
     for code, n in sorted(result["counts"].items(), key=lambda kv: -kv[1]):
-        tag = "阻断" if code in BLOCKING_CODES or code in {
-            "CONTRACT_MISSING", "CONTRACT_UNKNOWN_QUESTION_ID"} else "指纹"
+        if code in BLOCKING_CODES or code in {"CONTRACT_MISSING",
+                                              "CONTRACT_UNKNOWN_QUESTION_ID"}:
+            tag = "阻断"
+        elif code in QUESTION_TOKEN_REVIEW_CODES:
+            tag = "非阻断（需人工确认：题目是否天然跨章节）"
+        else:
+            tag = "指纹"
         lines.append(f"- `{code}` = {n}（{tag}）")
     if result["missing_annotations"]:
         lines += ["", f"缺标注题号: {', '.join(result['missing_annotations'][:40])}"]

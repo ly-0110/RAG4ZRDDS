@@ -269,3 +269,28 @@ Q021 / Q023 / Q028 题干中的字段名 `subscriptionMatched` / `livelinessChan
   60 passed，3 failed（失败项为环境缺依赖 `rank_bm25` / 未构建索引，与数据集改动无关）。
   `python -m pytest tests/ -q` 在本机无法整体收集（17 个测试文件因缺 `starlette`
   等依赖收集失败），同样与本次改动无关。
+
+## 后续修订（2026-09-16：audit 口径与问题集同步）
+
+上面「遗留问题」的两类结论当日已处理，故 §1/§2 描述的是**修订前**的状态：
+
+- **§2 问题集侧缺陷（已修）**：Q021/Q023/Q028 题干改用手册实际写法
+  （`subscription_matched` / `liveliness_changed` / `publication_matched`），
+  Q112 的 `License` 改用手册写法 `Licence` → `QUESTION_TOKEN_ABSENT` 3 → 0。
+- **§1 跨章节题（已定性，不阻断）**：`scripts/audit_annotations.py` 新增判定码
+  `QUESTION_TOKEN_CROSS_CHAPTER`（非阻断，需人工确认）——只有题干**全部 token 都离页**
+  才判阻断的 `QUESTION_TOKEN_OFF_PAGE`；Q018/Q026/Q065/Q066 这类「一题同时问两件事」
+  不再关闸。Q112 改名后 token 落在标注页内，已不在该列（5 → 4 题）。
+
+复跑（`python scripts/audit_annotations.py --out-prefix evaluation/reports/annotation_audit`）：
+
+| 指标 | 本报告（修订前） | 现在 |
+|---|---|---|
+| 判定 | blocked | **pass** |
+| QUESTION_TOKEN_OFF_PAGE（阻断） | 5 | 0 |
+| QUESTION_TOKEN_CROSS_CHAPTER（非阻断） | — | 4 |
+| QUESTION_TOKEN_ABSENT（阻断） | 3 | 0 |
+| NO_TOKEN_PROBE（非阻断指纹） | 13 | 13 |
+
+判定码放宽属审计口径变更（等于打开 `make regression --with-metrics` 的闸门），
+需 E/B 会签追认；`final_v1` 的 `expected_sources` 仍为 `null`，正式指标不解冻。

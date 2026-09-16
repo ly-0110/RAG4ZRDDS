@@ -1,4 +1,4 @@
-.PHONY: setup ingest index experiment answer-eval abstention manual-review regression audit test serve inspect mcp smoke-mcp help
+.PHONY: setup ingest index experiment answer-eval abstention manual-review regression audit audit-multisrc test serve inspect mcp smoke-mcp help
 
 CFG ?= configs/experiments/struct_v1.yaml
 ANSWER_CFG ?= configs/experiments/final_v1.yaml
@@ -21,7 +21,7 @@ endif
 PY := $(if $(wildcard $(VENV_PY)),$(VENV_PY),python)
 
 help:
-	@echo "targets: setup | ingest/index/experiment CFG=... | answer-eval/abstention/manual-review (C 第四周) | regression REG_ARGS='--only a,b' | test | serve | inspect | mcp | smoke-mcp"
+	@echo "targets: setup | ingest/index/experiment CFG=... | answer-eval/abstention/manual-review (C 第四周) | audit/audit-multisrc | regression REG_ARGS='--only a,b' | test | serve | inspect | mcp | smoke-mcp"
 	@echo "interpreter: $(PY)   (uses $(VENV_PY) when present, else system python)"
 	@echo "first real index build: ~8 min for 301 nodes, ~25 min for 1606 nodes (bge-m3 on CPU)"
 	@echo "if HF weights are cached, export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 to avoid network stalls"
@@ -62,6 +62,18 @@ regression:
 # 标注真值核对（§6.1/§9.3）：判据只来自 A 的产物；它是 regression --with-metrics 的前置门禁
 audit:
 	$(PY) scripts/audit_annotations.py --out-prefix evaluation/reports/annotation_audit
+
+# 多来源评测集的真值核对（同 audit，但真值取 PR#46 的多来源合并产物
+# struct_v1__b95d1061.jsonl：HTML 开发者指南 + 用户手册两来源的跨来源题）。
+# struct_multisrc_* 六个配置的 evaluation.dataset/expected_sources 指的就是这两份集，
+# 改标注或改产物后先跑本目标。
+audit-multisrc:
+	$(PY) scripts/audit_annotations.py \
+	  --questions evaluation/datasets/questions_multisource.jsonl \
+	  --expected evaluation/datasets/expected_sources_multisource.jsonl \
+	  --nodes data/processed/struct_v1__b95d1061.jsonl \
+	  --report evaluation/reports/struct_multisrc_v1.json \
+	  --out-prefix evaluation/reports/annotation_audit_multisrc
 
 test:
 	$(PY) -m pytest tests/ -q

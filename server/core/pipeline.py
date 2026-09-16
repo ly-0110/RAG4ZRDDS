@@ -262,6 +262,11 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
             "retrieval_mode": cfg.retrieval.mode,
             "index_dirname": ec.index_dirname(cfg),
             "node_total": len(node_details),
+            # 单次回答最多带几条引用（前端工具栏 chip 显示）。取运行时
+            # settings（env QUERY_TOP_K）而非 cfg.retrieval.top_k：请求未带
+            # top_k 时 api/query.py 用的就是 settings.default_top_k，配置里的
+            # top_k 只在离线实验中生效，两者可以不等（前端 chip 不许写死）。
+            "top_k": settings.default_top_k,
             "sources": source_stats,
         }
         return Pipeline(retriever, answer_stream, source_urls,

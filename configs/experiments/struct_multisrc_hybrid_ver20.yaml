@@ -58,12 +58,13 @@ retrieval:
 
 generation:
   enabled: false
-  prompt_version: v0
+  prompt_version: v2               # 与 struct_multisrc_v1 对齐（多来源臂 prompt 须一致；gen 关闭无功能影响）
   llm_env_prefix: LLM_
 
 evaluation:
-  dataset: evaluation/datasets/questions.jsonl
-  expected_sources: null           # 宁缺毋滥：真值标注到位后翻回 expected_sources.jsonl 补指标
+  # 多来源评测口径同 struct_multisrc_v1（12 题跨来源集 + 25 条标注；make audit-multisrc → pass）
+  dataset: evaluation/datasets/questions_multisource.jsonl
+  expected_sources: evaluation/datasets/expected_sources_multisource.jsonl
   retrieval_metrics: [hit_rate@5, mrr@5]
   response_metrics: []
   sample_size: null

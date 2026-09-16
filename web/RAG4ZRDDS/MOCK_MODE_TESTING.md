@@ -234,6 +234,8 @@ ZRDDS 产品的核心功能是什么？
 
 检查 `<ChatInput :experiments="healthData?.experiments || []">` 组件：
 
+> **实际实现（2026-09-16 复核）**：下面这段是**未落地的设计稿**——仓库里既无 `.mode-selector-group` / `.experiment-chip` 样式，也没有 `selectExperiment()`。落地的 F4 UI 是 `<select class="experiment-selector">`，白名单来自 `props.availableExperiments`（App 传 `/healthz.experiments`），提交时把 `experiment` 拼进请求体；工具栏 chip 由 `activeMode` + `experimentModes` 决定文案。详见 `web/RAG4ZRDDS/src/components/ChatInput.vue` 与 `docs/week4-delivery-review.md` §3.8.2/§3.9.1。
+
 ```javascript
 // ChatInput.vue - F4: experiments chip UI 实现
 const handleExperimentSelect = (exp) => {

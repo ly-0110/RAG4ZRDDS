@@ -2,8 +2,8 @@
   "schema": "rag4zrdds.annotation_audit/v1",
   "verdict": "pass",
   "counts": {
-    "NO_TOKEN_PROBE": 13,
-    "CIRCULAR_TOP1": 4
+    "QUESTION_TOKEN_CROSS_CHAPTER": 4,
+    "NO_TOKEN_PROBE": 13
   },
   "blocking_total": 0,
   "questions_total": 120,
@@ -12,9 +12,9 @@
   "unknown_question_ids": [],
   "circularity": {
     "compared_with": "报告 top-1 页码（仅作反推指纹，不作真值判据）",
-    "matched": 4,
+    "matched": 0,
     "comparable": 120,
-    "ratio": 0.0333,
+    "ratio": 0.0,
     "threshold": 0.9,
     "suspect": false
   },
@@ -24,8 +24,8 @@
       "question": "如何创建一个属于特定域的 DomainParticipant？请说明所需参数及其作用。",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        55,
+        56
       ],
       "section_keyword": "6.3.6 选择Domain ID和创建多个域",
       "findings": [],
@@ -41,8 +41,8 @@
       "question": "DomainParticipantFactory 的 create_participant()函数中，domainId 参数的取值范围是多少？为什么需要限定这个",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        47,
+        48
       ],
       "section_keyword": "6.2.4 搜索DomainParticipant",
       "findings": [],
@@ -60,8 +60,8 @@
       "question": "在创建 DomainParticipant 时，如果希望其 Listener 不响应任何事件，mask 参数应如何设置？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        36,
+        37
       ],
       "section_keyword": "5.3.5 Listener的继承机制",
       "findings": [],
@@ -78,8 +78,8 @@
       "question": "调用 DomainParticipant 的 enable()函数前，实体处于什么状态？使能后会发生什么变化？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        58,
+        59
       ],
       "section_keyword": "6.3.12 其他DomainParticipant操作",
       "findings": [],
@@ -96,8 +96,8 @@
       "question": "DomainParticipant 的 get_instance_handle()返回的是什么类型的对象？该对象的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        58,
+        59
       ],
       "section_keyword": "6.3.12 其他DomainParticipant操作",
       "findings": [],
@@ -114,8 +114,8 @@
       "question": "如何在创建 DataWriter 时传入自定义的 QoS 策略？请写出函数原型。",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        272
+        30,
+        30
       ],
       "section_keyword": "5.1.4.3 在创建实体时设置QoS策略",
       "findings": [],
@@ -131,8 +131,8 @@
       "question": "DataReader 的 read()和 take()函数有什么区别？分别适用于什么场景？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        108,
+        109
       ],
       "section_keyword": "9.3.10.2 read()和take()的区别",
       "findings": [],
@@ -148,10 +148,10 @@
       "question": "调用 DataReader 的 read_w_condition()函数时，需要传入什么参数？该参数的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        113,
+        114
       ],
-      "section_keyword": "9.3.10.1 使用read()和take()访问数据",
+      "section_keyword": "9.3.10.7 read_w_condition()和take_w_condition()",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -166,8 +166,8 @@
       "question": "如何通过 GuardCondition 的手动触发机制唤醒 WaitSet？请说明具体步骤。",
       "source_id": "user_manual",
       "page_print": [
-        38,
-        235
+        41,
+        42
       ],
       "section_keyword": "5.5.6 GuardConditions",
       "findings": [],
@@ -184,8 +184,8 @@
       "question": "DomainParticipant 的 delete_participant()函数在什么情况下会失败？请说明返回的错误码。",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        51,
+        52
       ],
       "section_keyword": "6.3.3 删除所有子实体",
       "findings": [],
@@ -202,8 +202,8 @@
       "question": "使用 delete_contained_entities()删除 DomainParticipant 的子实体时，如果中途某个实体删除失败会怎样？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        51,
+        52
       ],
       "section_keyword": "6.3.3 删除所有子实体",
       "findings": [],
@@ -220,10 +220,10 @@
       "question": "DataReader 的 create_readcondition()函数中，SampleStateMask 的作用是什么？常见的取值有哪些？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        41,
+        41
       ],
-      "section_keyword": "9.3.11.1 样本状态(Sample States)",
+      "section_keyword": "5.5.5 ReadConditions",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -239,8 +239,8 @@
       "question": "如何获取 DomainParticipant 的 StatusCondition？为什么要使用 StatusCondition 而不是直接调用 Listener",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        104,
+        107
       ],
       "section_keyword": "9.3.5 关于DataReader的Status",
       "findings": [],
@@ -258,8 +258,8 @@
       "question": "WaitSet 的 wait()函数在超时情况下会返回什么？此时关联的条件列表状态如何？",
       "source_id": "user_manual",
       "page_print": [
-        38,
-        235
+        39,
+        40
       ],
       "section_keyword": "5.5.2 WaitSet的相关操作",
       "findings": [],
@@ -275,10 +275,10 @@
       "question": "当 Publisher 调用 wait_for_acknowledgments()函数时，什么情况下会返回 DDS_RETCODE_TIMEOUT？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        272
+        79,
+        80
       ],
-      "section_keyword": "12.3.3 writer()阻塞时间",
+      "section_keyword": "8.2.8 Publisher的其他操作",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -294,8 +294,8 @@
       "question": "如何在创建 DataReader 时配置 Listener 的 mask 参数？mask 中每位对应的状态有哪些？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        34,
+        38
       ],
       "section_keyword": "5.3 Listener",
       "findings": [],
@@ -312,8 +312,8 @@
       "question": "Topic 的 on_inconsistent_topic()回调函数在什么情况下会被触发？触发时该 Topic 处于什么状态？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        289
+        64,
+        64
       ],
       "section_keyword": "7.2.5 设置Topic的Listener",
       "findings": [],
@@ -330,17 +330,34 @@
       "question": "DataReaderListener 的 on_data_available()回调函数的作用是什么？该函数能否调用 create_datawriter()？为",
       "source_id": "user_manual",
       "page_print": [
-        25,
-        272
+        34,
+        38
       ],
-      "section_keyword": "9.2.6 关于Subscriber的Status",
-      "findings": [],
+      "section_keyword": "5.3 Listener",
+      "findings": [
+        "QUESTION_TOKEN_CROSS_CHAPTER"
+      ],
       "blocking": [],
       "probe": {
         "tokens": [
           "datareaderlistener",
           "create_datawriter",
           "on_data_available"
+        ],
+        "unmatched": [
+          {
+            "token": "create_datawriter",
+            "appears_on": [
+              25,
+              26,
+              29,
+              30,
+              64,
+              73,
+              74,
+              75
+            ]
+          }
         ]
       }
     },
@@ -349,8 +366,8 @@
       "question": "DataWriter 的 on_liveliness_lost()回调函数在什么情况下会被触发？触发后 DataWriter 处于什么状态？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        272
+        133,
+        135
       ],
       "section_keyword": "10.12 LivelinessQosPolicy",
       "findings": [],
@@ -367,8 +384,8 @@
       "question": "Subscriber 的 on_data_on_readers()回调函数被触发时，表示什么事件发生？该状态如何查询？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        275
+        97,
+        97
       ],
       "section_keyword": "9.2.6 关于Subscriber的Status",
       "findings": [],
@@ -382,20 +399,20 @@
     },
     {
       "question_id": "Q021",
-      "question": "DataReader ? on_subscription_matched() ???????? Listener???????? Status?",
+      "question": "DataReader 的 on_subscription_matched()回调函数被触发时，该 DataReader 处于什么状态？该 Listener 的 ",
       "source_id": "user_manual",
       "page_print": [
-        4,
-        275
+        106,
+        107
       ],
-      "section_keyword": "5",
+      "section_keyword": "9.3.5.7 SUBSCRIPTION_MATCHED Status",
       "findings": [],
       "blocking": [],
       "probe": {
         "tokens": [
           "on_subscription_matched",
-          "datareader",
-          "listener"
+          "subscription_matched",
+          "datareader"
         ]
       }
     },
@@ -404,8 +421,8 @@
       "question": "如何使用 get_status_changes()函数获取自从上次查询后的状态变化？该函数的返回值类型是什么？",
       "source_id": "user_manual",
       "page_print": [
-        38,
-        225
+        85,
+        86
       ],
       "section_keyword": "8.3.6 获取DataWriter的Status",
       "findings": [],
@@ -418,20 +435,20 @@
     },
     {
       "question_id": "Q023",
-      "question": "DataReader ? on_liveliness_changed() ???????????????????? Status?",
+      "question": "DataReader 的 on_liveliness_changed()回调函数被触发时，该 DataReader 处于什么状态？该 Listener 的 li",
       "source_id": "user_manual",
       "page_print": [
-        4,
-        275
+        105,
+        105
       ],
-      "section_keyword": "5",
+      "section_keyword": "9.3.5.2 LIVELINESS_CHANGED Status",
       "findings": [],
       "blocking": [],
       "probe": {
         "tokens": [
           "on_liveliness_changed",
-          "datareader",
-          "status"
+          "liveliness_changed",
+          "datareader"
         ]
       }
     },
@@ -440,8 +457,8 @@
       "question": "DataReader 的 on_requested_deadline_missed()回调函数在什么情况下被触发？触发时该 DataReader 处于什么状态？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        105,
+        106
       ],
       "section_keyword": "9.3.5.3 REQUESTED_DEADLINE_MISSED Status",
       "findings": [],
@@ -458,8 +475,8 @@
       "question": "DataReader 的 on_requested_incompatible_qos()回调函数在什么情况下被触发？该 QoS 配置不兼容的原因是什么？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        106,
+        106
       ],
       "section_keyword": "9.3.5.4 REQUESTED_INCOMPATIBLE_QOS Status",
       "findings": [],
@@ -476,17 +493,34 @@
       "question": "DataReader 的 on_sample_lost()回调函数在什么情况下被触发？触发时 SampleStateMask 应如何设置？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        106,
+        106
       ],
       "section_keyword": "9.3.5.5 SAMPLE_LOST Status",
-      "findings": [],
+      "findings": [
+        "QUESTION_TOKEN_CROSS_CHAPTER"
+      ],
       "blocking": [],
       "probe": {
         "tokens": [
           "samplestatemask",
           "on_sample_lost",
           "datareader"
+        ],
+        "unmatched": [
+          {
+            "token": "samplestatemask",
+            "appears_on": [
+              39,
+              40,
+              41,
+              42,
+              43,
+              96,
+              97,
+              98
+            ]
+          }
         ]
       }
     },
@@ -495,8 +529,8 @@
       "question": "DataReader 的 on_sample_rejected()回调函数在什么情况下被触发？该状态与 SAMPLE_LOST 的区别是什么？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        106,
+        106
       ],
       "section_keyword": "9.3.5.5 SAMPLE_LOST Status",
       "findings": [],
@@ -511,20 +545,20 @@
     },
     {
       "question_id": "Q028",
-      "question": "DataWriter ? on_publication_matched() ???????? Listener???????? Status?",
+      "question": "DataWriter 的 on_publication_matched()回调函数被触发时，该 DataWriter 处于什么状态？该 Listener 的 p",
       "source_id": "user_manual",
       "page_print": [
-        4,
-        275
+        85,
+        85
       ],
-      "section_keyword": "5",
+      "section_keyword": "8.3.5 关于DataWriter的Status",
       "findings": [],
       "blocking": [],
       "probe": {
         "tokens": [
           "on_publication_matched",
-          "datawriter",
-          "listener"
+          "publication_matched",
+          "datawriter"
         ]
       }
     },
@@ -533,10 +567,10 @@
       "question": "DataWriter 的 on_offered_deadline_missed()回调函数在什么情况下被触发？触发时该 DataWriter 处于什么状态？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        272
+        85,
+        85
       ],
-      "section_keyword": "9.3.5.7 SUBSCRIPTION_MATCHED Status",
+      "section_keyword": "8.3.5 关于DataWriter的Status",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -551,10 +585,10 @@
       "question": "DataWriter 的 on_offered_incompatible_qos()回调函数在什么情况下被触发？可能的原因有哪些？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        272
+        85,
+        85
       ],
-      "section_keyword": "9.3.5.4 REQUESTED_INCOMPATIBLE_QOS Status",
+      "section_keyword": "8.3.5 关于DataWriter的Status",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -569,8 +603,8 @@
       "question": "如何获取 DomainParticipant 的 Discover 到的所有 DomainParticipant？相关函数的返回值是什么类型？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        47,
+        48
       ],
       "section_keyword": "6.2.4 搜索DomainParticipant",
       "findings": [],
@@ -587,8 +621,8 @@
       "question": "如何获取 DomainParticipant 的 Discover 到的所有 Topic？相关函数的返回值是什么类型？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        289
+        47,
+        48
       ],
       "section_keyword": "6.2.4 搜索DomainParticipant",
       "findings": [],
@@ -606,8 +640,8 @@
       "question": "Topic 的 create_topic()函数中，如果返回 NULL 表示什么？可能的原因有哪些？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        289
+        56,
+        56
       ],
       "section_keyword": "6.3.8 查找Topic",
       "findings": [],
@@ -624,8 +658,8 @@
       "question": "如何查找同一域下的 Topic？find_topic()函数的返回类型是什么？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        289
+        56,
+        56
       ],
       "section_keyword": "6.3.8 查找Topic",
       "findings": [],
@@ -642,8 +676,8 @@
       "question": "如何根据 Topic 名字查找 TopicDescription？lookup_topicdescription()函数的参数类型是什么？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        289
+        56,
+        56
       ],
       "section_keyword": "6.3.7 查找Topic Description",
       "findings": [],
@@ -661,8 +695,8 @@
       "question": "如何创建 ContentFilteredTopic？create_contentfilteredtopic()函数的作用是什么？创建的 Topic 与常规 To",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        289
+        67,
+        67
       ],
       "section_keyword": "7.3.3 删除ContentFilteredTopic",
       "findings": [],
@@ -680,10 +714,10 @@
       "question": "如何配置 DomainParticipant 的 TransportConfigQosPolicy 以指定接收地址？该配置的 QoS 策略类型是什么？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        157,
+        159
       ],
-      "section_keyword": "10.36 TransportPriorityQosPolicy",
+      "section_keyword": "10.30 TransportConfigQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -698,10 +732,10 @@
       "question": "如何设置 DomainParticipant 的 DiscoveryConfigQosPolicy？该配置对 SPDP 协议的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        127,
+        127
       ],
-      "section_keyword": "23.1 配置说明",
+      "section_keyword": "10.6 DiscoveryConfigQosPolicy(DDS Extension)",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -716,10 +750,10 @@
       "question": "如何配置 DomainParticipant 的 EntityFactoryQosPolicy？该配置中的 autoenable_created_entitie",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        129,
+        129
       ],
-      "section_keyword": "6.2.1 DomainParticipantFactory的QoS策略",
+      "section_keyword": "10.8 EntityFactoryQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -735,10 +769,10 @@
       "question": "如何配置 LogQosPolicy 以控制 ZRDDS 日志级别？日志级别有哪些可选值？",
       "source_id": "user_manual",
       "page_print": [
-        46,
-        281
+        135,
+        136
       ],
-      "section_keyword": "25.4.1 日志QoS",
+      "section_keyword": "10.13 LogQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -752,8 +786,8 @@
       "question": "如何设置 DomainParticipant 的 min_dma_copy_size？该配置对数据序列化的影响是什么？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        46,
+        47
       ],
       "section_keyword": "6.2.1 DomainParticipantFactory的QoS策略",
       "findings": [],
@@ -770,8 +804,8 @@
       "question": "如何配置 DomainParticipant 的 RapidIOConfigQosPolicy？该配置对 RapidIO 传输的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        148,
+        148
       ],
       "section_keyword": "10.22 RapidIOControllerQosPolicy",
       "findings": [],
@@ -789,10 +823,10 @@
       "question": "如何设置 DomainParticipant 的 rtps_message_little_endian？该配置对报文端序的影响是什么？默认值是多少？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        52,
+        54
       ],
-      "section_keyword": "6.3.12 其他DomainParticipant操作",
+      "section_keyword": "6.3.4 设置DomainParticipant的QoS策略",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -807,10 +841,10 @@
       "question": "如何配置 DomainParticipant 的 ThreadCoreAffinityQosPolicy？该配置对线程与 CPU 依赖的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        154,
+        155
       ],
-      "section_keyword": "6.2.1 DomainParticipantFactory的QoS策略",
+      "section_keyword": "10.27 ThreadCoreAffinityQosPolicy(DDS Extension)",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -825,8 +859,8 @@
       "question": "如何配置 DomainParticipant 的 ReceiverThreadConfigQosPolicy？该配置对接收线程数量的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        150,
+        151
       ],
       "section_keyword": "10.24 ReceiverThreadConfigQosPolicy(DDS Extension)",
       "findings": [],
@@ -843,8 +877,8 @@
       "question": "如何设置 Topic 的 QoS 策略？TopicQos 结构中包含哪些成员？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        289
+        63,
+        64
       ],
       "section_keyword": "7.2.3.2 在创建Topic后配置Qos策略",
       "findings": [],
@@ -861,8 +895,8 @@
       "question": "如何设置 DataWriter 的 QoS 策略？DataWriterQos 结构中包含哪些成员？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        272
+        30,
+        30
       ],
       "section_keyword": "5.1.4.3 在创建实体时设置QoS策略",
       "findings": [],
@@ -879,8 +913,8 @@
       "question": "如何设置 DataReader 的 QoS 策略？DataReaderQos 结构中包含哪些成员？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        101,
+        102
       ],
       "section_keyword": "9.3.3.2 创建DataReader后配置QoS策略",
       "findings": [],
@@ -897,10 +931,10 @@
       "question": "如何设置 Publisher 的 QoS 策略？PublisherQos 结构中包含哪些成员？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        272
+        76,
+        78
       ],
-      "section_keyword": "5.1.4.3 在创建实体时设置QoS策略",
+      "section_keyword": "8.2.4 设置Publisher的QoS策略",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -915,10 +949,10 @@
       "question": "如何设置 Subscriber 的 QoS 策略？SubscriberQos 结构中包含哪些成员？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        275
+        94,
+        96
       ],
-      "section_keyword": "10.34 DurabilityServiceQosPolicy",
+      "section_keyword": "9.2.4 设置Subscriber的QoS策略",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -933,8 +967,8 @@
       "question": "如何使用 DATAWRITER_QOS_DEFAULT 初始化 DataWriter？该常数能否用于实例化 QoS 策略对象？为什么？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        272
+        82,
+        83
       ],
       "section_keyword": "8.3.3.1 创建DataWriter时配置QoS策略",
       "findings": [],
@@ -951,8 +985,8 @@
       "question": "如何设置 ReliabilityQosPolicy 的 kind 字段？该字段有哪些可选值？分别代表什么可靠性策略？",
       "source_id": "user_manual",
       "page_print": [
-        9,
-        197
+        191,
+        191
       ],
       "section_keyword": "12.3.1 选择通信模型",
       "findings": [],
@@ -968,10 +1002,10 @@
       "question": "如何设置 HistoryQosPolicy 的 depth 字段？该配置对本地存储历史样本的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        28,
-        230
+        130,
+        132
       ],
-      "section_keyword": "10.34 DurabilityServiceQosPolicy",
+      "section_keyword": "10.10 HistoryQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -986,10 +1020,10 @@
       "question": "如何设置 LifespanQosPolicy 的 duration 字段？该配置对过期数据处理的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        56,
-        270
+        132,
+        133
       ],
-      "section_keyword": "10.34 DurabilityServiceQosPolicy",
+      "section_keyword": "10.11 LifespanQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1004,10 +1038,10 @@
       "question": "如何设置 DeadlineQosPolicy 的 period 字段？该配置对数据发布周期的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        30,
-        156
+        124,
+        125
       ],
-      "section_keyword": "9.3.5.3 REQUESTED_DEADLINE_MISSED Status",
+      "section_keyword": "10.4 DeadlineQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1022,10 +1056,10 @@
       "question": "如何设置 DurabilityQosPolicy 的 kind 字段？该配置对历史数据获取的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        61,
-        163
+        127,
+        129
       ],
-      "section_keyword": "10.34 DurabilityServiceQosPolicy",
+      "section_keyword": "10.7 DurabilityQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1039,8 +1073,8 @@
       "question": "如何设置 EntityFactoryQosPolicy 的 autoenable_created_entities 字段？该配置对子实体自动使能的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        25,
-        256
+        129,
+        129
       ],
       "section_keyword": "10.8 EntityFactoryQosPolicy",
       "findings": [],
@@ -1057,8 +1091,8 @@
       "question": "如何设置 OwnershipQosPolicy 的 kind 字段？该字段有哪些可选值？分别代表什么所有权策略？",
       "source_id": "user_manual",
       "page_print": [
-        31,
-        161
+        139,
+        140
       ],
       "section_keyword": "10.16 OwnershipStrengthQosPolicy",
       "findings": [],
@@ -1071,13 +1105,13 @@
     },
     {
       "question_id": "Q059",
-      "question": "PartitionQosPolicy ? values ????????????????????? DataWriter ? DataReader ????",
+      "question": "PartitionQosPolicy 的 values、history、lifetime 字段分别是什么作用？DataWriter 和 DataReader 如",
       "source_id": "user_manual",
       "page_print": [
-        1,
-        275
+        140,
+        142
       ],
-      "section_keyword": "1",
+      "section_keyword": "10.17 PartitionQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1090,13 +1124,13 @@
     },
     {
       "question_id": "Q060",
-      "question": "PresentationQosPolicy ? access_scope?coherent_access ? ordered_access ?????????",
+      "question": "PresentationQosPolicy 的 access_scope、coherent_access、ordered_access 字段分别是什么作用？如何",
       "source_id": "user_manual",
       "page_print": [
-        1,
+        142,
         145
       ],
-      "section_keyword": "1",
+      "section_keyword": "10.18 PresentationQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1112,10 +1146,10 @@
       "question": "如何设置 GroupDataQosPolicy 的 value 字段？该配置对附加信息的作用是什么？最大长度是多少？",
       "source_id": "user_manual",
       "page_print": [
-        17,
-        278
+        129,
+        130
       ],
-      "section_keyword": "23.1 配置说明",
+      "section_keyword": "10.9 GroupDataQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1130,10 +1164,10 @@
       "question": "如何设置 UserDataQosPolicy 的 value 字段？该配置对附加信息的作用是什么？最大长度是多少？",
       "source_id": "user_manual",
       "page_print": [
-        17,
-        278
+        159,
+        160
       ],
-      "section_keyword": "23.1 配置说明",
+      "section_keyword": "10.31 UserDataQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1148,8 +1182,8 @@
       "question": "如何设置 ResourceLimitsQosPolicy 的 max_samples？该配置对系统内存的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        28,
-        196
+        163,
+        163
       ],
       "section_keyword": "10.35 LatencyBudgetQosPolicy",
       "findings": [],
@@ -1166,10 +1200,10 @@
       "question": "如何设置 TopicDataQosPolicy 的 value 字段？该配置对附加信息的作用是什么？最大长度是多少？",
       "source_id": "user_manual",
       "page_print": [
-        17,
-        278
+        156,
+        157
       ],
-      "section_keyword": "7.2.3.2 在创建Topic后配置Qos策略",
+      "section_keyword": "10.29 TopicDataQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1184,16 +1218,29 @@
       "question": "如何设置 WriterDataLifecycleQosPolicy 的 writer_data_lifecycle？该配置对数据实例生命周期管理的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        81,
+        160,
         161
       ],
-      "section_keyword": "10.12 LivelinessQosPolicy",
-      "findings": [],
+      "section_keyword": "10.32 WriterDataLifecycleQosPolicy",
+      "findings": [
+        "QUESTION_TOKEN_CROSS_CHAPTER"
+      ],
       "blocking": [],
       "probe": {
         "tokens": [
           "writerdatalifecycleqospolicy",
           "writer_data_lifecycle"
+        ],
+        "unmatched": [
+          {
+            "token": "writer_data_lifecycle",
+            "appears_on": [
+              81,
+              82,
+              83,
+              84
+            ]
+          }
         ]
       }
     },
@@ -1202,16 +1249,29 @@
       "question": "如何设置 ReaderDataLifecycleQosPolicy 的 reader_data_lifecycle？该配置对数据实例生命周期管理的作用是什么？",
       "source_id": "user_manual",
       "page_print": [
-        100,
+        148,
         150
       ],
-      "section_keyword": "10.12 LivelinessQosPolicy",
-      "findings": [],
+      "section_keyword": "10.23 ReaderDataLifecycleQosPolicy",
+      "findings": [
+        "QUESTION_TOKEN_CROSS_CHAPTER"
+      ],
       "blocking": [],
       "probe": {
         "tokens": [
           "readerdatalifecycleqospolicy",
           "reader_data_lifecycle"
+        ],
+        "unmatched": [
+          {
+            "token": "reader_data_lifecycle",
+            "appears_on": [
+              100,
+              101,
+              102,
+              103
+            ]
+          }
         ]
       }
     },
@@ -1220,8 +1280,8 @@
       "question": "如何配置 ZRDDS 日志级别？有哪些可选级别？如何使用 Listener 监控日志事件？",
       "source_id": "user_manual",
       "page_print": [
-        26,
-        275
+        34,
+        38
       ],
       "section_keyword": "5.3 Listener",
       "findings": [],
@@ -1253,11 +1313,13 @@
       "question_id": "Q069",
       "question": "如何配置 ZRDDS 日志风格？有哪些可选风格？如何使用 XML 配置实体 QoS？",
       "source_id": "user_manual",
-      "page_print": 248,
+      "page_print": [
+        248,
+        248
+      ],
       "section_keyword": "20.1 XML配置说明",
       "findings": [
-        "NO_TOKEN_PROBE",
-        "CIRCULAR_TOP1"
+        "NO_TOKEN_PROBE"
       ],
       "blocking": [],
       "probe": {
@@ -1285,7 +1347,10 @@
       "question_id": "Q071",
       "question": "如何配置 ZRDDS 调试日志参数？有哪些可选参数？如何使用交互式调试日志？",
       "source_id": "user_manual",
-      "page_print": 289,
+      "page_print": [
+        289,
+        289
+      ],
       "section_keyword": "27.3 日志类型IDL文件",
       "findings": [
         "NO_TOKEN_PROBE"
@@ -1300,10 +1365,10 @@
       "question": "如何编写 ZRDDS 调试文件示例？有哪些推荐实践？如何使用 Condition 和 WaitSet 进行同步等待？",
       "source_id": "user_manual",
       "page_print": [
-        26,
-        235
+        39,
+        43
       ],
-      "section_keyword": "11.3.2 使用zrddsgen编译器",
+      "section_keyword": "5.5 Condition与WaitSets",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1317,11 +1382,13 @@
       "question_id": "Q073",
       "question": "如何使用 XML 配置 ZRDDS 内部 QoS 仓库？XML 配置说明有哪些要点？如何编写 QoS 配置文件？",
       "source_id": "user_manual",
-      "page_print": 248,
+      "page_print": [
+        248,
+        248
+      ],
       "section_keyword": "20.1 XML配置说明",
       "findings": [
-        "NO_TOKEN_PROBE",
-        "CIRCULAR_TOP1"
+        "NO_TOKEN_PROBE"
       ],
       "blocking": [],
       "probe": {
@@ -1334,9 +1401,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        230
+        28
       ],
-      "section_keyword": "11.6.1 ZRDDS的头文件",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1352,9 +1419,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        263
+        28
       ],
-      "section_keyword": "23.1 配置说明",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1370,9 +1437,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        67
+        28
       ],
-      "section_keyword": "7.3.3 删除ContentFilteredTopic",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1387,9 +1454,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        193
+        28
       ],
-      "section_keyword": "12.3.3 writer()阻塞时间",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1404,9 +1471,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        263
+        28
       ],
-      "section_keyword": "23.1 配置说明",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1421,9 +1488,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        163
+        28
       ],
-      "section_keyword": "10.34 DurabilityServiceQosPolicy",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1438,9 +1505,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        163
+        28
       ],
-      "section_keyword": "10.34 DurabilityServiceQosPolicy",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1455,9 +1522,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        99
+        28
       ],
-      "section_keyword": "9.2.7 获取Subscriber的关联实体",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1471,7 +1538,7 @@
       "question": "如何处理 DDS_RETCODE_TIMEOUT 错误？该错误表示什么含义？如何避免超时？",
       "source_id": "user_manual",
       "page_print": [
-        26,
+        193,
         193
       ],
       "section_keyword": "12.3.3 writer()阻塞时间",
@@ -1489,9 +1556,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        263
+        28
       ],
-      "section_keyword": "23.1 配置说明",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1506,9 +1573,9 @@
       "source_id": "user_manual",
       "page_print": [
         26,
-        260
+        28
       ],
-      "section_keyword": "21.5 数据封装内容配置模块",
+      "section_keyword": "5.1.2 使能实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1522,8 +1589,8 @@
       "question": "如何使用 Publisher 的 create_datawriter()函数创建 DataWriter？需要传入哪些参数？返回类型是什么？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        272
+        86,
+        86
       ],
       "section_keyword": "8.3.8 使用特定类型的DataWriter",
       "findings": [],
@@ -1541,8 +1608,8 @@
       "question": "如何使用 Publisher 的 delete_datawriter()函数删除 DataWriter？如果 DataWriter 仍存在会怎样？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        272
+        81,
+        81
       ],
       "section_keyword": "8.3.2 删除DataWriter",
       "findings": [],
@@ -1560,10 +1627,10 @@
       "question": "如何使用 Publisher 的 get_publisher()函数获取发布者列表？返回类型是什么？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        272
+        86,
+        86
       ],
-      "section_keyword": "8.2.3 删除Publisher的所有子实体",
+      "section_keyword": "8.3.7 获取DataWriter的关联实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1578,8 +1645,8 @@
       "question": "如何使用 DataWriter 的 write()函数发布数据？该函数的返回值是什么？如何检查发布状态？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        288
+        193,
+        193
       ],
       "section_keyword": "12.3.3 writer()阻塞时间",
       "findings": [],
@@ -1596,10 +1663,10 @@
       "question": "如何使用 DataWriter 的 write_w_timestamp()函数发布带时间戳的数据？该函数的参数是什么？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        272
+        79,
+        80
       ],
-      "section_keyword": "12.3.3 writer()阻塞时间",
+      "section_keyword": "8.2.8 Publisher的其他操作",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1614,8 +1681,8 @@
       "question": "如何使用 DataWriter 的 register_instance()函数注册实例？只有有 key 的数据类型才需要调用吗？为什么？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        272
+        196,
+        197
       ],
       "section_keyword": "12.3.5 实例管理",
       "findings": [],
@@ -1632,10 +1699,10 @@
       "question": "如何使用 DataWriter 的 unregister_instance()函数注销实例？该函数在什么情况下会失败？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        272
+        86,
+        87
       ],
-      "section_keyword": "12.3.5 实例管理",
+      "section_keyword": "8.3.9 实例管理",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1650,8 +1717,8 @@
       "question": "如何使用 Subscriber 的 create_datareader()函数创建 DataReader？需要传入哪些参数？返回类型是什么？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        275
+        107,
+        107
       ],
       "section_keyword": "9.3.8 使用特定类型的DataReader",
       "findings": [],
@@ -1669,10 +1736,10 @@
       "question": "如何使用 Subscriber 的 delete_datareader()函数删除 DataReader？如果 DataReader 仍存在会怎样？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        275
+        94,
+        94
       ],
-      "section_keyword": "9.3.2 删除DataReader",
+      "section_keyword": "9.2.2 删除Subscriber",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1688,10 +1755,10 @@
       "question": "如何使用 Subscriber 的 get_subscriber()函数获取订阅者列表？返回类型是什么？",
       "source_id": "user_manual",
       "page_print": [
-        3,
-        275
+        107,
+        107
       ],
-      "section_keyword": "9.2.3 删除Subscriber的所有子实体",
+      "section_keyword": "9.3.7 获取DataReader的关联实体",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1706,8 +1773,8 @@
       "question": "如何使用 DataReader 的 read()函数读取数据？该函数的返回值是什么？如何检查数据状态？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        108,
+        108
       ],
       "section_keyword": "9.3.10.1 使用read()和take()访问数据",
       "findings": [],
@@ -1723,8 +1790,8 @@
       "question": "如何使用 DataReader 的 take()函数读取数据？该函数与 read()的区别是什么？",
       "source_id": "user_manual",
       "page_print": [
-        8,
-        275
+        108,
+        109
       ],
       "section_keyword": "9.3.10.2 read()和take()的区别",
       "findings": [],
@@ -1739,7 +1806,10 @@
       "question_id": "Q097",
       "question": "如何获取 ZRDDS 版本信息？用户手册中提到的版本号是什么？该版本编译日期是什么时候？",
       "source_id": "user_manual",
-      "page_print": 276,
+      "page_print": [
+        276,
+        276
+      ],
       "section_keyword": "24.2 Licence授权方式",
       "findings": [
         "NO_TOKEN_PROBE"
@@ -1788,8 +1858,8 @@
       "question": "ZRDDS 的 ZRDDS_HOME 环境变量应该设置为什么值？该变量包含哪些目录结构？",
       "source_id": "user_manual",
       "page_print": [
-        173,
-        277
+        276,
+        276
       ],
       "section_keyword": "24.2 Licence授权方式",
       "findings": [],
@@ -1805,8 +1875,8 @@
       "question": "如何生成 DDS 编译器 zrddsgen.exe？编译后生成的文件有哪些？C/C++后缀名有什么区别？",
       "source_id": "user_manual",
       "page_print": [
-        12,
-        246
+        172,
+        173
       ],
       "section_keyword": "11.3.2 使用zrddsgen编译器",
       "findings": [],
@@ -1856,10 +1926,10 @@
       "question": "sequence 类型的 length 和 maximum 字段有什么区别？当 length=0 时 seq[0]是否越界？为什么？",
       "source_id": "user_manual",
       "page_print": [
-        17,
-        272
+        18,
+        21
       ],
-      "section_keyword": "7.3.5.6 序列",
+      "section_keyword": "4.1.1 sequence",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1875,10 +1945,10 @@
       "question": "如何编译 C/C++工程？支持的编译器版本有哪些？支持哪些 Visual Studio 版本？",
       "source_id": "user_manual",
       "page_print": [
-        12,
-        178
+        173,
+        177
       ],
-      "section_keyword": "3.2 编译IDL文件",
+      "section_keyword": "11.4.1 使用Visual Studio 2008\\2010\\2013创建工程",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1894,9 +1964,9 @@
       "source_id": "user_manual",
       "page_print": [
         23,
-        276
+        25
       ],
-      "section_keyword": "11.3.2 使用zrddsgen编译器",
+      "section_keyword": "4.2.5 编译器选项",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -1910,11 +1980,13 @@
       "question_id": "Q107",
       "question": "@key 标注在 IDL 文件中的作用是什么？标注后面能否跟其他注释？为什么？",
       "source_id": "user_manual",
-      "page_print": 22,
+      "page_print": [
+        22,
+        22
+      ],
       "section_keyword": "4.2.1 @key标注",
       "findings": [
-        "NO_TOKEN_PROBE",
-        "CIRCULAR_TOP1"
+        "NO_TOKEN_PROBE"
       ],
       "blocking": [],
       "probe": {
@@ -1927,7 +1999,7 @@
       "source_id": "user_manual",
       "page_print": [
         22,
-        23
+        22
       ],
       "section_keyword": "4.2.1 @key标注",
       "findings": [],
@@ -1944,7 +2016,7 @@
       "source_id": "user_manual",
       "page_print": [
         23,
-        272
+        23
       ],
       "section_keyword": "4.2.4 @spare标注（DDS Extension）",
       "findings": [],
@@ -1979,7 +2051,7 @@
       "source_id": "user_manual",
       "page_print": [
         172,
-        268
+        173
       ],
       "section_keyword": "11.3.2 使用zrddsgen编译器",
       "findings": [],
@@ -1992,18 +2064,18 @@
     },
     {
       "question_id": "Q112",
-      "question": "如何在 Linux 平台上配置 ZRDDS 应用？需要执行哪些命令？如何检查 License 授权方式？",
+      "question": "如何在 Linux 平台上配置 ZRDDS 应用？需要执行哪些命令？如何检查 Licence 授权方式？",
       "source_id": "user_manual",
       "page_print": [
-        23,
-        287
+        276,
+        276
       ],
       "section_keyword": "24.2 Licence授权方式",
       "findings": [],
       "blocking": [],
       "probe": {
         "tokens": [
-          "license",
+          "licence",
           "linux"
         ]
       }
@@ -2013,8 +2085,8 @@
       "question": "如何在 Docker 容器中部署 ZRDDS 应用？适用范围是什么？使用步骤有哪些？",
       "source_id": "user_manual",
       "page_print": [
-        275,
-        278
+        276,
+        276
       ],
       "section_keyword": "24.2 Licence授权方式",
       "findings": [],
@@ -2029,11 +2101,13 @@
       "question_id": "Q114",
       "question": "如何管理 ZRDDS 内部 QoS 仓库？QoS 设置相关接口有哪些？如何使用 XML 示例配置实体 QoS？",
       "source_id": "user_manual",
-      "page_print": 248,
+      "page_print": [
+        248,
+        248
+      ],
       "section_keyword": "20.1 XML配置说明",
       "findings": [
-        "NO_TOKEN_PROBE",
-        "CIRCULAR_TOP1"
+        "NO_TOKEN_PROBE"
       ],
       "blocking": [],
       "probe": {
@@ -2045,7 +2119,7 @@
       "question": "ZRDDS 的日志输出模式有哪些可选值？如何设置日志级别为 DEBUG、INFO 等？",
       "source_id": "user_manual",
       "page_print": [
-        173,
+        289,
         289
       ],
       "section_keyword": "27.3 日志类型IDL文件",
@@ -2062,8 +2136,8 @@
       "question": "ZRDDS 的 Listener 回调函数有哪些限制？不能在回调中创建或删除实体吗？为什么？",
       "source_id": "user_manual",
       "page_print": [
-        26,
-        275
+        34,
+        38
       ],
       "section_keyword": "5.3 Listener",
       "findings": [],
@@ -2079,8 +2153,8 @@
       "question": "如何设置 WaitSet 的最大等待时间？wait()函数在超时情况下返回什么？如何避免阻塞过长时间？",
       "source_id": "user_manual",
       "page_print": [
-        38,
-        235
+        39,
+        40
       ],
       "section_keyword": "5.5.2 WaitSet的相关操作",
       "findings": [],
@@ -2096,8 +2170,8 @@
       "question": "如何使用 DomainParticipant 的 assert_liveliness()函数声明自身存活性？该函数在什么场景下调用？",
       "source_id": "user_manual",
       "page_print": [
-        7,
-        288
+        58,
+        59
       ],
       "section_keyword": "6.3.12 其他DomainParticipant操作",
       "findings": [],
@@ -2111,13 +2185,13 @@
     },
     {
       "question_id": "Q119",
-      "question": "DomainParticipantQos ?? TransportConfigQosPolicy ?????????????",
+      "question": "DomainParticipantQos 的 TransportConfigQosPolicy 字段是什么作用？如何配置域内通信的传输参数？",
       "source_id": "user_manual",
       "page_print": [
-        1,
-        270
+        157,
+        159
       ],
-      "section_keyword": "1",
+      "section_keyword": "10.30 TransportConfigQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {
@@ -2132,10 +2206,10 @@
       "question": "ZRDDS 的 UserDataQosPolicy 的最大长度是多少？如何避免设置过大的附加信息导致资源耗尽？",
       "source_id": "user_manual",
       "page_print": [
-        52,
-        179
+        159,
+        160
       ],
-      "section_keyword": "11.6.1 ZRDDS的头文件",
+      "section_keyword": "10.31 UserDataQosPolicy",
       "findings": [],
       "blocking": [],
       "probe": {

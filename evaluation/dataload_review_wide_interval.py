@@ -10,15 +10,21 @@ P1 宽区间语义复核工具 v0.1
 
 import json
 import csv
+import argparse
 from pathlib import Path
 from collections import defaultdict
 
 # ========== 配置 =========
-PDF_PATH = r"c:\Users\ycfnc\Documents\Downloads\ZRDDS 用户手册.pdf"
-QUESTIONS_FILE = "evaluation/datasets/questions.jsonl"
-EXPECTED_SOURCES_FILE = "evaluation/datasets/expected_sources.jsonl"
-OUTPUT_EXCEL = "evaluation/datasets/review_wide_interval.xlsx"
-OUTPUT_CSV = "evaluation/datasets/review_wide_interval.csv"
+# 路径一律走仓库根（脚本可从任意 cwd 调用），并可用命令行覆盖——原先 PDF_PATH 硬编码
+# 某成员的下载目录，别人跑必崩，且 questions/expected 用相对路径依赖 cwd。
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_PDF = REPO_ROOT / "data" / "raw" / "manuals" / "ZRDDS用户手册.pdf"
+
+PDF_PATH = str(DEFAULT_PDF)
+QUESTIONS_FILE = str(REPO_ROOT / "evaluation/datasets/questions.jsonl")
+EXPECTED_SOURCES_FILE = str(REPO_ROOT / "evaluation/datasets/expected_sources.jsonl")
+OUTPUT_CSV = str(REPO_ROOT / "evaluation/datasets/review_wide_interval.csv")
+OUTPUT_MD = str(REPO_ROOT / "evaluation/datasets/review_wide_interval.md")
 # =========================
 
 def load_questions():
@@ -62,7 +68,7 @@ def export_review_sheet():
     print(f"识别出 {len(wide_items)} 个宽区间标注项")
     print(f"PDF 路径：{PDF_PATH}\n")
     
-    with open('evaluation/datasets/review_wide_interval.csv', 'w', encoding='utf-8-sig', newline='') as f:
+    with open(OUTPUT_CSV, 'w', encoding='utf-8-sig', newline='') as f:
         writer = csv.writer(f)
         
         # 表头
@@ -130,23 +136,40 @@ def generate_review_checklist():
         if len(items) > 20:
             markdown_content += f"\n*...还有{len(items)-20}题，见 CSV 文件*\n\n"
 
-def main():
+    # 早先这里只拼字符串不落盘，而 main() 却打印"已生成清单"——把清单写出来。
+    Path(OUTPUT_MD).write_text(markdown_content, encoding="utf-8")
+    return len(wide_items)
+
+
+def main(argv=None):
     """主流程"""
+    global PDF_PATH, QUESTIONS_FILE, EXPECTED_SOURCES_FILE, OUTPUT_CSV, OUTPUT_MD
+    p = argparse.ArgumentParser(description="P1 宽区间语义复核工具（导出复核表 + 清单）")
+    p.add_argument("--pdf", default=PDF_PATH, help="对照用的用户手册 PDF（默认仓库内路径）")
+    p.add_argument("--questions", default=QUESTIONS_FILE)
+    p.add_argument("--expected", default=EXPECTED_SOURCES_FILE)
+    p.add_argument("--out-csv", default=OUTPUT_CSV)
+    p.add_argument("--out-md", default=OUTPUT_MD)
+    args = p.parse_args(argv)
+    PDF_PATH, QUESTIONS_FILE = args.pdf, args.questions
+    EXPECTED_SOURCES_FILE, OUTPUT_CSV, OUTPUT_MD = args.expected, args.out_csv, args.out_md
+
     print("=== P1 宽区间语义复核工具 ===\n")
     
     # 步骤 1：导出 CSV
     export_review_sheet()
-    print("✅ 已导出：evaluation/datasets/review_wide_interval.csv\n")
+    print(f"[OK] 已导出：{OUTPUT_CSV}\n")
     
     # 步骤 2：生成 Markdown 清单
-    generate_review_checklist()
-    print("✅ 已生成复核清单（Markdown）到工作区根目录\n")
+    n = generate_review_checklist()
+    print(f"[OK] 已生成复核清单（Markdown，{n} 题）：{OUTPUT_MD}\n")
     
     print("\n=== 下一步操作 ===")
     print("1. 打开 review_wide_interval.csv")
-    print("2. 对照 ZRDDS 用户手册.pdf，逐题核验 keyword 准确性")
+    print("2. 对照用户手册 PDF，逐题核验 keyword 准确性")
     print("3. 将正确 keyword 填入 suggested_keyword 列")
-    print("4. 运行 make audit --with-metrics 验证效果\n")
+    print("4. 运行 python scripts/audit_annotations.py 验证效果\n")
+    return 0
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

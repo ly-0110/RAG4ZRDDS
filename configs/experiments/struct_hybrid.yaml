@@ -55,7 +55,7 @@ retrieval:
 
 generation:
   enabled: false                   # 热身只验检索路径，不跑生成（省 LLM 配额）
-  prompt_version: v0
+  prompt_version: v2               # 同 struct_v1 的 v2（week2 复审 §2 公平性；gen 关闭无功能影响）
   llm_env_prefix: LLM_
 
 evaluation:

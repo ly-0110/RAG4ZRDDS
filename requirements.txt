@@ -35,10 +35,13 @@ python-dotenv==1.2.3
 pyyaml==6.0.3            # 实验配置加载（scripts/experiment_config.py 直接依赖）
 
 # ===== 实验/评测 =====
-numpy>=2.0.0
-pandas>=2.0.0
-tqdm>=4.65.0
-scikit-learn>=1.3.0
+# 版本锁定：成员 B 于第一周在 Windows / Python 3.12 / CPU 环境实测锁定（f473d37 曾把这几行
+# 放宽成 >=，与本节标题的"锁定"自相矛盾——放宽后不同机器装到不同版本，指标不可复现；
+# 2026-09-16 回退为 ==）。
+numpy==2.5.2
+pandas==3.0.5
+tqdm==4.70.0
+scikit-learn==1.9.0
 
 # ===== 测试 =====
 pytest==9.1.1

@@ -57,6 +57,7 @@ _FAKE_KB = {
     "retrieval_mode": "vector",
     "index_dirname": "struct_bge-m3_deadbeef",
     "node_total": 1,
+    "top_k": 5,
     "sources": [{"id": "user_manual", "version": "2.0", "chunks": 1}],
 }
 
@@ -146,6 +147,7 @@ class TestHealthzKb:
         assert body["mode"] == "live"
         assert body["kb"]["node_total"] == 1
         assert body["kb"]["index_dirname"] == "struct_bge-m3_deadbeef"
+        assert body["kb"]["top_k"] == 5
         assert body["kb"]["sources"][0] == {"id": "user_manual", "version": "2.0", "chunks": 1}
 
 
