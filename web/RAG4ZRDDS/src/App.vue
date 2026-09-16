@@ -429,7 +429,8 @@ const handleQuery = async (payload) => {
 
     if (!response.ok) {
       const body = await response.json().catch(() => null)
-      throw new Error(body?.error || `请求失败：${response.status} ${response.statusText}`)
+      // 同上：/query 的 4xx 也是 `detail`（空白问题、未知实验），后者才是可读原因。
+      throw new Error(body?.detail ?? body?.error ?? `请求失败：${response.status} ${response.statusText}`)
     }
 
     const reader = response.body.getReader()
@@ -500,7 +501,9 @@ async function submitFeedback(rating) {
     })
     const payload = await response.json().catch(() => null)
     if (!response.ok) {
-      throw new Error(payload?.error || `反馈提交失败：${response.status}`)
+      // FastAPI 的 HTTPException 走 `detail`（如 404 未找到 request_id、400 node_ids 越界），
+      // 只读 `error` 会把后端的可操作说明吞掉、退化成"反馈提交失败：404"。
+      throw new Error(payload?.detail ?? payload?.error ?? `反馈提交失败：${response.status}`)
     }
     feedbackStatus.value = 'success'
   } catch (error) {

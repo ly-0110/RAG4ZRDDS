@@ -184,20 +184,20 @@ const submitFeedback = async (nodeId, isHelpful) => {
 
 ## 📝 待办事项
 
-### 后端 API（TODO）
+### 后端 API（已接线）
 
 需要成员 B/C 实现以下 API：
 
 1. **反馈提交接口**
-   - Endpoint: `POST /api/feedback/{node_id}`
-   - Body: `{ "helpful": boolean, "timestamp": number }`
-   - Response: `{ "status": "success", "message": "Feedback recorded" }`
+   - Endpoint: `POST /feedback`（以回答为单位归属，故不再按 `{node_id}` 记点击）
+   - Body: `{ "request_id": string, "rating": "up" | "down", "comment"?: string, "node_ids"?: string[] }`
+   - Response: `{ "status": "recorded", "feedback_id": string, "request_id": string, "rating": string }`
+   - 未知 `request_id` → `404`；`node_ids` 不属于该次引用 → `400`
 
 2. **反馈查询接口（可选）**
-   - Endpoint: `GET /api/feedback/{node_id}`
-   - Response: `{ "helpful_count": number, "unhelpful_count": number }`
+   - 未实现；当前无消费方
 
-### 数据落库（TODO）
+### 数据落库（已落地：方案 B，`{log_dir}/feedback.jsonl`）
 
 需要设计反馈数据存储方案：
 
@@ -224,7 +224,7 @@ CREATE TABLE feedback (
 - [x] 来源徽标区分 PDF/HTML ✅
 - [x] HTML 引用点击跳转 URL ✅
 - [x] "有帮助/无帮助"反馈按钮 ✅
-- [ ] 反馈数据落库（待后端 API）
+- [x] 反馈数据落库（`POST /feedback` → `{log_dir}/feedback.jsonl`）
 - [x] 全量回归与兼容性检查（待执行）
 
 ---
@@ -299,41 +299,34 @@ CREATE TABLE feedback (
 
 ### 📝 待办事项
 
-#### 后端 API（TODO）
+#### 后端 API（已接线：D 侧 `server/api/feedback.py`）
 
-需要成员 B/C 实现以下 API：
+反馈以**回答**为单位归属（脱离具体回答的"整体满意度"无法归因），因此落地口径与本节最初设想的「按 node_id 记一次点击」不同：
 
 1. **反馈提交接口**
-   - Endpoint: `POST /api/feedback/{node_id}`
-   - Body: `{ "helpful": boolean, "timestamp": number }`
-   - Response: `{ "status": "success", "message": "Feedback recorded" }`
+   - Endpoint: `POST /feedback`
+   - Body: `{ "request_id": string, "rating": "up" | "down", "comment"?: string, "node_ids"?: string[] }`
+   - Response: `{ "status": "recorded", "feedback_id": string, "request_id": string, "rating": string }`
+   - 错误：未知 `request_id` → `404`（拒绝孤儿记录）；`node_ids` 不属于该次引用 → `400`
+   - 前端调用点：`src/App.vue` 的 `submitFeedback()`，`request_id` 取自 SSE `done` 帧
 
-2. **反馈查询接口（可选）**
-   - Endpoint: `GET /api/feedback/{node_id}`
-   - Response: `{ "helpful_count": number, "unhelpful_count": number }`
+2. **反馈查询接口**：未实现（可选，当前无消费方）
 
-#### 数据落库（TODO）
+> 会签状态：字段表（`rating` 两档 + `comment` 自由文本 + 可选 `node_ids`）为提案，待 E/C 会签。
 
-需要设计反馈数据存储方案：
+#### 数据落库（已落地：方案 B）
 
-**方案 A**：SQLite 表
-```sql
-CREATE TABLE feedback (
-  node_id TEXT PRIMARY KEY,
-  helpful BOOLEAN NOT NULL,
-  timestamp INTEGER NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-```
+追加到 `{log_dir}/feedback.jsonl`，与 `requests.jsonl` / `retrievals.jsonl` / `sources.jsonl` 同目录同格式，可离线聚合：
 
-**方案 B**：JSONL 文件
 ```json
-{"node_id": "xxx", "helpful": true, "timestamp": 1234567890}
-{"node_id": "yyy", "helpful": false, "timestamp": 1234567891}
+{"feedback_id": "a1b2c3d4e5f6", "request_id": "rid-...", "rating": "up", "question": "如何创建 DataWriter？", "answer_present": true, "cited_nodes": 3}
 ```
+
+只落问题摘要、不落答案正文（答案已在 `sources.jsonl`，避免重复膨胀）。
 
 #### 测试验证（TODO）
 
+- [x] 反馈链路单测（`src/__tests__/App.spec.js`：面板显隐、提交体、后端 `detail` 透出）
 - [ ] 执行冒烟测试（10 个基础问题）
 - [ ] 全量回归测试（等待 live 管线就绪）
 - [ ] 兼容性检查（不同浏览器/设备）
@@ -343,7 +336,7 @@ CREATE TABLE feedback (
 - [x] 来源徽标区分 PDF/HTML ✅
 - [x] HTML 引用点击跳转 URL ✅
 - [x] "有帮助/无帮助"反馈按钮 ✅
-- [ ] 反馈数据落库（待后端 API）
+- [x] 反馈数据落库（`POST /feedback` → `{log_dir}/feedback.jsonl`）
 - [ ] 全量回归与兼容性检查（待执行）
 
 ### 📚 相关文档
