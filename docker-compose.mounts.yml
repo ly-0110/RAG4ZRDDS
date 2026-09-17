@@ -1,0 +1,23 @@
+# 开发形态覆盖文件 —— 把知识库与权重改回"读宿主"，用于**改产物不想重建镜像**的场合。
+#
+# 交付形态（docker-compose.yml 单独用）里这些资产都在镜像内，本文件**不需要**。
+# 只有在你改了索引/产物/想用宿主最新产物做实验时才叠加它：
+#
+#   make docker-serve MOUNTS=1
+#   # 等价的显式写法：
+#   docker compose -f docker-compose.yml -f docker-compose.mounts.yml up -d
+#
+# 前提：宿主上确实有这些资产（`make ingest && make index` 跑过），且模型缓存在默认位置——
+# 否则挂载会用空目录**遮住镜像内自带的权重/索引**，服务端会以可读错误拒绝启动（不会静默降级）。
+services:
+  backend:
+    volumes:
+      - ./logs:/app/logs
+      # 宿主产物与索引：改完 make ingest / make index 立即生效，无需重建镜像
+      - ./data/processed:/app/data/processed:ro
+      - ./data/raw:/app/data/raw:ro
+      # 索引读写挂载（chroma 打开持久化集合会写 sqlite 日志，只读挂载会失败）
+      - ./indexes:/app/indexes
+      # 权重缓存（只读；位置与构建期 additional_contexts 一致）
+      - ${LLAMA_INDEX_CACHE_HOST:-$LOCALAPPDATA/llama_index/llama_index/Cache}:/root/.cache/llama_index:ro
+      - ${HF_CACHE_HOST:-$USERPROFILE/.cache/huggingface}:/root/.cache/huggingface:ro

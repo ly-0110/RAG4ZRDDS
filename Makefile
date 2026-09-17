@@ -90,27 +90,33 @@ export WEB_PORT BACKEND_PORT
 export HF_CACHE_HOST LLAMA_INDEX_CACHE_HOST
 # mock 形态开关（默认 live，见 compose）；HF_OFFLINE=0 允许联网补权重
 export CONTAINER_RAG_MODE HF_OFFLINE
+# 镜像目标：selfcontained（默认，权重烘进镜像）/ slim（不带权重，首次启动下载）
+IMAGE_TARGET ?= selfcontained
+export IMAGE_TARGET
+# MOUNTS=1 叠加开发形态覆盖文件：知识库与权重改读宿主，改完 make ingest/index 立即生效、无需重建镜像
+MOUNTS ?=
+COMPOSE := docker compose -f docker-compose.yml $(if $(MOUNTS),-f docker-compose.mounts.yml,)
 
 docker-build:
-	docker compose build
+	$(COMPOSE) build
 
 docker-serve:
-	docker compose up -d --build
+	$(COMPOSE) up -d --build
 	@echo "frontend: http://127.0.0.1:$(WEB_PORT)    backend: http://127.0.0.1:$(BACKEND_PORT)/healthz"
 
 docker-stop:
-	docker compose down
+	$(COMPOSE) down
 
 docker-logs:
-	docker compose logs -f backend
+	$(COMPOSE) logs -f backend
 
 docker-ps:
-	docker compose ps
+	$(COMPOSE) ps
 
 # 容器形态冒烟：健康检查 + 前端反代 + 真实问答（SSE，经 nginx）。需先 make docker-serve
 docker-smoke:
 	$(PY) scripts/smoke_docker.py --base http://127.0.0.1:$(WEB_PORT)
 
-# 停栈并删除本机构建的镜像（不动挂载的宿主目录与权重缓存）
+# 停栈并删除本机构建的镜像（不动宿主目录与权重缓存）
 docker-clean:
-	docker compose down --rmi local
+	$(COMPOSE) down --rmi local

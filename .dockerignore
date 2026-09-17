@@ -1,18 +1,19 @@
-# 构建上下文排除项：镜像只装"代码 + 依赖"，以下全部经 compose 挂载或不需要。
+# 构建上下文排除项。
 #
-# 大资产（宿主挂载，见 docker-compose.yml）
-indexes/
-data/raw/
-data/cleaned/
-logs/
-.hf-cache/
-models/
+# 口径：镜像要**自包含**——代码、Node 产物、六套索引、PDF/HTML 原文、模型权重全部进镜像，
+# 换台机器/换系统只要 Docker 就能跑。所以这里不排除任何运行必需的知识库资产。
+#
+# 只有三类不进镜像：
+#   1) 密钥     —— .env 绝不进镜像层
+#   2) 本机运行期产物 —— logs/、个人 models/（llama.cpp 与 LLM 网关，属本机研究件）
+#   3) 交付过程物 —— report/、projects/、历史回归归档（非运行时依赖）
 
-# 密钥：绝不进镜像层
+# 密钥
 .env
 .env.*
+!.env.example
 
-# 版本控制与缓存
+# 版本控制与 Python 缓存
 .git/
 .gitignore
 .github/
@@ -26,7 +27,12 @@ venv/
 .mypy_cache/
 .ruff_cache/
 
-# 前端（独立构建上下文 web/RAG4ZRDDS，200MB node_modules 不进后端上下文）
+# 本机运行期产物
+logs/
+.hf-cache/
+models/
+
+# 前端（独立构建上下文 web/RAG4ZRDDS，node_modules 不进后端上下文）
 web/
 
 # 交付与过程物（非运行时依赖）

@@ -1,26 +1,35 @@
 # RAG4ZRDDS 一键起服务栈：后端（FastAPI REST + SSE）+ 前端（nginx 托管 + 反代）
 #
-# 前置（各一次）：
-#   1) cp .env.example .env 并填 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL（密钥只留在 .env，不进镜像）
-#   2) 模型权重缓存无需配置：默认按 Windows 用户目录挂载（bge-m3 在 LlamaIndex 缓存、
-#      精排权重在 HF 缓存，两处见下方 volumes 注释）。放在别处或非 Windows：
-#      LLAMA_INDEX_CACHE_HOST=<绝对路径> HF_CACHE_HOST=<绝对路径> docker compose up -d
-#   3) 索引由 make index 预先建好（indexes/ 挂载复用），或首次启动时由服务端按配置重建
+# 交付形态：**镜像自包含**——代码、依赖、Node 产物、六套索引、PDF/HTML 原文、模型权重全在镜像里。
+# 所以起栈只需要两样外部东西：Docker，以及一个 LLM 后端（云端 API 或宿主上的 Ollama）。
+# 换台机器 / 换系统：把镜像带过去即可（docker save / load，见 README），不需要拷贝任何本机目录。
 #
 # 起停：
-#   docker compose up -d --build     # 构建镜像并后台启动
-#   docker compose logs -f backend   # 看启动期预热日志（live 模式含 bge-m3 冷加载）
-#   docker compose down              # 停止并移除容器（不动挂载的宿主目录）
+#   cp .env.example .env             # 1) 先填 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL（密钥不进镜像）
+#   make docker-serve                # 2) 构建镜像并后台启动
+#   make docker-smoke                # 3) 冒烟验收（15 项，全过退出码 0）
+#   docker compose logs -f backend   #    看启动期预热日志（live 含 bge-m3 冷加载）
+#   docker compose down              #    停栈
 #
-# 镜像口径：只装代码 + 依赖。bge-m3 权重、六套索引、HTML 原始快照全部挂载复用宿主，
-# 因此重新构建镜像不需要重新下载模型或重建索引。
+# 构建期需要"权重来源"两个目录（additional_contexts）：本机已下载的模型缓存。
+# 这是**构建期**依赖而非运行期依赖——镜像一旦构建完成，换机器就不再需要它们。
+# 缓存不在默认位置时：
+#   LLAMA_INDEX_CACHE_HOST=<LlamaIndex 缓存> HF_CACHE_HOST=<HF 缓存的 hub 目录> make docker-serve
+# 目标机器上没有这些缓存、又允许联网：改用精简形态（IMAGE_TARGET=slim，见 README）。
 name: rag4zrdds
 
 services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile
+      # 默认 selfcontained（权重烘进镜像）；slim = 不烘权重、首次启动下载
+      target: ${IMAGE_TARGET:-selfcontained}
+      # 权重来源（构建期读取，不进最终镜像的额外体积——它们本身就是镜像内容）
+      additional_contexts:
+        # embedding 权重：LlamaIndex 缓存（HuggingFaceEmbedding 会显式传自己的 cache_dir）
+        llama-cache: "${LLAMA_INDEX_CACHE_HOST:-$LOCALAPPDATA/llama_index/llama_index/Cache}"
+        # 精排权重：HF 缓存的 hub 目录（CrossEncoder 走 HF 默认缓存）
+        hf-cache: "${HF_CACHE_HOST:-$USERPROFILE/.cache/huggingface/hub}"
       args:
         PIP_INDEX: ${PIP_INDEX:-https://pypi.tuna.tsinghua.edu.cn/simple}
     image: rag4zrdds-backend:latest
@@ -41,43 +50,18 @@ services:
       APP_HOST: 0.0.0.0
       APP_PORT: "8000"
       # 宿主 .env 默认 mock（供前端脱离后端联调）；容器形态默认 live。
-      # 要起 mock：CONTAINER_RAG_MODE=mock docker compose up -d
+      # 要起 mock：CONTAINER_RAG_MODE=mock make docker-serve
       RAG_MODE: ${CONTAINER_RAG_MODE:-live}
       LOG_DIR: logs
-      # ── 模型权重缓存（两个，位置不同，都要挂）──
-      # embedding（bge-m3）经 LlamaIndex 的 HuggingFaceEmbedding 加载，而 LlamaIndex 会
-      # 显式传自己的 cache_dir，所以权重落在 **LlamaIndex 缓存**而非 HF 默认缓存；
-      # 精排（bge-reranker-v2-m3）走 sentence-transformers CrossEncoder，用 HF 默认缓存。
-      # 容器内固定路径 + 挂载宿主同名内容，两处都在离线模式下命中。
-      HF_HOME: /root/.cache/huggingface
-      LLAMA_INDEX_CACHE_DIR: /root/.cache/llama_index
-      # 权重已在宿主缓存：离线模式避免 SentenceTransformer 初始化反复联网（本机实测会"看似卡死"）。
-      # 需要重新下载权重时：HF_OFFLINE=0 docker compose up -d（此时须能直连 huggingface.co）
+      # 权重已烘进镜像 → 默认离线，避免 SentenceTransformer 初始化反复联网（本机实测会"看似卡死"）。
+      # 精简形态（IMAGE_TARGET=slim）必须反过来：HF_OFFLINE=0 make docker-serve
       HF_HUB_OFFLINE: ${HF_OFFLINE:-1}
       TRANSFORMERS_OFFLINE: ${HF_OFFLINE:-1}
       PYTHONUNBUFFERED: "1"
-    # 容器内访问宿主的地址：用本地 Ollama 后端时，把
-    #   LLM_BASE_URL=http://host.docker.internal:11500/v1
-    # 写进 .env.docker（容器侧覆盖，见上方 env_file；容器里的 127.0.0.1 指容器自身）。
-    # cloud API 后端不受影响。
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     volumes:
-      # 六套索引：live 检索必需。读写挂载——chroma 打开持久化集合会写 sqlite 日志，
-      # 只读挂载会失败。缺索引时服务端会按实验配置尝试重建（约 8~25 分钟/套）。
-      - ./indexes:/app/indexes
-      # HTML 原始快照：/documents/{source_id}/{filename} 据实验配置的 sources[].path 提供"打开原文"。
-      # 该目录不入 Git，未挂载时引用链接会退回配置里的占位地址（不报错、不静默改语义）。
-      - ./data/raw:/app/data/raw:ro
-      # 四级日志（requests / retrievals / sources / feedback）落宿主，容器重建不丢
+      # 唯一挂载：运行期日志（请求 / 检索 / 引用回查 / 反馈）落宿主，容器重建不丢。
+      # 知识库与权重不挂载——它们已在镜像内，这正是"换机器也能跑"的前提。
       - ./logs:/app/logs
-      # bge-m3 权重缓存（约 2.3GB）：复用宿主已下载的，避免镜像膨胀与重复下载。
-      # LlamaIndex 缓存的宿主默认位置（Windows）= %LOCALAPPDATA%\llama_index\llama_index\Cache；
-      # 非 Windows 或缓存在他处：LLAMA_INDEX_CACHE_HOST=<绝对路径> docker compose up -d
-      - ${LLAMA_INDEX_CACHE_HOST:-$LOCALAPPDATA/llama_index/llama_index/Cache}:/root/.cache/llama_index:ro
-      # HF 缓存：精排权重（bge-reranker-v2-m3，约 2.2GB）在此。
-      # Windows 默认取 %USERPROFILE%\.cache\huggingface；非 Windows：HF_CACHE_HOST=<绝对路径>
-      - ${HF_CACHE_HOST:-$USERPROFILE/.cache/huggingface}:/root/.cache/huggingface:ro
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     healthcheck:
@@ -86,9 +70,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      # live 启动含 bge-m3 冷加载 + 启动期预热（本机实测约 8s，容器首轮可能更久）
+      # live 启动含 bge-m3 冷加载 + 启动期预热（实测约 8s，首次可能更久）
       start_period: 180s
     restart: unless-stopped
+    # 容器内访问宿主的地址：用本地 Ollama 后端时，把
+    #   LLM_BASE_URL=http://host.docker.internal:11500/v1
+    # 写进 .env.docker（容器侧覆盖，见上方 env_file；容器里的 127.0.0.1 指容器自身）。
+    # 云端 API 后端不受影响。
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   frontend:
     build:
