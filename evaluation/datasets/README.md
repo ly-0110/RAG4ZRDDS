@@ -4,24 +4,16 @@
 
 | 文件 | 状态 | 说明 |
 |---|---|---|
-| `questions.jsonl` | **占位集（15 题）** | 由成员 E 第一周冒烟集 `smoke.json` 转写；正式 80~120 题问题集由 E 按指南 §6.1 类型配比编写并交 C 审核口径后**整体替换**本文件 |
 | `questions_multisource.jsonl` | **跨来源样例集（12 题）** | 基于用户手册 PDF 与 `zrdds_dev_guide` HTML 处理产物编写，覆盖 PDF+HTML 联合、HTML 示例核对和证据边界题 |
-| `expected_sources.jsonl` | **80 题人工复核标注（2026-09-16 收窄页码区间）** | 期望来源标注。占位版按 `smoke.json` 页码派生、经 Node 产物实证不可用（2026-08-30 移除）；现行版本由 E 逐题对 PDF 核对后收窄页码区间（平均跨度 206.8 → 1.0 页）并复核 `section_keyword`，口径、明细与审计复跑见 `narrow_interval_report.md` |
-| `expected_sources_pre_narrow.jsonl` | **收窄前快照（对照组，勿接入）** | `expected_sources.jsonl` 收窄前的逐字副本（源自 develop），供审计复跑「宽区间」对照：`python evaluation/narrow_interval.py --input evaluation/datasets/expected_sources_pre_narrow.jsonl` 可复现收窄结果 |
-| `narrow_interval_report.md` | **P1 页码区间收窄报告** | 收窄口径、逐题前后明细、`section_keyword` 关键词异常/重定向清单与三态审计校验（生成脚本 `evaluation/narrow_interval.py`）|
 | `expected_sources_multisource.jsonl` | **跨来源样例集标注** | 与 `questions_multisource.jsonl` 配套；HTML 标注使用 `page_print: null`、真实 `section_keyword` 和 `source_url` |
-| `expected_sources.draft.jsonl` | **草稿（E 初版重标，数据未核实，勿接入）** | 格式符合本 README 草案、`run_experiment.py` 可直接消费，保留作格式样例；但页码经 Node 产物抽查不合格——S001 称 9.7.1 在印刷 68（实为 7.3 SQL 过滤）、S003~S006 区间与第 11 章标注自相矛盾，仅 S002 与审计真值一致（2026-09-02，详见 AGENTS 当日记录）；且 id 为 S001~S015，与 `questions.jsonl` 的 Q001~Q015 不对应。**接入条件**：E 逐题对 PDF 核对（页码地面真值=页眉印刷数字）、id 与问题集对齐、C 定口径后，方可改名 `expected_sources.jsonl` 接入 |
 | `smoke.json` | 第一周原始冒烟集（E 于 PR #13 重写，S001~S015 带自由文本页码） | 保留为来源依据，不直接参与评测（无任何脚本/配置引用）；页码主张同样未经核实 |
 | `error_cases.jsonl` | **第三周夹具（成员 C，20 例，不计入验收项 5）** | 可靠性错误案例：混版本 + 错来源各 10 例，格式见下。**2026-09-07 会签决议**：经真值核对全部为手写虚构场景（引用第三周才接入的 `zrdds_dev_guide` 源、EC-MV-003 印刷页 300 超出手册最大 289、chunk 正文在真实产物中零命中、E1003 已证语料中不存在），按「宁缺毋滥」先例不计入验收项 5；其结构（question+chunks+gold_behavior）适合 HTML 接入后验证冲突披露，保留为多来源通路测试夹具 |
 | `error_cases.py` | 加载/校验模块 | `load()` / `validate()` / `counts()`，供 run_experiment 或可靠性评测消费（**尚无管线消费，接线归属随 X2 议题定**） |
 | `error_cases_real.jsonl` | **真实案例（D 补采，37 例，验收项 5 载体）** | 2026-09-07 由 `collect_real_error_cases.py` 从四份真实实验报告 + `audit-2026-08-30.md` 人工真值提取：`no_evidence_signal_missing` 20 例（审计判定「知识库无答案」的 5 题 × 4 配置，检索层仍自信返回证据）、`verified_wrong_top1` 8 例（top1 超出人工真值区间 ±1 页容差）、`cross_config_disagreement` 9 例（同题四配置 top1 页码不一致）。每条证据经机器校验：node_id 存在于对应产物、双页码差恒为 6 |
 | `collect_real_error_cases.py` | 真实案例提取脚本 | 从 `evaluation/reports/*.json` 与审计真值生成 `error_cases_real.jsonl`；报告重跑（如索引重建后）需重新执行；`tests/unit/test_real_error_cases.py` 锁定真实性承诺 |
-| `abstention_questions.jsonl` | **第四周拒答专项（成员 C，20 例，验收「Abstention 行为定版」）** | 20 题「不存在信息」专项：题干锚定审计已确立的语料不存在事实（`connect()`、E1003、版本对比、第 300 页越界）；category ∈ {fabricated_api, fabricated_error_code, fabricated_feature, cross_version_claim, out_of_scope}。字段 `{id, question, category, note}`，id=AB-001…AB-020 |
 | `abstention.py` | 拒答专项加载/校验模块 | `load()` / `validate()` / `counts()` / `REQUIRED_COUNT=20`；`validate()` 校验 AB- 前缀、恰 20 题、category 合法、question/note 非空；被 `evaluation/runners/abstention_eval.py` 消费 |
 
-> **错误案例集终版 = 三集**：`error_cases.jsonl`（20 夹具）+ `error_cases_real.jsonl`（70 真实）+ `abstention_questions.jsonl`（20 拒答）。分别覆盖 §7 混版本/错来源、真实错误回放、§8.4 Abstention 三个可靠性维度，计数与口径见各行。
 
-## questions.jsonl 字段（指南 §6.1）
 
 ```json
 {"id": "Q001", "question": "...", "type": "debug", "version": "v2.3+", "difficulty": "medium"}
@@ -35,7 +27,6 @@
 {"question_id": "Q001", "source_id": "user_manual", "page_print": [245, 249]}
 ```
 
-- `question_id`：必填，对应 `questions.jsonl` 的 `id`；同一题允许多行（多个可接受来源）。
 - `source_id` / `page_print` / `section_keyword` 至少给出一个；非空条件需**同时满足**才算命中。
 - `page_print`：印刷页（印刷页 = 物理页 − 6），对照 Node 产物的 `printed_page_start/end`。单页写整数，区间写 `[lo, hi]`（闭区间）。
 - 检索结果侧用于匹配的字段是 chunk 的 `printed_page_start`（引用呈现页），宽区间标注可覆盖跨页块。
@@ -61,7 +52,6 @@
 - `gold_note`：人工核对说明。
 - 硬性要求（`error_cases.py` 的 `validate()` 校验）：混版本、错来源各 ≥10 例。
 
-## abstention_questions.jsonl 字段（成员 C · 第四周 §8.4）
 
 ```json
 {"id": "AB-001", "category": "fabricated_api", "question": "...", "note": "..."}
@@ -77,7 +67,6 @@
 
 `configs/experiments/*.yaml` 的 `evaluation` 区块：
 
-- `dataset` → 本目录 `questions.jsonl`
 - `expected_sources` → 本目录 `expected_sources.jsonl`
 - `retrieval_metrics` → `hit_rate@K / mrr@K / precision@K / recall@K`
 - `sample_size` → 冒烟抽样（`run_experiment --sample N` 可临时覆盖）

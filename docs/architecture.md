@@ -1,8 +1,7 @@
 # 系统架构（成员 D）
 
-> 版本 **v1.0（2026-09-17）**　Owner：成员 D（指南 §4 目录约定的 `docs/architecture.md`）
-> 权威计划与分工见 [`product_rag_implementation_guide.md`](../product_rag_implementation_guide.md)。
-> 本文只描述**已实现**的形态：每个数字都可在本仓库产物或命令中复核；未实现项集中在 §8。
+> 版本 **v1.0（2026-09-17）**　Owner：成员 D
+> 本文只描述**已实现**的形态：每个数字都可在本仓库产物或命令中复核；已知边界与未完成项集中在 §9。
 
 ## 1. 系统是什么
 
@@ -162,7 +161,7 @@ sequenceDiagram
 |---|---|---|
 | 请求级日志 | `logs/requests.jsonl` | rid / method / path / status / 耗时（中间件） |
 | 检索级日志 | `logs/retrievals.jsonl` | 每次 `retrieve()` 一条：实验、索引、mode、top_k、延迟、`result_count`、富引用（含正文，仅本地） |
-| 回答级日志 | 待接线 | 字段定义为 C 的职责，D 已拟草案 `docs/answer-log-schema-draft.md`（v0.1，待会签） |
+| 回答级日志 | 待接线 | 字段定义为 C 的职责，D 已拟草案 `docs/answer-log-schema.md`（v0.1，待会签） |
 | 引用回查 | `logs/sources.jsonl` | rid → 引用明细持久化；**引用一经 SSE 下发即写盘**，生成失败也能回查 |
 | 反馈 | `logs/feedback.jsonl` | rating(up/down) + 可选 comment/node_ids，按 rid 归因 |
 | 追责串联 | `X-Request-ID` | 四级日志与 MCP 调用同 rid 关联 |

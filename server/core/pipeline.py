@@ -247,7 +247,7 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
         )
         # 生成侧：读 .env 的 LLM 配置；缺失时在此拒绝启动（可读错误），
         # 而非等首个请求才报错（与 D 的"接线问题在启动期暴露"一致）。
-        # 回答级日志接线（docs/answer-log-schema-draft.md，2026-09-17 会签定版）：
+        # 回答级日志接线（docs/answer-log-schema.md，2026-09-17 会签定版）：
         # 与检索日志同层（HTTP 与 MCP 两条入口都覆盖），mock 模式不落盘。
         from server.core.request_log import JsonlLog, LoggedAnswerStream
 

@@ -7,7 +7,7 @@
     docs/retrieval-log-schema.md（B v0.1，D 会签落地）：记录点在 pipeline 层
     （LoggedRetriever 包装），预热/脚本直调也入日志（request_id=null）
   * 回答级  answers.jsonl —— 每次生成一条，字段见
-    docs/answer-log-schema-draft.md（D 拟稿，2026-09-17 会签定版）：记录点在
+    docs/answer-log-schema.md（D 拟稿，2026-09-17 会签定版）：记录点在
     pipeline 层（LoggedAnswerStream 包装），终态 done / error / cancelled 各写一条
 
 PersistentSourcesStore —— /sources 引用回查的持久化存储：
@@ -170,7 +170,7 @@ class LoggedRetriever:
 
 
 class LoggedAnswerStream:
-    """回答级日志接线（docs/answer-log-schema-draft.md，2026-09-17 会签定版）。
+    """回答级日志接线（docs/answer-log-schema.md，2026-09-17 会签定版）。
 
     包装生成侧 `answer_stream`，**每次生成只写一条**：正常结束（done）、上游报错
     （error）、客户端中止（cancelled）三种终态都落盘，便于回答质量回查与失败归因。

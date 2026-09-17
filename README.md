@@ -1,8 +1,14 @@
 # RAG4ZRDDS
 
+> **交付说明**：本分支（`deliverable`）是**成果交付版**——只含可运行系统、数据产物、评测结果
+> 与使用/契约类文档。过程性内容（周度交付审查、项目规划指南、会签草案、一次性修复脚本、
+> 历史回归快照、团队协作配置）已剔除；完整开发过程见 `feature/server-platform` 分支与 Git 历史。
+> 下文与各文档中若出现 `week*-delivery-review.md`、`product_rag_implementation_guide.md`、`*-draft.md` 等
+> 过程文档的指引，同样属于开发分支内容（本分支不含）。
+
 **ZRDDS 产品知识库构建与开发调试问答系统** —— 以《ZRDDS用户手册.pdf》（295 页）为第一知识源、ZRDDS v2.4.0 Doxygen 开发文档（436 个 HTML）为第二知识源，构建可运行、可调试、可评价的 RAG 问答系统：检索 + 引用溯源（双页码 / 来源分型）+ 无证据拒答 + 指标化评测。
 
-权威计划与分工见 [`product_rag_implementation_guide.md`](./product_rag_implementation_guide.md)（唯一权威，改计划只改这里）。
+系统架构见 [`docs/architecture.md`](./docs/architecture.md)，接口契约见 [`docs/api.md`](./docs/api.md)，实验结论见 [`docs/experiment-results.md`](./docs/experiment-results.md)。
 
 ---
 
@@ -107,14 +113,11 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 | [`evaluation.md`](./docs/evaluation.md) | 检索实验方法学与四组对比证据链（B 域） |
 | [`reliability-report.md`](./docs/reliability-report.md) | 可靠性与拒答专项报告（C 域） |
 | [`retrieval-log-schema.md`](./docs/retrieval-log-schema.md) | 检索日志字段定义与会签结论（B/D） |
-| [`answer-log-schema-draft.md`](./docs/answer-log-schema-draft.md) | 回答级日志字段定义（v1.0 定版并已落地） |
-| [`citation-contract-draft.md`](./docs/citation-contract-draft.md) | Citation 契约与待决问题（C/E 会签中） |
-| [`source-priority-draft.md`](./docs/source-priority-draft.md) | 多来源优先级草案（C 域） |
+| [`answer-log-schema.md`](./docs/answer-log-schema.md) | 回答级日志字段定义（v1.0 定版并已落地） |
 | [`index-rebuild-drill.md`](./docs/index-rebuild-drill.md) | 索引重建/回切演练与实测计时表 |
 | [`mcp.md`](./docs/mcp.md) | MCP Server 工具契约与 stdio 注意事项 |
 | [`demo-runbook.md`](./docs/demo-runbook.md) | 最终 Demo 演练手册（四场景实测值与真值判据） |
 | [`chunking-defect-report.md`](./docs/chunking-defect-report.md) | 分块缺陷清单与修复记录 |
-| [`week2-`](./docs/week2-delivery-review.md) · [`week3-`](./docs/week3-delivery-review.md) · [`week4-delivery-review.md`](./docs/week4-delivery-review.md) | 各周交付审查与验收对照 |
 
 ## 目录与 Owner
 
@@ -138,5 +141,5 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 - **检索正式指标已解冻（2026-09-17）**：`make audit` 判 **pass**（循环论证指纹 0/120、题面乱码 0、阻断项 0），`make regression --with-metrics` 已启用，**12 个实验 12/12 pass**；正式检索指标与逐题分析见 [`docs/experiment-results.md`](./docs/experiment-results.md)。
 - **回答侧评测（2026-09-17 已实测）**：`final_v1`（Prompt v2 + source_priority）120 题终跑——faithfulness **0.8950** / answer_relevance **0.9883** / correctness **0.9633** / citation_accuracy **0.9583**（均 n=120、判分失败 0），拒答 29/120；**20 题拒答专项 = 20/20 全部不虚构**（16 题显式拒答 + 4 题"事实性否定 + 引用"，后者经会签计入合格）。注意报告 `response.answer_seconds` 才是回答侧墙钟（120 题约 84 分钟，本地 9B），`duration_seconds` 仍是检索阶段耗时。30 题人工抽检清单已生成、待签署。全部数字见 [`docs/experiment-results.md`](./docs/experiment-results.md)。
 - **SSE wire 8 字段（已定版）**：`source_url` 已升为 wire 第 8 字段（api.md **v0.17**），`sources`/`done` 事件与 `/sources/{rid}`、MCP `get_sources` 三处同形——HTML 引用给本地 `/documents/…` 地址，PDF 为 `null`；既有 7 字段零变化。
-- **三级日志全部落地**：请求级 `logs/requests.jsonl`、检索级 `logs/retrievals.jsonl`、**回答级 `logs/answers.jsonl`**（字段定义 [`docs/answer-log-schema-draft.md`](./docs/answer-log-schema-draft.md) v1.0，终态 stop/error/cancelled 各写一条）。
+- **三级日志全部落地**：请求级 `logs/requests.jsonl`、检索级 `logs/retrievals.jsonl`、**回答级 `logs/answers.jsonl`**（字段定义 [`docs/answer-log-schema.md`](./docs/answer-log-schema.md) v1.0，终态 stop/error/cancelled 各写一条）。
 - **容器化未验证**：交付环境本机无 Docker，快速开始以 `make` 链路为准；Docker 方案的验证状态见 `docs/week4-delivery-review.md`。

@@ -1,4 +1,4 @@
-"""回答级日志（LoggedAnswerStream）回归测试（docs/answer-log-schema-draft.md）。
+"""回答级日志（LoggedAnswerStream）回归测试（docs/answer-log-schema.md）。
 
 三级日志的第三级：每次生成一条，终态 done / error / cancelled 都落盘。
 字段口径与会签稿一致；这里只测包装器本身（不触真实 LLM / 索引）。
