@@ -8,7 +8,7 @@
     "questions_sha12": "9ea5b614a078",
     "expected_sources_sha12": "b325848f1a9a"
   },
-  "duration_seconds": 17.7,
+  "duration_seconds": 17.8,
   "index": {
     "dirname": "hybrid_bge-m3_ade09e39",
     "backend": "chroma",
@@ -26,8 +26,10 @@
     "skipped_no_expected": []
   },
   "metrics": {
-    "hit_rate@5": 0.5667,
-    "mrr@5": 0.3453
+    "hit_rate@5": 0.55,
+    "mrr@5": 0.3419,
+    "precision@5": 0.1633,
+    "recall@5": 0.55
   },
   "per_question": [
     {
@@ -426,7 +428,7 @@
           "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_7_获取Subscriber的关联实体_00000_sem000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_3_设置DataReader的QoS策略_9_3_3_3_使用Topic的QoS策略初始化DataReader的QoS策略_00000_sem004"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_4_设置DataReader的Listener_00000_sem001"
         }
       ]
     },
@@ -466,7 +468,7 @@
           "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_3_OFFERED_INCOMPATIBLE_QOS_Status_00000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_1_LIVELINESS_LOST_Status_00000"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
         }
       ]
     },
@@ -526,7 +528,7 @@
           "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000_sem000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_4_PUBLICATION_MATCHED_Status_00000_sem001"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_4_设置DataWriter的Listener_00000_sem002"
         }
       ]
     },
@@ -586,7 +588,7 @@
           "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_4_PUBLICATION_MATCHED_Status_00000_sem004"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_1_LIVELINESS_LOST_Status_00000"
         }
       ]
     },
@@ -686,7 +688,7 @@
           "node_id": "hybrid_v1_s_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_6_创建ZRDDS应用程序_11_6_3_订阅端应用程序_00000_sem006"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_2_BatchQosPolicy_DDS_Extension_sem001"
+          "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_2_BatchQosPolicy_DDS_Extension_sem010"
         }
       ]
     },
@@ -706,7 +708,7 @@
           "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_9_内置实体管理_00000_sem000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_8_查找Topic_00000"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_7_查找Topic_Description_00000"
         }
       ]
     },
@@ -1026,7 +1028,7 @@
           "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_4_设置Subscriber的QoS策略_9_2_4_3_获取及设置默认DataReader的QoS策略_00000_sem003"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_3_删除Subscriber的所有子实体_00000"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_2_删除Subscriber_00000"
         }
       ]
     },
@@ -1306,7 +1308,7 @@
           "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_6_关于Topic的Status_7_2_4_2_用Topic的QoS策略赋值DataReader的QoS策略_00000_sem000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_4_TopicQos_00000"
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_6_关于Topic的Status_7_2_4_1_用Topic的QoS策略赋值DataWriter的QoS策略_00000"
         }
       ]
     },
@@ -1486,7 +1488,7 @@
           "node_id": "hybrid_v1_s_s_s_PART_6_多种接口风格及开发流程_第19章_简化接口SUSTAIN_19_1_简化接口SUSTAIN的使用_00000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_PART_6_多种接口风格及开发流程_第17章_扩展接口_17_2_标准协议接口代码示例_sem005"
+          "node_id": "hybrid_v1_s_s_s_PART_6_多种接口风格及开发流程_第17章_扩展接口_17_3_扩展内容一览_sem000"
         }
       ]
     },

@@ -55,13 +55,16 @@ retrieval:
 
 generation:
   enabled: false                   # 热身只验检索路径，不跑生成（省 LLM 配额）
-  prompt_version: v0
+  prompt_version: v2
   llm_env_prefix: LLM_
 
 evaluation:
   dataset: evaluation/datasets/questions.jsonl
-  expected_sources: null           # 宁缺毋滥（D 协议）：标注整改前不产出循环论证指标
-  retrieval_metrics: [hit_rate@5, mrr@5]
+  expected_sources: evaluation/datasets/expected_sources.jsonl
+                                   # 同分块（struct）三模式对照：vector / bm25 / hybrid
+                                   # 共用同一 120 题标注集（2026-09-17 接线）
+  
+  retrieval_metrics: [hit_rate@5, mrr@5, precision@5, recall@5]
   response_metrics: []
   sample_size: null
 

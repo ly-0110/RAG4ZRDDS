@@ -6,7 +6,9 @@
   * 检索级  retrievals.jsonl —— 每次 retrieve() 一条，字段见
     docs/retrieval-log-schema.md（B v0.1，D 会签落地）：记录点在 pipeline 层
     （LoggedRetriever 包装），预热/脚本直调也入日志（request_id=null）
-  * 回答级  字段待成员 C 定（生成合入后）
+  * 回答级  answers.jsonl —— 每次生成一条，字段见
+    docs/answer-log-schema-draft.md（D 拟稿，2026-09-17 会签定版）：记录点在
+    pipeline 层（LoggedAnswerStream 包装），终态 done / error / cancelled 各写一条
 
 PersistentSourcesStore —— /sources 引用回查的持久化存储：
   替换第一周的内存环形缓存（当时约定"第二周日志设施落地后替换"）。
@@ -26,6 +28,7 @@ from threading import Lock
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # 循环导入：pipeline.py 运行时反向依赖本模块
+    from server.core.pipeline import AnswerStream as AnswerStreamLike
     from server.core.pipeline import Retriever
 
 
@@ -164,3 +167,85 @@ class LoggedRetriever:
             record["filters"] = self._filters
         self._log.append(record)
         return results
+
+
+class LoggedAnswerStream:
+    """回答级日志接线（docs/answer-log-schema-draft.md，2026-09-17 会签定版）。
+
+    包装生成侧 `answer_stream`，**每次生成只写一条**：正常结束（done）、上游报错
+    （error）、客户端中止（cancelled）三种终态都落盘，便于回答质量回查与失败归因。
+    记录点与检索日志一致定在 pipeline 层——HTTP 与 MCP 两条入口都覆盖。
+
+    字段（除注明外均必填）取自实验配置与本次生成的实测值：
+      request_id（ContextVar 注入，非请求上下文为 null）/ experiment / config_hash8 /
+      prompt_version / model / question / answer（正文只落本地，不进报告与 wire）/
+      abstained（generation.abstention 单一事实源）/ citation_count / source_ids /
+      first_token_ms / duration_ms / token_chunks / finish_reason（stop|length|
+      cancelled|error）/ error。
+    """
+
+    def __init__(
+        self,
+        inner: "AnswerStreamLike",
+        log: JsonlLog,
+        *,
+        experiment: str,
+        config_hash8: str,
+        prompt_version: str,
+        model: str,
+    ) -> None:
+        self._inner = inner
+        self._log = log
+        self._base = {
+            "experiment": experiment,
+            "config_hash8": config_hash8,
+            "prompt_version": prompt_version,
+            "model": model,
+        }
+
+    def _write(self, record: dict) -> None:
+        """日志写盘失败不得影响回答投递（与 PersistentSourcesStore 同原则）。"""
+        try:
+            self._log.append(record)
+        except OSError:  # pragma: no cover —— 磁盘异常下服务继续
+            pass
+
+    async def stream(self, question: str, chunks: list[dict]):
+        from generation.abstention import is_abstention
+
+        t0 = time.perf_counter()
+        first_token_ms: float | None = None
+        parts: list[str] = []
+        finish_reason = "error"
+        error: str | None = None
+        try:
+            async for token in self._inner.stream(question, chunks):
+                if first_token_ms is None:
+                    first_token_ms = round((time.perf_counter() - t0) * 1000, 2)
+                parts.append(token)
+                yield token
+            finish_reason = "stop"
+        except GeneratorExit:
+            # 客户端 abort → 生成器被关闭：已产出的部分答案仍要留档
+            finish_reason = "cancelled"
+            raise
+        except Exception as exc:  # noqa: BLE001 —— 记录后原样抛出，交 SSE error 事件
+            error = f"{type(exc).__name__}: {exc}"
+            raise
+        finally:
+            answer = "".join(parts)
+            self._write({
+                **self._base,
+                "request_id": current_request_id(),
+                "question": question,
+                "answer": answer,
+                "abstained": is_abstention(answer) if answer else False,
+                "citation_count": len(chunks),
+                "source_ids": sorted({c.get("source_id") for c in chunks
+                                      if c.get("source_id")}),
+                "first_token_ms": first_token_ms,
+                "duration_ms": round((time.perf_counter() - t0) * 1000, 2),
+                "token_chunks": len(parts),
+                "finish_reason": finish_reason,
+                "error": error,
+            })

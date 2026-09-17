@@ -27,7 +27,9 @@
   },
   "metrics": {
     "hit_rate@5": 0.2917,
-    "mrr@5": 0.209
+    "mrr@5": 0.209,
+    "precision@5": 0.0783,
+    "recall@5": 0.2917
   },
   "per_question": [
     {

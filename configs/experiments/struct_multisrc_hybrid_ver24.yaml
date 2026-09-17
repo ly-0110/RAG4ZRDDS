@@ -58,13 +58,16 @@ retrieval:
 
 generation:
   enabled: false
-  prompt_version: v0
+  prompt_version: v2
   llm_env_prefix: LLM_
 
 evaluation:
-  dataset: evaluation/datasets/questions.jsonl
-  expected_sources: null           # 宁缺毋滥：真值标注到位后翻回 expected_sources.jsonl 补指标
-  retrieval_metrics: [hit_rate@5, mrr@5]
+  dataset: evaluation/datasets/questions_multisource.jsonl
+  expected_sources: evaluation/datasets/expected_sources_multisource.jsonl
+                                   # 多来源标注集（12 题/25 条，make audit = pass，
+                                   # 2026-09-17 会签定版）
+  
+  retrieval_metrics: [hit_rate@5, mrr@5, precision@5, recall@5]
   response_metrics: []
   sample_size: null
 

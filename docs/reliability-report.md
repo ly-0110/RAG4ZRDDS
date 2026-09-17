@@ -1,7 +1,8 @@
-# 可靠性测试报告（成员 C · 第四周 · v1.0）
+# 可靠性测试报告（成员 C · 第四周 · **v1.1（2026-09-17 补实测数字）**）
 
 > 指南 §8 成员 C 三项交付的载体：① Abstention 行为定版（20 题专项）② 全量终跑评测（Retrieval + Response 全指标 + 人工抽检 30 题）③ 可靠性测试报告与错误案例集终版。
 > 本报告只陈述**已实现**与**已实测**，未跑的部分如实标注「留命令」或「void/blocked」，不虚报数值。
+> **v1.1（2026-09-17，D 代跑并回写）**：检索侧门禁已解冻、回答侧与拒答专项已完成全量实测；数字汇总见 `docs/experiment-results.md`，本节表格已同步为实测结论。
 
 ---
 
@@ -9,9 +10,9 @@
 
 | 评测面 | 状态 | 说明 |
 |---|---|---|
-| 检索侧指标（§9.1） | **void / blocked** | 被 E 的标注 P0/P1 门禁卡住（`week4-delivery-review.md` §3.4/§5）：六题题干有损转码（Q021/Q023/Q028/Q059/Q060/Q119）、114/120 区间标注待收窄。`final_v1.yaml` 的 `expected_sources: null`，检索侧只落检索结果、不产指标 |
-| 回答侧指标（§9.2） | **已实现 · 全量留命令** | 四项指标（faithfulness / answer_relevance / correctness / citation_accuracy）的 runner + judges 已交付并离线单测通过；冒烟 `--sample N` 可跑，全量留命令 |
-| 拒答专项（§8.4 Abstention） | **已实现 · 全量留命令** | 20 题「不存在信息」专项集 + 机器可读拒答判定 + 专项 runner 已交付；20/20 拒答则退出码 0 |
+| 检索侧指标（§9.1） | **已实测（正式数字）** | 标注门禁 **pass**（循环论证指纹 0/120、乱码 0、阻断 0）；单来源 120 题四指标实测：`struct_v1` hit@5 **0.7833** / mrr@5 **0.6050**，三模式与三方案对比见 `docs/experiment-results.md` §3 |
+| 回答侧指标（§9.2） | **已全量实测（120 题）** | faithfulness **0.8950** / answer_relevance **0.9883** / correctness **0.9633** / citation_accuracy **0.9583**（n=120、判分失败 0），拒答 29/120；报告 `evaluation/reports/final_v1.json` |
+| 拒答专项（§8.4 Abstention） | **20/20 全部不虚构** | 16 题显式拒答 + 4 题「事实性否定 + `[n]` 引用」= 合格 20/20、**虚构风险 0**；判据见 `generation/abstention.classify_answer`，明细 `evaluation/reports/abstention_eval.json` |
 | 错误案例集终版 | **已交付** | `error_cases.jsonl`（20 夹具）+ `error_cases_real.jsonl`（70 真实）+ `abstention_questions.jsonl`（20 拒答）三集统一 |
 | 人工抽检 30 题（§9.3） | **清单已生成** | `make manual-review` 确定性抽 30 题产六问检查清单，签署结果见 §6 |
 

@@ -6,10 +6,10 @@
   "artifacts": {
     "nodes_file_sha12": "adcca4de72d4",
     "questions_sha12": "9ea5b614a078",
-    "expected_sources_sha12": null
+    "expected_sources_sha12": "b325848f1a9a"
   },
-  "generated_at": "2026-09-17T11:05:07+0800",
-  "duration_seconds": 18.1,
+  "generated_at": "2026-09-17T12:41:39+0800",
+  "duration_seconds": 17.8,
   "index": {
     "dirname": "struct_bge-m3_6ba2ddfc",
     "backend": "chroma",
@@ -21,135 +21,16 @@
   },
   "dataset": {
     "questions": "evaluation/datasets/questions.jsonl",
-    "expected_sources": null,
+    "expected_sources": "evaluation/datasets/expected_sources.jsonl",
     "total": 120,
-    "evaluated": 0,
-    "skipped_no_expected": [
-      "Q001",
-      "Q002",
-      "Q003",
-      "Q004",
-      "Q005",
-      "Q006",
-      "Q007",
-      "Q008",
-      "Q009",
-      "Q010",
-      "Q011",
-      "Q012",
-      "Q013",
-      "Q014",
-      "Q015",
-      "Q016",
-      "Q017",
-      "Q018",
-      "Q019",
-      "Q020",
-      "Q021",
-      "Q022",
-      "Q023",
-      "Q024",
-      "Q025",
-      "Q026",
-      "Q027",
-      "Q028",
-      "Q029",
-      "Q030",
-      "Q031",
-      "Q032",
-      "Q033",
-      "Q034",
-      "Q035",
-      "Q036",
-      "Q037",
-      "Q038",
-      "Q039",
-      "Q040",
-      "Q041",
-      "Q042",
-      "Q043",
-      "Q044",
-      "Q045",
-      "Q046",
-      "Q047",
-      "Q048",
-      "Q049",
-      "Q050",
-      "Q051",
-      "Q052",
-      "Q053",
-      "Q054",
-      "Q055",
-      "Q056",
-      "Q057",
-      "Q058",
-      "Q059",
-      "Q060",
-      "Q061",
-      "Q062",
-      "Q063",
-      "Q064",
-      "Q065",
-      "Q066",
-      "Q067",
-      "Q068",
-      "Q069",
-      "Q070",
-      "Q071",
-      "Q072",
-      "Q073",
-      "Q074",
-      "Q075",
-      "Q076",
-      "Q077",
-      "Q078",
-      "Q079",
-      "Q080",
-      "Q081",
-      "Q082",
-      "Q083",
-      "Q084",
-      "Q085",
-      "Q086",
-      "Q087",
-      "Q088",
-      "Q089",
-      "Q090",
-      "Q091",
-      "Q092",
-      "Q093",
-      "Q094",
-      "Q095",
-      "Q096",
-      "Q097",
-      "Q098",
-      "Q099",
-      "Q100",
-      "Q101",
-      "Q102",
-      "Q103",
-      "Q104",
-      "Q105",
-      "Q106",
-      "Q107",
-      "Q108",
-      "Q109",
-      "Q110",
-      "Q111",
-      "Q112",
-      "Q113",
-      "Q114",
-      "Q115",
-      "Q116",
-      "Q117",
-      "Q118",
-      "Q119",
-      "Q120"
-    ]
+    "evaluated": 120,
+    "skipped_no_expected": []
   },
   "metrics": {
-    "hit_rate@5": null,
-    "mrr@5": null
+    "hit_rate@5": 0.75,
+    "mrr@5": 0.6254,
+    "precision@5": 0.1617,
+    "recall@5": 0.75
   },
   "per_question": [
     {
@@ -202,7 +83,23 @@
           "score": 0.028624
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q001",
+          "source_id": "user_manual",
+          "page_print": [
+            55,
+            56
+          ],
+          "section_keyword": "6.3.6 选择Domain ID和创建多个域"
+        }
+      ]
     },
     {
       "id": "Q002",
@@ -254,7 +151,23 @@
           "score": 0.027971
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q002",
+          "source_id": "user_manual",
+          "page_print": [
+            47,
+            48
+          ],
+          "section_keyword": "6.2.4 搜索DomainParticipant"
+        }
+      ]
     },
     {
       "id": "Q003",
@@ -306,7 +219,23 @@
           "score": 0.030777
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q003",
+          "source_id": "user_manual",
+          "page_print": [
+            36,
+            37
+          ],
+          "section_keyword": "5.3.5 Listener的继承机制"
+        }
+      ]
     },
     {
       "id": "Q004",
@@ -358,7 +287,23 @@
           "score": 0.02739
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q004",
+          "source_id": "user_manual",
+          "page_print": [
+            58,
+            59
+          ],
+          "section_keyword": "6.3.12 其他DomainParticipant操作"
+        }
+      ]
     },
     {
       "id": "Q005",
@@ -410,7 +355,23 @@
           "score": 0.024892
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q005",
+          "source_id": "user_manual",
+          "page_print": [
+            58,
+            59
+          ],
+          "section_keyword": "6.3.12 其他DomainParticipant操作"
+        }
+      ]
     },
     {
       "id": "Q006",
@@ -462,7 +423,23 @@
           "score": 0.028814
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q006",
+          "source_id": "user_manual",
+          "page_print": [
+            30,
+            30
+          ],
+          "section_keyword": "5.1.4.3 在创建实体时设置QoS策略"
+        }
+      ]
     },
     {
       "id": "Q007",
@@ -514,7 +491,23 @@
           "score": 0.029877
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q007",
+          "source_id": "user_manual",
+          "page_print": [
+            108,
+            109
+          ],
+          "section_keyword": "9.3.10.2 read()和take()的区别"
+        }
+      ]
     },
     {
       "id": "Q008",
@@ -566,7 +559,23 @@
           "score": 0.026754
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q008",
+          "source_id": "user_manual",
+          "page_print": [
+            113,
+            114
+          ],
+          "section_keyword": "9.3.10.7 read_w_condition()和take_w_condition()"
+        }
+      ]
     },
     {
       "id": "Q009",
@@ -618,7 +627,23 @@
           "score": 0.030777
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q009",
+          "source_id": "user_manual",
+          "page_print": [
+            41,
+            42
+          ],
+          "section_keyword": "5.5.6 GuardConditions"
+        }
+      ]
     },
     {
       "id": "Q010",
@@ -670,7 +695,23 @@
           "score": 0.027638
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.2,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q010",
+          "source_id": "user_manual",
+          "page_print": [
+            51,
+            52
+          ],
+          "section_keyword": "6.3.3 删除所有子实体"
+        }
+      ]
     },
     {
       "id": "Q011",
@@ -722,7 +763,23 @@
           "score": 0.030077
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q011",
+          "source_id": "user_manual",
+          "page_print": [
+            51,
+            52
+          ],
+          "section_keyword": "6.3.3 删除所有子实体"
+        }
+      ]
     },
     {
       "id": "Q012",
@@ -774,7 +831,23 @@
           "score": 0.027619
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q012",
+          "source_id": "user_manual",
+          "page_print": [
+            41,
+            41
+          ],
+          "section_keyword": "5.5.5 ReadConditions"
+        }
+      ]
     },
     {
       "id": "Q013",
@@ -826,7 +899,23 @@
           "score": 0.028694
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q013",
+          "source_id": "user_manual",
+          "page_print": [
+            104,
+            107
+          ],
+          "section_keyword": "9.3.5 关于DataReader的Status"
+        }
+      ]
     },
     {
       "id": "Q014",
@@ -878,7 +967,23 @@
           "score": 0.030118
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q014",
+          "source_id": "user_manual",
+          "page_print": [
+            39,
+            40
+          ],
+          "section_keyword": "5.5.2 WaitSet的相关操作"
+        }
+      ]
     },
     {
       "id": "Q015",
@@ -930,7 +1035,23 @@
           "score": 0.026585
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q015",
+          "source_id": "user_manual",
+          "page_print": [
+            79,
+            80
+          ],
+          "section_keyword": "8.2.8 Publisher的其他操作"
+        }
+      ]
     },
     {
       "id": "Q016",
@@ -982,7 +1103,23 @@
           "score": 0.029418
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q016",
+          "source_id": "user_manual",
+          "page_print": [
+            34,
+            38
+          ],
+          "section_keyword": "5.3 Listener"
+        }
+      ]
     },
     {
       "id": "Q017",
@@ -1034,7 +1171,23 @@
           "score": 0.02643
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q017",
+          "source_id": "user_manual",
+          "page_print": [
+            64,
+            64
+          ],
+          "section_keyword": "7.2.5 设置Topic的Listener"
+        }
+      ]
     },
     {
       "id": "Q018",
@@ -1086,7 +1239,23 @@
           "score": 0.03009
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q018",
+          "source_id": "user_manual",
+          "page_print": [
+            34,
+            38
+          ],
+          "section_keyword": "5.3 Listener"
+        }
+      ]
     },
     {
       "id": "Q019",
@@ -1138,7 +1307,23 @@
           "score": 0.028629
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q019",
+          "source_id": "user_manual",
+          "page_print": [
+            133,
+            135
+          ],
+          "section_keyword": "10.12 LivelinessQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q020",
@@ -1190,7 +1375,23 @@
           "score": 0.029644
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q020",
+          "source_id": "user_manual",
+          "page_print": [
+            97,
+            97
+          ],
+          "section_keyword": "9.2.6 关于Subscriber的Status"
+        }
+      ]
     },
     {
       "id": "Q021",
@@ -1242,7 +1443,23 @@
           "score": 0.029828
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q021",
+          "source_id": "user_manual",
+          "page_print": [
+            106,
+            107
+          ],
+          "section_keyword": "9.3.5.7 SUBSCRIPTION_MATCHED Status"
+        }
+      ]
     },
     {
       "id": "Q022",
@@ -1294,7 +1511,23 @@
           "score": 0.029083
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q022",
+          "source_id": "user_manual",
+          "page_print": [
+            85,
+            86
+          ],
+          "section_keyword": "8.3.6 获取DataWriter的Status"
+        }
+      ]
     },
     {
       "id": "Q023",
@@ -1346,7 +1579,23 @@
           "score": 0.029857
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q023",
+          "source_id": "user_manual",
+          "page_print": [
+            105,
+            105
+          ],
+          "section_keyword": "9.3.5.2 LIVELINESS_CHANGED Status"
+        }
+      ]
     },
     {
       "id": "Q024",
@@ -1398,7 +1647,23 @@
           "score": 0.029287
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q024",
+          "source_id": "user_manual",
+          "page_print": [
+            105,
+            106
+          ],
+          "section_keyword": "9.3.5.3 REQUESTED_DEADLINE_MISSED Status"
+        }
+      ]
     },
     {
       "id": "Q025",
@@ -1450,7 +1715,23 @@
           "score": 0.027652
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q025",
+          "source_id": "user_manual",
+          "page_print": [
+            106,
+            106
+          ],
+          "section_keyword": "9.3.5.4 REQUESTED_INCOMPATIBLE_QOS Status"
+        }
+      ]
     },
     {
       "id": "Q026",
@@ -1502,7 +1783,23 @@
           "score": 0.027584
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.25,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q026",
+          "source_id": "user_manual",
+          "page_print": [
+            106,
+            106
+          ],
+          "section_keyword": "9.3.5.5 SAMPLE_LOST Status"
+        }
+      ]
     },
     {
       "id": "Q027",
@@ -1554,7 +1851,23 @@
           "score": 0.029644
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q027",
+          "source_id": "user_manual",
+          "page_print": [
+            106,
+            106
+          ],
+          "section_keyword": "9.3.5.5 SAMPLE_LOST Status"
+        }
+      ]
     },
     {
       "id": "Q028",
@@ -1606,7 +1919,23 @@
           "score": 0.029199
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q028",
+          "source_id": "user_manual",
+          "page_print": [
+            85,
+            85
+          ],
+          "section_keyword": "8.3.5 关于DataWriter的Status"
+        }
+      ]
     },
     {
       "id": "Q029",
@@ -1658,7 +1987,23 @@
           "score": 0.029387
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q029",
+          "source_id": "user_manual",
+          "page_print": [
+            85,
+            85
+          ],
+          "section_keyword": "8.3.5 关于DataWriter的Status"
+        }
+      ]
     },
     {
       "id": "Q030",
@@ -1710,7 +2055,23 @@
           "score": 0.026993
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q030",
+          "source_id": "user_manual",
+          "page_print": [
+            85,
+            85
+          ],
+          "section_keyword": "8.3.5 关于DataWriter的Status"
+        }
+      ]
     },
     {
       "id": "Q031",
@@ -1762,7 +2123,23 @@
           "score": 0.027106
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q031",
+          "source_id": "user_manual",
+          "page_print": [
+            47,
+            48
+          ],
+          "section_keyword": "6.2.4 搜索DomainParticipant"
+        }
+      ]
     },
     {
       "id": "Q032",
@@ -1814,7 +2191,23 @@
           "score": 0.02748
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q032",
+          "source_id": "user_manual",
+          "page_print": [
+            47,
+            48
+          ],
+          "section_keyword": "6.2.4 搜索DomainParticipant"
+        }
+      ]
     },
     {
       "id": "Q033",
@@ -1866,7 +2259,23 @@
           "score": 0.028191
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q033",
+          "source_id": "user_manual",
+          "page_print": [
+            56,
+            56
+          ],
+          "section_keyword": "6.3.8 查找Topic"
+        }
+      ]
     },
     {
       "id": "Q034",
@@ -1918,7 +2327,23 @@
           "score": 0.027799
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q034",
+          "source_id": "user_manual",
+          "page_print": [
+            56,
+            56
+          ],
+          "section_keyword": "6.3.8 查找Topic"
+        }
+      ]
     },
     {
       "id": "Q035",
@@ -1970,7 +2395,23 @@
           "score": 0.029199
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q035",
+          "source_id": "user_manual",
+          "page_print": [
+            56,
+            56
+          ],
+          "section_keyword": "6.3.7 查找Topic Description"
+        }
+      ]
     },
     {
       "id": "Q036",
@@ -2022,7 +2463,23 @@
           "score": 0.030303
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q036",
+          "source_id": "user_manual",
+          "page_print": [
+            67,
+            67
+          ],
+          "section_keyword": "7.3.3 删除ContentFilteredTopic"
+        }
+      ]
     },
     {
       "id": "Q037",
@@ -2074,7 +2531,23 @@
           "score": 0.028405
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q037",
+          "source_id": "user_manual",
+          "page_print": [
+            157,
+            159
+          ],
+          "section_keyword": "10.30 TransportConfigQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q038",
@@ -2126,7 +2599,23 @@
           "score": 0.02901
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q038",
+          "source_id": "user_manual",
+          "page_print": [
+            127,
+            127
+          ],
+          "section_keyword": "10.6 DiscoveryConfigQosPolicy(DDS Extension)"
+        }
+      ]
     },
     {
       "id": "Q039",
@@ -2178,7 +2667,23 @@
           "score": 0.027885
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q039",
+          "source_id": "user_manual",
+          "page_print": [
+            129,
+            129
+          ],
+          "section_keyword": "10.8 EntityFactoryQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q040",
@@ -2230,7 +2735,23 @@
           "score": 0.03009
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q040",
+          "source_id": "user_manual",
+          "page_print": [
+            135,
+            136
+          ],
+          "section_keyword": "10.13 LogQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q041",
@@ -2282,7 +2803,23 @@
           "score": 0.027347
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q041",
+          "source_id": "user_manual",
+          "page_print": [
+            46,
+            47
+          ],
+          "section_keyword": "6.2.1 DomainParticipantFactory的QoS策略"
+        }
+      ]
     },
     {
       "id": "Q042",
@@ -2334,7 +2871,23 @@
           "score": 0.03101
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q042",
+          "source_id": "user_manual",
+          "page_print": [
+            148,
+            148
+          ],
+          "section_keyword": "10.22 RapidIOControllerQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q043",
@@ -2386,7 +2939,23 @@
           "score": 0.026611
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q043",
+          "source_id": "user_manual",
+          "page_print": [
+            52,
+            54
+          ],
+          "section_keyword": "6.3.4 设置DomainParticipant的QoS策略"
+        }
+      ]
     },
     {
       "id": "Q044",
@@ -2438,7 +3007,23 @@
           "score": 0.028169
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q044",
+          "source_id": "user_manual",
+          "page_print": [
+            154,
+            155
+          ],
+          "section_keyword": "10.27 ThreadCoreAffinityQosPolicy(DDS Extension)"
+        }
+      ]
     },
     {
       "id": "Q045",
@@ -2490,7 +3075,23 @@
           "score": 0.02879
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q045",
+          "source_id": "user_manual",
+          "page_print": [
+            150,
+            151
+          ],
+          "section_keyword": "10.24 ReceiverThreadConfigQosPolicy(DDS Extension)"
+        }
+      ]
     },
     {
       "id": "Q046",
@@ -2542,7 +3143,23 @@
           "score": 0.030777
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q046",
+          "source_id": "user_manual",
+          "page_print": [
+            63,
+            64
+          ],
+          "section_keyword": "7.2.3.2 在创建Topic后配置Qos策略"
+        }
+      ]
     },
     {
       "id": "Q047",
@@ -2594,7 +3211,23 @@
           "score": 0.029211
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q047",
+          "source_id": "user_manual",
+          "page_print": [
+            30,
+            30
+          ],
+          "section_keyword": "5.1.4.3 在创建实体时设置QoS策略"
+        }
+      ]
     },
     {
       "id": "Q048",
@@ -2646,7 +3279,23 @@
           "score": 0.029958
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.2,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q048",
+          "source_id": "user_manual",
+          "page_print": [
+            101,
+            102
+          ],
+          "section_keyword": "9.3.3.2 创建DataReader后配置QoS策略"
+        }
+      ]
     },
     {
       "id": "Q049",
@@ -2698,7 +3347,23 @@
           "score": 0.029437
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q049",
+          "source_id": "user_manual",
+          "page_print": [
+            76,
+            78
+          ],
+          "section_keyword": "8.2.4 设置Publisher的QoS策略"
+        }
+      ]
     },
     {
       "id": "Q050",
@@ -2750,7 +3415,23 @@
           "score": 0.028694
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q050",
+          "source_id": "user_manual",
+          "page_print": [
+            94,
+            96
+          ],
+          "section_keyword": "9.2.4 设置Subscriber的QoS策略"
+        }
+      ]
     },
     {
       "id": "Q051",
@@ -2802,7 +3483,23 @@
           "score": 0.029437
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q051",
+          "source_id": "user_manual",
+          "page_print": [
+            82,
+            83
+          ],
+          "section_keyword": "8.3.3.1 创建DataWriter时配置QoS策略"
+        }
+      ]
     },
     {
       "id": "Q052",
@@ -2854,7 +3551,23 @@
           "score": 0.029437
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.25,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q052",
+          "source_id": "user_manual",
+          "page_print": [
+            191,
+            191
+          ],
+          "section_keyword": "12.3.1 选择通信模型"
+        }
+      ]
     },
     {
       "id": "Q053",
@@ -2906,7 +3619,23 @@
           "score": 0.029631
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q053",
+          "source_id": "user_manual",
+          "page_print": [
+            130,
+            132
+          ],
+          "section_keyword": "10.10 HistoryQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q054",
@@ -2958,7 +3687,23 @@
           "score": 0.023769
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q054",
+          "source_id": "user_manual",
+          "page_print": [
+            132,
+            133
+          ],
+          "section_keyword": "10.11 LifespanQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q055",
@@ -3010,7 +3755,23 @@
           "score": 0.027052
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q055",
+          "source_id": "user_manual",
+          "page_print": [
+            124,
+            125
+          ],
+          "section_keyword": "10.4 DeadlineQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q056",
@@ -3062,7 +3823,23 @@
           "score": 0.027921
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q056",
+          "source_id": "user_manual",
+          "page_print": [
+            127,
+            129
+          ],
+          "section_keyword": "10.7 DurabilityQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q057",
@@ -3114,7 +3891,23 @@
           "score": 0.029387
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q057",
+          "source_id": "user_manual",
+          "page_print": [
+            129,
+            129
+          ],
+          "section_keyword": "10.8 EntityFactoryQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q058",
@@ -3166,7 +3959,23 @@
           "score": 0.028405
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q058",
+          "source_id": "user_manual",
+          "page_print": [
+            139,
+            140
+          ],
+          "section_keyword": "10.16 OwnershipStrengthQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q059",
@@ -3218,7 +4027,23 @@
           "score": 0.028191
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q059",
+          "source_id": "user_manual",
+          "page_print": [
+            140,
+            142
+          ],
+          "section_keyword": "10.17 PartitionQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q060",
@@ -3270,7 +4095,23 @@
           "score": 0.026334
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q060",
+          "source_id": "user_manual",
+          "page_print": [
+            142,
+            145
+          ],
+          "section_keyword": "10.18 PresentationQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q061",
@@ -3322,7 +4163,23 @@
           "score": 0.026779
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q061",
+          "source_id": "user_manual",
+          "page_print": [
+            129,
+            130
+          ],
+          "section_keyword": "10.9 GroupDataQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q062",
@@ -3374,7 +4231,23 @@
           "score": 0.029469
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q062",
+          "source_id": "user_manual",
+          "page_print": [
+            159,
+            160
+          ],
+          "section_keyword": "10.31 UserDataQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q063",
@@ -3426,7 +4299,23 @@
           "score": 0.029857
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q063",
+          "source_id": "user_manual",
+          "page_print": [
+            163,
+            163
+          ],
+          "section_keyword": "10.35 LatencyBudgetQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q064",
@@ -3478,7 +4367,23 @@
           "score": 0.027237
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q064",
+          "source_id": "user_manual",
+          "page_print": [
+            156,
+            157
+          ],
+          "section_keyword": "10.29 TopicDataQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q065",
@@ -3530,7 +4435,23 @@
           "score": 0.028039
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q065",
+          "source_id": "user_manual",
+          "page_print": [
+            160,
+            161
+          ],
+          "section_keyword": "10.32 WriterDataLifecycleQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q066",
@@ -3582,7 +4503,23 @@
           "score": 0.029387
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q066",
+          "source_id": "user_manual",
+          "page_print": [
+            148,
+            150
+          ],
+          "section_keyword": "10.23 ReaderDataLifecycleQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q067",
@@ -3634,7 +4571,23 @@
           "score": 0.028283
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q067",
+          "source_id": "user_manual",
+          "page_print": [
+            34,
+            38
+          ],
+          "section_keyword": "5.3 Listener"
+        }
+      ]
     },
     {
       "id": "Q068",
@@ -3686,7 +4639,23 @@
           "score": 0.030798
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q068",
+          "source_id": "user_manual",
+          "page_print": [
+            280,
+            281
+          ],
+          "section_keyword": "25.4.1 日志QoS"
+        }
+      ]
     },
     {
       "id": "Q069",
@@ -3738,7 +4707,23 @@
           "score": 0.029031
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q069",
+          "source_id": "user_manual",
+          "page_print": [
+            248,
+            248
+          ],
+          "section_keyword": "20.1 XML配置说明"
+        }
+      ]
     },
     {
       "id": "Q070",
@@ -3790,7 +4775,23 @@
           "score": 0.028718
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q070",
+          "source_id": "user_manual",
+          "page_print": [
+            172,
+            173
+          ],
+          "section_keyword": "11.3.2 使用zrddsgen编译器"
+        }
+      ]
     },
     {
       "id": "Q071",
@@ -3842,7 +4843,23 @@
           "score": 0.029857
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q071",
+          "source_id": "user_manual",
+          "page_print": [
+            289,
+            289
+          ],
+          "section_keyword": "27.3 日志类型IDL文件"
+        }
+      ]
     },
     {
       "id": "Q072",
@@ -3894,7 +4911,23 @@
           "score": 0.029877
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.8,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q072",
+          "source_id": "user_manual",
+          "page_print": [
+            39,
+            43
+          ],
+          "section_keyword": "5.5 Condition与WaitSets"
+        }
+      ]
     },
     {
       "id": "Q073",
@@ -3946,7 +4979,23 @@
           "score": 0.029644
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q073",
+          "source_id": "user_manual",
+          "page_print": [
+            248,
+            248
+          ],
+          "section_keyword": "20.1 XML配置说明"
+        }
+      ]
     },
     {
       "id": "Q074",
@@ -3998,7 +5047,23 @@
           "score": 0.024652
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q074",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q075",
@@ -4050,7 +5115,23 @@
           "score": 0.025182
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q075",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q076",
@@ -4102,7 +5183,23 @@
           "score": 0.024541
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q076",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q077",
@@ -4154,7 +5251,23 @@
           "score": 0.027505
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.25,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q077",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q078",
@@ -4206,7 +5319,23 @@
           "score": 0.015873
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q078",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q079",
@@ -4258,7 +5387,23 @@
           "score": 0.025062
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q079",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q080",
@@ -4310,7 +5455,23 @@
           "score": 0.025987
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q080",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q081",
@@ -4362,7 +5523,23 @@
           "score": 0.016129
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q081",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q082",
@@ -4414,7 +5591,23 @@
           "score": 0.025859
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q082",
+          "source_id": "user_manual",
+          "page_print": [
+            193,
+            193
+          ],
+          "section_keyword": "12.3.3 writer()阻塞时间"
+        }
+      ]
     },
     {
       "id": "Q083",
@@ -4466,7 +5659,23 @@
           "score": 0.026501
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q083",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q084",
@@ -4518,7 +5727,23 @@
           "score": 0.026984
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q084",
+          "source_id": "user_manual",
+          "page_print": [
+            26,
+            28
+          ],
+          "section_keyword": "5.1.2 使能实体"
+        }
+      ]
     },
     {
       "id": "Q085",
@@ -4570,7 +5795,23 @@
           "score": 0.029911
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q085",
+          "source_id": "user_manual",
+          "page_print": [
+            86,
+            86
+          ],
+          "section_keyword": "8.3.8 使用特定类型的DataWriter"
+        }
+      ]
     },
     {
       "id": "Q086",
@@ -4622,7 +5863,23 @@
           "score": 0.029324
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q086",
+          "source_id": "user_manual",
+          "page_print": [
+            81,
+            81
+          ],
+          "section_keyword": "8.3.2 删除DataWriter"
+        }
+      ]
     },
     {
       "id": "Q087",
@@ -4674,7 +5931,23 @@
           "score": 0.028739
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q087",
+          "source_id": "user_manual",
+          "page_print": [
+            86,
+            86
+          ],
+          "section_keyword": "8.3.7 获取DataWriter的关联实体"
+        }
+      ]
     },
     {
       "id": "Q088",
@@ -4726,7 +5999,23 @@
           "score": 0.029418
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q088",
+          "source_id": "user_manual",
+          "page_print": [
+            193,
+            193
+          ],
+          "section_keyword": "12.3.3 writer()阻塞时间"
+        }
+      ]
     },
     {
       "id": "Q089",
@@ -4778,7 +6067,23 @@
           "score": 0.028475
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q089",
+          "source_id": "user_manual",
+          "page_print": [
+            79,
+            80
+          ],
+          "section_keyword": "8.2.8 Publisher的其他操作"
+        }
+      ]
     },
     {
       "id": "Q090",
@@ -4830,7 +6135,23 @@
           "score": 0.029572
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.2,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q090",
+          "source_id": "user_manual",
+          "page_print": [
+            196,
+            197
+          ],
+          "section_keyword": "12.3.5 实例管理"
+        }
+      ]
     },
     {
       "id": "Q091",
@@ -4882,7 +6203,23 @@
           "score": 0.027746
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q091",
+          "source_id": "user_manual",
+          "page_print": [
+            86,
+            87
+          ],
+          "section_keyword": "8.3.9 实例管理"
+        }
+      ]
     },
     {
       "id": "Q092",
@@ -4934,7 +6271,23 @@
           "score": 0.029643
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q092",
+          "source_id": "user_manual",
+          "page_print": [
+            107,
+            107
+          ],
+          "section_keyword": "9.3.8 使用特定类型的DataReader"
+        }
+      ]
     },
     {
       "id": "Q093",
@@ -4986,7 +6339,23 @@
           "score": 0.028405
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q093",
+          "source_id": "user_manual",
+          "page_print": [
+            94,
+            94
+          ],
+          "section_keyword": "9.2.2 删除Subscriber"
+        }
+      ]
     },
     {
       "id": "Q094",
@@ -5038,7 +6407,23 @@
           "score": 0.028543
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.2,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q094",
+          "source_id": "user_manual",
+          "page_print": [
+            107,
+            107
+          ],
+          "section_keyword": "9.3.7 获取DataReader的关联实体"
+        }
+      ]
     },
     {
       "id": "Q095",
@@ -5090,7 +6475,23 @@
           "score": 0.027289
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q095",
+          "source_id": "user_manual",
+          "page_print": [
+            108,
+            108
+          ],
+          "section_keyword": "9.3.10.1 使用read()和take()访问数据"
+        }
+      ]
     },
     {
       "id": "Q096",
@@ -5142,7 +6543,23 @@
           "score": 0.029418
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q096",
+          "source_id": "user_manual",
+          "page_print": [
+            108,
+            109
+          ],
+          "section_keyword": "9.3.10.2 read()和take()的区别"
+        }
+      ]
     },
     {
       "id": "Q097",
@@ -5194,7 +6611,23 @@
           "score": 0.027629
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q097",
+          "source_id": "user_manual",
+          "page_print": [
+            276,
+            276
+          ],
+          "section_keyword": "24.2 Licence授权方式"
+        }
+      ]
     },
     {
       "id": "Q098",
@@ -5246,7 +6679,23 @@
           "score": 0.028783
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q098",
+          "source_id": "user_manual",
+          "page_print": [
+            4,
+            6
+          ],
+          "section_keyword": "1.5 ZRDDS概述"
+        }
+      ]
     },
     {
       "id": "Q099",
@@ -5298,7 +6747,23 @@
           "score": 0.029236
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q099",
+          "source_id": "user_manual",
+          "page_print": [
+            172,
+            173
+          ],
+          "section_keyword": "11.3.2 使用zrddsgen编译器"
+        }
+      ]
     },
     {
       "id": "Q100",
@@ -5350,7 +6815,23 @@
           "score": 0.026743
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q100",
+          "source_id": "user_manual",
+          "page_print": [
+            276,
+            276
+          ],
+          "section_keyword": "24.2 Licence授权方式"
+        }
+      ]
     },
     {
       "id": "Q101",
@@ -5402,7 +6883,23 @@
           "score": 0.030536
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q101",
+          "source_id": "user_manual",
+          "page_print": [
+            172,
+            173
+          ],
+          "section_keyword": "11.3.2 使用zrddsgen编译器"
+        }
+      ]
     },
     {
       "id": "Q102",
@@ -5454,7 +6951,23 @@
           "score": 0.02901
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q102",
+          "source_id": "user_manual",
+          "page_print": [
+            178,
+            179
+          ],
+          "section_keyword": "11.6.1 ZRDDS的头文件"
+        }
+      ]
     },
     {
       "id": "Q103",
@@ -5506,7 +7019,23 @@
           "score": 0.028372
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q103",
+          "source_id": "user_manual",
+          "page_print": [
+            178,
+            179
+          ],
+          "section_keyword": "11.6.1 ZRDDS的头文件"
+        }
+      ]
     },
     {
       "id": "Q104",
@@ -5558,7 +7087,23 @@
           "score": 0.026133
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q104",
+          "source_id": "user_manual",
+          "page_print": [
+            18,
+            21
+          ],
+          "section_keyword": "4.1.1 sequence"
+        }
+      ]
     },
     {
       "id": "Q105",
@@ -5610,7 +7155,23 @@
           "score": 0.030777
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q105",
+          "source_id": "user_manual",
+          "page_print": [
+            173,
+            177
+          ],
+          "section_keyword": "11.4.1 使用Visual Studio 2008\\2010\\2013创建工程"
+        }
+      ]
     },
     {
       "id": "Q106",
@@ -5662,7 +7223,23 @@
           "score": 0.030077
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q106",
+          "source_id": "user_manual",
+          "page_print": [
+            23,
+            25
+          ],
+          "section_keyword": "4.2.5 编译器选项"
+        }
+      ]
     },
     {
       "id": "Q107",
@@ -5714,7 +7291,23 @@
           "score": 0.030536
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q107",
+          "source_id": "user_manual",
+          "page_print": [
+            22,
+            22
+          ],
+          "section_keyword": "4.2.1 @key标注"
+        }
+      ]
     },
     {
       "id": "Q108",
@@ -5766,7 +7359,23 @@
           "score": 0.028125
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q108",
+          "source_id": "user_manual",
+          "page_print": [
+            22,
+            22
+          ],
+          "section_keyword": "4.2.1 @key标注"
+        }
+      ]
     },
     {
       "id": "Q109",
@@ -5818,7 +7427,23 @@
           "score": 0.029139
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q109",
+          "source_id": "user_manual",
+          "page_print": [
+            23,
+            23
+          ],
+          "section_keyword": "4.2.4 @spare标注（DDS Extension）"
+        }
+      ]
     },
     {
       "id": "Q110",
@@ -5870,7 +7495,23 @@
           "score": 0.030366
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q110",
+          "source_id": "user_manual",
+          "page_print": [
+            12,
+            15
+          ],
+          "section_keyword": "3.2 编译IDL文件"
+        }
+      ]
     },
     {
       "id": "Q111",
@@ -5922,7 +7563,23 @@
           "score": 0.030077
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q111",
+          "source_id": "user_manual",
+          "page_print": [
+            172,
+            173
+          ],
+          "section_keyword": "11.3.2 使用zrddsgen编译器"
+        }
+      ]
     },
     {
       "id": "Q112",
@@ -5974,7 +7631,23 @@
           "score": 0.027864
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q112",
+          "source_id": "user_manual",
+          "page_print": [
+            276,
+            276
+          ],
+          "section_keyword": "24.2 Licence授权方式"
+        }
+      ]
     },
     {
       "id": "Q113",
@@ -6026,7 +7699,23 @@
           "score": 0.029083
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q113",
+          "source_id": "user_manual",
+          "page_print": [
+            276,
+            276
+          ],
+          "section_keyword": "24.2 Licence授权方式"
+        }
+      ]
     },
     {
       "id": "Q114",
@@ -6078,7 +7767,23 @@
           "score": 0.030331
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q114",
+          "source_id": "user_manual",
+          "page_print": [
+            248,
+            248
+          ],
+          "section_keyword": "20.1 XML配置说明"
+        }
+      ]
     },
     {
       "id": "Q115",
@@ -6130,7 +7835,23 @@
           "score": 0.030769
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q115",
+          "source_id": "user_manual",
+          "page_print": [
+            289,
+            289
+          ],
+          "section_keyword": "27.3 日志类型IDL文件"
+        }
+      ]
     },
     {
       "id": "Q116",
@@ -6182,7 +7903,23 @@
           "score": 0.029958
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q116",
+          "source_id": "user_manual",
+          "page_print": [
+            34,
+            38
+          ],
+          "section_keyword": "5.3 Listener"
+        }
+      ]
     },
     {
       "id": "Q117",
@@ -6234,7 +7971,23 @@
           "score": 0.030579
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q117",
+          "source_id": "user_manual",
+          "page_print": [
+            39,
+            40
+          ],
+          "section_keyword": "5.5.2 WaitSet的相关操作"
+        }
+      ]
     },
     {
       "id": "Q118",
@@ -6286,7 +8039,23 @@
           "score": 0.029877
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 0.0,
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
+      },
+      "expected": [
+        {
+          "question_id": "Q118",
+          "source_id": "user_manual",
+          "page_print": [
+            58,
+            59
+          ],
+          "section_keyword": "6.3.12 其他DomainParticipant操作"
+        }
+      ]
     },
     {
       "id": "Q119",
@@ -6338,7 +8107,23 @@
           "score": 0.028324
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q119",
+          "source_id": "user_manual",
+          "page_print": [
+            157,
+            159
+          ],
+          "section_keyword": "10.30 TransportConfigQosPolicy"
+        }
+      ]
     },
     {
       "id": "Q120",
@@ -6390,15 +8175,35 @@
           "score": 0.030118
         }
       ],
-      "note": "无期望来源标注（不计入指标分母）"
+      "metric_values": {
+        "hit_rate@5": 1.0,
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
+      },
+      "expected": [
+        {
+          "question_id": "Q120",
+          "source_id": "user_manual",
+          "page_print": [
+            159,
+            160
+          ],
+          "section_keyword": "10.31 UserDataQosPolicy"
+        }
+      ]
     }
   ],
   "compare_baseline": {
     "baseline": "struct_v1",
-    "delta": {}
+    "delta": {
+      "hit_rate@5": -0.0333,
+      "mrr@5": 0.0204,
+      "precision@5": -0.0116,
+      "recall@5": -0.0333
+    }
   },
   "notes": [
-    "评测口径为占位：页码按印刷页匹配（印刷页 = 物理页 − 6），最终判对口径待成员 C 定版（指南 §6 任务分解）。",
-    "本次无期望来源标注（expected_sources 缺失）：仅记录检索结果，指标为空；正式标注由成员 E 随问题集交付、成员 C 定口径（见 evaluation/datasets/README.md）。"
+    "评测口径为占位：页码按印刷页匹配（印刷页 = 物理页 − 6），最终判对口径待成员 C 定版（指南 §6 任务分解）。"
   ]
 }

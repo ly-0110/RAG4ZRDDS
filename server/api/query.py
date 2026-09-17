@@ -78,12 +78,14 @@ async def query(req: QueryRequest, request: Request) -> StreamingResponse:
             try:
                 chunks = await pipeline.retriever.retrieve(question, top_k)
                 # 检索器返回富引用（含 text 正文，供生成侧）；下发前端前投影为
-                # SourceRef 7 字段，避免把整段正文塞进 sources 事件与 sources.jsonl。
+                # SourceRef 字段，避免把整段正文塞进 sources 事件与 sources.jsonl。
                 wire_sources = to_source_refs(chunks)
-                yield _sse("sources", {"request_id": rid, "sources": wire_sources})
-                # 回查记录多带一个 source_url（SSE 不带）；见 schema.with_source_urls。
-                recorded = with_source_urls(
+                # 第 8 字段 source_url（2026-09-17 会签，W1 闭环）：HTML 来源给本地
+                # /documents/… 地址、PDF 为 null。下发与留档用同一份，前端无需再等回查。
+                wire_sources = with_source_urls(
                     wire_sources, getattr(pipeline, "source_urls", None) or {})
+                yield _sse("sources", {"request_id": rid, "sources": wire_sources})
+                recorded = wire_sources
                 # X3（2026-09-07 会签）：引用一经下发即持久化——之后生成侧失败
                 # （如 LLM 不可达），客户端已拿到的 sources 仍可经 /sources/{rid} 回查。
                 # put 每次追加序列化副本且回读取最后一条，成功路径下方二次 put

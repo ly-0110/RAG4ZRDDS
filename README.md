@@ -99,6 +99,7 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 
 | 文档 | 内容 |
 |---|---|
+| [`experiment-results.md`](./docs/experiment-results.md) | **实验结果分析**：分块/检索/多来源/精排对比、回答侧四指标、拒答专项、错误案例与结论 |
 | [`architecture.md`](./docs/architecture.md) | **系统架构**：分层视图、三条运行链路、对外契约、关键不变量、评测与部署形态 |
 | [`api.md`](./docs/api.md) | REST + SSE 契约（事件协议、Citation 字段、score 量纲按 mode 定标、错误双通道） |
 | [`ingest-pipeline.md`](./docs/ingest-pipeline.md) | 入库六步链路、多来源注册表、跨来源契约校验 |
@@ -130,11 +131,11 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 
 ## 当前状态与已知限制
 
-系统状态（2026-09-17）：`make test` **425/425 全绿**；`make ingest / index / experiment / serve / regression / audit` 全链路本机实测；多来源统一 Node 集 **1638 条**（H1 HTML 加载器丢正文缺陷修复后重生成），`indexes/` 六套索引经指纹核对**全部可复用（零重建）**；live 通路真实检索 + 真实出词的四场景演示通过（见 `docs/demo-runbook.md`）。系统架构见 [`docs/architecture.md`](./docs/architecture.md)。
+系统状态（2026-09-17）：`make test` **448/448 全绿**；`make ingest / index / experiment / serve / regression / audit` 全链路本机实测；多来源统一 Node 集 **1638 条**（H1 HTML 加载器丢正文缺陷修复后重生成），`indexes/` 六套索引经指纹核对**全部可复用（零重建）**；live 通路真实检索 + 真实出词的四场景演示通过（见 `docs/demo-runbook.md`）。系统架构见 [`docs/architecture.md`](./docs/architecture.md)。
 
 以下限制如实登记，请勿在汇报中当作已完成：
 
-- **检索正式指标仍静默**：`make audit` 现判 **blocked**，只剩 4 题口径问题（Q018/Q026/Q065/Q066——"策略章节页 vs 字段说明页"与双主题题，待 C 定口径）；此前 48 题阻断、6 题题干乱码、循环论证指纹 4/120 均已清零。口径定版前回归只走明细通道，历史报告的 metrics 视同 void，待定版后加 `--with-metrics` 统一重跑刷新（详见 `docs/week4-delivery-review.md` §3.11/§4）。
+- **检索正式指标已解冻（2026-09-17）**：`make audit` 判 **pass**（循环论证指纹 0/120、题面乱码 0、阻断项 0），`make regression --with-metrics` 已启用，**12 个实验 12/12 pass**；正式检索指标与逐题分析见 [`docs/experiment-results.md`](./docs/experiment-results.md)。
 - **回答侧评测（2026-09-17 已实测）**：`final_v1`（Prompt v2 + source_priority）120 题终跑——faithfulness **0.8950** / answer_relevance **0.9883** / correctness **0.9633** / citation_accuracy **0.9583**（均 n=120、判分失败 0），拒答 29/120；**20 题拒答专项 = 0 虚构**（16/20 显式拒答，另 4 题以"事实性否定 + 语料引用"作答，机器闸门因此退码 1，口径待 C 会签）；30 题人工抽检清单待签署。明细见 `docs/week4-delivery-review.md` §3.13。注意报告 `response.answer_seconds` 才是回答侧墙钟（120 题约 84 分钟，本地 9B），`duration_seconds` 仍是检索阶段耗时。
 - **SSE wire 第 8 字段**：HTML 引用的 `source_url` 已可经 `GET /sources/{rid}`（及 MCP `get_sources`）回查获得（api.md v0.11），前端已消费该通道并渲染外链；SSE 的 `sources` 事件仍是 7 字段，正式扩进 wire 需 B/C/E 会签。
 - **回答级日志未接线**：三级日志的请求级与检索级已落地（`logs/requests.jsonl` / `logs/retrievals.jsonl`），回答级字段定义属 C 的职责、目前缺位——D 已拟草案 [`docs/answer-log-schema-draft.md`](./docs/answer-log-schema-draft.md) 待 C 回签后接线。

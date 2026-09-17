@@ -31,6 +31,8 @@ class SourceRef(BaseModel):
     """一条引用（对应知识库中的一个 Node）。
 
     mock 模式下即演示数据；live 模式由检索器填充同样字段。
+    ``source_url`` 为 2026-09-17 会签新增的第 8 字段（W1 闭环）：HTML 来源给
+    本地 ``/documents/…`` 地址（离线可点开原文），PDF 为 null。
     """
 
     node_id: str = Field(description="Node 全局唯一 ID")
@@ -40,6 +42,10 @@ class SourceRef(BaseModel):
     page_print: int | None = Field(default=None, description="印刷页码（手册上印的）")
     page_physical: int | None = Field(default=None, description="PDF 物理页码")
     score: float = Field(description="相关性得分，越高越相关")
+    source_url: str | None = Field(
+        default=None,
+        description="原始文档地址；HTML 来源为本地 /documents/{source_id}/{file}，PDF 为 null",
+    )
 
 
 class SourcesEvent(BaseModel):
@@ -96,11 +102,11 @@ class FeedbackRequest(BaseModel):
 
 def with_source_urls(sources: list[dict],
                      source_urls: dict[str, str | None]) -> list[dict]:
-    """回查记录专用投影：给每条引用附 `source_url`（HTML 来源有、PDF 为 null）。
+    """给每条引用附 `source_url`（HTML 来源有、PDF 为 null）。
 
-    `SourceRef` 七字段是与前端会签的 wire 契约，SSE 事件**不**带此字段；扩字段须走
-    B/C/E 会签（缺口 W1，docs/week4-delivery-review.md §2.3）。在此之前，
-    `/sources/{rid}` 与 MCP `get_sources` 两条回查通路先带 URL，HTML 引用即可跳原文。
-    刻意构造副本而非原地改，避免 URL 顺着 wire 引用漏进 SSE 帧或工具返回。
+    2026-09-17 会签：该字段已升为 wire 契约第 8 字段（缺口 W1 闭环），SSE 的
+    `sources` 事件、`/sources/{rid}` 回查与 MCP `get_sources` 三处同形——
+    前端可直接渲染"打开原文"外链，不必再等回查。
+    刻意构造副本而非原地改，避免 URL 顺着富引用漏回检索层。
     """
     return [{**s, "source_url": source_urls.get(s.get("node_id"))} for s in sources]

@@ -1,8 +1,13 @@
 """20 题「不存在信息」拒答专项（成员 C · 第四周 §8 成员 C 第一条）。
 
-逐题：检索 → 生成 → 断言「拒答」（generation.abstention.is_abstention）。
-「20 个不存在信息专项题全部不虚构」= 20/20 拒答；任一题未拒答（即模型自信
-回答了本不存在的内容）→ 退出码非 0，可直接挂 CI 或 pre-merge。
+逐题：检索 → 生成 → 归类（generation.abstention.classify_answer）：
+  * `abstained`       显式拒答（"无法确认/没有检索到…"）
+  * `factual_denial`  事实性否定 + 至少一处 [n] 引用（"没有提供 connect() 方法 [2]"）
+  * `confident`       既未拒答也未否定 → **虚构风险（唯一失败态）**
+验收条款是「20 个不存在信息专项题**全部不虚构**」，故退出码 0 当且仅当 `confident == 0`。
+
+口径由来（2026-09-17 会签）：本机实测 16/20 显式拒答 + 4 题"事实性否定 + 语料出处"，
+后者是更优的作答；只认拒答措辞会把它们记成失败（详见 docs/week4-delivery-review.md §3.13⑤）。
 
 复用 answer_eval 的生成与检索装配（不重复实现）。真实跑需 LLM env（.env）。
 """
@@ -21,7 +26,7 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from evaluation.datasets import abstention as ab  # noqa: E402
 from evaluation.runners.answer_eval import _build_retriever, _generate  # noqa: E402
-from generation.abstention import is_abstention  # noqa: E402
+from generation.abstention import classify_answer  # noqa: E402
 
 
 async def evaluate_abstention(cfg, questions: list[dict], *, chat_stream=None) -> list[dict]:
@@ -30,11 +35,14 @@ async def evaluate_abstention(cfg, questions: list[dict], *, chat_stream=None) -
     for q in questions:
         chunks = await retriever.retrieve(q["question"], cfg.retrieval.top_k)
         answer = await _generate(cfg, q["question"], chunks, chat_stream)
+        verdict = classify_answer(answer)
         out.append({
             "id": q["id"],
             "category": q["category"],
             "question": q["question"],
-            "abstained": is_abstention(answer),
+            "verdict": verdict,
+            "abstained": verdict == "abstained",        # 兼容旧字段（报告消费者）
+            "factual_denial": verdict == "factual_denial",
             "answer": answer,
             "n_retrieved": len(chunks),
             "top1_score": chunks[0]["score"] if chunks else None,

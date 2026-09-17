@@ -62,7 +62,7 @@ generation:
 evaluation:
   dataset: evaluation/datasets/questions.jsonl
   expected_sources: evaluation/datasets/expected_sources.jsonl
-  retrieval_metrics: [hit_rate@5, mrr@5]
+  retrieval_metrics: [hit_rate@5, mrr@5, precision@5, recall@5]
   response_metrics: []
   sample_size: null
 

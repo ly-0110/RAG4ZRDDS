@@ -25,6 +25,11 @@ E（标注 Owner）在提交前自查、D 在开指标闸门前验收，都用�
 （Listener/Status/on_publication_matched…）照旧能在产物里命中，于是坏题面一路走到
 闸门开启。故按"连续 ≥3 个半角问号"判为阻断。
 
+OFF_PAGE 口径（2026-09-17 定版）：只有当题面**全部**技术实体都远离标注页时才阻断
+（QUESTION_TOKEN_OFF_PAGE）；部分实体在远处记非阻断的 TOKEN_PARTIAL_OFF_PAGE。
+理由：双主题题与"策略章节页 vs 字段说明页"是合理标注形态（Q018/Q026/Q065/Q066 实证），
+而"题面实体全书零命中"（QUESTION_TOKEN_ABSENT）仍是硬阻断——那才是编造实体的信号。
+
 依赖: 仅标准库；产物路径全部可参数化（单测用 tmp_path 喂小样本）。
 """
 
@@ -333,7 +338,16 @@ def audit_annotation(ann: dict, truth: ProductTruth, top1_page: int | None,
             findings.append("QUESTION_TOKEN_ABSENT")
         if off_page:
             probe["unmatched"] = off_page
-            findings.append("QUESTION_TOKEN_OFF_PAGE")
+            # 口径（2026-09-17 定版）：只有当题面**全部**技术实体都远离标注页时才算
+            # "这页答不了这题"。落在远处的那些实体改记非阻断的 PARTIAL，留痕供人工看。
+            # 依据：双主题题（Q018 问 on_data_available() 又追问能否调 create_datawriter()、
+            # Q026 问 on_sample_lost() 又问 SampleStateMask）与"策略章节页 vs 字段说明页"
+            # （Q065/Q066 标注 10.32 策略章节、字段说明在别处）都是**合理标注形态**，
+            # 原口径"最长 token 必须靠近标注页"会把它们误判成错标。
+            if len(off_page) == len(tokens):
+                findings.append("QUESTION_TOKEN_OFF_PAGE")
+            else:
+                findings.append("TOKEN_PARTIAL_OFF_PAGE")
 
     # A range is intentionally excluded: broad, source-backed ranges commonly
     # contain the retrieved top-1 by chance and are not evidence of circularity.
@@ -450,8 +464,9 @@ def render_markdown(result: dict, sources: dict[str, str]) -> str:
         lines.append("| … | | | | 另有 {0} 题同类问题 |".format(len(bad) - 60))
     lines += ["", "## 判定码计数", ""]
     for code, n in sorted(result["counts"].items(), key=lambda kv: -kv[1]):
-        tag = "阻断" if code in BLOCKING_CODES or code in {
-            "CONTRACT_MISSING", "CONTRACT_UNKNOWN_QUESTION_ID"} else "指纹"
+        tag = ("阻断" if code in BLOCKING_CODES or code in {
+            "CONTRACT_MISSING", "CONTRACT_UNKNOWN_QUESTION_ID"}
+            else "非阻断（留痕）" if code == "TOKEN_PARTIAL_OFF_PAGE" else "指纹")
         lines.append(f"- `{code}` = {n}（{tag}）")
     if result["missing_annotations"]:
         lines += ["", f"缺标注题号: {', '.join(result['missing_annotations'][:40])}"]

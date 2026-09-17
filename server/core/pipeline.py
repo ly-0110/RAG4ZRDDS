@@ -247,7 +247,18 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
         )
         # 生成侧：读 .env 的 LLM 配置；缺失时在此拒绝启动（可读错误），
         # 而非等首个请求才报错（与 D 的"接线问题在启动期暴露"一致）。
-        answer_stream = build_answer_stream(cfg)
+        # 回答级日志接线（docs/answer-log-schema-draft.md，2026-09-17 会签定版）：
+        # 与检索日志同层（HTTP 与 MCP 两条入口都覆盖），mock 模式不落盘。
+        from server.core.request_log import JsonlLog, LoggedAnswerStream
+
+        answer_stream = LoggedAnswerStream(
+            build_answer_stream(cfg),
+            JsonlLog(repo_root / settings.log_dir / "answers.jsonl"),
+            experiment=cfg.experiment.name,
+            config_hash8=ec.config_hash8(cfg),
+            prompt_version=cfg.generation.prompt_version,
+            model=os.getenv(f"{cfg.generation.llm_env_prefix}MODEL", "unknown"),
+        )
         _warmup_retriever(retriever)
         # 单一装载入口：产物详情 + URL 本地化（产物里的 source_url 指向配置里的
         # 占位外部域名 docs.zrtechnology.com，实际不可达；改写成本服务的

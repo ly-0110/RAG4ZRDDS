@@ -8,7 +8,7 @@
     "questions_sha12": "9ea5b614a078",
     "expected_sources_sha12": "b325848f1a9a"
   },
-  "generated_at": "2026-09-17T11:04:10+0800",
+  "generated_at": "2026-09-17T12:39:54+0800",
   "duration_seconds": 0.1,
   "index": {
     "dirname": "struct_bge-m3_677d777f",
@@ -28,7 +28,9 @@
   },
   "metrics": {
     "hit_rate@5": 0.6833,
-    "mrr@5": 0.5393
+    "mrr@5": 0.5393,
+    "precision@5": 0.145,
+    "recall@5": 0.6833
   },
   "per_question": [
     {
@@ -83,7 +85,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -149,7 +153,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -215,7 +221,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -281,7 +289,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -347,7 +357,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -413,7 +425,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.3333333333333333
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -479,7 +493,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -545,7 +561,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.2
+        "mrr@5": 0.2,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -611,7 +629,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -677,7 +697,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -743,7 +765,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -809,7 +833,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -875,7 +901,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.2
+        "mrr@5": 0.2,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -941,7 +969,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1007,7 +1037,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.25
+        "mrr@5": 0.25,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1073,7 +1105,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1139,7 +1173,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.3333333333333333
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1205,7 +1241,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.3333333333333333
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1271,7 +1309,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -1337,7 +1377,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1403,7 +1445,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1469,7 +1513,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1535,7 +1581,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -1601,7 +1649,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.25
+        "mrr@5": 0.25,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1667,7 +1717,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -1733,7 +1785,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -1799,7 +1853,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1865,7 +1921,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1931,7 +1989,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -1997,7 +2057,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.3333333333333333
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -2063,7 +2125,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -2129,7 +2193,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -2195,7 +2261,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -2261,7 +2329,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -2327,7 +2397,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -2393,7 +2465,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -2459,7 +2533,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.3333333333333333
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -2525,7 +2601,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.3333333333333333
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -2591,7 +2669,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -2657,7 +2737,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -2723,7 +2805,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -2789,7 +2873,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -2855,7 +2941,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -2921,7 +3009,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -2987,7 +3077,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3053,7 +3145,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -3119,7 +3213,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -3185,7 +3281,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -3251,7 +3349,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3317,7 +3417,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3383,7 +3485,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3449,7 +3553,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -3515,7 +3621,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3581,7 +3689,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3647,7 +3757,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3713,7 +3825,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3779,7 +3893,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3845,7 +3961,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.3333333333333333
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3911,7 +4029,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -3977,7 +4097,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4043,7 +4165,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4109,7 +4233,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4175,7 +4301,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -4241,7 +4369,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4307,7 +4437,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4373,7 +4505,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4439,7 +4573,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -4505,7 +4641,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4571,7 +4709,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -4637,7 +4777,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -4703,7 +4845,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -4769,7 +4913,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.6,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4835,7 +4981,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4901,7 +5049,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -4967,7 +5117,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -5033,7 +5185,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5099,7 +5253,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5165,7 +5321,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5231,7 +5389,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5297,7 +5457,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.3333333333333333
+        "mrr@5": 0.3333333333333333,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5363,7 +5525,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5429,7 +5593,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -5495,7 +5661,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5561,7 +5729,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5627,7 +5797,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5693,7 +5865,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5759,7 +5933,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -5825,7 +6001,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -5891,7 +6069,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -5957,7 +6137,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -6023,7 +6205,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -6089,7 +6273,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.25
+        "mrr@5": 0.25,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -6155,7 +6341,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -6221,7 +6409,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.2
+        "mrr@5": 0.2,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -6287,7 +6477,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -6353,7 +6545,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -6419,7 +6613,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -6485,7 +6681,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -6551,7 +6749,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -6617,7 +6817,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.2
+        "mrr@5": 0.2,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -6683,7 +6885,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.25
+        "mrr@5": 0.25,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -6749,7 +6953,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -6815,7 +7021,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -6881,7 +7089,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -6947,7 +7157,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7013,7 +7225,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7079,7 +7293,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7145,7 +7361,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -7211,7 +7429,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7277,7 +7497,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7343,7 +7565,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7409,7 +7633,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.5
+        "mrr@5": 0.5,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7475,7 +7701,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 0.25
+        "mrr@5": 0.25,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7541,7 +7769,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7607,7 +7837,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -7673,7 +7905,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.4,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7739,7 +7973,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7805,7 +8041,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 0.0,
-        "mrr@5": 0.0
+        "mrr@5": 0.0,
+        "precision@5": 0.0,
+        "recall@5": 0.0
       },
       "expected": [
         {
@@ -7871,7 +8109,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7937,7 +8177,9 @@
       ],
       "metric_values": {
         "hit_rate@5": 1.0,
-        "mrr@5": 1.0
+        "mrr@5": 1.0,
+        "precision@5": 0.2,
+        "recall@5": 1.0
       },
       "expected": [
         {
@@ -7956,7 +8198,9 @@
     "baseline": "struct_v1",
     "delta": {
       "hit_rate@5": -0.1,
-      "mrr@5": -0.0657
+      "mrr@5": -0.0657,
+      "precision@5": -0.0283,
+      "recall@5": -0.1
     }
   },
   "notes": [

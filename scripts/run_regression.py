@@ -393,6 +393,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="把当前报告提为基准锚点（reports/baseline/）")
     parser.add_argument("--with-metrics", action="store_true",
                         help="启用指标闸门（真值标注定版后再开）")
+    parser.add_argument("--with-response", action="store_true",
+                        help="连回答侧实验一起跑（默认跳过 response_metrics 非空的配置）")
     parser.add_argument("--metric-tol", type=float, default=0.02,
                         help="指标下跌幅度容差，默认 0.02")
     parser.add_argument("--min-overlap", type=float, default=0.8,
@@ -433,8 +435,26 @@ def main(argv: list[str] | None = None) -> int:
     if args.promote:
         return promote_baseline(configs)
 
+    # 回答侧实验（evaluation.response_metrics 非空）跑一次 = 120 题逐题生成 + 四次判分
+    # （本机实测 ≈84 分钟）。回归默认**不重跑**它们、只比对既有报告，避免一条
+    # `make regression` 意外挂两个小时；需要重跑时显式 --with-response。
+    def _has_response(path) -> bool:
+        try:
+            return bool(ec.load(str(path)).evaluation.response_metrics)
+        except ec.ConfigError:
+            return False
+
+    runnable = set(configs)
+    skipped_response: list[Path] = []
+    if not args.no_run and not args.with_response:
+        skipped_response = [p for p in configs if _has_response(p)]
+        runnable = set(configs) - set(skipped_response)
+
     print(f"[regression] 回归 {len(configs)} 个实验: "
           f"{[p.stem for p in configs]}")
+    if skipped_response:
+        print(f"[regression] 跳过重跑回答侧实验（仍参与比对）: "
+              f"{[p.stem for p in skipped_response]}（重跑加 --with-response）")
     print(f"[regression] 通道: 明细阈值 top-K 重合 ≥{args.min_overlap}"
           f"；指标闸门 {'开' if args.with_metrics else '关（标注未定版）'}")
 
@@ -455,7 +475,7 @@ def main(argv: list[str] | None = None) -> int:
         if prev and not args.no_run:
             archive_prev_report(name, prev, runs_dir)
 
-        if not args.no_run:
+        if not args.no_run and p in runnable:
             print(f"[regression] ▶ {name}: 运行实验 …")
             rc = rx.main(["--config", str(p)])
             if rc != 0:

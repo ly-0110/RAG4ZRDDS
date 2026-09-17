@@ -186,6 +186,28 @@ class TestAuditAnnotation:
         assert "QUESTION_TEXT_MOJIBAKE" not in codes
         assert "mojibake" not in probe
 
+    def test_partial_off_page_is_not_blocking(self, truth):
+        """双主题题：一个实体在标注页附近、另一个在远处 → 只记非阻断留痕。
+
+        口径定版依据（2026-09-17）：Q018 问 on_data_available() 又追问能否调
+        create_datawriter()，Q026 问 on_sample_lost() 又问 SampleStateMask——
+        标注落在主实体所在章节是正确的，旧口径按"最长 token"判它们错标。
+        """
+        codes, probe = aa.audit_annotation(
+            _ann(), truth, None, {"Q001"},
+            "DurabilityQosPolicy 的 kind 默认值是什么？DomainParticipant 又是什么？")
+        assert "TOKEN_PARTIAL_OFF_PAGE" in codes
+        assert "QUESTION_TOKEN_OFF_PAGE" not in codes
+        assert not (set(codes) & aa.BLOCKING_CODES)
+        assert probe["unmatched"][0]["token"] == "domainparticipant"
+
+    def test_all_tokens_off_page_still_blocks(self, truth):
+        """题面全部实体都远离标注页 → 仍是硬阻断（这页答不了这题）。"""
+        codes, _ = aa.audit_annotation(
+            _ann(page_print=10, section_keyword="1.1 分布式系统"), truth, None, {"Q001"},
+            "DurabilityQosPolicy 与 VOLATILE_DURABILITY_QOS 有什么关系？")
+        assert "QUESTION_TOKEN_OFF_PAGE" in codes
+
     def test_circular_fingerprint_is_not_blocking(self, truth):
         codes, _ = aa.audit_annotation(_ann(), truth, 127, {"Q001"},
                                        "DurabilityQosPolicy 的 kind 默认值是什么？")

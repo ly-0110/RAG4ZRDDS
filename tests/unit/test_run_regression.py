@@ -310,3 +310,42 @@ def test_regression_markdown_renders():
     }
     md = rr.render_markdown(summary)
     assert "struct_v1" in md and "PASS" in md and "| 实验 | 判定 |" in md
+
+
+def test_response_configs_are_not_rerun_without_flag(tmp_path, monkeypatch, capsys):
+    """回答侧实验（response_metrics 非空）默认不重跑——它一次 ≈84 分钟。
+
+    只比对既有报告；要重跑必须显式 --with-response（2026-09-17 加，起因是一次
+    `make regression` 差点触发 120 题回答侧全量评测）。
+    """
+    monkeypatch.setattr(rr, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(ec, "REPO_ROOT", tmp_path)
+    (tmp_path / "evaluation" / "reports").mkdir(parents=True)
+    monkeypatch.setattr(rr, "discover_configs", lambda only=None: [
+        rr.CONFIG_DIR / "final_v1.yaml", rr.CONFIG_DIR / "struct_v1.yaml",
+    ])
+    calls: list[list[str]] = []
+    monkeypatch.setattr(rr.rx, "main", lambda argv: (calls.append(list(argv)), 0)[1])
+    monkeypatch.setattr(rr, "load_report", lambda path: None)   # 无历史报告 → missing
+
+    rc = rr.main(["--only", "final_v1,struct_v1"])
+
+    assert rc in (0, 1)                                   # 只看"跑了哪些"，不关心判定
+    ran = [c[1].split("/")[-1][:-5].split("\\")[-1] for c in calls]
+    assert "struct_v1" in ran
+    assert "final_v1" not in ran, "回答侧配置不该在默认回归里重跑"
+    assert "跳过重跑回答侧实验" in capsys.readouterr().out
+
+
+def test_no_run_still_compares_response_configs(tmp_path, monkeypatch):
+    """--no-run 下回答侧配置仍要参与比对（只是不跑实验）。"""
+    monkeypatch.setattr(rr, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(ec, "REPO_ROOT", tmp_path)
+    (tmp_path / "evaluation" / "reports").mkdir(parents=True)
+    monkeypatch.setattr(rr, "discover_configs", lambda only=None: [rr.CONFIG_DIR / "final_v1.yaml"])
+    seen: list[str] = []
+    monkeypatch.setattr(rr, "load_report", lambda path: (seen.append(str(path)), None)[1])
+
+    rr.main(["--only", "final_v1", "--no-run"])
+
+    assert any("final_v1" in s for s in seen)

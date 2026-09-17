@@ -1,6 +1,8 @@
-# 回答级日志字段定义（草案 · 待 C 会签）
+# 回答级日志字段定义（v1.0 · 已落地）
 
-> 版本 v0.1（2026-09-17）　状态：**草案，未经 C 会签，代码尚未接线**
+> 版本 **v1.0（2026-09-17 定版）**　状态：**已会签（用户代行；C 事后追认）并已落地**——
+> 实现见 `server/core/request_log.py::LoggedAnswerStream`（pipeline 层接线，
+> HTTP 与 MCP 两条入口同覆盖；mock 不落盘），回归 `tests/unit/server/test_answer_log.py`（5 例）。
 > 拟稿：成员 D（日志设施的 Owner）。字段定义按指南 §3.1 属成员 C，本稿只是把
 > 「D 侧已有记录形状 + 生成侧可观测事实」摊开，供 C 增删改，避免继续空等。
 > 落点：`{LOG_DIR}/answers.jsonl`（与 `requests.jsonl` / `retrievals.jsonl` 同级）。
@@ -75,10 +77,11 @@
 4. 是否需要记录 `top_k` / `filters`（检索侧已在 `retrievals.jsonl`，这里是否重复）。
 5. 是否需要把 RAG 的 `source_priority` 生效情况（实际命中来源与优先级的差异）记一条。
 
-## 6. 落地计划（C 回签后由 D 执行）
+## 6. 落地记录（2026-09-17 执行完毕，原计划留档）
 
-1. `server/core/request_log.py` 新增 `LoggedAnswerStream`（包装 `pipeline.answer_stream`，
-   在 `done`/`error`/取消三条出口各写一条），沿用 `JsonlLog` 与 `request_log_scope`。
+1. ~~新增 `LoggedAnswerStream`~~ ✅ 已落地：包装 `pipeline.answer_stream`，`stop`/`error`/
+   `cancelled` 三条出口各写一条（取消走 `GeneratorExit`，部分答案仍留档），沿用
+   `JsonlLog`/`current_request_id`；写盘失败不阻断回答。
 2. `server/api/query.py` 与 `server/mcp_server.py` 无需改协议（rid 已在 scope 内）。
 3. 单测：成功路径、拒答路径、前端中止路径、上游报错路径各一例 + "日志写盘失败不阻断回答"。
 4. `docs/api.md` 补一段"日志落点"说明（**字段无增删，端点契约不变**）。

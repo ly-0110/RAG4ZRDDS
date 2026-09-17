@@ -1,7 +1,11 @@
 {
   "config": "final_v1",
-  "abstained": 16,
+  "criteria": "abstained | factual_denial(带引用) | confident(虚构风险)",
   "total": 20,
+  "abstained": 16,
+  "factual_denial": 4,
+  "confident": 0,
+  "note": "2026-09-17 会签口径更新后，对同一批**已实测答案**重新归类（未重跑 LLM）；原始生成于当日 11:44~11:52，模型 qwen3.5-9b。",
   "per_question": [
     {
       "id": "AB-001",
@@ -11,7 +15,9 @@
       "answer": "根据提供的检索内容，**ZRDDS 的 DomainParticipant 没有提供 `connect()` 方法用于主动建立网络连接**。\n\n具体说明如下：\n\n1.  **关于连接机制**：\n    ZRDDS 通过**发现协议（Discovery Protocol）**自动感知同一域内的其他 DomainParticipant，并自动建立发布/订阅关系，而非通过用户显式调用连接方法来“主动建立网络连接”。[4] 中提到：“当域参与者使能后，会通过发现协议自动感知同一个域下的域参与者，并与之交换当前实体的信息，以建立发布/订阅关系。”\n\n2.  **关于 DomainParticipant 的可用方法**：\n    根据 [2]（用户手册·第 48 页）中表 6-2《DomainParticipant 的函数》列出的功能，DomainParticipant 提供了以下工厂和管理功能，但**不存在名为 `connect()` 的方法**：\n    *   **实体功能**：`enable()`, `get_listener()`, `set_listener()` 等。\n    *   **实体工厂**：创建或删除 Topic、Publisher、Subscriber 的相关方法（如 `create_topic()`, `create_publisher()`）。\n    *   **通信管理**：提供 `ignore_participant()` 来忽略发现的域参与者，但无连接方法。\n    *   **域信息查询**：提供 `get_discovered_participants()` 等查询发现信息的方法。\n\n3.  **关于创建过程**：\n    [1]（用户手册·第 49 页）指出，创建 DomainParticipant 是通过调用 `DomainParticipantFactory` 的 `create_participant()` 方法完成的，其参数为 `domainId`, `qos`, `listener`, `mask`，其中也不包含网络连接相关的参数。\n\n**结论**：\n当前检索内容中未找到任何关于 `connect()` 方法的描述或定义。在 ZRDDS（基于用户手册和开发者指南片段）中，DomainParticipant 的“连接”是隐含在其被创建并启用后的自动发现过程中的，无需也不提供显式的 `connect()` 接口。",
       "n_retrieved": 5,
       "top1_score": 0.6737,
-      "top1_section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.1 创建DomainParticipant"
+      "top1_section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.1 创建DomainParticipant",
+      "verdict": "factual_denial",
+      "factual_denial": true
     },
     {
       "id": "AB-002",
@@ -21,7 +27,9 @@
       "answer": "基于提供的检索内容，**ZRDDS 的 API 中不存在 `DataWriter.disconnect()` 方法用于主动断开与订阅者之间的数据通道**。\n\n当前知识库无法确认存在名为 `disconnect` 的断开连接方法或参数，理由如下：\n1. **开发者指南（高优先级来源）仅定义了以下相关接口**：\n   - **[5]** 提供了删除数据读者的接口 `DDS_Subscriber_delete_datareader`，用于删除指定的数据读者实体 [5]。\n   - **[1]** 提供了注销主题的接口 `ZRPSInterface_UnSubscribe`，用于向中间件注销某个主题的订阅者（该函数针对的是**订阅者/Subscriber**侧的注销操作，且参数为 `topicNo`）[1]。\n2. **检索内容中未提及**任何名为 `disconnect` 的函数或接口描述 [1][5]。\n\n因此，若需断开连接，根据现有文档，应通过删除数据读者（`DDS_Subscriber_delete_datareader`）或注销订阅者（`ZRPSInterface_UnSubscribe`）等操作来释放资源或解除关联，具体需视业务场景而定，但无直接的 `disconnect()` 调用方式。",
       "n_retrieved": 5,
       "top1_score": 0.6979,
-      "top1_section": "核心接口基础类型支持函数 / 函数说明 / ZRPSInterface_UnSubscribe"
+      "top1_section": "核心接口基础类型支持函数 / 函数说明 / ZRPSInterface_UnSubscribe",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-003",
@@ -31,7 +39,9 @@
       "answer": "根据提供的检索内容，**ZRDDS 的 Topic 不提供 `get_matched_publications()` 接口**。该接口属于 **DataReader**（订阅者端）而非 **Topic**。\n\n具体依据如下：\n\n1.  **关于 Reader 端的接口**：\n    在 [5] 号检索片段中明确指出，`get_matched_publications()` 是用于“获取已匹配 DataWriter 的句柄列表”的方法，属于 **DataReader** 的关联实体功能。\n    > \"9.3.7 获取 DataReader 的关联实体 ... get_matched_publications()：获取已匹配 DataWriter 的句柄列表。” [5]\n\n2.  **关于 Topic 端的接口**：\n    在 [3] 号检索片段中列出了 **Topic** 支持的所有查询方法，包括 `get_participant()`、`get_name()` 和 `get_type_name()`，但并未包含 `get_matched_publications()`。\n    > “查询 Topic 的 DomainParticipant：DomainParticipant* get_participant() ... 查询 Topic 的 topic_name：char* get_name(); ... 查询 Topic 的 type_name：char* get_type_name();\" [3]\n\n此外，检索内容中还提到了 DataWriter（发布者端）相关的匹配状态是通过 `DDS_PublicationMatchedStatus` 结构体和回调函数 `on_publication_matched` 来处理的（见 [1]），而非通过 Topic 对象的某个查询接口直接获取列表。",
       "n_retrieved": 5,
       "top1_score": 0.6518,
-      "top1_section": "PublicationMatchedStatus/main_pub.c"
+      "top1_section": "PublicationMatchedStatus/main_pub.c",
+      "verdict": "factual_denial",
+      "factual_denial": true
     },
     {
       "id": "AB-004",
@@ -41,7 +51,9 @@
       "answer": "根据检索内容，ZRDDS 中用于恢复暂停数据分发的核心函数是 **`DDS_Publisher_resume_publications`**，而非 `Publisher.resume()`（检索内容中未提供名为 `resume()` 的 C++/Java 风格对象方法）。\n\n以下是恢复暂停数据分发（取消挂起）的具体方法和注意事项：\n\n### 1. 使用的方法\n根据 **[2]** 号来源（用户手册），在 Publisher 实体上，恢复数据的函数描述为 **`resume_publications()`**。\n> “取消挂起 Publisher 下所有 DataWriter 的数据发布。” [2]\n\n其对应的底层 C API 函数定义如下：\n*   **函数签名**：`DCPSDLL DDS_ReturnCode_t DDS_Publisher_resume_publications ( DDS_Publisher * publisher )` [1]\n*   **功能描述**：恢复数据发布。该函数与 `DDS_Publisher_suspend_publications` 配对使用。[1]\n\n### 2. 调用前提与返回值说明\n根据 **[1]** 号来源（开发者指南），成功执行恢复操作需要满足以下条件及可能的返回结果：\n*   **前置条件**：必须曾对该发布者调用过挂起函数 `DDS_Publisher_suspend_publications`。如果未调用过挂起，将无法恢复。 [1]\n*   **错误码**：\n    *   `DDS_RETCODE_NOT_ENABLED`：该发布者未被使能（需先调用 `enable()`）。 [1]\n    *   `DDS_RETCODE_PRECONDITION_NOT_MET`：该发布者未调用过 `DDS_Publisher_suspend_publications`。 [1]\n    *   `DDS_RETCODE_OK`：操作成功。 [1]\n\n### 3. 特殊注意事项：多次挂起与取消\n根据 **[3]** 号来源（开发者指南），如果用户多次调用了 `DDS_Publisher_suspend_publications`（即多次挂起），则必须**调用相同次数**的恢复函数才能重新开始发布数据。\n> “该函数可以被多次调用，但是取消挂起也需要配对使用，亦即如果该函数被多次调用之后，必须取消相同次数才能重新开始发布数据。” [3]\n\n### 4. 关于示例代码中的差异\n在检索内容 **[4]** 和 **[5]**（开发者指南的示例代码）中，**并未包含**具体的暂停与恢复逻辑示例。这些示例仅展示了数据的循环发送、资源释放（如 `delete_contained_entities` 等）以及阻塞等待的过程，没有体现调用 `suspend` 或 `resume` 的具体实现片段。因此无法基于示例代码补充具体用法，需严格依据文档描述操作。\n\n---\n**总结操作步骤：**\n1. 确保 Publisher 已通过 `DDS_Publisher_enable()` 使能。 [2]\n2. 若数据已暂停，调用 **`DDS_Publisher_resume_publications(publisher)`**。 [1]\n3. 若曾执行了多次挂起，请确保执行相同次数的恢复操作。 [3]",
       "n_retrieved": 5,
       "top1_score": 0.6686,
-      "top1_section": "发布模块 / 函数说明 / DDS_Publisher_resume_publications"
+      "top1_section": "发布模块 / 函数说明 / DDS_Publisher_resume_publications",
+      "verdict": "factual_denial",
+      "factual_denial": true
     },
     {
       "id": "AB-005",
@@ -51,7 +63,9 @@
       "answer": "根据当前提供的检索内容，**无法回答**\"ZRDDS 运行时报 E1003 错误代表什么”以及具体的排查步骤。\n\n原因如下：\n1.  **缺失错误码定义**：检索内容中的《常见问题》、《版本记录》及《日志级别》文档中，均未提及\"E1003\"这一具体错误代码的定义或含义 [2][4][5]。\n2.  **无法推导排查步骤**：由于不知道该错误的具体原因（如网络、授权、配置等），因此无法基于现有知识库给出针对性的 E1003 错误排查步骤。虽然检索内容中提到了通信问题的通用排查因素（如网线、Ping、防火墙、授权、回调接口等）[2]，日志级别定义 [5]，但这些是通用的 ZRDDS 知识，并非针对 E1003 特定错误的官方解释或专用步骤。\n\n**结论：**\n当前知识库无法确认 E1003 错误的具体含义及对应的专属排查步骤。建议查阅《安装配置手册.pdf》（在检索内容 [2] 中被引用但未提供具体内容）或其他更详细的错误码对照表。",
       "n_retrieved": 5,
       "top1_score": 0.5973,
-      "top1_section": "ZRDDS版本记录 / ZRDDSv2.2.3 / ZRDDS文档"
+      "top1_section": "ZRDDS版本记录 / ZRDDSv2.2.3 / ZRDDS文档",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-006",
@@ -61,7 +75,9 @@
       "answer": "当前知识库无法确认 ZRDDS 日志中的 E2001 错误码具体对应哪种初始化失败。\n\n**说明：**\n提供的检索内容中包含了 ZRDDS 的返回值类型（`DDS_ReturnCode_t`，如 `DDS_RETCODE_OK`, `DDS_RETCODE_ERROR` 等）、部分接口示例及版本更新记录，但**未提及任何具体的错误码数值（如 E2001）及其对应的详细含义或关联的初始化失败场景**。\n\n根据规则，不得虚构检索内容中不存在的 API、参数或功能，因此无法基于现有信息给出答案。",
       "n_retrieved": 5,
       "top1_score": 0.566,
-      "top1_section": "简化接口 / 函数说明 / DDS_Init"
+      "top1_section": "简化接口 / 函数说明 / DDS_Init",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-007",
@@ -71,7 +87,9 @@
       "answer": "当前知识库无法确认告警 W5002 的具体含义、产生原因及修复建议。\n\n**说明：**\n提供的检索内容 [1]、[3]、[4]、[5] 均为 ZRDDS 调试日志信息表（debug_no），列出了如 `1006`、`193`、`870` 等具体的调试日志编号及其对应内容，但其中**不存在**名为 `W5002` 的告警或错误码。\n\n检索内容 [2] 来自《ZRDDS 用户手册》，主要讲述了如何处理触发的 Condition（如 StatusCondition、ReadCondition 等），并未提及 W5002 告警的处理方法。\n\n因此，基于现有知识库无法提供针对 W5002 的修复建议。",
       "n_retrieved": 5,
       "top1_score": 0.5335,
-      "top1_section": "ZRDDS调试日志信息表"
+      "top1_section": "ZRDDS调试日志信息表",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-008",
@@ -81,7 +99,9 @@
       "answer": "根据提供的检索内容，关于 ZRDDS 是否内置消息持久化到磁盘的能力以及如何开启的问题，回答如下：\n\n**1. 关于消息持久化能力的确认**\n当前知识库无法确认 ZRDDS 是否内置了将消息持久化到磁盘的能力。\n*   **依据：** 在检索内容中，明确提到零拷贝数据类型（与高性能传输相关）“不支持...涉及重传的 QoS，包括可靠传输以及**持久化 QoS**\"[1]。但这仅说明在使用特定优化模式时不支持持久化，并未说明系统底层是否具备开启该功能的通用机制或 API 接口。\n*   **结论：** 无法从现有资料推断出如何“开启消息落盘”，因为检索内容中未包含任何关于持久化（Persistence）或落盘的具体配置项、API 或开启方法。\n\n**2. 关于版本差异与冲突说明**\n不同检索片段之间不存在关于“如何开启持久化”的说法，因此无法指出版本差异或来源冲突。但片段 [1] 和片段 [2] 均涉及 ZRDDS 的零拷贝特性及对其限制的描述（不支持持久化 QoS），且均标注为**开发者指南**。\n\n**总结**\n基于当前检索内容：\n1.  **无法回答如何开启消息落盘**，因为文档中未提供相关配置方法或 API。\n2.  在使用**零拷贝数据类型**时，明确**不支持**持久化 QoS（即不支持消息落盘）[1]。\n3.  若用户需要持久化功能，可能需要使用非零拷贝模式或其他未在知识库中提及的配置方式，但具体操作无法依据当前资料确定。",
       "n_retrieved": 5,
       "top1_score": 0.6442,
-      "top1_section": "DDS_ZeroCopyBytes结构体 参考 / 详细描述"
+      "top1_section": "DDS_ZeroCopyBytes结构体 参考 / 详细描述",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-009",
@@ -91,7 +111,9 @@
       "answer": "关于您询问的\"ZRDDS 支持的传输加密协议（TLS/DTLS）”及“证书与密钥配置方法”，**当前知识库无法确认**。\n\n**详细说明如下：**\n1.  **关于加密协议支持情况**：\n    *   [3] 和 [5] 分别列举了 ZRDDS 支持的传输方式，包括 UDP、TCP、共享内存、RapidIO、PCIE 等，但所有提及内容均未包含 TLS 或 DTLS 相关描述。\n2.  **关于证书与密钥配置**：\n    *   检索内容中未提供任何关于 SSL/TLS 证书加载、密钥管理或加密通信配置的参数、API 接口或步骤说明。\n\n综上所述，提供的检索内容仅涵盖了传输协议类型（UDP/TCP/共享内存等）、数据类型及地址配置格式，未涉及传输层安全（TLS/DTLS）的任何信息。",
       "n_retrieved": 5,
       "top1_score": 0.6974,
-      "top1_section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述"
+      "top1_section": "PART1 背景介绍 / 第1章 概述 / 1.5 ZRDDS概述",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-010",
@@ -101,7 +123,9 @@
       "answer": "根据提供的检索内容，关于 ZRDDS 配置 UDPv6 传输及网卡/端口绑定选项的回答如下：\n\n**1. 关于 UDPv6 传输配置**\n*   **当前知识库无法确认** ZRDDS 是否支持 IPv6（UDPv6）地址格式。\n    *   检索内容 [2] 和 [3] 中列出的可配置传输方式仅包含 `udpv4`（IPv4 UDP）、`tcpv4`（IPv4 TCP）、`udpv4_raw`、`tcpv4_raw`、`shmem`、`rapidio`、`pcie` 和 `dpdk-ans`。\n    *   文档中关于地址字符串格式的描述为 `type://address//port`，其中 address 示例均为 IPv4 地址（如 `192.168.150.54`）或 IPv4 组播地址（如 `239.255.0.2`），未提及 `udpv6` 类型或 IPv6 地址格式。\n    *   虽然 [1] 提到 ZRDDS 支持高速 UDP，但未具体说明是否包含 v6 协议族的支持。\n\n**2. 关于网卡与端口绑定选项**\n*   **端口绑定：**\n    *   在 `DDS_TransportConfigQosPolicy` 结构体中，`port` 参数用于指定端口（来源 [2]）。\n    *   **取值规则**：\n        *   `0`：表示通过域以及域参与者 ID 计算出来的端口。\n        *   `1 - 65535`：指定具体端口。\n        *   `65536`：仅当该 QoS 作为 `DataWriterQoS` 或 `DataReaderQoS` 成员时，表示不关心端口，由系统自动分配（来源 [3]）。注意：若作为 `DomainParticipantQoS` 成员，使用 `0` 表示自动计算，但在写者/读者上 `0` 为非法端口。\n    *   **特殊协议端口**：对于 RapidIO (`rapidio://`) 和 PCIE (`pcie://`) 总线，`port` 字段被解释为“虚拟端口”，用于逻辑上区分数据目的地（来源 [2]）。\n\n*   **网卡（绑核）绑定：**\n    *   ZRDDS 提供**多核传输**功能，允许用户为读者或写者指定所使用的 CPU 核，实现绑核传输（来源 [4]）。\n    *   **配置机制**：当用户为实体配置了多个核时，ZRDDS 会创建相同数量的线程并一一绑定到指定的核上（来源 [4]）。\n    *   **TCP 多网卡与绑核掩码逻辑**：在 TCP 模式下，ZRDDS 根据 `usertraffic_receive_addresses` 中配置的网卡 IP 数量创建发送线程（来源 [5]）。\n        *   若配置的 **绑核掩码数量 > 网卡 IP 数量**：多余的绑核掩码将不会使用。\n        *   若配置的 **绑核掩码数量 < 网卡 IP 数量**：多出来的发送线程将不进行绑核。\n        *   系统会将 `sysctl.dw.asynchronous_send_thread_affinity_masks` 配置的值绑定到对应的发送线程（来源 [5]）。\n\n**总结冲突与缺失：**\n*   **版本差异**：检索内容中未显示不同版本对 UDPv6 或网卡绑核的具体描述存在直接冲突，但 TCP 多核绑核逻辑在 [4] 和 [5] 中分别从功能介绍和具体配置说明（掩码数量与 IP 数量的关系）进行了阐述，二者互补。\n*   **主要缺失**：关于 UDPv6 的支持情况及对应的地址格式、端口或网卡绑定特性，在当前提供的开发者指南片段中完全没有提及。",
       "n_retrieved": 5,
       "top1_score": 0.7194,
-      "top1_section": "ZRDDS常见问题 / 1.技术支持 / 1.2.ZRDDS支持哪些通信协议？"
+      "top1_section": "ZRDDS常见问题 / 1.技术支持 / 1.2.ZRDDS支持哪些通信协议？",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-011",
@@ -111,7 +135,9 @@
       "answer": "根据当前提供的检索内容，**无法确认**ZRDDS 是否提供“内置的集群负载均衡”与“容灾切换”能力。\n\n具体说明如下：\n1.  **关于负载均衡**：检索内容中未提及任何关于“集群负载均衡（Cluster Load Balancing）”的功能描述、API 或参数配置 [1][2][4]。\n2.  **关于容灾/可靠性**：检索内容提到了 ZRDDS 针对系统可靠性提供支撑，包括：\n    *   完全分布式的应用框架（P2P 模式），意味着任何组成部分的故障可以及时隔离 [4]。\n    *   数据驱动设计模式可以帮助实现任意组成部分的容错加固，使系统在部分故障情况下保持稳定 [4]。\n    *   版本记录中提到了修复与“组播地址判定”、“发现变慢”、\"DP（Data Publisher/Participant）生命周期”等相关的问题，间接涉及节点间的通信维护，但**并未明确描述为“自动容灾切换（Disaster Recovery Switchover）”功能或集群主备切换机制** [5]。\n\n综上，现有知识库仅确认了 ZRDDS 具备分布式架构下的故障隔离与部分组件的容错能力，但未提供关于内置“集群负载均衡”及明确“容灾切换”能力的直接证据。",
       "n_retrieved": 5,
       "top1_score": 0.6493,
-      "top1_section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍"
+      "top1_section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-012",
@@ -121,7 +147,9 @@
       "answer": "基于提供的检索内容，**无法直接回答**\"ZRDDS 2.4 相比 2.3 新增了哪些功能”以及“升级时需要注意什么”这两个具体问题。\n\n**原因说明：**\n1.  **缺乏版本变更日志**：检索内容仅包含了各版本的安装包下载列表（[2]、[3]、[4]、[5]）以及一个旧版本的版本记录片段（[1]）。\n    *   片段 [1] 仅记录了 V2.2.3 添加了“常见问题页”和更新了“编译器文档”，未提及 2.4 版本的内容。\n    *   片段 [2]、[3]、[4]、[5] 仅展示了不同版本（如 2.3.3, 2.4.2, 2.4.3）对应的**安装包文件名**和**基本说明**（如支持的编译器版本 VS2008/2015、GCC 版本等）。\n2.  **信息粒度不足**：虽然可以看出从 2.3.x 到 2.4.x，安装包名称中增加了\"-Trial-\"后缀（[2] vs [4]），且部分 Linux 包名中的 Eclipse 描述一致（Eclipse-Oxygen, Eclipse-202012），但检索内容**从未明确文字说明**这些变化代表什么“新功能”，也未列出任何关于版本升级的“注意事项”或“兼容性声明”。\n3.  **冲突提示**：不同检索片段对同一内容的说法存在不一致，主要体现在文件命名规范上：\n    *   在 V2.4.2、V2.4.3-release1 及 no-autosort 版本中（[2], [3], [5]），Windows 开发库安装包名均带有 `-Trial-` 后缀。\n    *   但在 V2.3.3 版本中（[4]），对应的 Windows 开发库安装包名**没有** `-Trial-` 后缀（例如 `ZRDDSSetupWin32VS2010-2.3.3-cc-cj-dg.exe`）。\n    *   **注意**：这仅是文件名格式的差异，检索内容并未将此解释为“新增功能”或“升级注意事项”。\n\n**结论：**\n当前知识库无法确认 ZRDDS 2.4 相比 2.3 具体新增了哪些业务功能，也无法确认升级时的具体注意事项。建议查阅专门的\"Release Notes for 2.4\"文档或官方技术公告以获取准确信息。",
       "n_retrieved": 5,
       "top1_score": 0.6626,
-      "top1_section": "ZRDDS版本记录 / ZRDDSv2.2.3 / ZRDDS文档"
+      "top1_section": "ZRDDS版本记录 / ZRDDSv2.2.3 / ZRDDS文档",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-013",
@@ -131,7 +159,9 @@
       "answer": "基于提供的检索内容，**无法确认** ZRDDS v2.4 是否已经废弃 v2.3 的 `HistoryQosPolicy` 接口。\n\n理由如下：\n1.  **检索内容缺失版本更新说明**：提供的检索片段 [1]、[5] 详细介绍了 `HistoryQosPolicy` 的功能和配置，但未提及任何关于“废弃”或\"Deprecation\"的动作。片段 [2]（开发者指南）虽然包含版本记录（releasenotes.html），但仅列出了 ZRDDS v2.2.5（beta-15, beta-12）的文档更新和错误修复，**并未包含 ZRDDS v2.4 的发布记录或变更记录**。\n2.  **无冲突信息**：检索内容中不存在不同来源对\"v2.4 废弃 HistoryQosPolicy\"这一说法的不一致描述。\n\n**结论：**\n当前知识库无法确认 ZRDDS v2.4 是否废弃了 `HistoryQosPolicy` 接口。建议查阅 ZRDDS v2.4 的官方发布说明（Release Notes）或开发者指南中的 v2.4 章节以获取确切信息。",
       "n_retrieved": 5,
       "top1_score": 0.652,
-      "top1_section": "PART 2 基本概念 / 第10章 QoS策略 / 10.10 HistoryQosPolicy"
+      "top1_section": "PART 2 基本概念 / 第10章 QoS策略 / 10.10 HistoryQosPolicy",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-014",
@@ -141,7 +171,9 @@
       "answer": "根据当前提供的检索内容，**无法回答**您关于\"ZRDDS 3.0 版本规划了新特性及预计发布时间”的问题。\n\n原因如下：\n1.  **最高版本号不符**：检索内容中涉及的 ZRDDS 最新版本仅为 **V2.4.3-release2** [5]、**V2.3.3-release1** [1] 和 **V2.3.0-release1** [2]。检索范围未覆盖到\"3.0\"版本的相关信息。\n2.  **无版本规划或发布计划**：提供的检索内容仅包含各版本的安装包列表（如支持的开发库、编译器版本等）[1][2][5] 以及历史版本的文档更新记录（如修复了某些 QosPolicy 错误、更新了零拷贝说明等）[3][4]，其中没有任何关于未来\"3.0 版本”的特性规划或预计发布时间的描述。\n\n当前知识库无法确认 ZRDDS 3.0 的版本规划及发布时间。",
       "n_retrieved": 5,
       "top1_score": 0.6405,
-      "top1_section": "ZRDDS下载 / ZRDDS安装包下载 / V2.3.3-release1"
+      "top1_section": "ZRDDS下载 / ZRDDS安装包下载 / V2.3.3-release1",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-015",
@@ -151,7 +183,9 @@
       "answer": "根据提供的检索内容，ZRDDS **不直接支持**通过标准的 RESTful API 来远程管理主题与参与者，而是主要通过 **C 语言风格的动态链接库接口（DCPSDLL）** 进行编程管理。不过，其开发者指南提到系统扩展了接口风格以支持 XML 配置，这可能作为一种非实时或批量的远程管理补充手段。\n\n具体依据如下：\n\n1.  **关于“远程管理主题与参与者”的功能存在性：**\n    *   ZRDDS 提供了用于获取和感知域参与者（即参与者本身）以及创建主题相关实体的接口。\n    *   **[3]** （开发者指南）详细描述了接口 `DDS_DomainParticipant_get_discovered_participants`，该函数可以“获取该域参与者发现的远程...域参与者的标识列表”，并进一步通过其他接口获取详细信息。这说明系统具备发现和管理（感知状态）远程参与者的能力 [3]。\n    *   **[4]** 和 **[5]** （开发者指南）提供了 `ZRPSInterface_Publish_WConfig`（注册发布者/主题）和 `ZRPSInterface_Subscribe`（注册订阅者）等核心接口，允许程序化地创建和管理与主题相关的实体 [4][5]。\n    *   **[1]** （开发者指南）提到 ZRDDS 在标准协议之上进行了扩展，支持通过**XML 配置文件**来初始化各类实体（包括域参与者、主题、数据写者/读者），从而实现“不修改程序也可以修改实体的 QoS\"甚至创建实体 [1]。\n\n2.  **关于是否基于\"RESTful API\"：**\n    *   检索内容中明确定义的接口函数均为 C/C++ 风格的动态库导出函数（如 `DDS_DomainParticipant_get_discovered_participants`, `ZRPSInterface_Publish_WConfig`），并未提及 HTTP、JSON 或 RESTful 相关的协议描述 [3][4][5]。\n    *   **[1]** 仅提到 ZRDDS“保留扩展性以及兼容性”，并进行了接口扩展，但具体的扩展内容列举的是 XML 配置支持和回调逻辑简化，未明确说明这些功能是通过 RESTful API 实现的 [1]。\n\n**结论：**\n检索内容表明 ZRDDS 具备通过编程接口（C 语言 DLL）和 XML 配置方式来发现、感知及初始化主题与参与者，但**未提供关于“通过 RESTful API 进行远程管理”的具体说明或证据**。目前知识库中的接口定义为传统的 C 语言动态链接库风格。",
       "n_retrieved": 5,
       "top1_score": 0.6352,
-      "top1_section": "ZRDDS多种接口风格及开发流程 / 2. 扩展接口"
+      "top1_section": "ZRDDS多种接口风格及开发流程 / 2. 扩展接口",
+      "verdict": "factual_denial",
+      "factual_denial": true
     },
     {
       "id": "AB-016",
@@ -161,7 +195,9 @@
       "answer": "根据提供的检索内容，**ZRDDS 的现有文档（开发者指南和用户手册）中未明确提及提供“可视化监控大盘”功能来实时查看吞吐量与延迟**。\n\n检索内容主要涉及以下技术细节，但均不包含可视化管理或监控大屏的描述：\n1.  **QoS 配置**：支持配置延时预算（LatencyBudgetQosPolicy），用于提示底层优化数据优先级，文档特别注明该 QoS“暂未实现”[[1]]。\n2.  **性能特性**：支持大包零拷贝以提升传输性能 [[2]]。\n3.  **版本修复与统计信息**：\n    *   ZRDDS v2.2.5 beta-12 版本中修正了\"DataWriter 报文统计信息未正确填写的问题”[[3]]。\n    *   在 v2.2.5 beta-15 版本中提到增加了“使用 TCP 尝试 connect 的方式测试远程地址是否可用，并将其排序的功能”[[3]]。\n4.  **协议标准**：遵循 OMG DDS 和 RTPS 规范 [[4]][[5]]。\n\n虽然检索内容提到了“报文统计信息”，但这通常指底层数据报文的计数统计，而非面向用户的“可视化监控大盘”。\n\n**结论：**\n当前知识库无法确认 ZRDDS 是否提供可视化监控大盘实时查看吞吐量与延迟功能。现有资料仅展示了其 QoS 配置、性能优化特性及版本修复记录，未涉及图形化监控界面或管理台的相关内容。",
       "n_retrieved": 5,
       "top1_score": 0.6464,
-      "top1_section": "DDS_LatencyBudgetQosPolicy结构体 参考 / 详细描述"
+      "top1_section": "DDS_LatencyBudgetQosPolicy结构体 参考 / 详细描述",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-017",
@@ -171,7 +207,9 @@
       "answer": "根据提供的检索内容，**当前知识库无法确认** ZRDDS 与 Kafka/RabbitMQ 相比的吞吐量基准测试结果。\n\n**原因说明：**\n1.  **检索内容缺失对比数据**：检索到的文档中包含了 ZRDDS 的版本记录 [1]、通信模型描述 [2]、零拷贝性能优化原理及 DMA 配置建议 [3][5]，以及 QoS 策略说明 [4]。\n    *   片段 [5] 提到了在特定平台（华睿 2 号）上，数据长度不同时代价 `memcpy` 和 DMA 的性能差异（例如：小于 16KB 时 DMA 更快，32KB 以上 DMA 优于 memcpy），但这仅是 ZRDDS 内部数据拷贝机制的对比，**未涉及与 Kafka 或 RabbitMQ 的吞吐量基准测试**。\n    *   片段 [3] 提到“当用户数据长度较大且底层通信协议速度较快时，多次拷贝会对性能造成很大影响”，并指出零拷贝能提升性能，但同样**没有提供具体的数值指标或与竞品（Kafka/RabbitMQ）的横向对比数据**。\n2.  **未找到相关章节**：提供的检索片段中没有任何关于“吞吐量基准测试”、“性能评测报告”或与消息中间件（Kafka、RabbitMQ）进行对比的内容。\n\n因此，基于现有知识库无法回答该问题。",
       "n_retrieved": 5,
       "top1_score": 0.5883,
-      "top1_section": "ZRDDS版本记录 / ZRDDSv2.2.3 / ZRDDS开发库"
+      "top1_section": "ZRDDS版本记录 / ZRDDSv2.2.3 / ZRDDS开发库",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-018",
@@ -181,7 +219,9 @@
       "answer": "当前知识库无法确认如何安装 ZRDDS 的 Python 官方 SDK（zrdds-python）。\n\n**说明：**\n检索内容中仅包含以下关于 ZRDDS 系统本身的安装和配置信息：\n1.  **宿主机安装**：涉及解压安装包 `ZRDDSSetupX64GCC4.8.4-2.2.7.tar.gz` 并执行 `sudo ./install.sh`（来源 [1]）。\n2.  **软件安装步骤**：描述通过图形界面启动安装程序、选择路径、设置环境变量及重启计算机的步骤（来源 [3]）。\n3.  **开发环境配置**：涉及 Visual GDB、g++ 编译器或 Visual C++ 的配置，以及添加头文件和库文件的方法（来源 [2], [4]）。\n\n检索内容中**未提及**任何关于 `zrdds-python` Python SDK 的安装命令、依赖包或具体安装步骤。虽然版本记录中提到更新了文档（来源 [5]），但未提供具体的 Python SDK 安装指南。因此，无法依据现有资料回答该问题。",
       "n_retrieved": 5,
       "top1_score": 0.6548,
-      "top1_section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.3 使用步骤"
+      "top1_section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.3 使用步骤",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-019",
@@ -191,7 +231,9 @@
       "answer": "当前知识库无法确认 ZRDDS 是否通过了国家安全等保三级认证，亦无相关证书编号信息。\n\n提供的检索内容主要涉及 ZRDDS 的版本更新记录、开发库功能特性（如 TCP 多核传输、内置数据类型）、下载包清单及操作系统兼容性说明 [1][2][3][4][5]，未包含任何关于安全认证、等保等级或证书编号的相关信息。",
       "n_retrieved": 5,
       "top1_score": 0.5894,
-      "top1_section": "ZRDDS版本记录 / ZRDDSv2.2.2 / ZRDDS开发库"
+      "top1_section": "ZRDDS版本记录 / ZRDDSv2.2.2 / ZRDDS开发库",
+      "verdict": "abstained",
+      "factual_denial": false
     },
     {
       "id": "AB-020",
@@ -201,7 +243,9 @@
       "answer": "根据提供的检索内容，**当前知识库无法确认**如何配置 ZRDDS 的自动故障转移（automatic failover）主备切换策略。\n\n虽然检索内容中包含了大量关于传输层配置（如 UDP、TCP、共享内存等地址配置）、QoS 调整（如心跳间隔、持久化样本、ReadCondition 修复等）以及 XML 配置文件的信息，但**未提及具体的“自动故障转移”功能开关、主备切换算法参数或相关配置字段**。\n\n具体分析如下：\n1.  **[3] 开发者指南 (DDS_TransportConfigQosPolicy)**：仅详细列出了传输方式的地址配置（如 `udpv4://...`, `tcpv4_raw://...` 等），支持在域参与者、DataWriter/DataReader 级别配置监听地址，但**未涉及故障转移策略的配置项**。\n2.  **[1] 开发者指南 (DDS_TransportPriorityQosPolicy)**：明确指出\"ZRDDS 当前未实现该 QoS\"（传输优先级），且无相关故障转移配置说明。\n3.  **[2] 开发者指南 (版本记录)**：虽然提到了修复了“自动发现变慢”、“缓存分片信息优化”、“远程 DP 发现”等与网络通信和发现相关的 Bug，以及增加了 DataWriter 定期发送 Heartbeat 的逻辑，但**未定义用户可配置的主备切换策略参数**。\n4.  **[4] & [5]**：分别说明了 QoS XML 配置的通用方法和 SimpleInterface 的使用示例，同样**没有针对故障转移策略的具体配置指导**。\n\n由于不同检索片段中均未包含该特定功能的配置说明，且无法从现有地址配置或 Heartbeat 设置中直接推导出“主备切换策略”的配置方法，故依据规则 3 做出上述结论。",
       "n_retrieved": 5,
       "top1_score": 0.6187,
-      "top1_section": "DDS_TransportPriorityQosPolicy结构体 参考 / 详细描述"
+      "top1_section": "DDS_TransportPriorityQosPolicy结构体 参考 / 详细描述",
+      "verdict": "abstained",
+      "factual_denial": false
     }
   ]
 }

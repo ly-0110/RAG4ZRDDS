@@ -1,8 +1,9 @@
-"""W1 处置（方案 B）：`/sources/{rid}` 回查记录附带 source_url，SSE wire 不变。
+"""source_url 字段链路：SSE wire 与 `/sources/{rid}` 回查同形（W1 闭环）。
 
 背景见 docs/week4-delivery-review.md §2.3：`source_url` 在 Node 产物里存在，但
-SourceRef 七字段投影把它丢了，前端拿不到 HTML 原文 URL。扩 wire 字段需 B/C/E 会签，
-在此之前由 D 在回查通路补齐。
+SourceRef 七字段投影把它丢了，前端拿不到 HTML 原文 URL。2026-09-17 会签后升为
+**wire 第 8 字段**——下发与回查都带（HTML 为本地 /documents/… 地址、PDF 为 null），
+本文件锁的就是"两条通路同形、缺 URL 的节点为 null、持久化记录也带"。
 """
 
 from __future__ import annotations
@@ -60,7 +61,7 @@ class TestBackfillOnlyOnLookup:
         nodes = [s["node_id"] for s in client.get(f"/sources/{rid}").json()["sources"]]
         return rid, nodes
 
-    def test_lookup_carries_url_and_sse_does_not(self, tmp_path):
+    def test_wire_and_lookup_both_carry_url(self, tmp_path):
         client = TestClient(create_app(_mock_settings(tmp_path)))
         _, nodes = self._rid_and_nodes(client)            # 先拿到 mock 的确定性 node_id
         url = "https://docs.zrtechnology.com/cdoc/html/group___c_publication.html"
@@ -71,8 +72,8 @@ class TestBackfillOnlyOnLookup:
         assert resp.status_code == 200
         rid = resp.headers["X-Request-ID"]
 
-        # ① wire：SSE 帧里不得出现 source_url（前端契约未会签扩字段）
-        assert "source_url" not in body
+        # ① wire：SSE 帧里带 source_url（2026-09-17 会签扩的第 8 字段）
+        assert f'"source_url": "{url}"' in body
 
         # ② 回查：第一条带 URL，其余为 null（形状稳定，前端可无条件读键）
         sources = client.get(f"/sources/{rid}").json()["sources"]
