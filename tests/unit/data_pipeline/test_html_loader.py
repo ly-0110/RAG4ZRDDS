@@ -449,3 +449,98 @@ def test_real_artifact_metadata_all_valid():
     assert report["chunk_id_dupes"] == 0
     assert report["pollution_hits"] == 0
     assert report["total_nodes"] > 1000
+
+
+# ==================== 混合内容容器回归（2026-09-17 D 代修缺陷） ====================
+#
+# 缺陷：_walk_blocks 的容器分支在"直系文本 + 标签子元素"混合时只递归标签子元素，
+# 直系 NavigableString 正文被整体丢弃；而 sub/sup/code/em 等行内标签递归后各自
+# 成为独立 text 块——表现为段落正文丢失 + 下标碎片成孤儿行（真实案例：
+# md_resources_docs_online_c_required_tcp_concurrent.html 的并包公式段，
+# "默认值为0…8388608（8M）"整段丢失，n 的下标 i/1/2/k/1/k-1 变成六个独立块）。
+
+_MIXED_HTML = """<!DOCTYPE html>
+<html><head><title>ZRDDS: 混合内容测试页</title></head><body>
+<div class="contents">
+  <h2>配置说明</h2>
+  <ul>
+    <li><p class="startli">sysctl.global.net.tcp_send_batch_len</p>
+    <p class="startli">默认值为0，表示不启用小包并包发送。当设置了指定值，例如设置值为N，
+    表明当用户要发送的包大小积攒到N时，再统一发送。例如用户第i（i从1开始）次发送的数据
+    大小为n<sub>i</sub>，当n<sub>1</sub> + n<sub>2</sub> + n<sub>k</sub> &gt; N时，
+    发送n<sub>1</sub>到n<sub>k-1</sub>包，否则将第k次发送数据暂存不进行发送。
+    以具体数值为例：设置sysctl.global.net.tcp_send_batch_len值为8388608（8M）</p></li>
+  </ul>
+  <p>行内代码混排：设置 <code>sysctl.global.use_cpu_id</code> 为 true 时可直接使用序号。</p>
+  <!-- 这是 HTML 注释，绝不能变成正文块 -->
+  <div>块级混排直系文本
+    <p>嵌套段落一</p>
+    <p>嵌套段落二</p>
+  </div>
+</div>
+</body></html>
+"""
+
+
+def _mixed_doc(tmp_path: Path):
+    f = tmp_path / "mixed_content.html"
+    f.write_text(_MIXED_HTML, encoding="utf-8")
+    return parse_html_document(f)
+
+
+def test_mixed_inline_container_keeps_full_paragraph(tmp_path: Path):
+    """正文 + sub 行内混排：段落完整保留，下标内联进文本，不产生孤儿碎片块。"""
+    doc = _mixed_doc(tmp_path)
+    texts = [b.text for b in doc.blocks if b.kind == "text"]
+    joined = "\n".join(texts)
+    # 丢掉的整段公式说明必须回来
+    assert "默认值为0，表示不启用小包并包发送" in joined
+    assert "8388608（8M）" in joined
+    # 下标内容必须留在段落里（内联），而不是独立成块
+    para = next(t for t in texts if "默认值为0" in t)
+    for sub in ("i", "1", "2", "k", "k-1"):
+        assert sub in para
+    # 不允许存在 ≤3 字符的孤儿碎片块（旧行为会产出 'i' '1' '2' 'k' '1' 'k-1' 六个）
+    orphans = [t for t in texts if len(t.strip()) <= 3]
+    assert not orphans, f"行内元素仍被拆成独立块: {orphans}"
+
+
+def test_inline_code_keeps_surrounding_text(tmp_path: Path):
+    """正文 + code 行内混排：code 内容与前后正文同块保留。"""
+    doc = _mixed_doc(tmp_path)
+    texts = [b.text for b in doc.blocks if b.kind == "text"]
+    para = next(t for t in texts if "use_cpu_id" in t)
+    assert "行内代码混排：设置" in para and "为 true 时可直接使用序号" in para
+
+
+def test_block_mixed_container_keeps_direct_text_in_order(tmp_path: Path):
+    """直系文本 + 块级子元素：直系文本按文档序保留，不再被静默丢弃。"""
+    doc = _mixed_doc(tmp_path)
+    texts = [b.text for b in doc.blocks if b.kind == "text"]
+    assert "块级混排直系文本" in "\n".join(texts)
+    # 文档序：直系文本在嵌套段落之前
+    idx_direct = next(i for i, t in enumerate(texts) if "块级混排直系文本" in t)
+    idx_nested = next(i for i, t in enumerate(texts) if "嵌套段落一" in t)
+    assert idx_direct < idx_nested
+
+
+def test_html_comments_not_emitted_as_text(tmp_path: Path):
+    """HTML 注释（Comment 是 NavigableString 子类）不能被当成直系正文落块。"""
+    doc = _mixed_doc(tmp_path)
+    joined = "\n".join(b.text for b in doc.blocks)
+    assert "HTML 注释" not in joined
+
+
+def test_real_corpus_tcp_concurrent_formula_preserved():
+    """真实语料守卫：并包公式段完整、无孤儿下标块（语料缺失时 skip）。"""
+    if not CORPUS.exists():
+        pytest.skip("HTML 语料未就位")
+    doc = parse_html_document(
+        CORPUS / "md_resources_docs_online_c_required_tcp_concurrent.html")
+    assert doc is not None
+    texts = [b.text for b in doc.blocks if b.kind == "text"]
+    joined = "\n".join(texts)
+    assert "默认值为0，表示不启用小包并包发送" in joined
+    assert "8388608" in joined
+    orphans = [t for t in texts if len(t.strip()) <= 3]
+    assert not orphans, f"仍存在孤儿碎片块: {orphans}"

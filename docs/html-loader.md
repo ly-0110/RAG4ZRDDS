@@ -123,6 +123,7 @@ write_nodes_jsonl(chunks, "data/processed/html_v1.jsonl")
 3. **`base_url` 尚未定值**：当前用文档站占位基址试跑；正式值应由 D 写入实验配置 `sources[].url`。
 4. **可选第二 PDF 未接**：`ZRDDS故障排查指南.pdf`（70 页 / 95 书签，印刷页偏移实测也是 −6，但末两页附录重新从 1 编号 → 偏移 −68）。接它前必须把 `pdf_loader.PAGE_OFFSET` 从模块级常量改为按文档参数化——它被 `section_tree.py` 与 `quality_check.py` 直接 import。
 5. **`min_chars=20` 会丢弃 15 个节点**（1022 → 1007）：均为 `dir_*` 参考页、`functions_x/y` 索引存根与 4 条 <20 字符的模块一句话摘要。`--min-chars 0` 可全量保留。
+6. **~~混合内容容器丢正文~~（2026-09-17 已修复，D 代修）**：`_walk_blocks` 的容器分支在「直系正文 + 标签子元素」混排时只递归子元素，容器自身的直系 `NavigableString` 被整体丢弃；而 `sub/sup/code/em/a` 等行内标签（同在 `CONTAINER_TAGS`）递归后各自成为独立 text 块。实测症状（用户报障）：`md_resources_docs_online_c_required_tcp_concurrent.html` 的并包公式段「默认值为0…8388608（8M）」整段丢失，`n` 的下标 `i/1/2/k/1/k-1` 变成六个孤儿碎片块。修复：新增 `INLINE_TAGS`——混合内容且子元素全为行内时整段一次取文（下标内联进正文），含块级子元素时改为按文档序把直系文本落块（用精确类型判定排除 `Comment`/`Doctype` 等 `NavigableString` 子类）。全语料实测：正文 **733,172 → 781,442 字符（+48,270，+6.6%）**，节点 1305 → 1337，重复节点 94 → 63，空节点/噪声/chunk_id 重复保持 0；回归测试 5 条见 `test_html_loader.py`「混合内容容器回归」一节（含真实语料守卫）。**影响面**：`html_v1.jsonl` 与统一 Node 集 `struct_v1__b95d1061.jsonl` 内容变更 → 多来源索引必须重建（R2 指纹闸门会拒绝复用旧索引）。遗留（上游文档缺陷，非本加载器）：该源文件表格本身含转义 `&lt;td&gt;` 残片（`max_flush_delay<td>…`），加载器忠实保留。
 
 ---
 
@@ -136,4 +137,4 @@ python -m pytest tests/unit/data_pipeline/test_html_loader.py -q
 python .tmp/verify2.py
 ```
 
-单测 24 条覆盖：文件发现与开关可逆、标题层级与 `section_path`、成员签名/`api_name`/参数表、代码 fence 与行号剥离、表格线性化与超大表分段（表头重复）、Schema html 分支、URL 拼接、chunk_id 唯一、碎片归并、`load_nodes` 可消费，以及 289 内容页与真实成员页的守卫断言。
+单测 29 条覆盖：文件发现与开关可逆、标题层级与 `section_path`、成员签名/`api_name`/参数表、代码 fence 与行号剥离、表格线性化与超大表分段（表头重复）、Schema html 分支、URL 拼接、chunk_id 唯一、碎片归并、`load_nodes` 可消费、混合内容容器（行内下标/代码不丢正文、直系文本按文档序、注释不入正文），以及 289 内容页与真实成员页的守卫断言。

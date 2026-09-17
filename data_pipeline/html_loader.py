@@ -90,6 +90,11 @@ CONTAINER_TAGS = ("div", "p", "li", "dd", "dt", "ul", "ol", "dl", "section",
                   "article", "blockquote", "td", "th", "tr", "tbody", "thead",
                   "center", "font", "span", "em", "strong", "b", "i", "code",
                   "a", "tt", "sub", "sup", "small", "big")
+# 行内标签：混合内容容器（直系正文 + 行内标记）整体按一段文本取文，不拆块、不丢正文
+# （2026-09-17 修复：sub/sup/code/em 等行内元素递归后曾各自成为独立 text 块，
+# 同时容器的直系正文被丢弃——见 test_html_loader.py 混合内容容器回归一节）
+INLINE_TAGS = ("font", "span", "em", "strong", "b", "i", "code", "a", "tt",
+               "sub", "sup", "small", "big")
 ERROR_CODE_RE = re.compile(r"\bE\d{3,5}\b")
 WS_RE = re.compile(r"[ \t\u00a0\u3000]+")
 SLUG_RE = re.compile(r"[^\w\u4e00-\u9fff]+", re.UNICODE)
@@ -352,8 +357,18 @@ def _member_block(memitem: Tag) -> Block:
 
 
 def _walk_blocks(el: Tag, out: List[Block]) -> None:
-    """把 DOM 子树按文档序摊平为 Block 流（标题/代码/表格/成员不透明，其余递归）。"""
+    """把 DOM 子树按文档序摊平为 Block 流（标题/代码/表格/成员不透明，其余递归）。
+
+    直系文本（NavigableString）按文档序落块——容器同时含正文与块级子元素时，
+    正文不再被递归路径静默丢弃（2026-09-17 修复；Comment/Doctype 等特殊
+    NavigableString 子类用精确类型判定排除，不会混入正文）。
+    """
     for child in el.children:
+        if type(child) is NavigableString:
+            txt = _clean(str(child))
+            if txt:
+                out.append(Block("text", text=txt))
+            continue
         if not isinstance(child, Tag) or _is_dropped(child):
             continue
         name = child.name
@@ -384,12 +399,14 @@ def _walk_blocks(el: Tag, out: List[Block]) -> None:
             continue
         if name in CONTAINER_TAGS:
             nested = [c for c in child.children if isinstance(c, Tag) and not _is_dropped(c)]
-            if nested:
-                _walk_blocks(child, out)
-            else:
+            if not nested or all(c.name in INLINE_TAGS for c in nested):
+                # 纯文本，或"直系正文 + 行内标记"（sub/sup/code/em/a…）的混合内容：
+                # 整段一次取文——行内元素内联进正文，不拆独立块、不丢直系正文
                 txt = _clean(child.get_text(" ", strip=True))
                 if txt:
                     out.append(Block("text", text=txt))
+            else:
+                _walk_blocks(child, out)
             continue
         # 未知标签按文本处理
         txt = _clean(child.get_text(" ", strip=True))
