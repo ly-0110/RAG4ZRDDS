@@ -5,10 +5,10 @@
   "config_hash8": "7415d375",
   "artifacts": {
     "nodes_file_sha12": "5f3dc3d8e616",
-    "questions_sha12": "4a5ddb1f1b5c",
-    "expected_sources_sha12": "4969e7ab1274"
+    "questions_sha12": "9ea5b614a078",
+    "expected_sources_sha12": "b325848f1a9a"
   },
-  "duration_seconds": 16.8,
+  "duration_seconds": 17.5,
   "index": {
     "dirname": "semantic_bge-m3_7415d375",
     "backend": "chroma",
@@ -26,8 +26,8 @@
     "skipped_no_expected": []
   },
   "metrics": {
-    "hit_rate@5": 0.0417,
-    "mrr@5": 0.0211
+    "hit_rate@5": 0.2917,
+    "mrr@5": 0.209
   },
   "per_question": [
     {
@@ -434,19 +434,19 @@
       "id": "Q021",
       "retrieved": [
         {
-          "node_id": "semantic_v1_00222"
-        },
-        {
-          "node_id": "semantic_v1_00220"
-        },
-        {
-          "node_id": "semantic_v1_00225"
-        },
-        {
           "node_id": "semantic_v1_00239_p001"
         },
         {
-          "node_id": "semantic_v1_00263_p000"
+          "node_id": "semantic_v1_00250"
+        },
+        {
+          "node_id": "semantic_v1_00253"
+        },
+        {
+          "node_id": "semantic_v1_00249"
+        },
+        {
+          "node_id": "semantic_v1_00222"
         }
       ]
     },
@@ -480,13 +480,13 @@
           "node_id": "semantic_v1_00253"
         },
         {
-          "node_id": "semantic_v1_00220"
-        },
-        {
           "node_id": "semantic_v1_00250"
         },
         {
-          "node_id": "semantic_v1_00273"
+          "node_id": "semantic_v1_00220"
+        },
+        {
+          "node_id": "semantic_v1_00249"
         }
       ]
     },
@@ -583,10 +583,10 @@
           "node_id": "semantic_v1_00225"
         },
         {
-          "node_id": "semantic_v1_00115"
+          "node_id": "semantic_v1_00081"
         },
         {
-          "node_id": "semantic_v1_00226"
+          "node_id": "semantic_v1_00219_p001"
         }
       ]
     },
@@ -1200,13 +1200,13 @@
           "node_id": "semantic_v1_00340"
         },
         {
-          "node_id": "semantic_v1_00074"
+          "node_id": "semantic_v1_00177"
         },
         {
-          "node_id": "semantic_v1_00645"
+          "node_id": "semantic_v1_00173"
         },
         {
-          "node_id": "semantic_v1_00186"
+          "node_id": "semantic_v1_00312"
         }
       ]
     },
@@ -1214,19 +1214,19 @@
       "id": "Q060",
       "retrieved": [
         {
-          "node_id": "semantic_v1_00075"
+          "node_id": "semantic_v1_00342"
         },
         {
-          "node_id": "semantic_v1_00393_p000"
+          "node_id": "semantic_v1_00075"
         },
         {
           "node_id": "semantic_v1_00344"
         },
         {
-          "node_id": "semantic_v1_00340"
+          "node_id": "semantic_v1_00383"
         },
         {
-          "node_id": "semantic_v1_00209_p001"
+          "node_id": "semantic_v1_00277"
         }
       ]
     },
@@ -2394,19 +2394,19 @@
       "id": "Q119",
       "retrieved": [
         {
+          "node_id": "semantic_v1_00100"
+        },
+        {
+          "node_id": "semantic_v1_00143"
+        },
+        {
+          "node_id": "semantic_v1_00371"
+        },
+        {
+          "node_id": "semantic_v1_00156"
+        },
+        {
           "node_id": "semantic_v1_00086"
-        },
-        {
-          "node_id": "semantic_v1_00442"
-        },
-        {
-          "node_id": "semantic_v1_00611"
-        },
-        {
-          "node_id": "semantic_v1_00090"
-        },
-        {
-          "node_id": "semantic_v1_00443_p000"
         }
       ]
     },

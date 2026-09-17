@@ -5,10 +5,10 @@
   "config_hash8": "ade09e39",
   "artifacts": {
     "nodes_file_sha12": "7b4fae96867b",
-    "questions_sha12": "4a5ddb1f1b5c",
-    "expected_sources_sha12": "4969e7ab1274"
+    "questions_sha12": "9ea5b614a078",
+    "expected_sources_sha12": "b325848f1a9a"
   },
-  "duration_seconds": 17.4,
+  "duration_seconds": 17.7,
   "index": {
     "dirname": "hybrid_bge-m3_ade09e39",
     "backend": "chroma",
@@ -26,8 +26,8 @@
     "skipped_no_expected": []
   },
   "metrics": {
-    "hit_rate@5": 0.3083,
-    "mrr@5": 0.1537
+    "hit_rate@5": 0.5667,
+    "mrr@5": 0.3453
   },
   "per_question": [
     {
@@ -437,16 +437,16 @@
           "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000_sem002"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_4_设置DataWriter的Listener_00000_sem002"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000_sem001"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_4_PUBLICATION_MATCHED_Status_00000_sem001"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_7_获取Subscriber的关联实体_00000_sem000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_5_SAMPLE_LOST_Status_00000"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_6_关于Subscriber的Status_00000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_6_SAMPLE_REJECTED_Status_00000"
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_4_设置Subscriber的QoS策略_9_2_4_3_获取及设置默认DataReader的QoS策略_00000_sem005"
         }
       ]
     },
@@ -480,13 +480,13 @@
           "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_2_LIVELINESS_CHANGED_Status_00000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_4_设置DataWriter的Listener_00000_sem001"
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_1_DATA_AVAILABLE_Status_00000_sem000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_1_LIVELINESS_LOST_Status_00000"
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_3_设置DataReader的QoS策略_9_3_3_3_使用Topic的QoS策略初始化DataReader的QoS策略_00000_sem004"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_2_OFFERED_DEADLINE_MISSED_Status_00000"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_4_设置DataReader的Listener_00000_sem001"
         }
       ]
     },
@@ -580,13 +580,13 @@
           "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_4_设置DataWriter的Listener_00000_sem001"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_3_设置DataWriter的QoS策略_8_3_3_3_使用Topic的QoS策略初始化DataWriter的QoS策略_00000_sem005"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_4_设置DataWriter的Listener_00000_sem005"
+        },
+        {
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_4_PUBLICATION_MATCHED_Status_00000_sem004"
         },
         {
           "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
-        },
-        {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_8_3_5_1_LIVELINESS_LOST_Status_00000"
         }
       ]
     },
@@ -1200,13 +1200,13 @@
           "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_17_PartitionQosPolicy_sem006"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_2_QoS策略_5_1_5_设置及获取Listener_00000_sem003"
+          "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_10_HistoryQosPolicy_sem008"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_4_设置及获取QoS策略_5_1_4_1_QoS策略的缺省值_00000_sem005"
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_3_设置DataWriter的QoS策略_8_3_3_1_创建DataWriter时配置QoS策略_00000_sem000"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_1_创建Subscriber_00000_sem005"
+          "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_16_OwnershipStrengthQosPolicy_00000"
         }
       ]
     },
@@ -1214,16 +1214,16 @@
       "id": "Q060",
       "retrieved": [
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_1_创建Publisher_00000_sem006"
-        },
-        {
           "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_18_PresentationQosPolicy_sem003"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第10章_QoS策略_10_37_PropertyQosPolicy_DDS_Extension_10_37_2_指定实体ID_00000"
+          "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_18_PresentationQosPolicy_sem004"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_4_设置Publisher的QoS策略_8_2_4_1_创建Publisher时配置QoS策略_00000_sem002"
+          "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_17_PartitionQosPolicy_sem008"
+        },
+        {
+          "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_18_PresentationQosPolicy_sem005"
         },
         {
           "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_17_PartitionQosPolicy_sem006"
@@ -1566,7 +1566,7 @@
           "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_4_设置DataReader的Listener_00000_sem003"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_2_使能实体_00000_sem007"
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_4_设置及获取QoS策略_5_1_4_1_QoS策略的缺省值_00000_sem001"
         }
       ]
     },
@@ -2394,19 +2394,19 @@
       "id": "Q119",
       "retrieved": [
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_2_QoS策略_5_1_5_设置及获取Listener_00000_sem008"
+          "node_id": "hybrid_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_2_QoS策略_5_1_5_设置及获取Listener_00000_sem011"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_4_深入理解_第12章_可靠通信模型_12_3_QoS策略对通信模型的影响_12_3_1_选择通信模型_00000"
+          "node_id": "hybrid_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_3_管理ZRDDS内部QoS仓库_sem003"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_28_TimeBasedFilterQosPolicy_00000"
+          "node_id": "hybrid_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_30_TransportConfigQosPolicy_sem002"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_s_PART_4_深入理解_第13章_TCP并发传输_13_2_配置说明_13_2_2_接收端配置说明_13_2_2_1_基础配置_00000"
+          "node_id": "hybrid_v1_s_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_6_3_4_1_在创建DomainParticipant时配置QoS策略_00000_sem004"
         },
         {
-          "node_id": "hybrid_v1_s_s_s_s_PART_4_深入理解_第12章_可靠通信模型_12_3_QoS策略对通信模型的影响_12_3_2_发送队列_和_接收队列_00000_sem005_00000"
+          "node_id": "hybrid_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_2_编写QoS配置文件_sem012"
         }
       ]
     },

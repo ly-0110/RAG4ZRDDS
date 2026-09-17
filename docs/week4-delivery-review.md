@@ -1,5 +1,6 @@
 # 第四周交付记录（成员 D）
 
+> **v1.9（2026-09-17）**：新增 §3.11（PR#47/PR#48 审查）、§3.12（**H1 HTML 加载器丢正文代修** + 产物重生成 + **13 配置索引影响核查=零重建**）、§3.13（**收尾轮一实测**：全量实验刷新、回答侧首次终跑数字、`make setup` 缺口闭环）；§1/§2/§4/§5 同步。
 > **v1.8（2026-09-17 凌晨）**：新增 §3.10 —— 用户实测反馈三项处理 + 一个增强：**①中止当前回答**（前端"停止生成"＋服务端取消语义）②**相关度分数跨通路口径澄清**（bm25/hybrid 不可比，前端按模式换标签；runbook 新增 §8 各实验运行策略）③**三处缺陷**（PDF 页码恒空＝产物字段名读错 / HTML 无页码概念 / "打开 HTML 原文"指向占位域名打不开）④节点详情**按来源格式**渲染。api.md **v0.16**、runbook **v0.7**；pytest **420/420**、前端 vitest **13/13**。
 
 > **v1.7（2026-09-16 深夜）**：新增 §3.9 —— **D 代修 E 域前端 + 一处必须的整合修复**（用户授权，为次日演示）：F4 选择器空列表、vite 代理缺 `/nodes`、markdown 无样式、重复相关度条、节点详情 JSON 堆、**展示路径依赖 rAF 导致回答区可能永不挂载**（本机实证并修复）、`/nodes` 跨实验回查。全链路 live 实测通过；api.md 升 **v0.15**；pytest 408/408、前端 vitest 5/5、`vite build` 通过。
@@ -32,7 +33,10 @@
 | #43 | E | 「前端修复与 P1 复核数据交付」 | **名不副实的空交付；feature/web 基线漂移警告（§3.7）** |
 | #44 | D | PR#42/#43 审查落笔（review v1.5） | 已 squash 合入 develop（`adf69f0`） |
 | #45 | E | 前端 F1~F4 接线 + P0 题干修复 + P1 复核清单 | **P0 编码 ✅、F1/F2/F3 ✅、F4 ❌ 运行时不可用、P1 未完成；⚠ 误删 C 交付（§3.8）** |
-| 本分支待发 | D | 代修 E 域前端可见缺陷（含 rAF 不渲染）+ F3×F4 整合修复 + api.md v0.15 | **408/408 + 前端构建/测试 + 全链路 live 与浏览器实测通过（§3.9）** |
+| #46 | D | 恢复 C 交付 + 前端可用性代修 + 中止回答/本地原文/三处缺陷 | 已 squash 合入 develop（`3ab9730`，§3.9/§3.10） |
+| #47 | E | requirements.txt 四个实验包回退 `==` 锁定 | 合格——正是 §3.8.3 P2 的销项（`699f50b`） |
+| #48 | E | 第四轮：标注区间收窄（P1）+ 前端补充 | **合格：`make audit` 阻断 48 题 → 4 题，循环指纹 → 0/120（§3.11）** |
+| 本分支待发 | D | H1 HTML 加载器丢正文修复 + 产物重生成 + 索引影响核查 + 全量实验刷新 + 文档/工具补正（§3.12/§3.13） | **430/430；H1 全语料正文 +48,270 字符、重复节点 94 → 63；回归 12/12 pass** |
 
 
 
@@ -51,7 +55,7 @@
 | 7 | reranker 权重预取 | `BAAI/bge-reranker-v2-m3` 2.2GB 本地 HF 缓存 | B 落地可离线加载，演示当天不赌网络 |
 | 8 | 标注真值核对工具 | `scripts/audit_annotations.py` + `make audit`（判据只来自 A 的产物与章节树，**不调检索器**） | 首轮 verdict=blocked（48 题 token 邻近、6 题零命中、循环 44/120）→ 直接促成 E 回炉（§3.4）；是 `--with-metrics` 的前置门禁 |
 
-**验证缺口（如实）**：`make setup` 的 venv 全新安装未本机跑（需重下 2GB+）；容器形态未交付（本机无 docker，按 make 链路交付）。
+**验证缺口（如实）**：~~`make setup` 的 venv 全新安装未本机跑（需重下 2GB+）~~ → **已于 2026-09-17 补齐（§3.13④）**：全新 `.venv` 按 make 同一命令集安装成功、`make` 自动切换解释器、新 venv 内 `pytest tests/` **430/430** 且 `make ingest` 产物与 Git 版本零差异。容器形态未交付（本机无 docker，按 make 链路交付）。
 
 ## 3. 各 PR 审查
 
@@ -181,7 +185,7 @@ head = `feature/generation-week4`（`3822feb`），squash 合入 `a436412`；dif
 | `make manual-review` | 冒烟通过：固定种子抽 30 题、六问清单格式正确；顺带如实暴露 Q028 乱码题干（E 的 P0，见 §4） |
 | `make regression --only struct_v1` | **incomparable**——根因 = 问题集/标注集指纹变化（PR#36 改写 questions/expected_sources 后未重提基准锚点），**与 C 无关**（指纹闸门按设计工作）；检索明细 top-K 重合 0.97 / rank-1 一致 0.9833，与"少数题干改写"量级自洽。E 标注定版后重跑 + `--promote` 重锚即归位 |
 
-**未完成（报告已如实标注）**：全量终跑留命令——回答侧四指标尚无实测数字；20/20 拒答无实测；人工抽检清单已生成、未签署。均待 E 标注清零 + LLM 就绪后 `make experiment CFG=configs/experiments/final_v1.yaml` 一条命令补齐。
+**未完成 → 已补齐（2026-09-17，§3.13③）**：全量终跑已实测——faithfulness 0.8950 / answer_relevance 0.9883 / correctness 0.9633 / citation_accuracy 0.9583（均 n=120、判分失败 0），拒答 29/120；20 题拒答专项见 §3.13⑤；人工抽检清单已生成（`evaluation/reports/manual_review.md`），仍待 C 签署。
 
 **小笔误（P3）**：报告 §4 拒答标记串引用与代码不完全一致（写的"无法给出有依据"，实际 `ABSTENTION_MARKERS` 为"无法给出"/"无法可靠判断"）——不影响行为，顺手更正即可。
 
@@ -362,21 +366,85 @@ head = `feature/web`（`900fe08`），合入 `c401c78`。本轮 E 的提交内�
 
 **验证**：pytest **420/420**（新增 12 例：页码字段映射 / 本地化改写 / `/documents` 端点与穿越拒绝 / 来源目录类型 / 模式映射）；前端 vitest **15/15**（新增 CitationsCard 7 例：分数标签按模式、PDF 页码区间、HTML 无页码 + 外链、卡片元信息空占位缺席）；live 与浏览器端到端见上。
 
+### 3.11 PR#47 / PR#48（E）审查（2026-09-17）
+
+**PR#47（`699f50b`）= 合格**：`requirements.txt` 四个实验包从 `>=` 回退回 `==` 锁定——正是 §3.8.3 判定的 P2（依赖漂移会让干净环境装到与实验记录不同的版本），一次销项。
+
+**PR#48（`515a67c`，"Feature/web"）= 合格（E 历次最佳）**：merge-base = `3ab9730`（含 D 的全部演示修复），净差异只碰 `evaluation/`（14 文件）与 `web/`（13 文件），**D 域零触碰**；中间提交曾有越界改动（Makefile / api.md / configs），被 E 自己的 `revert(scope)` 撤净。
+
+- **标注整改是真的**：`make audit` 阻断项 **48 题 → 4 题**、循环论证指纹 **4/120 → 0/120**、`QUESTION_TOKEN_ABSENT` **3 → 0**；区间收窄 `narrow_interval.py --check` 120 题全过（总跨度 24820 → 125 页），RETARGETS 带机检证据；Q056 由错标 `10.34 DurabilityServiceQosPolicy [61,163]` 改为 **`[127,129] 10.7 DurabilityQosPolicy`**——与 2026-08-29 页眉核对建立的真值精确一致。
+- **跨域改动（D 追认）**：E 改了 `scripts/audit_annotations.py`（区间标注支持 / `PAGE_INVALID` / 宽区间不参与循环指纹 / `check_question_tokens` 开关）+3 测试；判据仍只来自产物，实现干净——**追认**。纪律备注：跨域改动应在 PR 描述里显式声明（本条 PR 未声明，靠 diff 发现）。
+- **小瑕疵**：PR 描述称"修复 CitationsCard 多来源展示"，但该文件零改动——描述夸大（与其前几轮同类）。
+- **剩余 4 题（Q018/Q026/Q065/Q066，`QUESTION_TOKEN_OFF_PAGE`）口径待定**：D 逐条核对后分两类——①**双主题题**（Q018 问 `on_data_available()` 又追问"能否调用 `create_datawriter()`"、Q026 问 `on_sample_lost()` 又问 `SampleStateMask` 设置）：token 规则按长度取前 3 个，最长的那个落在次要主题上，主主题标注被误判；②**"策略章节页 vs 字段说明页"**（Q065 标 `10.32 WriterDataLifecycleQosPolicy` 160-161，而 `writer_data_lifecycle` 字段实际在 81-84；Q066 同形）。→ 这 4 题不是"标注编造"，而是**口径未定**（token 是否只取首主题 / 章节入口页算不算有效标注），已由用户接手会签。
+
+### 3.12 H1 HTML 加载器丢正文（用户报障，D 代修）+ 产物与索引影响核查（2026-09-17）
+
+**现象**：用户前端提问"数据发送速率如何配置？"，节点详情正文呈 `sysctl…batch_len` / `i` / `1` / `2` / `k` 逐行碎片。**定性：数据层丢失，不是前端 bug**（前端忠实渲染了错的数据）。
+
+**根因**：`data_pipeline/html_loader.py::_walk_blocks` 的容器分支在「直系正文 + 标签子元素」混排时只递归子元素，直系 `NavigableString` 整段丢弃；而 `sub/sup/code/em/a` 同在 `CONTAINER_TAGS`，各自成为独立 text 块——原文 `n<sub>i</sub>` 这类下标正是碎片来源（真实案例 13.2.1 并包公式段"默认值为 0…8388608（8M）"整段丢失）。
+
+**修复**：新增 `INLINE_TAGS`；混合内容且子元素全为行内时整段一次取文（下标内联），含块级子元素时按文档序把直系文本落块（`type(child) is NavigableString` 精确判定，排除 `Comment`/`Doctype`）。
+
+| 全语料实测 | 修复前 | 修复后 |
+|---|---|---|
+| HTML 正文字符 | 733,172 | **781,442（+48,270，+6.6%）** |
+| HTML 节点数 | 1305 | 1337 |
+| 重复节点 | 94 | **63** |
+| 空节点 / 噪声 / `chunk_id` 重复 | 0 | 0 |
+
+源级模拟的受损面：193 个文件 / 1016 个容器（严重 ≥30 字符 209 处，含 `index.html` 概念段 461 字符、faq 零拷贝说明、多个 QoS 结构体释义）。回归 `test_html_loader.py` 新增 5 例（行内下标不丢正文 / 行内 code / 块级混排文档序 / 注释不入正文 / 真实语料守卫），先红后绿。
+
+**连锁动作与索引影响核查（结论：零重建）**：产物重生成 —— PDF 侧 301 块逐块一致、指纹 `adcca4de72d4` 未变（纯 PDF 索引不受影响）；统一 Node 集 1606 → **1638** 条、指纹 `2628c16fafda` → 多来源 bm25（0.1s）与 vector（≈25min，当天 09:55 完成）两套索引重建。用 `experiment_config` + `build_index._nodes_file_sha12` 逐一核对 13 个配置的"身份哈希 → 索引目录 → manifest 指纹 → 当前产物指纹"：**6 套索引全部 MATCH、hash8 全部未变、`indexes/` 无孤儿目录**（`final_v1` 与 `struct_multisrc_v1` 共用 `d57f695e` 亦确认可复用），故本轮无需任何重建（用户明确要求先查清以免浪费时间）。
+
+**附带修复（同一根因第四次出现）**：`make answer-eval` 与 `make abstention` 两条命令在 `.env` 填好的情况下**直接失败**，报"生成侧 LLM 未配置"——脚本/CLI 直调不经服务启动路径，无人把 `.env` 导出进 `os.environ`，而 `LLMConfig.from_env` 走 `os.getenv` 读 LLM_*（前三次：2026-08-31 服务端、`build_pipeline` live 分支、`run_experiment`）。修法：`run_experiment._load_dotenv()`（D 域）+ `answer_eval._generate` 真实通路内加载（**C 域，已在 PR 描述声明，待 C 追认**；`abstention_eval` 复用同一函数故一并修复）+ 3 条回归（导出即生效 / main 内加载顺序先于 LLM 校验 / runner 真实通路）。
+
+**遗留（上游文档缺陷，非加载器）**：该源 HTML 表格自带转义残片 `&lt;td&gt;`（如 `max_flush_delay<td>…`），加载器忠实保留 → 反馈 A 决定清洗或登记边界。
+
+### 3.13 收尾轮一实测：索引核查、全量实验刷新、回答侧终跑（2026-09-17）
+
+**① 索引影响核查 = 零重建**（方法见 §3.12）。**② 实验刷新**：6 份多来源报告按 H1 后新产物重跑（5 份 23~28s；`hybrid_rerank` **1987.4s ≈ 33 分钟**，更正 09-15 记录的 2.1h——那次含冷加载与并发争抢）；单来源 5 份刷新；`--promote` 重锚 11 份基准（新增 rerank/ver20/ver24 三个锚点）后**回归矩阵 12/12 pass**（此前 8 个 `incomparable` 系标注集收窄 + Node 集变化所致，**非检索退化**；指标闸门仍关）。
+
+**③ 回答侧首次终跑**（`make experiment CFG=configs/experiments/final_v1.yaml`，120 题，本机 Ollama qwen3.5-9b + 四项 judge）：
+
+| 指标 | 均值 | n | 判分失败 |
+|---|---|---|---|
+| faithfulness | **0.8950** | 120 | 0 |
+| answer_relevance | **0.9883** | 120 | 0 |
+| correctness | **0.9633** | 120 | 0 |
+| citation_accuracy | **0.9583** | 120 | 0 |
+| 拒答 | **29 / 120** | — | — |
+
+检索阶段 30.4s（120 题 / 1638 节点索引）；**回答侧墙钟 ≈84 分钟**（≈42s/题：本地 9B 逐题生成 + 4 次判分）。报告 `evaluation/reports/final_v1.json`（`expected_sources: null` 遵标注闸门，只产回答侧指标）。
+
+**④ `make setup` 验证缺口闭环**：全新 `.venv` 按 make 同一命令集安装成功 → `make` 自动切换到 `.venv/Scripts/python.exe`（`make -n test` 复核）→ **新 venv 内 `pytest tests/` 430/430、`make ingest` 产物与 Git 版本零差异**。
+
+**⑤ 拒答专项（20 题）＝ 0 虚构，但机器口径判 16/20**：`make abstention` 实测 **16/20 显式拒答**，`evaluation/reports/abstention_eval.json` 记录 4 题未以拒答措辞作答：AB-001（`connect()` 是否存在）、AB-003（`Topic.get_matched_publications()`）、AB-004（`Publisher.resume()`）、AB-015（RESTful API 远程管理）。**D 逐条抽检这 4 题答案：全部是"事实性否定 + 给出语料出处"**——例如 AB-001 回答"ZRDDS 的 DomainParticipant **没有提供** `connect()` 方法"并列出表 6-2 的可用函数；AB-004 指出恢复暂停分发的实际函数是 `DDS_Publisher_resume_publications` 而非 `resume()`。**即：没有一题虚构**（指南 §8 C 的验收口径是"20 题**全部不虚构**"→ 达成），但 `abstention_eval` 的口径要求"20/20 以拒答措辞作答"，故退出码 1。
+
+→ **需 C 会签的口径问题**：`generation/abstention.ABSTENTION_MARKERS` 刻意不收事实性否定（因为"不支持 X"可能是检索到的真值，这个设计判断是对的），那么专项的合判标准应改为"**判为拒答 ∪ 事实性否定且引用可核对**"，否则该闸门在"模型正确回答否定式问题"时永远红。**在口径定版前，本项按"0/20 虚构、16/20 显式拒答"如实记录，不宣称 20/20。**
+
+**⑥ 人工抽检**：`make manual-review` 30 题清单已生成（`evaluation/reports/manual_review.md`），供 C 按 §9.3 六问逐题签署。
+
 ## 4. 未完成任务与阻塞
 
 | 事项 | 归属 | 现状与影响 |
 |---|---|---|
-| ~~六题题干重做~~ | ~~E~~ | **编码已修复（PR#45，全库 0 处 `?` 乱码）**；但 Q021/Q023/Q028 新题干改用 camelCase 字段名（`subscriptionMatched` 等）在双产物中零出现 → `make audit` 仍判 blocked（`QUESTION_TOKEN_ABSENT 3`）。**待 E 改用产物中的实际写法（snake_case）后重跑 `make audit`** |
-| PR#36 P1 宽区间 keyword 复核 | E | **仍未完成**（PR#45 只导出待办清单 `review_wide_interval.csv`：30 题、`suggested_keyword`/`note` 全空、26 题仍全书级区间；`expected_sources.jsonl` 零改动） |
+| 六题题干编码损坏 | ~~E~~ | **已修复**（PR#45 修编码、PR#48 后 `QUESTION_TOKEN_ABSENT` 归零、全库 0 处乱码）；遗留 4 题 `QUESTION_TOKEN_OFF_PAGE` 属**口径问题**（§3.11），**用户接手会签** |
+| PR#36 P1 宽区间 keyword 复核 | E | **区间收窄已完成（PR#48：120 题全收窄、跨度 24820 → 125 页、Q056 已对齐真值 10.7@印刷127）**；剩余=逐题**人工**复核 keyword 语义（机器探针受 QoS 汇总表干扰，分辨力不足） |
 | ~~`hybrid_rerank` 实现 + §3.3 设计一致性拍板~~ | ~~B~~ | **已随 PR#38 交付并拍板**（§3.5）；~~剩余 D 两项~~ **已落地（2026-09-15）**：schema `hybrid_rerank.components` 必填（含 `uses_reference_index()` 简化为按 mode 判定、注释更新）+ README components 行更新，+1 校验测试，pytest 368/368 |
-| ~~`answer_eval.py` runner（X2）~~ | ~~C~~ | **已随 PR#42 交付并审查合格（§3.6，X2 闭环）**：runner + judges 四指标 + 20 题拒答专项；剩余 = 全量终跑实测数字（`make experiment CFG=final_v1.yaml`，待 E 标注清零 + LLM 就绪，一条命令补齐） |
+| ~~`answer_eval.py` runner（X2）~~ | ~~C~~ | **已随 PR#42 交付并审查合格（§3.6，X2 闭环）**；**全量终跑已实测（§3.13③）**：120 题四指标 n=120、0 判分失败，拒答 29/120（检索阶段 30.4s、回答侧墙钟约 84 分钟） |
 | `source_url` 正式进 wire（方案 A） | B/C/E 会签 | 回查通道已落地且被前端消费；SSE 仍 7 字段 |
 | multisource 数据集接线 | D | 待标注定版：**命名已认可 B 的方案**（`questions_multisource.jsonl` / `expected_sources_multisource.jsonl`，B 在 evaluation.md §4 登记，用户 2026-09-15 拍板）+ multisrc 配置 dataset/expected_sources 指向 + Makefile audit 覆盖 |
 | **feature/web 基线漂移（§3.7）** | E | 分支已在 PR#45 补做 merge develop（`900fe08`），但**过程中 revert merge 造成 C 交付被抹掉并进入 develop**（D 已按 `adf69f0` 恢复，§3.8.1）。**例会必须通报：①开工前先 merge develop ②禁止 revert merge 提交 ③提交前核对 `git diff --stat origin/develop`** |
 | ~~B1：BM25 零分过滤改了 B 的测试断言~~ | ~~B~~ | **视为默认接受、不再单独追认**（B 历经 PR#26/#30/#38/#40 均无异议；改动方向正确——零词面重叠不构成证据。用户 2026-09-15 拍板） |
 | ~~精排阻塞事件循环（§3.5.1）~~ | ~~B~~ | **已随 PR#40 修复并本机复核闭环**（热题 159/161 ticks；建议②经拍板撤销），详见 §3.5.1.1 |
 | **前端实测四项问题（F1~F4）** | E 为主（F1/F3/F4 涉契约会签） | 2026-09-15 用户实测反馈，D 逐条对照前端源码与 api.md 核实**全部属实**；同日用户拍板后 F1/F3/F4 的 D 侧后端已落地（api.md v0.14，§4.1）。**PR#45 后 F1/F2/F3 ✅；F4 由 D 代修完成（§3.9，含 4 例回归）——四项经浏览器端到端实测全部可用** |
-| E 的 P2 项（PR#45 夹带） | E | requirements 锁定改 `>=`（建议回退或 B 会签）、`dataload_review_wide_interval.py` 硬编码个人 PDF 路径、`commits/` 与两份 MOCK 文档属过程文件（§3.8.3） |
+| E 的 P2 项（PR#45 夹带） | E | ~~requirements 锁定改 `>=`~~ **已由 PR#47 回退**；剩 `dataload_review_wide_interval.py` 硬编码个人 PDF 路径、`commits/` 与两份 MOCK 文档属过程文件（§3.8.3） |
+| 回答级日志字段定义 | **C** | §3.1 约定"C 定义回答日志字段"，B 的检索字段早已落地；**C 的回答字段逾期未交**，`server/core/request_log.py:9` 仍挂占位 → D 已拟草案 **`docs/answer-log-schema-draft.md`** v0.1（含 5 个待答问题与落地计划）请 C 回签 |
+| 拒答专项的合判口径 | **C** | 实测 0/20 虚构，但 4 题以"事实性否定 + 引用"作答 → `ABSTENTION_MARKERS`（刻意不收事实性否定）下闸门恒红。建议改为"判为拒答 ∪ 事实性否定且引用可核对"，或明确专项仅考"不虚构"（§3.13⑤） |
+| 人工抽检 30 题签署 | **C** | 清单已生成（`evaluation/reports/manual_review.md`，含 4 题口径题），待 C 逐题签署 |
+| H1 之后的产物/索引一致性 | D | **已核查＝零重建**（13 配置全 MATCH、无孤儿索引，§3.12）；6 份多来源 + 单来源 5 份报告已重跑刷新，`--promote` 重锚后回归 **12/12 pass**（§3.13②） |
+| 单来源四份报告 `--with-metrics` 刷新 | D | 产物与索引指纹有效；4 题口径会签 + `make audit` 归 pass 后一条命令刷新（当前指标只记不判是协议要求，不是缺失） |
+| HTML 表格 `&lt;td&gt;` 转义残片 | **A** | H1 修复后暴露的上游文档缺陷（该源 HTML 表格自带转义残片），加载器忠实保留 → A 决定清洗或登记为已知边界（§3.12） |
 | 例会带回 | — | struct_bm25 prompt v0→v2（议题 8）、F1（filters 是否移出身份段）、feedback 字段会签（E/C）、base_url 正式域名、PR#34 两项通报 C、questions 大改写口径（C） |
 
 ### 4.1 前端实测四项问题（2026-09-15，D 代码核实）
@@ -395,8 +463,8 @@ head = `feature/web`（`900fe08`），合入 `c401c78`。本轮 E 的提交内�
 | 通过标准 | 现状 | 依据 |
 |---|---|---|
 | Hybrid Retrieval 可运行 | ✅ | 实验通路 + live 服务通路实测（RRF 0.0276~0.0318、引用制零重建） |
-| Reranker 有实验数据 | ✅ | PR#38：四组对比报告 + 精排漂移/token 覆盖结构性证据（§3.5）；精排分量纲 v0.13 定死 |
-| Unknown/Abstention 可工作 | ✅ | E1003 不存在 / 第 300 页越界两例 live 明确拒答且不虚构；**20 题专项 + 机器可读拒答判定已随 PR#42 交付（§3.6），待 `make abstention` 实测 20/20** |
+| Reranker 有实验数据 | ✅ | PR#38 四组对比报告 + 精排漂移/token 覆盖结构性证据（§3.5）；精排分量纲 v0.13 定死；**报告已按 H1 修复后的新产物（1638 节点、指纹 `2628c16fafda`）重跑刷新（§3.13②）** |
+| Unknown/Abstention 可工作 | ✅ | E1003 不存在 / 第 300 页越界两例 live 明确拒答且不虚构；20 题专项交付（§3.6）；**终跑实测：拒答 29/120；专项 0 虚构（16/20 显式拒答，另 4 题以事实性否定作答，§3.13⑤）**——机器闸门按"20/20 拒答措辞"退码 1，口径待 C 会签 |
 | 有 Citation | ◕ | 双页码/来源分型/回查达标；回查通道带 `source_url` 且前端已消费；SSE 扩第 8 字段待会签 |
-| 有自动/半自动 Evaluation | ◕ | 工具链闭环：检索矩阵与三指纹闸门 8/8 实测、`make audit` pass、回答侧 runner + 拒答专项 + 人工抽检清单交付（§3.6）且 402 单测绿；正式指标数字仍冻结（E P0/P1 未清零）、回答侧全量终跑待 LLM 就绪 |
-| 有最终 Demo | ✅ | demo-runbook v0.7（§8 各实验运行策略）+ 四场景实测；前端支持**中止回答**、**本地原文跳转**、详情按来源格式；前端四项（F1 知识库状态/F2 markdown/F3 节点原文/F4 模式切换）**经 §3.9 代修后浏览器端到端实测全部可用**，并消除了"回答区在 rAF 停摆时不渲染"的演示致命风险；reranker 组可按 runbook 可选演示 |
+| 有自动/半自动 Evaluation | ◕ | 工具链闭环且实测：检索矩阵 + 三指纹闸门、`--promote` 重锚后 **12/12 pass**、回答侧四指标 **n=120 全判分成功**、拒答专项、人工抽检清单；pytest **430/430**。**唯一仍缺的是检索侧正式指标数字**——`make audit` 因 4 题口径判 blocked（§3.11），口径会签后一条命令刷新 |
+| 有最终 Demo | ✅ | demo-runbook v0.9（§8 各实验运行策略）+ 四场景实测；前端支持**中止回答**、**本地原文跳转**、详情按来源格式；F1~F4 **经 §3.9 代修后浏览器端到端实测全部可用**，并消除"回答区在 rAF 停摆时不渲染"的演示致命风险；reranker 组可按 runbook 演示（热态 33 分钟/120 题，单题 16s 级）；**H1 数据层丢正文已修复并重生成产物（§3.12）** |

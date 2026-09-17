@@ -423,10 +423,24 @@ def _ensure_index(config_path: str, cfg, rebuild: bool, fake_embed: bool) -> int
     return bi.main(argv)
 
 
+def _load_dotenv() -> None:
+    """脚本直调时把仓库根 .env 导出进 os.environ。
+
+    服务端路径由 server.core.settings 模块加载时完成，但答案侧评测
+    （response_metrics，`make answer-eval`）走 generation.llm 的 os.getenv
+    读 LLM_*，不经服务启动路径——不导出则 .env 填好仍报"生成侧 LLM 未配置"。
+    （与 2026-08-31 build_pipeline live 分支同类修复。）
+    """
+    from server.core.settings import load_env_file
+
+    load_env_file()
+
+
 def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):  # Windows 控制台默认 GBK，统一 UTF-8
         sys.stdout.reconfigure(encoding="utf-8")
         sys.stderr.reconfigure(encoding="utf-8")
+    _load_dotenv()
     parser = argparse.ArgumentParser(prog="run_experiment", description=__doc__)
     parser.add_argument("--config", default="configs/experiments/struct_v1.yaml",
                         help="实验配置 yaml（默认 struct_v1 基线）")
@@ -494,15 +508,21 @@ def main(argv: list[str] | None = None) -> int:
         from evaluation.runners import answer_eval
 
         print(f"[experiment] 回答侧评测 {cfg.evaluation.response_metrics} …")
+        t_answer = time.monotonic()
         response_results = asyncio.run(
             answer_eval.evaluate_answers(cfg, questions, retrievals))
         response_section = answer_eval.build_response_section(
             response_results, cfg.evaluation.response_metrics)
+        # 只增不改：duration_seconds 仍是检索阶段耗时（历史报告一律如此），
+        # 回答侧（逐题生成 + 判分，实测 120 题约 84 分钟）单列一字段，
+        # 否则报告里"30.4s"与实际墙钟差两个数量级，读报告的人会被误导。
+        response_section["answer_seconds"] = round(time.monotonic() - t_answer, 1)
         for m, v in response_section["metrics"].items():
             mean = f"{v['mean']:.4f}" if v["mean"] is not None else "n/a"
             print(f"[experiment]   {m:<16} = {mean}  "
                   f"(n={v['n']}, parse_failed={v['parse_failed']})")
-        print(f"[experiment]   拒答 {response_section['abstained']}/{response_section['total']}")
+        print(f"[experiment]   拒答 {response_section['abstained']}/{response_section['total']}"
+              f"；回答侧耗时 {response_section['answer_seconds']:.0f}s")
 
     metrics = cfg.evaluation.retrieval_metrics
     report = build_report(cfg, retrievals, questions, expected, metrics,

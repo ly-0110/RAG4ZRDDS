@@ -1,16 +1,16 @@
 {
   "schema": "rag4zrdds.baseline/v1",
   "compact_from": "rag4zrdds.report/v1.1",
-  "experiment": "struct_multisrc_hybrid",
-  "config_hash8": "aae85ea1",
+  "experiment": "struct_multisrc_hybrid_ver24",
+  "config_hash8": "e63bc549",
   "artifacts": {
     "nodes_file_sha12": "2628c16fafda",
     "questions_sha12": "9ea5b614a078",
     "expected_sources_sha12": null
   },
-  "duration_seconds": 27.5,
+  "duration_seconds": 26.8,
   "index": {
-    "dirname": "struct_bge-m3_aae85ea1",
+    "dirname": "struct_bge-m3_e63bc549",
     "backend": "chroma",
     "metric": "cosine"
   },
@@ -175,19 +175,19 @@
       "id": "Q002",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_1_创建DomainParticipant_00000"
-        },
-        {
           "node_id": "html_v1_group___c_domain_054_DDS_DomainParticipantFactory_create_part_00000"
         },
         {
           "node_id": "html_v1_group___core_base_struct_002_DDS_DomainId_t_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_6_2_2_获取及设置缺省的DomainParticipantQoS_00000"
+          "node_id": "html_v1_group___simple_interface_004_DDS_CreateDP_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_1_创建DomainParticipant_00000"
         }
       ]
     },
@@ -201,13 +201,13 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_5_设置DomainParticipant的Listener_00000"
         },
         {
+          "node_id": "html_v1_group___c_domain_049_DDS_DomainParticipant_set_listener_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_1_创建Topic_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_1_创建Publisher_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_1_创建Subscriber_00000"
         }
       ]
     },
@@ -235,19 +235,19 @@
       "id": "Q005",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_12_其他DomainParticipant操作_00000"
-        },
-        {
           "node_id": "html_v1_group___c_domain_062_DDS_DomainParticipantFactory_get_instanc_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第8章_发布数据_8_1_概述_数据发布过程_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_12_其他DomainParticipant操作_00000"
         },
         {
           "node_id": "html_v1_group___c_domain_029_DDS_DomainParticipant_get_discovered_par_00000"
         },
         {
           "node_id": "html_v1_index_024_ZRDDS编译器_00000"
+        },
+        {
+          "node_id": "html_v1_group___c_domain_004_DDS_DomainParticipant_contains_entity_00000"
         }
       ]
     },
@@ -321,13 +321,13 @@
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_00000"
         },
         {
+          "node_id": "html_v1_wait__condition_8c_example_000_Wait_Condition_c_00001"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_4_如何处理触发的Condition_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_3_WaitSet的阻塞_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_2_WaitSet的相关操作_00000"
         }
       ]
     },
@@ -341,13 +341,13 @@
           "node_id": "struct_v1_s_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_6_创建ZRDDS应用程序_11_6_3_订阅端应用程序_00001"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_00000"
-        },
-        {
           "node_id": "html_v1_group___c_domain_015_DDS_DomainParticipant_delete_contained_e_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_2_使能实体_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_00000"
+        },
+        {
+          "node_id": "html_v1_group___c_domain_057_DDS_DomainParticipantFactory_delete_part_00000"
         }
       ]
     },
@@ -361,13 +361,13 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_2_删除DomainParticipant_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000"
-        },
-        {
           "node_id": "html_v1_group___c_domain_056_DDS_DomainParticipantFactory_delete_cont_00000"
         },
         {
           "node_id": "html_v1_group___c_subscription_012_DDS_Subscriber_delete_contained_entities_00000"
+        },
+        {
+          "node_id": "html_v1_group___c_domain_015_DDS_DomainParticipant_delete_contained_e_00000"
         }
       ]
     },
@@ -398,6 +398,9 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_00000"
         },
         {
+          "node_id": "html_v1_get_plain_status_8c_example_000_GetPlainStatus_c_00001"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_7_StatusConditions_00000"
         },
         {
@@ -405,9 +408,6 @@
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000"
-        },
-        {
-          "node_id": "html_v1_get_plain_status_8c_example_000_GetPlainStatus_c_00001"
         }
       ]
     },
@@ -461,13 +461,13 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_1_创建DataReader_00000"
         },
         {
+          "node_id": "html_v1_group___c_publication_046_FooDataWriter_set_listener_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_5_设置Publisher的Listener_00000"
-        },
-        {
-          "node_id": "html_v1_group___c_publication_046_FooDataWriter_set_listener_00000"
         }
       ]
     },
@@ -475,10 +475,10 @@
       "id": "Q017",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_5_设置Topic的Listener_00000"
+          "node_id": "html_v1_group___c_listener_021_status_00000"
         },
         {
-          "node_id": "html_v1_group___c_listener_021_status_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_5_设置Topic的Listener_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___topic_listener_000_DDS_TopicListener结构体_参考_00000"
@@ -487,7 +487,7 @@
           "node_id": "html_v1_md_resources_docs_online_c_required_udp_large_package_zerocopy_008_on_data_arrived_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_6_关于Topic的Status_00000"
+          "node_id": "html_v1_group___c_listener_000_监听器模块_00003"
         }
       ]
     },
@@ -498,16 +498,16 @@
           "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
         },
         {
+          "node_id": "html_v1_md_resources_docs_online_c_required_udp_large_package_zerocopy_008_on_data_arrived_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_3_Listener_5_3_6_Listener的使用限制_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_4_设置DataReader的Listener_00000"
         },
         {
-          "node_id": "html_v1_md_resources_docs_online_c_required_udp_large_package_zerocopy_008_on_data_arrived_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_4_深入理解_第14章_UDP大包零拷贝_14_3_on_data_arrived回调_00000"
+          "node_id": "html_v1_group___c_listener_006_DDS_SimpleDataReaderListener_00000"
         }
       ]
     },
@@ -518,13 +518,13 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
         },
         {
+          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_2_LIVELINESS_CHANGED_Status_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000"
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_12_LivelinessQosPolicy_00001"
@@ -541,13 +541,13 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___subscriber_listener_000_DDS_SubscriberListener结构体_参考_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
+          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000"
+        },
+        {
+          "node_id": "html_v1_group___c_listener_020_sub_00000"
         }
       ]
     },
@@ -558,10 +558,10 @@
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_6_关于Subscriber的Status_00000"
+          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_6_关于Subscriber的Status_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000"
@@ -575,6 +575,9 @@
       "id": "Q022",
       "retrieved": [
         {
+          "node_id": "html_v1_group___c_infrastruct_003_DDS_Entity_get_status_changes_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_6_获取DataWriter的Status_00000"
         },
         {
@@ -582,9 +585,6 @@
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第5章_实体_5_4_Status_00000"
-        },
-        {
-          "node_id": "html_v1_group___c_infrastruct_003_DDS_Entity_get_status_changes_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_7_获取Subscriber的关联实体_00001"
@@ -595,10 +595,10 @@
       "id": "Q023",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
+          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_2_LIVELINESS_CHANGED_Status_00000"
@@ -615,10 +615,10 @@
       "id": "Q024",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_3_REQUESTED_DEADLINE_MISSED_Status_00000"
+          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
+          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_3_REQUESTED_DEADLINE_MISSED_Status_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_6_SAMPLE_REJECTED_Status_00000"
@@ -627,7 +627,7 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_4_深入理解_第14章_UDP大包零拷贝_14_3_on_data_arrived回调_00000"
+          "node_id": "html_v1_md_resources_docs_online_c_required_udp_large_package_zerocopy_008_on_data_arrived_00000"
         }
       ]
     },
@@ -635,19 +635,19 @@
       "id": "Q025",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_10_HistoryQosPolicy_00001"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___requested_incompatible_qos_status_000_DDS_RequestedIncompatibleQosStatus结构体_参考_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_7_DurabilityQosPolicy_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_12_LivelinessQosPolicy_00001"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_10_HistoryQosPolicy_00001"
         },
         {
           "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___partition_qos_policy_001_详细描述_00002"
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___offered_incompatible_qos_status_000_DDS_OfferedIncompatibleQosStatus结构体_参考_00000"
         }
       ]
     },
@@ -658,13 +658,13 @@
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_6_SAMPLE_REJECTED_Status_00000"
         },
         {
+          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_PART_4_深入理解_第14章_UDP大包零拷贝_14_3_on_data_arrived回调_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_4_设置DataReader的Listener_00000"
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_5_SAMPLE_LOST_Status_00000"
@@ -695,19 +695,19 @@
       "id": "Q028",
       "retrieved": [
         {
+          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000"
-        },
-        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_4_设置DataWriter的Listener_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_3_Listener_5_3_1_Listener的类型_00000"
+          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000"
         }
       ]
     },
@@ -715,10 +715,10 @@
       "id": "Q029",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
+          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
         },
         {
           "node_id": "html_v1_md_resources_docs_online_c_required_udp_large_package_zerocopy_008_on_data_arrived_00000"
@@ -735,10 +735,10 @@
       "id": "Q030",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
+          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000"
@@ -758,10 +758,10 @@
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_12_其他DomainParticipant操作_00000"
+          "node_id": "html_v1_group___c_publication_014_DDS_Publisher_get_participant_00000"
         },
         {
-          "node_id": "html_v1_group___c_publication_014_DDS_Publisher_get_participant_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_12_其他DomainParticipant操作_00000"
         },
         {
           "node_id": "html_v1_group___c_domain_062_DDS_DomainParticipantFactory_get_instanc_00000"
@@ -784,10 +784,10 @@
           "node_id": "html_v1_group___c_topic_014_DDS_TopicDescription_get_participant_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_12_其他DomainParticipant操作_00000"
+          "node_id": "html_v1_group___c_domain_000_域模块_00005"
         },
         {
-          "node_id": "html_v1_group___c_domain_000_域模块_00005"
+          "node_id": "html_v1_group___c_publication_024_DDS_Publisher_wait_for_acknowledgments_00000"
         }
       ]
     },
@@ -804,10 +804,10 @@
           "node_id": "html_v1_group___c_subscription_010_DDS_Subscriber_create_datareader_with_qo_00001"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_1_创建Topic_00000"
+          "node_id": "html_v1_group___c_domain_062_DDS_DomainParticipantFactory_get_instanc_00000"
         },
         {
-          "node_id": "html_v1_group___c_domain_062_DDS_DomainParticipantFactory_get_instanc_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_1_创建Topic_00000"
         }
       ]
     },
@@ -821,10 +821,10 @@
           "node_id": "html_v1_group___c_domain_021_DDS_DomainParticipant_find_topic_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_7_查找Topic_Description_00000"
+          "node_id": "html_v1_group___c_domain_071_DDS_DomainParticipantFactory_lookup_part_00000"
         },
         {
-          "node_id": "html_v1_group___c_domain_071_DDS_DomainParticipantFactory_lookup_part_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_7_查找Topic_Description_00000"
         },
         {
           "node_id": "html_v1_group___c_listener_021_status_00000"
@@ -835,19 +835,19 @@
       "id": "Q035",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_7_查找Topic_Description_00000"
+          "node_id": "html_v1_group___c_domain_042_DDS_DomainParticipant_lookup_topicdescri_00000"
         },
         {
-          "node_id": "html_v1_group___c_domain_042_DDS_DomainParticipant_lookup_topicdescri_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_7_查找Topic_Description_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第7章_主题_7_1_TopicDescription_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_3_ContentFilteredTopic_7_3_2_创建ContentFilteredTopic_00000"
+          "node_id": "html_v1_group___c_domain_021_DDS_DomainParticipant_find_topic_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_8_查找Topic_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_3_ContentFilteredTopic_7_3_2_创建ContentFilteredTopic_00000"
         }
       ]
     },
@@ -884,10 +884,10 @@
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_24_ReceiverThreadConfigQosPolicy_DDS_Extension_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_6_3_4_1_在创建DomainParticipant时配置QoS策略_00000"
+          "node_id": "html_v1_struct_d_d_s___transport_config_qos_policy_000_DDS_TransportConfigQosPolicy结构体_参考_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___transport_config_qos_policy_000_DDS_TransportConfigQosPolicy结构体_参考_00000"
+          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_6_3_4_1_在创建DomainParticipant时配置QoS策略_00000"
         }
       ]
     },
@@ -895,13 +895,13 @@
       "id": "Q038",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___discovery_config_qos_policy_001_详细描述_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___domain_participant_qos_000_DDS_DomainParticipantQos结构体_参考_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_6_DiscoveryConfigQosPolicy_DDS_Extension_00000"
@@ -938,16 +938,16 @@
           "node_id": "html_v1_struct_d_d_s___log_qos_policy_000_DDS_LogQosPolicy结构体_参考_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_13_LogQosPolicy_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_1_日志QoS_00000"
-        },
-        {
           "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00000"
         },
         {
           "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00002"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_13_LogQosPolicy_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_1_日志QoS_00000"
         }
       ]
     },
@@ -1004,10 +1004,10 @@
           "node_id": "html_v1_struct_d_d_s___domain_participant_qos_000_DDS_DomainParticipantQos结构体_参考_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_5_设置DomainParticipant的Listener_00000"
+          "node_id": "html_v1_group___c_domain_043_DDS_DomainParticipant_set_default_publis_00000"
         },
         {
-          "node_id": "html_v1_group___c_domain_043_DDS_DomainParticipant_set_default_publis_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_5_设置DomainParticipant的Listener_00000"
         }
       ]
     },
@@ -1021,13 +1021,13 @@
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_27_ThreadCoreAffinityQosPolicy_DDS_Extension_00000"
         },
         {
+          "node_id": "html_v1_struct_d_d_s___thread_core_affinity_qos_policy_000_DDS_ThreadCoreAffinityQosPolicy结构体_参考_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_PART8RapidIO使用_第21章_RapidIO处理规程_21_4_任务核亲和性配置模块_00000"
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___thread_core_affinity_qos_policy_000_DDS_ThreadCoreAffinityQosPolicy结构体_参考_00000"
         }
       ]
     },
@@ -1035,19 +1035,19 @@
       "id": "Q045",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_24_ReceiverThreadConfigQosPolicy_DDS_Extension_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___receiver_thread_config_qos_policy_000_DDS_ReceiverThreadConfigQosPolicy结构体_参考_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___receiver_thread_config_qos_policy_001_详细描述_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000"
+          "node_id": "html_v1_group___core_qos_struct_013_DDS_ReceiverThreadKind_00000"
         },
         {
-          "node_id": "html_v1_group___core_qos_struct_013_DDS_ReceiverThreadKind_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_24_ReceiverThreadConfigQosPolicy_DDS_Extension_00000"
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___domain_participant_qos_000_DDS_DomainParticipantQos结构体_参考_00000"
         }
       ]
     },
@@ -1118,16 +1118,16 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_4_设置Publisher的QoS策略_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_1_创建Publisher_00000"
-        },
-        {
           "node_id": "html_v1_group___c_publication_021_DDS_Publisher_set_qos_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_9_GroupDataQosPolicy_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_1_创建Publisher_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_4_设置Subscriber的QoS策略_00000"
+          "node_id": "html_v1_struct_d_d_s___publisher_qos_000_DDS_PublisherQos结构体_参考_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_9_GroupDataQosPolicy_00000"
         }
       ]
     },
@@ -1178,16 +1178,16 @@
           "node_id": "html_v1_struct_d_d_s___reliability_qos_policy_000_DDS_ReliabilityQosPolicy结构体_参考_00000"
         },
         {
+          "node_id": "html_v1_group___core_qos_struct_014_DDS_ReliabilityQosPolicyKind_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_25_ReliabilityQosPolicy_00000"
         },
         {
+          "node_id": "html_v1_struct_d_d_s___reliability_qos_policy_001_详细描述_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第12章_可靠通信模型_12_3_QoS策略对通信模型的影响_12_3_1_选择通信模型_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_10_HistoryQosPolicy_00000"
-        },
-        {
-          "node_id": "html_v1_group___core_qos_struct_014_DDS_ReliabilityQosPolicyKind_00000"
         }
       ]
     },
@@ -1198,16 +1198,16 @@
           "node_id": "html_v1_struct_d_d_s___history_qos_policy_001_详细描述_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_10_HistoryQosPolicy_00000"
+          "node_id": "html_v1_struct_d_d_s___history_qos_policy_000_DDS_HistoryQosPolicy结构体_参考_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___history_qos_policy_000_DDS_HistoryQosPolicy结构体_参考_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_10_HistoryQosPolicy_00000"
         },
         {
           "node_id": "html_v1_group___core_qos_struct_005_DDS_HistoryQosPolicyKind_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_7_DurabilityQosPolicy_00000"
+          "node_id": "html_v1_struct_d_d_s___topic_qos_000_DDS_TopicQos结构体_参考_00000"
         }
       ]
     },
@@ -1215,19 +1215,19 @@
       "id": "Q054",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_11_LifespanQosPolicy_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___lifespan_qos_policy_000_DDS_LifespanQosPolicy结构体_参考_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___lifespan_qos_policy_001_详细描述_00000"
         },
         {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_11_LifespanQosPolicy_00000"
+        },
+        {
           "node_id": "html_v1_struct_d_d_s___data_writer_qos_000_DDS_DataWriterQos结构体_参考_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART1_背景介绍_第2章_以数据为中心的发布_订阅通信模型_2_6_服务质量_QoS_00000"
+          "node_id": "html_v1_struct_d_d_s___deadline_qos_policy_001_详细描述_00000"
         }
       ]
     },
@@ -1235,13 +1235,13 @@
       "id": "Q055",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_4_DeadlineQosPolicy_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___deadline_qos_policy_000_DDS_DeadlineQosPolicy结构体_参考_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___deadline_qos_policy_001_详细描述_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_4_DeadlineQosPolicy_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_28_TimeBasedFilterQosPolicy_00000"
@@ -1255,9 +1255,6 @@
       "id": "Q056",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_7_DurabilityQosPolicy_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___history_qos_policy_000_DDS_HistoryQosPolicy结构体_参考_00000"
         },
         {
@@ -1265,6 +1262,9 @@
         },
         {
           "node_id": "html_v1_struct_d_d_s___history_qos_policy_001_详细描述_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_7_DurabilityQosPolicy_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___durability_qos_policy_001_详细描述_00000"
@@ -1278,16 +1278,16 @@
           "node_id": "html_v1_struct_d_d_s___entity_factory_qos_policy_000_DDS_EntityFactoryQosPolicy结构体_参考_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_8_EntityFactoryQosPolicy_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___entity_factory_qos_policy_001_详细描述_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_2_使能实体_00000"
+          "node_id": "html_v1_index_005_实体使能_00000"
         },
         {
-          "node_id": "html_v1_index_005_实体使能_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_8_EntityFactoryQosPolicy_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_2_使能实体_00000"
         }
       ]
     },
@@ -1298,16 +1298,16 @@
           "node_id": "html_v1_struct_d_d_s___ownership_qos_policy_000_DDS_OwnershipQosPolicy结构体_参考_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_15_OwnershipQosPolicy_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_16_OwnershipStrengthQosPolicy_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___ownership_qos_policy_001_详细描述_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___ownership_strength_qos_policy_001_详细描述_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_15_OwnershipQosPolicy_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_16_OwnershipStrengthQosPolicy_00000"
         }
       ]
     },
@@ -1338,10 +1338,10 @@
           "node_id": "html_v1_struct_d_d_s___presentation_qos_policy_000_DDS_PresentationQosPolicy结构体_参考_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_18_PresentationQosPolicy_00000"
+          "node_id": "html_v1_struct_d_d_s___presentation_qos_policy_001_详细描述_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___presentation_qos_policy_001_详细描述_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_18_PresentationQosPolicy_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___subscriber_qos_000_DDS_SubscriberQos结构体_参考_00000"
@@ -1395,10 +1395,10 @@
       "id": "Q063",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_26_ResourceLimitsQosPolicy_00000"
+          "node_id": "html_v1_struct_d_d_s___resource_limits_qos_policy_001_详细描述_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___resource_limits_qos_policy_001_详细描述_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_26_ResourceLimitsQosPolicy_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___resource_limits_qos_policy_000_DDS_ResourceLimitsQosPolicy结构体_参考_00000"
@@ -1435,9 +1435,6 @@
       "id": "Q065",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_32_WriterDataLifecycleQosPolicy_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___writer_data_lifecycle_qos_policy_000_DDS_WriterDataLifecycleQosPolicy结构体_参考_00000"
         },
         {
@@ -1445,6 +1442,9 @@
         },
         {
           "node_id": "html_v1_struct_d_d_s___reader_data_lifecycle_qos_policy_001_详细描述_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_32_WriterDataLifecycleQosPolicy_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___data_writer_qos_000_DDS_DataWriterQos结构体_参考_00000"
@@ -1461,13 +1461,13 @@
           "node_id": "html_v1_struct_d_d_s___reader_data_lifecycle_qos_policy_000_DDS_ReaderDataLifecycleQosPolicy结构体_参考_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_23_ReaderDataLifecycleQosPolicy_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___writer_data_lifecycle_qos_policy_000_DDS_WriterDataLifecycleQosPolicy结构体_参考_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___data_reader_qos_000_DDS_DataReaderQos结构体_参考_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_23_ReaderDataLifecycleQosPolicy_00000"
         }
       ]
     },
@@ -1475,16 +1475,16 @@
       "id": "Q067",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_1_日志QoS_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000"
-        },
-        {
           "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00000"
         },
         {
           "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00002"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_1_日志QoS_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_2_日志接口_00000"
@@ -1495,19 +1495,19 @@
       "id": "Q068",
       "retrieved": [
         {
+          "node_id": "html_v1_struct_d_d_s___log_qos_policy_001_详细描述_00000"
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___log_qos_policy_000_DDS_LogQosPolicy结构体_参考_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第27章_分布式日志_27_1_配置方式_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_1_日志QoS_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_2_日志输出模式_00000"
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___log_qos_policy_001_详细描述_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000"
+          "node_id": "html_v1_zrdds_log_006_用户日志输出与控制_00000"
         }
       ]
     },
@@ -1515,19 +1515,19 @@
       "id": "Q069",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000"
-        },
-        {
           "node_id": "html_v1_pages_000_相关页面_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_1_XML配置说明_00000"
         },
         {
           "node_id": "html_v1_zrdds_qos_xml_001_XML配置QoS步骤_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_2_日志接口_00000"
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_1_XML配置说明_00000"
+        },
+        {
+          "node_id": "html_v1_zrdds_qos_xml_000_XML配置实体QoS_00000"
         }
       ]
     },
@@ -1541,13 +1541,13 @@
           "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第26章_交互式调试日志_26_1_调试文件书写规范_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第26章_交互式调试日志_26_2_参数介绍_00000"
-        },
-        {
           "node_id": "html_v1_zrdds_qos_xml_002_编写QoS配置文件_00000"
         },
         {
           "node_id": "html_v1_zrdds_log_005_调试文件实例_00000"
+        },
+        {
+          "node_id": "html_v1_zrdds_log_004_调试文件控制_v2_2_6_00001"
         }
       ]
     },
@@ -1558,16 +1558,16 @@
           "node_id": "html_v1_zrdds_log_004_调试文件控制_v2_2_6_00001"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_2_日志接口_00000"
-        },
-        {
           "node_id": "html_v1_zrdds_log_006_用户日志输出与控制_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_2_日志接口_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第26章_交互式调试日志_26_2_参数介绍_00000"
+          "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00002"
+        },
+        {
+          "node_id": "html_v1_pages_000_相关页面_00000"
         }
       ]
     },
@@ -1575,28 +1575,25 @@
       "id": "Q072",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_00000"
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___condition_001_详细描述_00000"
         },
         {
           "node_id": "html_v1_wait__condition_8c_example_000_Wait_Condition_c_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_2_WaitSet的相关操作_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_00000"
         },
         {
           "node_id": "html_v1_index_008_条件_等待_00000"
+        },
+        {
+          "node_id": "html_v1_zrdds_log_004_调试文件控制_v2_2_6_00000"
         }
       ]
     },
     {
       "id": "Q073",
       "retrieved": [
-        {
-          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_1_XML配置说明_00000"
-        },
         {
           "node_id": "html_v1_zrdds_qos_xml_001_XML配置QoS步骤_00000"
         },
@@ -1605,6 +1602,9 @@
         },
         {
           "node_id": "html_v1_zrdds_qos_xml_003_管理ZRDDS内部QoS仓库_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_1_XML配置说明_00000"
         },
         {
           "node_id": "html_v1_zrdds_qos_xml_000_XML配置实体QoS_00000"
@@ -1707,7 +1707,7 @@
           "node_id": "html_v1_group___c_publication_028_FooDataWriter_dispose_00001"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_2_使能实体_00000"
+          "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00001"
         }
       ]
     },
@@ -1847,7 +1847,7 @@
           "node_id": "html_v1_group___c_publication_005_DDS_Publisher_create_datawriter_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_1_创建Publisher_00000"
+          "node_id": "html_v1_group___c_publication_040_FooDataWriter_get_publisher_00000"
         }
       ]
     },
@@ -1864,10 +1864,10 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_3_删除Publisher的所有子实体_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_1_创建DataWriter_00000"
+          "node_id": "html_v1_group___c_publication_009_DDS_Publisher_delete_datawriter_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_1_创建DataWriter_00000"
         }
       ]
     },
@@ -1898,16 +1898,16 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_10_发布数据_00000"
         },
         {
+          "node_id": "html_v1_group___c_publication_000_发布模块_00001"
+        },
+        {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_2_8_Publisher的其他操作_00000"
         },
         {
-          "node_id": "html_v1_group___c_publication_000_发布模块_00001"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_1_创建DataWriter_00000"
+          "node_id": "html_v1_group___c_publication_023_DDS_Publisher_suspend_publications_00000"
         }
       ]
     },
@@ -1915,19 +1915,19 @@
       "id": "Q089",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_2_8_Publisher的其他操作_00000"
+          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00000"
         },
         {
-          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_2_8_Publisher的其他操作_00000"
         },
         {
           "node_id": "html_v1_group___c_publication_000_发布模块_00001"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_1_创建DataWriter_00000"
+          "node_id": "html_v1_group___c_publication_000_发布模块_00003"
         },
         {
-          "node_id": "html_v1_group___c_publication_000_发布模块_00003"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_1_创建DataWriter_00000"
         }
       ]
     },
@@ -1938,16 +1938,16 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_9_实例管理_00000"
         },
         {
+          "node_id": "html_v1_group___c_publication_044_FooDataWriter_register_instance_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_8_使用特定类型的DataWriter_00000"
         },
         {
+          "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_10_发布数据_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第12章_可靠通信模型_12_3_QoS策略对通信模型的影响_12_3_5_实例管理_00000"
-        },
-        {
-          "node_id": "html_v1_group___c_publication_044_FooDataWriter_register_instance_00000"
         }
       ]
     },
@@ -1961,13 +1961,13 @@
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_32_WriterDataLifecycleQosPolicy_00000"
         },
         {
+          "node_id": "html_v1_struct_d_d_s___writer_data_lifecycle_qos_policy_000_DDS_WriterDataLifecycleQosPolicy结构体_参考_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_2_删除DataWriter_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_10_发布数据_00000"
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___writer_data_lifecycle_qos_policy_000_DDS_WriterDataLifecycleQosPolicy结构体_参考_00000"
         }
       ]
     },
@@ -2018,10 +2018,10 @@
           "node_id": "html_v1_group___c_domain_037_DDS_DomainParticipant_get_subscribers_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_7_获取Subscriber的关联实体_00000"
+          "node_id": "html_v1_group___c_publication_036_FooDataWriter_get_matched_subscriptions_00000"
         },
         {
-          "node_id": "html_v1_group___c_publication_036_FooDataWriter_get_matched_subscriptions_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_7_获取Subscriber的关联实体_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_00000"
@@ -2041,13 +2041,13 @@
           "node_id": "html_v1_group___core_base_struct_009_DDS_SampleStateKind_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_4_如何处理触发的Condition_00000"
+          "node_id": "html_v1_group___c_subscription_048_FooDataReader_read_00001"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_10_访问数据_9_3_10_1_使用read_和take_访问数据_00000"
+          "node_id": "html_v1_group___c_publication_024_DDS_Publisher_wait_for_acknowledgments_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_11_DataReader的SampleInfo结构_9_3_10_8_向DataReader归还空间_00000"
+          "node_id": "html_v1_group___c_listener_013_status_00000"
         }
       ]
     },
@@ -2067,7 +2067,7 @@
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第9章_订阅数据_9_1_概述_数据订阅过程_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_10_访问数据_9_3_10_1_使用read_和take_访问数据_00000"
+          "node_id": "html_v1_struct_d_d_s___sample_info_001_详细描述_00000"
         }
       ]
     },
@@ -2101,13 +2101,13 @@
           "node_id": "html_v1_index_000_ZRDDS介绍_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART1_背景介绍_第1章_概述_1_4_DDS介绍_00000"
-        },
-        {
           "node_id": "html_v1_zrdds_log_002_标准风格_2_2_3_00000"
         },
         {
           "node_id": "html_v1_struct_d_d_s___domain_participant_qos_002_domain_destination_addresses_00000"
+        },
+        {
+          "node_id": "html_v1_pages_000_相关页面_00000"
         }
       ]
     },
@@ -2115,13 +2115,13 @@
       "id": "Q099",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_5_编译器选项_00000"
-        },
-        {
           "node_id": "html_v1_faq_000_1_1_ZRDDS支持哪些操作系统以及编译器_00000"
         },
         {
           "node_id": "html_v1_downloads_006_V2_3_0_release1_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_5_编译器选项_00000"
         },
         {
           "node_id": "html_v1_index_035_zrddsgen用法_00000"
@@ -2195,10 +2195,10 @@
       "id": "Q103",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第4章_数据类型_4_1_数据类型介绍_00000"
+          "node_id": "html_v1_index_025_语法支持_00000"
         },
         {
-          "node_id": "html_v1_index_025_语法支持_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第4章_数据类型_4_1_数据类型介绍_00000"
         },
         {
           "node_id": "html_v1_faq_003_2_1_使用ZRDDS一定需要使用IDL文件_并使用编译器生成类型支持文件吗_00000"
@@ -2238,9 +2238,6 @@
           "node_id": "struct_v1_s_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_4_在Windows平台上配置ZRDDS应用_11_4_1_使用Visual_Studio_2008_2010_2013创建工程_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_5_编译器选项_00000"
-        },
-        {
           "node_id": "html_v1_downloads_000_V2_4_3_release2_00000"
         },
         {
@@ -2248,6 +2245,9 @@
         },
         {
           "node_id": "html_v1_downloads_004_V2_4_0_release1_00000"
+        },
+        {
+          "node_id": "html_v1_downloads_003_V2_4_2_release1_00000"
         }
       ]
     },
@@ -2275,12 +2275,6 @@
       "id": "Q107",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_2_Nested标注_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_1_key标注_00000"
-        },
-        {
           "node_id": "html_v1_index_032_key_00000"
         },
         {
@@ -2288,6 +2282,12 @@
         },
         {
           "node_id": "html_v1_index_031_扩展标记_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_2_Nested标注_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_1_key标注_00000"
         }
       ]
     },
@@ -2295,13 +2295,13 @@
       "id": "Q108",
       "retrieved": [
         {
+          "node_id": "html_v1_index_033_Nested_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_3_bitwidth标注_DDS_Extension_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_4_spare标注_DDS_Extension_00000"
-        },
-        {
-          "node_id": "html_v1_index_033_Nested_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_2_Nested标注_00000"
@@ -2318,16 +2318,16 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_4_spare标注_DDS_Extension_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_3_bitwidth标注_DDS_Extension_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_2_Nested标注_00000"
-        },
-        {
           "node_id": "html_v1_index_014_数据类型_00000"
         },
         {
           "node_id": "html_v1_index_033_Nested_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_3_bitwidth标注_DDS_Extension_00000"
+        },
+        {
+          "node_id": "html_v1_index_031_扩展标记_00000"
         }
       ]
     },
@@ -2341,13 +2341,13 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_1_3_数组_00000"
         },
         {
+          "node_id": "html_v1_index_014_数据类型_00001"
+        },
+        {
           "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_3_生成自定义数据类型文件_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第27章_分布式日志_27_3_日志类型IDL文件_00000"
-        },
-        {
-          "node_id": "html_v1_index_014_数据类型_00001"
+          "node_id": "html_v1_struct_foo_001_详细描述_00000"
         }
       ]
     },
@@ -2358,16 +2358,16 @@
           "node_id": "struct_v1_s_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_4_在Windows平台上配置ZRDDS应用_11_3_2_使用zrddsgen编译器_00000"
         },
         {
+          "node_id": "html_v1_downloads_007_V2_2_5_beta15_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_2_软件安装指南_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_3_使用步骤_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_5_在Linux平台配置ZRDDS应用_00000"
-        },
-        {
-          "node_id": "html_v1_downloads_007_V2_2_5_beta15_00000"
+          "node_id": "html_v1_downloads_008_V2_2_5_beta12_00000"
         }
       ]
     },
@@ -2415,9 +2415,6 @@
       "id": "Q114",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_1_XML配置说明_00000"
-        },
-        {
           "node_id": "html_v1_zrdds_qos_xml_001_XML配置QoS步骤_00000"
         },
         {
@@ -2427,7 +2424,10 @@
           "node_id": "html_v1_zrdds_qos_xml_003_管理ZRDDS内部QoS仓库_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_4_QoS设置相关接口_00000"
+          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_1_XML配置说明_00000"
+        },
+        {
+          "node_id": "html_v1_zrdds_qos_xml_000_XML配置实体QoS_00000"
         }
       ]
     },
@@ -2435,19 +2435,19 @@
       "id": "Q115",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_2_日志输出模式_00000"
-        },
-        {
           "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_2_日志接口_00000"
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000"
         },
         {
           "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00002"
+        },
+        {
+          "node_id": "html_v1_zrdds_log_006_用户日志输出与控制_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_2_日志输出模式_00000"
         }
       ]
     },
@@ -2464,10 +2464,10 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_5_设置DomainParticipant的Listener_00000"
+          "node_id": "html_v1_index_009_监听器_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_5_设置Publisher的Listener_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_5_设置DomainParticipant的Listener_00000"
         }
       ]
     },
@@ -2475,13 +2475,13 @@
       "id": "Q117",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_2_WaitSet的相关操作_00000"
-        },
-        {
           "node_id": "html_v1_group___c_publication_051_FooDataWriter_wait_for_acknowledgments_00000"
         },
         {
           "node_id": "html_v1_group___c_publication_024_DDS_Publisher_wait_for_acknowledgments_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_2_WaitSet的相关操作_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第12章_可靠通信模型_12_3_QoS策略对通信模型的影响_12_3_3_writer_阻塞时间_00000"
@@ -2498,16 +2498,16 @@
           "node_id": "html_v1_struct_d_d_s___liveliness_qos_policy_001_详细描述_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_12_LivelinessQosPolicy_00000"
-        },
-        {
           "node_id": "html_v1_group___core_qos_struct_006_DDS_LivelinessQosPolicyKind_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_6_DiscoveryConfigQosPolicy_DDS_Extension_00000"
+          "node_id": "html_v1_struct_d_d_s___liveliness_lost_status_001_详细描述_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___liveliness_lost_status_001_详细描述_00000"
+          "node_id": "html_v1_group___c_domain_003_DDS_DomainParticipant_assert_liveliness_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_12_LivelinessQosPolicy_00000"
         }
       ]
     },
@@ -2524,10 +2524,10 @@
           "node_id": "struct_v1_s_s_s_s_PART_9参数配置_第23章_可配置性_23_2_可配置参数_23_2_2_域参与者参数_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_6_3_4_1_在创建DomainParticipant时配置QoS策略_00000"
+          "node_id": "html_v1_struct_d_d_s___topic_qos_000_DDS_TopicQos结构体_参考_00000"
         },
         {
-          "node_id": "html_v1_struct_d_d_s___topic_qos_000_DDS_TopicQos结构体_参考_00000"
+          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_6_3_4_1_在创建DomainParticipant时配置QoS策略_00000"
         }
       ]
     },

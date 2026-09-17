@@ -20,9 +20,9 @@ make ingest && make index && make serve    # 入库 → 建索引 → 起服务
 
 | 步骤 | 耗时 | 产物 / 结果 |
 |---|---|---|
-| `make setup` | 视网络 | `.venv/`（此后所有 make 目标自动改用该 venv 的解释器） |
+| `make setup` | 视网络（2026-09-17 实测成功） | `.venv/`（此后所有 make 目标自动改用该 venv 的解释器；新 venv 内 `pytest tests/` 430/430、`make ingest` 产物与 Git 版本零差异） |
 | `make ingest` | ~1.4s | `data/processed/struct_v1.jsonl`（301 chunk，metadata 21+ 字段，质检全 0） |
-| `make index` | **约 8 分钟** | `indexes/struct_bge-m3_<hash8>/`（多来源 1606 节点约 25 分钟） |
+| `make index` | **约 8 分钟** | `indexes/struct_bge-m3_<hash8>/`（多来源 1638 节点约 25 分钟） |
 | `make serve` | 启动期预热 | `http://127.0.0.1:8000/healthz` → `{"status":"ok","mode":"live"}` |
 
 > **两个坑（本机实测，务必照做）**
@@ -74,7 +74,8 @@ live 模式用哪套索引由 `RAG_EXPERIMENT_CONFIG`（默认 `configs/experime
 - 索引目录派生命名 `{method}_{embed}_{hash8}`。**hash8 只由索引身份段派生**（`chunking` / `embedding` / `index` / `retrieval.mode|params|filters`）——改生成、评测、报告段不会孤儿化索引。
 - 复用前硬校验产物指纹 `nodes_file_sha12`（CRLF 归一化后计算）：产物变了而配置没变的脏索引会被拒绝复用并提示 `--rebuild`。
 - hybrid 走**引用制**：`retrieval.components: {vector: <实验名>, bm25: <实验名>}`，运行时融合、零重建。
-- 现存配置：`struct_v1`（结构分块 + 向量，基线）· `struct_bm25` · `struct_hybrid` · `semantic_v1` · `hybrid_v1` · `struct_multisrc_v1` / `_bm25` / `_hybrid`（PDF+HTML 统一 Node 集 1606 条）。
+- 现存配置：`struct_v1`（结构分块 + 向量，基线）· `struct_bm25` · `struct_hybrid` · `semantic_v1` · `hybrid_v1` · `struct_multisrc_v1` / `_bm25` / `_hybrid` / `_hybrid_ver20` / `_hybrid_ver24` · `struct_multisrc_hybrid_rerank`（精排）· `final_v1`（产品态：Prompt v2 + source_priority + 回答侧四指标）。多来源统一 Node 集 **1638 条**（PDF 301 + HTML 1337）。
+- 四种检索模式均可跑：`vector`（bge-m3 + chroma）· `bm25`（字符 bigram + ASCII 词整体保留）· `hybrid`（RRF 融合，引用制）· `hybrid_rerank`（RRF Top30 → bge-reranker-v2-m3 精排 → Top5）；版本加权经 `retrieval.params` 配置（`version_pref` / `version_boost`）。
 
 规范与逐参数说明见 [`configs/experiments/README.md`](./configs/experiments/README.md)。
 
@@ -87,7 +88,7 @@ make regression REG_ARGS=--changed-only                         # 按 git 变更
 make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准锚点
 ```
 
-- **标注闸门**：`make audit` 的判据**只来自 A 的产物与章节树**（不调检索器），因此能抓出"标注 = 检索 top-1 回显"的自证循环；退出码非 0 时不得启用 `--with-metrics`。2026-09-15 现状：E 重标（PR#36）后**首次 pass**（循环指纹 4/120）；遗留六题题干编码损坏（P0）与宽区间 keyword 语义复核（P1），修复前暂不开正式指标（见 `docs/week4-delivery-review.md` §10）。
+- **标注闸门**：`make audit` 的判据**只来自 A 的产物与章节树**（不调检索器），因此能抓出"标注 = 检索 top-1 回显"的自证循环，也能抓出题面本身的损坏（如写入环节的有损转码）；退出码非 0 时不得启用 `--with-metrics`。2026-09-17 现状：循环论证指纹 **0/120**、题面乱码 0 处、早先 48 题阻断已清零；**仍判 blocked 的是 4 题口径问题**（"策略章节页 vs 字段说明页"，待 C 定口径），故正式检索指标继续保持静默（见 `docs/week4-delivery-review.md` §3.11）。
 
 - **双通道**：默认只比"检索明细"（top-K 重合率 / rank-1 一致率 / 空结果数 / 耗时），与标注无关即可发现退化；指标通道需 `--with-metrics` 显式启用（当前标注未定版，见下）。
 - **可比性闸门**：比对前核 `config_hash8` 与 Node 集 / 问题集 / 标注集三份指纹；输入变了判 `incomparable` 而非"回归"。
@@ -98,10 +99,14 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 
 | 文档 | 内容 |
 |---|---|
+| [`architecture.md`](./docs/architecture.md) | **系统架构**：分层视图、三条运行链路、对外契约、关键不变量、评测与部署形态 |
 | [`api.md`](./docs/api.md) | REST + SSE 契约（事件协议、Citation 字段、score 量纲按 mode 定标、错误双通道） |
 | [`ingest-pipeline.md`](./docs/ingest-pipeline.md) | 入库六步链路、多来源注册表、跨来源契约校验 |
 | [`html-loader.md`](./docs/html-loader.md) | Doxygen HTML 解析接口与产物口径（A 域） |
+| [`evaluation.md`](./docs/evaluation.md) | 检索实验方法学与四组对比证据链（B 域） |
+| [`reliability-report.md`](./docs/reliability-report.md) | 可靠性与拒答专项报告（C 域） |
 | [`retrieval-log-schema.md`](./docs/retrieval-log-schema.md) | 检索日志字段定义与会签结论（B/D） |
+| [`answer-log-schema-draft.md`](./docs/answer-log-schema-draft.md) | 回答级日志字段草案（D 拟稿，待 C 回签） |
 | [`citation-contract-draft.md`](./docs/citation-contract-draft.md) | Citation 契约与待决问题（C/E 会签中） |
 | [`source-priority-draft.md`](./docs/source-priority-draft.md) | 多来源优先级草案（C 域） |
 | [`index-rebuild-drill.md`](./docs/index-rebuild-drill.md) | 索引重建/回切演练与实测计时表 |
@@ -125,11 +130,12 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 
 ## 当前状态与已知限制
 
-系统状态（2026-09-15）：`make test` 全套绿（合并 PR#36 后 345 用例口径，含 E 新增 3 例审计测试）；`make ingest / index / experiment / regression / audit / serve` 全链路本机实测；live 通路真实检索 + LLM 出词的四场景演示通过（见 `docs/demo-runbook.md`）。
+系统状态（2026-09-17）：`make test` **425/425 全绿**；`make ingest / index / experiment / serve / regression / audit` 全链路本机实测；多来源统一 Node 集 **1638 条**（H1 HTML 加载器丢正文缺陷修复后重生成），`indexes/` 六套索引经指纹核对**全部可复用（零重建）**；live 通路真实检索 + 真实出词的四场景演示通过（见 `docs/demo-runbook.md`）。系统架构见 [`docs/architecture.md`](./docs/architecture.md)。
 
 以下限制如实登记，请勿在汇报中当作已完成：
 
-- **Reranker 未实现**：`retrieval` 对 `hybrid_rerank` 仍抛 `NotImplementedError`（B 域第四周任务），"Vector / BM25 / Hybrid / Hybrid+Reranker"四组对比缺最后一档。
-- **正式指标暂不开启**：`make audit` 已首次 pass（E PR#36 重标，循环指纹 44/120 → 4/120），但六题题干编码损坏（P0）与宽区间标注的 keyword 语义复核（P1）未完成——修复前回归只走明细通道，六份历史报告的 metrics 仍视同 void，待定版后由 D 统一重跑刷新。
-- **SSE wire 第 8 字段**：HTML 引用的 `source_url` 已可经 `GET /sources/{rid}`（及 MCP `get_sources`）回查获得（api.md v0.11），前端（PR#36）已消费该通道并渲染外链；SSE 的 `sources` 事件仍是 7 字段，正式扩进 wire 需 B/C/E 会签。
+- **检索正式指标仍静默**：`make audit` 现判 **blocked**，只剩 4 题口径问题（Q018/Q026/Q065/Q066——"策略章节页 vs 字段说明页"与双主题题，待 C 定口径）；此前 48 题阻断、6 题题干乱码、循环论证指纹 4/120 均已清零。口径定版前回归只走明细通道，历史报告的 metrics 视同 void，待定版后加 `--with-metrics` 统一重跑刷新（详见 `docs/week4-delivery-review.md` §3.11/§4）。
+- **回答侧评测（2026-09-17 已实测）**：`final_v1`（Prompt v2 + source_priority）120 题终跑——faithfulness **0.8950** / answer_relevance **0.9883** / correctness **0.9633** / citation_accuracy **0.9583**（均 n=120、判分失败 0），拒答 29/120；**20 题拒答专项 = 0 虚构**（16/20 显式拒答，另 4 题以"事实性否定 + 语料引用"作答，机器闸门因此退码 1，口径待 C 会签）；30 题人工抽检清单待签署。明细见 `docs/week4-delivery-review.md` §3.13。注意报告 `response.answer_seconds` 才是回答侧墙钟（120 题约 84 分钟，本地 9B），`duration_seconds` 仍是检索阶段耗时。
+- **SSE wire 第 8 字段**：HTML 引用的 `source_url` 已可经 `GET /sources/{rid}`（及 MCP `get_sources`）回查获得（api.md v0.11），前端已消费该通道并渲染外链；SSE 的 `sources` 事件仍是 7 字段，正式扩进 wire 需 B/C/E 会签。
+- **回答级日志未接线**：三级日志的请求级与检索级已落地（`logs/requests.jsonl` / `logs/retrievals.jsonl`），回答级字段定义属 C 的职责、目前缺位——D 已拟草案 [`docs/answer-log-schema-draft.md`](./docs/answer-log-schema-draft.md) 待 C 回签后接线。
 - **容器化未验证**：交付环境本机无 Docker，快速开始以 `make` 链路为准；Docker 方案的验证状态见 `docs/week4-delivery-review.md`。

@@ -4,12 +4,12 @@
   "stage": "baseline",
   "config_hash8": "d57f695e",
   "artifacts": {
-    "nodes_file_sha12": "fce8da174fb4",
-    "questions_sha12": "4a5ddb1f1b5c",
+    "nodes_file_sha12": "2628c16fafda",
+    "questions_sha12": "9ea5b614a078",
     "expected_sources_sha12": null
   },
-  "generated_at": "2026-09-15T01:18:22+0800",
-  "duration_seconds": 21.5,
+  "generated_at": "2026-09-17T10:21:43+0800",
+  "duration_seconds": 23.3,
   "index": {
     "dirname": "struct_bge-m3_d57f695e",
     "backend": "chroma",
@@ -218,15 +218,6 @@
           "score": 0.7084
         },
         {
-          "node_id": "html_v1_group___c_domain_054_DDS_DomainParticipantFactory_create_part_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_domain.html",
-          "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_create_participant",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6932
-        },
-        {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -252,6 +243,15 @@
           "page_print": null,
           "page_physical": null,
           "score": 0.6837
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_6_选择Domain_ID和创建多个域_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.6 选择Domain ID和创建多个域",
+          "page_print": 55,
+          "page_physical": 61,
+          "score": 0.6836
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -285,7 +285,7 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_listener",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6939
+          "score": 0.6936
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000",
@@ -303,7 +303,7 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_create_participant_with_qos_profile",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6613
+          "score": 0.6631
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -312,6 +312,15 @@
       "id": "Q004",
       "question": "调用 DomainParticipant 的 enable()函数前，实体处于什么状态？使能后会发生什么变化？",
       "retrieved": [
+        {
+          "node_id": "html_v1_index_005_实体使能_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "index.html",
+          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍 / 实体的生命周期 / 实体使能",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6973
+        },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000",
           "source_id": "user_manual",
@@ -347,15 +356,6 @@
           "page_print": 58,
           "page_physical": 64,
           "score": 0.6576
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_6_2_3_释放DomainParticipantFactory_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.2 DomainParticipantFactory / 6.2.3 释放DomainParticipantFactory",
-          "page_print": 47,
-          "page_physical": 53,
-          "score": 0.6404
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -453,13 +453,13 @@
           "score": 0.707
         },
         {
-          "node_id": "html_v1_group___c_publication_047_FooDataWriter_set_qos_00000",
+          "node_id": "html_v1_group___c_publication_018_DDS_Publisher_set_default_datawriter_qos_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_set_qos",
+          "section": "发布模块 / 函数说明 / DDS_Publisher_set_default_datawriter_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7039
+          "score": 0.7062
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -536,7 +536,7 @@
           "section": "订阅模块 / 函数说明 / FooDataReader_read_w_condition",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7013
+          "score": 0.7157
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_5_ReadConditions_00000",
@@ -554,7 +554,7 @@
           "section": "订阅模块 / 函数说明 / FooDataReader_take_w_condition",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6824
+          "score": 0.682
         },
         {
           "node_id": "html_v1_group___c_subscription_051_FooDataReader_read_next_instance_w_condi_00000",
@@ -563,7 +563,7 @@
           "section": "订阅模块 / 函数说明 / FooDataReader_read_next_instance_w_condition",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6793
+          "score": 0.6812
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -649,7 +649,7 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_delete_contained_entities",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7058
+          "score": 0.7093
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_6_创建ZRDDS应用程序_11_6_3_订阅端应用程序_00001",
@@ -701,7 +701,7 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipant_delete_contained_entities",
           "page_print": null,
           "page_physical": null,
-          "score": 0.71
+          "score": 0.7051
         },
         {
           "node_id": "html_v1_group___c_domain_056_DDS_DomainParticipantFactory_delete_cont_00000",
@@ -710,7 +710,7 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_delete_contained_entities",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6893
+          "score": 0.6857
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000",
@@ -735,7 +735,7 @@
           "section": "订阅模块 / 函数说明 / FooDataReader_create_readcondition",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7762
+          "score": 0.7759
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_5_5_5_ReadConditions_00000",
@@ -747,6 +747,15 @@
           "score": 0.7255
         },
         {
+          "node_id": "html_v1_struct_d_d_s___read_condition_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___read_condition.html",
+          "section": "DDS_ReadCondition结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6867
+        },
+        {
           "node_id": "html_v1_group___c_subscription_003_DDS_ReadCondition_get_sample_state_mask_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_subscription.html",
@@ -754,15 +763,6 @@
           "page_print": null,
           "page_physical": null,
           "score": 0.682
-        },
-        {
-          "node_id": "html_v1_group___c_subscription_029_FooDataReader_create_querycondition_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_subscription.html",
-          "section": "订阅模块 / 函数说明 / FooDataReader_create_querycondition",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6796
         },
         {
           "node_id": "html_v1_group___c_subscription_000_订阅模块_00001",
@@ -808,15 +808,6 @@
           "score": 0.668
         },
         {
-          "node_id": "html_v1_group___core_status_struct_003_DDS_StatusKind_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___core_status_struct.html",
-          "section": "核心接口状态相关数据类型 / 枚举类型说明 / DDS_StatusKind",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6667
-        },
-        {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -824,6 +815,15 @@
           "page_print": 48,
           "page_physical": 54,
           "score": 0.6642
+        },
+        {
+          "node_id": "html_v1_get_plain_status_8c_example_000_GetPlainStatus_c_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "_get_plain_status_8c-example.html",
+          "section": "GetPlainStatus.c",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6641
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -857,7 +857,16 @@
           "section": "基础模块 / 函数说明 / DDS_WaitSet_wait",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6576
+          "score": 0.6782
+        },
+        {
+          "node_id": "html_v1_group___c_publication_051_FooDataWriter_wait_for_acknowledgments_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / FooDataWriter_wait_for_acknowledgments",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6553
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第5章_实体_5_5_Condition与WaitSets_00000",
@@ -867,15 +876,6 @@
           "page_print": 39,
           "page_physical": 45,
           "score": 0.6531
-        },
-        {
-          "node_id": "html_v1_group___c_publication_051_FooDataWriter_wait_for_acknowledgments_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_wait_for_acknowledgments",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6488
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -891,16 +891,7 @@
           "section": "发布模块 / 函数说明 / DDS_Publisher_wait_for_acknowledgments",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7842
-        },
-        {
-          "node_id": "html_v1_group___c_publication_051_FooDataWriter_wait_for_acknowledgments_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_wait_for_acknowledgments",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7428
+          "score": 0.7798
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_2_8_Publisher的其他操作_00000",
@@ -912,22 +903,31 @@
           "score": 0.7306
         },
         {
-          "node_id": "html_v1_group___c_infrastruct_018_DDS_WaitSet_wait_00001",
+          "node_id": "html_v1_group___c_publication_051_FooDataWriter_wait_for_acknowledgments_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_infrastruct.html",
-          "section": "基础模块 / 函数说明 / DDS_WaitSet_wait",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / FooDataWriter_wait_for_acknowledgments",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6854
+          "score": 0.7197
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_7_获取Publisher的关联实体_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.2 Publisher / 8.2.7 获取Publisher的关联实体",
-          "page_print": 78,
-          "page_physical": 84,
-          "score": 0.6842
+          "node_id": "html_v1_group___c_subscription_038_FooDataReader_get_matched_publications_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / FooDataReader_get_matched_publications",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6926
+        },
+        {
+          "node_id": "html_v1_group___c_publication_003_DDS_Publisher_begin_coherent_changes_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / DDS_Publisher_begin_coherent_changes",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6883
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -961,25 +961,25 @@
           "section": "订阅模块 / 函数说明 / FooDataReader_set_listener",
           "page_print": null,
           "page_physical": null,
-          "score": 0.705
+          "score": 0.7081
         },
         {
-          "node_id": "html_v1_group___c_publication_046_FooDataWriter_set_listener_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_set_listener",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6824
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.2 Subscriber / 9.2.5 设置Subscriber的Listener",
+          "page_print": 96,
+          "page_physical": 102,
+          "score": 0.6758
         },
         {
-          "node_id": "html_v1_group___c_subscription_009_DDS_Subscriber_create_datareader_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_subscription.html",
-          "section": "订阅模块 / 函数说明 / DDS_Subscriber_create_datareader",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6802
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_4_设置DataReader的Listener_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.4 设置DataReader的Listener",
+          "page_print": 103,
+          "page_physical": 109,
+          "score": 0.6742
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -988,6 +988,15 @@
       "id": "Q017",
       "question": "Topic 的 on_inconsistent_topic()回调函数在什么情况下会被触发？触发时该 Topic 处于什么状态？",
       "retrieved": [
+        {
+          "node_id": "html_v1_group___c_listener_021_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7341
+        },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_6_关于Topic的Status_00000",
           "source_id": "user_manual",
@@ -998,13 +1007,13 @@
           "score": 0.7019
         },
         {
-          "node_id": "html_v1_group___c_listener_021_status_00000",
+          "node_id": "html_v1_group___c_topic_007_DDS_Topic_get_inconsistent_topic_status_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_listener.html",
-          "section": "监听器模块 / 类型定义说明 / status",
+          "source_name": "group___c_topic.html",
+          "section": "主题模块 / 函数说明 / DDS_Topic_get_inconsistent_topic_status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6974
+          "score": 0.6733
         },
         {
           "node_id": "html_v1_struct_d_d_s___topic_listener_000_DDS_TopicListener结构体_参考_00000",
@@ -1013,7 +1022,7 @@
           "section": "DDS_TopicListener结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6882
+          "score": 0.6709
         },
         {
           "node_id": "html_v1_struct_d_d_s___inconsistent_topic_status_000_DDS_InconsistentTopicStatus结构体_参考_00000",
@@ -1022,16 +1031,7 @@
           "section": "DDS_InconsistentTopicStatus结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6792
-        },
-        {
-          "node_id": "html_v1_group___c_topic_007_DDS_Topic_get_inconsistent_topic_status_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_topic.html",
-          "section": "主题模块 / 函数说明 / DDS_Topic_get_inconsistent_topic_status",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6698
+          "score": 0.6542
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1068,15 +1068,6 @@
           "score": 0.73
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___data_writer_listener.html",
-          "section": "DDS_DataWriterListener结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7103
-        },
-        {
           "node_id": "struct_v1_s_s_s_PART_4_深入理解_第14章_UDP大包零拷贝_14_3_on_data_arrived回调_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -1084,6 +1075,15 @@
           "page_print": 216,
           "page_physical": 222,
           "score": 0.71
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___data_writer_listener.html",
+          "section": "DDS_DataWriterListener结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7091
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1117,7 +1117,7 @@
           "section": "监听器模块 / 类型定义说明 / status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7249
+          "score": 0.7525
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_12_LivelinessQosPolicy_00001",
@@ -1129,13 +1129,13 @@
           "score": 0.7227
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000",
+          "node_id": "html_v1_struct_d_d_s___liveliness_lost_status_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___data_writer_listener.html",
-          "section": "DDS_DataWriterListener结构体 参考",
+          "source_name": "struct_d_d_s___liveliness_lost_status.html",
+          "section": "DDS_LivelinessLostStatus结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6875
+          "score": 0.7173
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1144,6 +1144,15 @@
       "id": "Q020",
       "question": "Subscriber 的 on_data_on_readers()回调函数被触发时，表示什么事件发生？该状态如何查询？",
       "retrieved": [
+        {
+          "node_id": "html_v1_group___c_listener_020_sub_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / sub",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7827
+        },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_6_关于Subscriber的Status_00000",
           "source_id": "user_manual",
@@ -1160,16 +1169,16 @@
           "section": "DDS_SubscriberListener结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7494
+          "score": 0.7147
         },
         {
-          "node_id": "html_v1_group___c_listener_020_sub_00000",
+          "node_id": "html_v1_group___c_subscription_022_DDS_Subscriber_notify_datareaders_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_listener.html",
-          "section": "监听器模块 / 类型定义说明 / sub",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / DDS_Subscriber_notify_datareaders",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7366
+          "score": 0.7019
         },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000",
@@ -1179,22 +1188,13 @@
           "page_print": 106,
           "page_physical": 112,
           "score": 0.7002
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_4_深入理解_第14章_UDP大包零拷贝_14_3_on_data_arrived回调_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 4 深入理解 / 第14章 UDP大包零拷贝 / 14.3 on_data_arrived回调",
-          "page_print": 216,
-          "page_physical": 222,
-          "score": 0.6845
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
     },
     {
       "id": "Q021",
-      "question": "DataReader 的 on_subscription_matched()回调函数中，matched_count 表示什么含义？如何获取当前订阅状态？",
+      "question": "DataReader 的 on_subscription_matched()回调函数被触发时，该 DataReader 处于什么状态？该 Listener 的 subscription_matched 字段是什么类型？",
       "retrieved": [
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000",
@@ -1203,7 +1203,7 @@
           "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.5 关于DataReader的Status / 9.3.5.7 SUBSCRIPTION_MATCHED Status",
           "page_print": 106,
           "page_physical": 112,
-          "score": 0.784
+          "score": 0.8088
         },
         {
           "node_id": "html_v1_group___c_listener_015_status_00000",
@@ -1212,34 +1212,34 @@
           "section": "监听器模块 / 类型定义说明 / status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.713
+          "score": 0.7807
         },
         {
-          "node_id": "html_v1_struct_d_d_s___subscription_matched_status_000_DDS_SubscriptionMatchedStatus结构体_参考_00000",
+          "node_id": "html_v1_group___c_listener_020_sub_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___subscription_matched_status.html",
-          "section": "DDS_SubscriptionMatchedStatus结构体 参考",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / sub",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7073
+          "score": 0.7419
         },
         {
-          "node_id": "html_v1_subscription_matched_status_2main_sub_8c_example_000_SubscriptionMatchedStatus_main_sub_c_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "_subscription_matched_status_2main_sub_8c-example.html",
-          "section": "SubscriptionMatchedStatus/main_sub.c",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7054
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_2_6_关于Subscriber的Status_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.2.6 关于Subscriber的Status",
+          "page_print": 97,
+          "page_physical": 103,
+          "score": 0.7405
         },
         {
-          "node_id": "html_v1_group___c_subscription_045_FooDataReader_get_subscription_matched_s_00000",
+          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_subscription.html",
-          "section": "订阅模块 / 函数说明 / FooDataReader_get_subscription_matched_status",
+          "source_name": "struct_d_d_s___data_reader_listener.html",
+          "section": "DDS_DataReaderListener结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6829
+          "score": 0.7354
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1276,29 +1276,29 @@
           "score": 0.6852
         },
         {
+          "node_id": "html_v1_group___c_subscription_036_FooDataReader_get_liveliness_changed_sta_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / FooDataReader_get_liveliness_changed_status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6777
+        },
+        {
           "node_id": "html_v1_group___c_infrastruct_003_DDS_Entity_get_status_changes_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_infrastruct.html",
           "section": "基础模块 / 函数说明 / DDS_Entity_get_status_changes",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6688
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_2_LIVELINESS_CHANGED_Status_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.5 关于DataReader的Status / 9.3.5.2 LIVELINESS_CHANGED Status",
-          "page_print": 105,
-          "page_physical": 111,
-          "score": 0.6483
+          "score": 0.6758
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
     },
     {
       "id": "Q023",
-      "question": "DataReader 的 on_liveliness_changed()回调函数中，status_kind 字段可能的取值有哪些？分别代表什么状态？",
+      "question": "DataReader 的 on_liveliness_changed()回调函数被触发时，该 DataReader 处于什么状态？该 Listener 的 liveliness_changed 字段是什么类型？",
       "retrieved": [
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_2_LIVELINESS_CHANGED_Status_00000",
@@ -1307,25 +1307,7 @@
           "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.5 关于DataReader的Status / 9.3.5.2 LIVELINESS_CHANGED Status",
           "page_print": 105,
           "page_physical": 111,
-          "score": 0.757
-        },
-        {
-          "node_id": "html_v1_group___c_subscription_036_FooDataReader_get_liveliness_changed_sta_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_subscription.html",
-          "section": "订阅模块 / 函数说明 / FooDataReader_get_liveliness_changed_status",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7203
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.5 关于DataWriter的Status",
-          "page_print": 85,
-          "page_physical": 91,
-          "score": 0.718
+          "score": 0.8078
         },
         {
           "node_id": "html_v1_group___c_listener_010_status_00000",
@@ -1334,16 +1316,34 @@
           "section": "监听器模块 / 类型定义说明 / status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7109
+          "score": 0.7795
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_11_DataReader的SampleInfo结构_9_3_11_3_实例状态_Instance_States_00000",
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.11 DataReader的SampleInfo结构 / 9.3.11.3 实例状态(Instance States)",
-          "page_print": 115,
-          "page_physical": 121,
-          "score": 0.6921
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.5 关于DataWriter的Status",
+          "page_print": 85,
+          "page_physical": 91,
+          "score": 0.746
+        },
+        {
+          "node_id": "html_v1_liveliness_qos_2main_sub_8c_example_000_LivelinessQos_main_sub_c_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "_liveliness_qos_2main_sub_8c-example.html",
+          "section": "LivelinessQos/main_sub.c",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7409
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___data_reader_listener.html",
+          "section": "DDS_DataReaderListener结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7349
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1352,6 +1352,15 @@
       "id": "Q024",
       "question": "DataReader 的 on_requested_deadline_missed()回调函数在什么情况下被触发？触发时该 DataReader 处于什么状态？",
       "retrieved": [
+        {
+          "node_id": "html_v1_group___c_listener_011_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7653
+        },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_3_REQUESTED_DEADLINE_MISSED_Status_00000",
           "source_id": "user_manual",
@@ -1368,16 +1377,7 @@
           "section": "DDS_DataReaderListener结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7522
-        },
-        {
-          "node_id": "html_v1_group___c_listener_011_status_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_listener.html",
-          "section": "监听器模块 / 类型定义说明 / status",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.741
+          "score": 0.7295
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
@@ -1420,7 +1420,16 @@
           "section": "监听器模块 / 类型定义说明 / status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7383
+          "score": 0.7684
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___requested_incompatible_qos_status_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___requested_incompatible_qos_status.html",
+          "section": "DDS_RequestedIncompatibleQosStatus结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7272
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_3_设置DataReader的QoS策略_00000",
@@ -1430,15 +1439,6 @@
           "page_print": 100,
           "page_physical": 106,
           "score": 0.7269
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___requested_incompatible_qos_status_001_详细描述_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___requested_incompatible_qos_status.html",
-          "section": "DDS_RequestedIncompatibleQosStatus结构体 参考 / 详细描述",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7261
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_28_TimeBasedFilterQosPolicy_00000",
@@ -1466,6 +1466,15 @@
           "score": 0.7039
         },
         {
+          "node_id": "html_v1_group___c_listener_013_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6989
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_5_SAMPLE_LOST_Status_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -1482,15 +1491,6 @@
           "page_print": 103,
           "page_physical": 109,
           "score": 0.6793
-        },
-        {
-          "node_id": "html_v1_group___c_listener_013_status_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_listener.html",
-          "section": "监听器模块 / 类型定义说明 / status",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6675
         },
         {
           "node_id": "struct_v1_s_s_s_PART_4_深入理解_第14章_UDP大包零拷贝_14_3_on_data_arrived回调_00000",
@@ -1533,7 +1533,16 @@
           "section": "监听器模块 / 类型定义说明 / status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7028
+          "score": 0.749
+        },
+        {
+          "node_id": "html_v1_group___c_listener_013_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7073
         },
         {
           "node_id": "html_v1_group___c_subscription_043_FooDataReader_get_sample_rejected_status_00000",
@@ -1542,24 +1551,24 @@
           "section": "订阅模块 / 函数说明 / FooDataReader_get_sample_rejected_status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6965
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___data_reader_listener_000_DDS_DataReaderListener结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___data_reader_listener.html",
-          "section": "DDS_DataReaderListener结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6759
+          "score": 0.6934
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
     },
     {
       "id": "Q028",
-      "question": "DataWriter 的 on_publication_matched()回调函数中，matched_count 大于零表示什么？该状态如何查询？",
+      "question": "DataWriter 的 on_publication_matched()回调函数被触发时，该 DataWriter 处于什么状态？该 Listener 的 publication_matched 字段是什么类型？",
       "retrieved": [
+        {
+          "node_id": "html_v1_group___c_listener_019_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7937
+        },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000",
           "source_id": "user_manual",
@@ -1567,7 +1576,7 @@
           "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.5 关于DataReader的Status / 9.3.5.7 SUBSCRIPTION_MATCHED Status",
           "page_print": 106,
           "page_physical": 112,
-          "score": 0.7044
+          "score": 0.7436
         },
         {
           "node_id": "html_v1_publication_matched_status_2main_pub_8c_example_000_PublicationMatchedStatus_main_pub_c_00001",
@@ -1576,34 +1585,25 @@
           "section": "PublicationMatchedStatus/main_pub.c",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6767
+          "score": 0.7147
         },
         {
-          "node_id": "html_v1_group___c_listener_019_status_00000",
+          "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___data_writer_listener.html",
+          "section": "DDS_DataWriterListener结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7002
+        },
+        {
+          "node_id": "html_v1_group___c_listener_015_status_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_listener.html",
           "section": "监听器模块 / 类型定义说明 / status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6681
-        },
-        {
-          "node_id": "html_v1_group___c_publication_039_FooDataWriter_get_publication_matched_st_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_get_publication_matched_status",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6532
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___publication_matched_status_000_DDS_PublicationMatchedStatus结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___publication_matched_status.html",
-          "section": "DDS_PublicationMatchedStatus结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6488
+          "score": 0.6992
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1612,6 +1612,15 @@
       "id": "Q029",
       "question": "DataWriter 的 on_offered_deadline_missed()回调函数在什么情况下被触发？触发时该 DataWriter 处于什么状态？",
       "retrieved": [
+        {
+          "node_id": "html_v1_group___c_listener_017_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7706
+        },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
           "source_id": "user_manual",
@@ -1622,22 +1631,13 @@
           "score": 0.7431
         },
         {
-          "node_id": "html_v1_group___c_listener_017_status_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_listener.html",
-          "section": "监听器模块 / 类型定义说明 / status",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7407
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___data_writer_listener_000_DDS_DataWriterListener结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "struct_d_d_s___data_writer_listener.html",
           "section": "DDS_DataWriterListener结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7245
+          "score": 0.7052
         },
         {
           "node_id": "html_v1_group___c_publication_037_FooDataWriter_get_offered_deadline_misse_00000",
@@ -1649,13 +1649,13 @@
           "score": 0.6943
         },
         {
-          "node_id": "html_v1_dead_line_qos_2main_pub_8c_example_000_DeadLineQos_main_pub_c_00001",
+          "node_id": "html_v1_group___c_listener_018_status_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "_dead_line_qos_2main_pub_8c-example.html",
-          "section": "DeadLineQos/main_pub.c",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6862
+          "score": 0.6907
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1664,6 +1664,15 @@
       "id": "Q030",
       "question": "DataWriter 的 on_offered_incompatible_qos()回调函数在什么情况下被触发？可能的原因有哪些？",
       "retrieved": [
+        {
+          "node_id": "html_v1_group___c_listener_018_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7571
+        },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_4_REQUESTED_INCOMPATIBLE_QOS_Status_00000",
           "source_id": "user_manual",
@@ -1674,22 +1683,13 @@
           "score": 0.7459
         },
         {
-          "node_id": "html_v1_group___c_listener_018_status_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_listener.html",
-          "section": "监听器模块 / 类型定义说明 / status",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7217
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___offered_incompatible_qos_status_001_详细描述_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___offered_incompatible_qos_status.html",
-          "section": "DDS_OfferedIncompatibleQosStatus结构体 参考 / 详细描述",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7119
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.5 关于DataWriter的Status",
+          "page_print": 85,
+          "page_physical": 91,
+          "score": 0.7062
         },
         {
           "node_id": "html_v1_group___c_publication_038_FooDataWriter_get_offered_incompatible_q_00000",
@@ -1698,16 +1698,16 @@
           "section": "发布模块 / 函数说明 / FooDataWriter_get_offered_incompatible_qos_status",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7103
+          "score": 0.702
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.5 关于DataWriter的Status",
-          "page_print": 85,
-          "page_physical": 91,
-          "score": 0.7062
+          "node_id": "html_v1_struct_d_d_s___offered_incompatible_qos_status_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___offered_incompatible_qos_status.html",
+          "section": "DDS_OfferedIncompatibleQosStatus结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6948
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1750,16 +1750,16 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_discovered_participants",
           "page_print": null,
           "page_physical": null,
-          "score": 0.671
+          "score": 0.6713
         },
         {
-          "node_id": "html_v1_group___c_domain_029_DDS_DomainParticipant_get_discovered_par_00000",
+          "node_id": "html_v1_group___c_domain_071_DDS_DomainParticipantFactory_lookup_part_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_domain.html",
-          "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_discovered_participant_data",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_lookup_participant",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6602
+          "score": 0.67
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1802,7 +1802,7 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_discovered_topics",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6724
+          "score": 0.6713
         },
         {
           "node_id": "html_v1_group___c_domain_031_DDS_DomainParticipant_get_discovered_top_00000",
@@ -1811,7 +1811,7 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_discovered_topic_data",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6694
+          "score": 0.6692
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1821,49 +1821,49 @@
       "question": "Topic 的 create_topic()函数中，如果返回 NULL 表示什么？可能的原因有哪些？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___simple_interface_004_DDS_CreateDP_00001",
+          "node_id": "html_v1_group___c_domain_005_DDS_DomainParticipant_create_contentfilt_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___simple_interface.html",
-          "section": "简化接口 / 函数说明 / DDS_CreateDP",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_create_contentfilteredtopic",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6432
+          "score": 0.7577
         },
         {
-          "node_id": "html_v1_group___simple_interface_007_DDS_PubTopic_00001",
+          "node_id": "html_v1_group___c_domain_012_DDS_DomainParticipant_create_topic_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___simple_interface.html",
-          "section": "简化接口 / 函数说明 / DDS_PubTopic",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_create_topic",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6422
+          "score": 0.7405
         },
         {
-          "node_id": "html_v1_group___simple_interface_008_DDS_SubTopic_00001",
+          "node_id": "html_v1_group___c_subscription_010_DDS_Subscriber_create_datareader_with_qo_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___simple_interface.html",
-          "section": "简化接口 / 函数说明 / DDS_SubTopic",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / DDS_Subscriber_create_datareader_with_qos_profile",
           "page_print": null,
           "page_physical": null,
-          "score": 0.634
+          "score": 0.727
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第7章 主题 / 7.2 Topic",
-          "page_print": 60,
-          "page_physical": 66,
-          "score": 0.6335
+          "node_id": "html_v1_group___c_subscription_009_DDS_Subscriber_create_datareader_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / DDS_Subscriber_create_datareader",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7267
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_6_创建ZRDDS应用程序_11_6_3_订阅端应用程序_00001",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.6 创建ZRDDS应用程序 / 11.6.3 订阅端应用程序",
-          "page_print": 182,
-          "page_physical": 188,
-          "score": 0.6162
+          "node_id": "html_v1_group___c_domain_055_DDS_DomainParticipantFactory_create_part_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_create_participant_with_qos_profile",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6662
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1888,7 +1888,25 @@
           "section": "核心接口基础类型支持函数 / 类型定义说明 / entityId",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6353
+          "score": 0.6439
+        },
+        {
+          "node_id": "html_v1_group___c_domain_021_DDS_DomainParticipant_find_topic_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_find_topic",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6439
+        },
+        {
+          "node_id": "html_v1_group___c_listener_021_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6255
         },
         {
           "node_id": "html_v1_group___c_domain_000_域模块_00005",
@@ -1898,24 +1916,6 @@
           "page_print": null,
           "page_physical": null,
           "score": 0.623
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第7章_主题_7_1_TopicDescription_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第7章 主题 / 7.1 TopicDescription",
-          "page_print": 59,
-          "page_physical": 65,
-          "score": 0.6194
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_7_查找Topic_Description_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.7 查找Topic Description",
-          "page_print": 56,
-          "page_physical": 62,
-          "score": 0.6186
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -1940,7 +1940,7 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipant_lookup_topicdescription",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7087
+          "score": 0.7125
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第7章_主题_7_1_TopicDescription_00000",
@@ -1992,7 +1992,7 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipant_create_contentfilteredtopic",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7228
+          "score": 0.7269
         },
         {
           "node_id": "struct_v1_s_s_s_PART5_C语言接口_第15章_C接口_15_1_C接口的简介_00001",
@@ -2065,13 +2065,13 @@
           "score": 0.7088
         },
         {
-          "node_id": "html_v1_struct_d_d_s___domain_participant_qos_000_DDS_DomainParticipantQos结构体_参考_00000",
+          "node_id": "html_v1_group___c_domain_050_DDS_DomainParticipant_set_qos_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___domain_participant_qos.html",
-          "section": "DDS_DomainParticipantQos结构体 参考",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7001
+          "score": 0.695
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2090,13 +2090,13 @@
           "score": 0.7187
         },
         {
-          "node_id": "html_v1_struct_d_d_s___domain_participant_qos_000_DDS_DomainParticipantQos结构体_参考_00000",
+          "node_id": "html_v1_struct_d_d_s___discovery_config_qos_policy_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___domain_participant_qos.html",
-          "section": "DDS_DomainParticipantQos结构体 参考",
+          "source_name": "struct_d_d_s___discovery_config_qos_policy.html",
+          "section": "DDS_DiscoveryConfigQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7041
+          "score": 0.6864
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_6_DiscoveryConfigQosPolicy_DDS_Extension_00000",
@@ -2114,16 +2114,16 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.657
+          "score": 0.6635
         },
         {
-          "node_id": "html_v1_struct_d_d_s___discovery_config_qos_policy_001_详细描述_00000",
+          "node_id": "html_v1_struct_d_d_s___domain_participant_qos_000_DDS_DomainParticipantQos结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___discovery_config_qos_policy.html",
-          "section": "DDS_DiscoveryConfigQosPolicy结构体 参考 / 详细描述",
+          "source_name": "struct_d_d_s___domain_participant_qos.html",
+          "section": "DDS_DomainParticipantQos结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6529
+          "score": 0.6629
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2132,15 +2132,6 @@
       "id": "Q039",
       "question": "如何配置 DomainParticipant 的 EntityFactoryQosPolicy？该配置中的 autoenable_created_entities 字段的作用是什么？",
       "retrieved": [
-        {
-          "node_id": "html_v1_struct_d_d_s___entity_factory_qos_policy_000_DDS_EntityFactoryQosPolicy结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___entity_factory_qos_policy.html",
-          "section": "DDS_EntityFactoryQosPolicy结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7704
-        },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_6_3_4_1_在创建DomainParticipant时配置QoS策略_00000",
           "source_id": "user_manual",
@@ -2169,13 +2160,22 @@
           "score": 0.7048
         },
         {
-          "node_id": "html_v1_index_005_实体使能_00000",
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_6_2_2_获取及设置缺省的DomainParticipantQoS_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.2 DomainParticipantFactory / 6.2.2 获取及设置缺省的DomainParticipantQoS",
+          "page_print": 47,
+          "page_physical": 53,
+          "score": 0.6991
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___entity_factory_qos_policy_000_DDS_EntityFactoryQosPolicy结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "index.html",
-          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍 / 实体的生命周期 / 实体使能",
+          "source_name": "struct_d_d_s___entity_factory_qos_policy.html",
+          "section": "DDS_EntityFactoryQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7039
+          "score": 0.6946
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2191,7 +2191,7 @@
           "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7289
+          "score": 0.7619
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_1_日志QoS_00000",
@@ -2227,7 +2227,7 @@
           "section": "DDS_LogQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6808
+          "score": 0.6801
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2255,15 +2255,6 @@
           "score": 0.6271
         },
         {
-          "node_id": "html_v1_struct_d_d_s___domain_participant_factory_qos_000_DDS_DomainParticipantFactoryQos结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___domain_participant_factory_qos.html",
-          "section": "DDS_DomainParticipantFactoryQos结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6232
-        },
-        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_6_2_1_DomainParticipantFactory的QoS策略_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -2280,6 +2271,15 @@
           "page_print": 48,
           "page_physical": 54,
           "score": 0.6067
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.4 设置DomainParticipant的QoS策略",
+          "page_print": 52,
+          "page_physical": 58,
+          "score": 0.5878
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2368,15 +2368,6 @@
           "score": 0.6095
         },
         {
-          "node_id": "html_v1_struct_d_d_s___domain_participant_qos_000_DDS_DomainParticipantQos结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___domain_participant_qos.html",
-          "section": "DDS_DomainParticipantQos结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6058
-        },
-        {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_30_TransportConfigQosPolicy_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -2384,6 +2375,15 @@
           "page_print": 157,
           "page_physical": 163,
           "score": 0.6004
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_5_设置DomainParticipant的Listener_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.5 设置DomainParticipant的Listener",
+          "page_print": 54,
+          "page_physical": 60,
+          "score": 0.5999
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2399,7 +2399,7 @@
           "section": "DDS_ThreadCoreAffinityQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7415
+          "score": 0.7379
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_27_ThreadCoreAffinityQosPolicy_DDS_Extension_00000",
@@ -2411,24 +2411,6 @@
           "score": 0.7118
         },
         {
-          "node_id": "html_v1_functions_t_001_t_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "functions_t.html",
-          "section": "成员变量 / - t -",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7034
-        },
-        {
-          "node_id": "html_v1_functions_vars_t_000_t_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "functions_vars_t.html",
-          "section": "成员变量 - 变量 / - t -",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7034
-        },
-        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -2436,6 +2418,24 @@
           "page_print": 52,
           "page_physical": 58,
           "score": 0.6948
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART8RapidIO使用_第21章_RapidIO处理规程_21_4_任务核亲和性配置模块_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART8RapidIO使用 / 第21章 RapidIO处理规程 / 21.4 任务核亲和性配置模块",
+          "page_print": 259,
+          "page_physical": 265,
+          "score": 0.6833
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_22_RapidIOControllerQosPolicy_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.22 RapidIOControllerQosPolicy",
+          "page_print": 148,
+          "page_physical": 154,
+          "score": 0.6694
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2454,22 +2454,22 @@
           "score": 0.7717
         },
         {
-          "node_id": "html_v1_struct_d_d_s___receiver_thread_config_qos_policy_000_DDS_ReceiverThreadConfigQosPolicy结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___receiver_thread_config_qos_policy.html",
-          "section": "DDS_ReceiverThreadConfigQosPolicy结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7546
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___receiver_thread_config_qos_policy_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "struct_d_d_s___receiver_thread_config_qos_policy.html",
           "section": "DDS_ReceiverThreadConfigQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7543
+          "score": 0.7505
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___receiver_thread_config_qos_policy_000_DDS_ReceiverThreadConfigQosPolicy结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___receiver_thread_config_qos_policy.html",
+          "section": "DDS_ReceiverThreadConfigQosPolicy结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.747
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000",
@@ -2637,13 +2637,13 @@
           "score": 0.7378
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_reader_qos_000_DDS_DataReaderQos结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___data_reader_qos.html",
-          "section": "DDS_DataReaderQos结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7369
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_4_设置Subscriber的QoS策略_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.2 Subscriber / 9.2.4 设置Subscriber的QoS策略",
+          "page_print": 94,
+          "page_physical": 100,
+          "score": 0.7294
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2668,7 +2668,7 @@
           "section": "DDS_PublisherQos结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.744
+          "score": 0.7266
         },
         {
           "node_id": "html_v1_group___c_publication_021_DDS_Publisher_set_qos_00000",
@@ -2714,6 +2714,15 @@
           "score": 0.7956
         },
         {
+          "node_id": "html_v1_struct_d_d_s___subscriber_qos_000_DDS_SubscriberQos结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___subscriber_qos.html",
+          "section": "DDS_SubscriberQos结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7097
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_1_创建Subscriber_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -2732,22 +2741,13 @@
           "score": 0.7048
         },
         {
-          "node_id": "html_v1_struct_d_d_s___subscriber_qos_000_DDS_SubscriberQos结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___subscriber_qos.html",
-          "section": "DDS_SubscriberQos结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7025
-        },
-        {
-          "node_id": "html_v1_group___c_domain_011_DDS_DomainParticipant_create_subscriber__00000",
+          "node_id": "html_v1_group___c_domain_045_DDS_DomainParticipant_set_default_subscr_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_domain.html",
-          "section": "域模块 / 函数说明 / DDS_DomainParticipant_create_subscriber_with_qos_profile",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_default_subscriber_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6956
+          "score": 0.7048
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2772,7 +2772,7 @@
           "section": "发布模块 / 函数说明 / DDS_Publisher_set_default_datawriter_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7504
+          "score": 0.7611
         },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_3_设置DataReader的QoS策略_9_3_3_1_创建DataReader时配置QoS策略_00000",
@@ -2836,15 +2836,6 @@
           "score": 0.6865
         },
         {
-          "node_id": "html_v1_struct_d_d_s___durability_qos_policy_000_DDS_DurabilityQosPolicy结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___durability_qos_policy.html",
-          "section": "DDS_DurabilityQosPolicy结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6734
-        },
-        {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_25_ReliabilityQosPolicy_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -2852,6 +2843,15 @@
           "page_print": 151,
           "page_physical": 157,
           "score": 0.6723
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_16_OwnershipStrengthQosPolicy_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.16 OwnershipStrengthQosPolicy",
+          "page_print": 139,
+          "page_physical": 145,
+          "score": 0.6471
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2860,6 +2860,24 @@
       "id": "Q053",
       "question": "如何设置 HistoryQosPolicy 的 depth 字段？该配置对本地存储历史样本的作用是什么？",
       "retrieved": [
+        {
+          "node_id": "html_v1_struct_d_d_s___durability_service_qos_policy_000_DDS_DurabilityServiceQosPolicy结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___durability_service_qos_policy.html",
+          "section": "DDS_DurabilityServiceQosPolicy结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7002
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___history_qos_policy_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___history_qos_policy.html",
+          "section": "DDS_HistoryQosPolicy结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6992
+        },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_10_HistoryQosPolicy_00000",
           "source_id": "user_manual",
@@ -2870,40 +2888,22 @@
           "score": 0.6959
         },
         {
-          "node_id": "html_v1_struct_d_d_s___history_qos_policy_000_DDS_HistoryQosPolicy结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___history_qos_policy.html",
-          "section": "DDS_HistoryQosPolicy结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6888
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___durability_service_qos_policy_000_DDS_DurabilityServiceQosPolicy结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___durability_service_qos_policy.html",
-          "section": "DDS_DurabilityServiceQosPolicy结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.686
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___history_qos_policy_001_详细描述_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___history_qos_policy.html",
-          "section": "DDS_HistoryQosPolicy结构体 参考 / 详细描述",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.685
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___durability_service_qos_policy_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "struct_d_d_s___durability_service_qos_policy.html",
           "section": "DDS_DurabilityServiceQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6637
+          "score": 0.6707
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___history_qos_policy_000_DDS_HistoryQosPolicy结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___history_qos_policy.html",
+          "section": "DDS_HistoryQosPolicy结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6706
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2919,7 +2919,7 @@
           "section": "DDS_LifespanQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7676
+          "score": 0.7739
         },
         {
           "node_id": "html_v1_struct_d_d_s___lifespan_qos_policy_000_DDS_LifespanQosPolicy结构体_参考_00000",
@@ -2928,7 +2928,7 @@
           "section": "DDS_LifespanQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7366
+          "score": 0.7361
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_11_LifespanQosPolicy_00000",
@@ -2949,13 +2949,13 @@
           "score": 0.7142
         },
         {
-          "node_id": "html_v1_struct_d_d_s___topic_qos_000_DDS_TopicQos结构体_参考_00000",
+          "node_id": "html_v1_struct_d_d_s___deadline_qos_policy_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___topic_qos.html",
-          "section": "DDS_TopicQos结构体 参考",
+          "source_name": "struct_d_d_s___deadline_qos_policy.html",
+          "section": "DDS_DeadlineQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7011
+          "score": 0.7
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -2971,7 +2971,7 @@
           "section": "DDS_DeadlineQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.747
+          "score": 0.7493
         },
         {
           "node_id": "html_v1_struct_d_d_s___deadline_qos_policy_000_DDS_DeadlineQosPolicy结构体_参考_00000",
@@ -2980,7 +2980,7 @@
           "section": "DDS_DeadlineQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.74
+          "score": 0.724
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_4_DeadlineQosPolicy_00000",
@@ -2992,6 +2992,15 @@
           "score": 0.7189
         },
         {
+          "node_id": "html_v1_struct_d_d_s___lifespan_qos_policy_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___lifespan_qos_policy.html",
+          "section": "DDS_LifespanQosPolicy结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6804
+        },
+        {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_14_MsgStatisticsInfoQosPolicy_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -2999,15 +3008,6 @@
           "page_print": 136,
           "page_physical": 142,
           "score": 0.678
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_3_设置Topic的QoS策略_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第7章 主题 / 7.2 Topic / 7.2.3 设置Topic的QoS策略",
-          "page_print": 61,
-          "page_physical": 67,
-          "score": 0.6758
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3023,16 +3023,16 @@
           "section": "DDS_DurabilityServiceQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7611
+          "score": 0.7556
         },
         {
-          "node_id": "html_v1_struct_d_d_s___history_qos_policy_000_DDS_HistoryQosPolicy结构体_参考_00000",
+          "node_id": "html_v1_struct_d_d_s___durability_service_qos_policy_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___history_qos_policy.html",
-          "section": "DDS_HistoryQosPolicy结构体 参考",
+          "source_name": "struct_d_d_s___durability_service_qos_policy.html",
+          "section": "DDS_DurabilityServiceQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7308
+          "score": 0.7398
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_7_DurabilityQosPolicy_00000",
@@ -3050,16 +3050,16 @@
           "section": "DDS_DurabilityQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7273
+          "score": 0.7274
         },
         {
-          "node_id": "html_v1_struct_d_d_s___durability_service_qos_policy_001_详细描述_00000",
+          "node_id": "html_v1_group___core_qos_struct_004_DDS_DurabilityQosPolicyKind_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___durability_service_qos_policy.html",
-          "section": "DDS_DurabilityServiceQosPolicy结构体 参考 / 详细描述",
+          "source_name": "group___core_qos_struct.html",
+          "section": "核心接口QoS相关数据类型 / 枚举类型说明 / DDS_DurabilityQosPolicyKind",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7251
+          "score": 0.7089
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3075,7 +3075,7 @@
           "section": "DDS_EntityFactoryQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.8185
+          "score": 0.7818
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_8_EntityFactoryQosPolicy_00000",
@@ -3087,22 +3087,22 @@
           "score": 0.7732
         },
         {
-          "node_id": "html_v1_index_005_实体使能_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "index.html",
-          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍 / 实体的生命周期 / 实体使能",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7552
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___entity_factory_qos_policy_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "struct_d_d_s___entity_factory_qos_policy.html",
           "section": "DDS_EntityFactoryQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7294
+          "score": 0.7409
+        },
+        {
+          "node_id": "html_v1_index_005_实体使能_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "index.html",
+          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍 / 实体的生命周期 / 实体使能",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.709
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_2_使能实体_00000",
@@ -3121,31 +3121,22 @@
       "question": "如何设置 OwnershipQosPolicy 的 kind 字段？该字段有哪些可选值？分别代表什么所有权策略？",
       "retrieved": [
         {
-          "node_id": "html_v1_struct_d_d_s___ownership_qos_policy_000_DDS_OwnershipQosPolicy结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___ownership_qos_policy.html",
-          "section": "DDS_OwnershipQosPolicy结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7324
-        },
-        {
           "node_id": "html_v1_struct_d_d_s___ownership_strength_qos_policy_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "struct_d_d_s___ownership_strength_qos_policy.html",
           "section": "DDS_OwnershipStrengthQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7084
+          "score": 0.7081
         },
         {
-          "node_id": "html_v1_struct_d_d_s___ownership_qos_policy_001_详细描述_00000",
+          "node_id": "html_v1_struct_d_d_s___ownership_qos_policy_000_DDS_OwnershipQosPolicy结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "struct_d_d_s___ownership_qos_policy.html",
-          "section": "DDS_OwnershipQosPolicy结构体 参考 / 详细描述",
+          "section": "DDS_OwnershipQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6959
+          "score": 0.7055
         },
         {
           "node_id": "html_v1_group___core_qos_struct_009_DDS_OwnershipQosPolicyKind_00000",
@@ -3164,23 +3155,23 @@
           "page_print": 139,
           "page_physical": 145,
           "score": 0.687
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_15_OwnershipQosPolicy_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.15 OwnershipQosPolicy",
+          "page_print": 137,
+          "page_physical": 143,
+          "score": 0.6811
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
     },
     {
       "id": "Q059",
-      "question": "如何设置 PartitionQosPolicy 的 keyindex 字段？该配置对逻辑分区的作用是什么？",
+      "question": "PartitionQosPolicy 的 values、history、lifetime 字段分别是什么作用？DataWriter 和 DataReader 如何配置这些字段？",
       "retrieved": [
-        {
-          "node_id": "html_v1_struct_d_d_s___partition_qos_policy_000_DDS_PartitionQosPolicy结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___partition_qos_policy.html",
-          "section": "DDS_PartitionQosPolicy结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6582
-        },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_17_PartitionQosPolicy_00000",
           "source_id": "user_manual",
@@ -3188,7 +3179,16 @@
           "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.17 PartitionQosPolicy",
           "page_print": 140,
           "page_physical": 146,
-          "score": 0.6446
+          "score": 0.7
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_11_LifespanQosPolicy_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.11 LifespanQosPolicy",
+          "page_print": 132,
+          "page_physical": 138,
+          "score": 0.656
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_3_设置Topic的QoS策略_00000",
@@ -3197,16 +3197,16 @@
           "section": "PART 2 基本概念 / 第7章 主题 / 7.2 Topic / 7.2.3 设置Topic的QoS策略",
           "page_print": 61,
           "page_physical": 67,
-          "score": 0.6041
+          "score": 0.6519
         },
         {
-          "node_id": "html_v1_struct_d_d_s___topic_qos_000_DDS_TopicQos结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___topic_qos.html",
-          "section": "DDS_TopicQos结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.5902
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_7_DurabilityQosPolicy_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.7 DurabilityQosPolicy",
+          "page_print": 127,
+          "page_physical": 133,
+          "score": 0.6514
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_17_PartitionQosPolicy_00001",
@@ -3215,51 +3215,15 @@
           "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.17 PartitionQosPolicy",
           "page_print": 140,
           "page_physical": 146,
-          "score": 0.5892
+          "score": 0.6508
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
     },
     {
       "id": "Q060",
-      "question": "如何设置 PresentationQosPolicy 的 encoding_vendor_id 字段？该配置对描述范围的作用是什么？",
+      "question": "PresentationQosPolicy 的 access_scope、coherent_access、ordered_access 字段分别是什么作用？如何配置多订阅者访问范围？",
       "retrieved": [
-        {
-          "node_id": "html_v1_struct_d_d_s___data_representation_qos_policy_001_详细描述_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___data_representation_qos_policy.html",
-          "section": "DDS_DataRepresentationQosPolicy结构体 参考 / 详细描述",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6424
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___publisher_qos_000_DDS_PublisherQos结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___publisher_qos.html",
-          "section": "DDS_PublisherQos结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6369
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_4_设置Publisher的QoS策略_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.2 Publisher / 8.2.4 设置Publisher的QoS策略",
-          "page_print": 76,
-          "page_physical": 82,
-          "score": 0.6298
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_9_GroupDataQosPolicy_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.9 GroupDataQosPolicy",
-          "page_print": 129,
-          "page_physical": 135,
-          "score": 0.6251
-        },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_18_PresentationQosPolicy_00000",
           "source_id": "user_manual",
@@ -3267,7 +3231,43 @@
           "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.18 PresentationQosPolicy",
           "page_print": 142,
           "page_physical": 148,
-          "score": 0.6246
+          "score": 0.7619
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___presentation_qos_policy_000_DDS_PresentationQosPolicy结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___presentation_qos_policy.html",
+          "section": "DDS_PresentationQosPolicy结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7568
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___presentation_qos_policy_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___presentation_qos_policy.html",
+          "section": "DDS_PresentationQosPolicy结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6907
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___subscriber_qos_000_DDS_SubscriberQos结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___subscriber_qos.html",
+          "section": "DDS_SubscriberQos结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6808
+        },
+        {
+          "node_id": "html_v1_functions_c_001_c_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "functions_c.html",
+          "section": "成员变量 / - c -",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6759
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3304,22 +3304,22 @@
           "score": 0.6907
         },
         {
-          "node_id": "html_v1_struct_d_d_s___group_data_qos_policy_000_DDS_GroupDataQosPolicy结构体_参考_00000",
+          "node_id": "html_v1_struct_d_d_s___ownership_strength_qos_policy_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___group_data_qos_policy.html",
-          "section": "DDS_GroupDataQosPolicy结构体 参考",
+          "source_name": "struct_d_d_s___ownership_strength_qos_policy.html",
+          "section": "DDS_OwnershipStrengthQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6806
+          "score": 0.6659
         },
         {
-          "node_id": "html_v1_struct_d_d_s___history_qos_policy_000_DDS_HistoryQosPolicy结构体_参考_00000",
+          "node_id": "html_v1_struct_d_d_s___topic_qos_000_DDS_TopicQos结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___history_qos_policy.html",
-          "section": "DDS_HistoryQosPolicy结构体 参考",
+          "source_name": "struct_d_d_s___topic_qos.html",
+          "section": "DDS_TopicQos结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6637
+          "score": 0.6618
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3356,22 +3356,22 @@
           "score": 0.7086
         },
         {
-          "node_id": "html_v1_struct_d_d_s___user_data_qos_policy_000_DDS_UserDataQosPolicy结构体_参考_00000",
+          "node_id": "html_v1_struct_d_d_s___ownership_strength_qos_policy_001_详细描述_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___user_data_qos_policy.html",
-          "section": "DDS_UserDataQosPolicy结构体 参考",
+          "source_name": "struct_d_d_s___ownership_strength_qos_policy.html",
+          "section": "DDS_OwnershipStrengthQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6878
+          "score": 0.6716
         },
         {
-          "node_id": "html_v1_struct_d_d_s___topic_data_qos_policy_000_DDS_TopicDataQosPolicy结构体_参考_00000",
+          "node_id": "html_v1_struct_d_d_s___property_qos_policy_000_DDS_PropertyQosPolicy结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___topic_data_qos_policy.html",
-          "section": "DDS_TopicDataQosPolicy结构体 参考",
+          "source_name": "struct_d_d_s___property_qos_policy.html",
+          "section": "DDS_PropertyQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6668
+          "score": 0.6644
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3396,7 +3396,7 @@
           "section": "DDS_ResourceLimitsQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7509
+          "score": 0.751
         },
         {
           "node_id": "html_v1_struct_d_d_s___resource_limits_qos_policy_000_DDS_ResourceLimitsQosPolicy结构体_参考_00000",
@@ -3405,25 +3405,25 @@
           "section": "DDS_ResourceLimitsQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7041
+          "score": 0.725
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_writer_resource_limits_qos_policy_000_DDS_DataWriterResourceLimitsQosPolicy结构体_00000",
+          "node_id": "html_v1_functions_m_001_m_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___data_writer_resource_limits_qos_policy.html",
-          "section": "DDS_DataWriterResourceLimitsQosPolicy结构体 参考",
+          "source_name": "functions_m.html",
+          "section": "成员变量 / - m -",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6824
+          "score": 0.688
         },
         {
-          "node_id": "html_v1_struct_d_d_s___rtps_reliable_writer_protocol_002_heartbeats_per_max_samples_00000",
+          "node_id": "html_v1_functions_vars_m_000_m_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___rtps_reliable_writer_protocol.html",
-          "section": "DDS_RtpsReliableWriterProtocol结构体 参考 / 结构体成员变量说明 / heartbeats_per_max_samples",
+          "source_name": "functions_vars_m.html",
+          "section": "成员变量 - 变量 / - m -",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6744
+          "score": 0.688
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3451,15 +3451,6 @@
           "score": 0.6987
         },
         {
-          "node_id": "html_v1_struct_d_d_s___topic_qos_000_DDS_TopicQos结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___topic_qos.html",
-          "section": "DDS_TopicQos结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6979
-        },
-        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第7章_主题_7_2_Topic_7_2_4_TopicQos_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -3469,13 +3460,22 @@
           "score": 0.6969
         },
         {
-          "node_id": "html_v1_struct_d_d_s___topic_data_qos_policy_001_详细描述_00000",
+          "node_id": "html_v1_struct_d_d_s___topic_qos_000_DDS_TopicQos结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___topic_data_qos_policy.html",
-          "section": "DDS_TopicDataQosPolicy结构体 参考 / 详细描述",
+          "source_name": "struct_d_d_s___topic_qos.html",
+          "section": "DDS_TopicQos结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.687
+          "score": 0.6937
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_9_GroupDataQosPolicy_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.9 GroupDataQosPolicy",
+          "page_print": 129,
+          "page_physical": 135,
+          "score": 0.6861
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3491,7 +3491,7 @@
           "section": "DDS_WriterDataLifecycleQosPolicy结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6901
+          "score": 0.7054
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_32_WriterDataLifecycleQosPolicy_00000",
@@ -3503,6 +3503,15 @@
           "score": 0.6877
         },
         {
+          "node_id": "html_v1_struct_d_d_s___reader_data_lifecycle_qos_policy_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___reader_data_lifecycle_qos_policy.html",
+          "section": "DDS_ReaderDataLifecycleQosPolicy结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.685
+        },
+        {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_11_LifespanQosPolicy_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -3512,22 +3521,13 @@
           "score": 0.685
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_writer_qos_000_DDS_DataWriterQos结构体_参考_00000",
+          "node_id": "html_v1_struct_d_d_s___writer_data_lifecycle_qos_policy_000_DDS_WriterDataLifecycleQosPolicy结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___data_writer_qos.html",
-          "section": "DDS_DataWriterQos结构体 参考",
+          "source_name": "struct_d_d_s___writer_data_lifecycle_qos_policy.html",
+          "section": "DDS_WriterDataLifecycleQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6848
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_3_设置DataWriter的QoS策略_8_3_3_1_创建DataWriter时配置QoS策略_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第8章 发布数据 / 8.3 DataWriter / 8.3.3 设置DataWriter的QoS策略 / 8.3.3.1 创建DataWriter时配置QoS策略",
-          "page_print": 82,
-          "page_physical": 88,
-          "score": 0.6771
+          "score": 0.6836
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3536,6 +3536,15 @@
       "id": "Q066",
       "question": "如何设置 ReaderDataLifecycleQosPolicy 的 reader_data_lifecycle？该配置对数据实例生命周期管理的作用是什么？",
       "retrieved": [
+        {
+          "node_id": "html_v1_struct_d_d_s___reader_data_lifecycle_qos_policy_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___reader_data_lifecycle_qos_policy.html",
+          "section": "DDS_ReaderDataLifecycleQosPolicy结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.749
+        },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_23_ReaderDataLifecycleQosPolicy_00000",
           "source_id": "user_manual",
@@ -3546,31 +3555,22 @@
           "score": 0.7263
         },
         {
-          "node_id": "html_v1_struct_d_d_s___reader_data_lifecycle_qos_policy_001_详细描述_00000",
+          "node_id": "html_v1_functions_r_001_r_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___reader_data_lifecycle_qos_policy.html",
-          "section": "DDS_ReaderDataLifecycleQosPolicy结构体 参考 / 详细描述",
+          "source_name": "functions_r.html",
+          "section": "成员变量 / - r -",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7262
+          "score": 0.7001
         },
         {
-          "node_id": "html_v1_struct_d_d_s___data_reader_qos_000_DDS_DataReaderQos结构体_参考_00000",
+          "node_id": "html_v1_functions_vars_r_000_r_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___data_reader_qos.html",
-          "section": "DDS_DataReaderQos结构体 参考",
+          "source_name": "functions_vars_r.html",
+          "section": "成员变量 - 变量 / - r -",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6788
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_11_LifespanQosPolicy_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.11 LifespanQosPolicy",
-          "page_print": 132,
-          "page_physical": 138,
-          "score": 0.6774
+          "score": 0.7001
         },
         {
           "node_id": "html_v1_struct_d_d_s___reader_data_lifecycle_qos_policy_000_DDS_ReaderDataLifecycleQosPolicy结构体_参考_00000",
@@ -3579,7 +3579,7 @@
           "section": "DDS_ReaderDataLifecycleQosPolicy结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.67
+          "score": 0.6922
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3607,6 +3607,15 @@
           "score": 0.68
         },
         {
+          "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00002",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "zrdds_log.html",
+          "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6798
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_4_日志API_25_4_1_日志QoS_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -3623,15 +3632,6 @@
           "page_print": 35,
           "page_physical": 41,
           "score": 0.6673
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.2 Subscriber / 9.2.5 设置Subscriber的Listener",
-          "page_print": 96,
-          "page_physical": 102,
-          "score": 0.6593
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3711,22 +3711,22 @@
           "score": 0.7289
         },
         {
-          "node_id": "html_v1_zrdds_interface_004_2_扩展接口_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "zrdds_interface.html",
-          "section": "ZRDDS多种接口风格及开发流程 / 2. 扩展接口",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7038
-        },
-        {
           "node_id": "html_v1_zrdds_qos_xml_002_编写QoS配置文件_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "zrdds_qos_xml.html",
           "section": "XML配置实体QoS / XML配置QoS步骤 / 编写QoS配置文件",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6994
+          "score": 0.7102
+        },
+        {
+          "node_id": "html_v1_zrdds_interface_004_2_扩展接口_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "zrdds_interface.html",
+          "section": "ZRDDS多种接口风格及开发流程 / 2. 扩展接口",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7007
         },
         {
           "node_id": "html_v1_zrdds_qos_xml_001_XML配置QoS步骤_00000",
@@ -3751,7 +3751,7 @@
           "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制 / 调试文件控制（>=v2.2.6）",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7
+          "score": 0.7144
         },
         {
           "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_3_生成自定义数据类型文件_00000",
@@ -3772,6 +3772,15 @@
           "score": 0.6656
         },
         {
+          "node_id": "html_v1_zrdds_qos_xml_002_编写QoS配置文件_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "zrdds_qos_xml.html",
+          "section": "XML配置实体QoS / XML配置QoS步骤 / 编写QoS配置文件",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6642
+        },
+        {
           "node_id": "html_v1_releasenotes_008_ZRDDS文档_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "releasenotes.html",
@@ -3779,15 +3788,6 @@
           "page_print": null,
           "page_physical": null,
           "score": 0.661
-        },
-        {
-          "node_id": "html_v1_simple_interface_2_simple_interface_bytes_type_pub_8c_example_000_SimpleInterface_SimpleInterfaceBytesType_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "_simple_interface_2_simple_interface_bytes_type_pub_8c-example.html",
-          "section": "SimpleInterface/SimpleInterfaceBytesTypePub.c",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6603
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3815,6 +3815,15 @@
           "score": 0.7048
         },
         {
+          "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00002",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "zrdds_log.html",
+          "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.689
+        },
+        {
           "node_id": "html_v1_zrdds_log_006_用户日志输出与控制_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "zrdds_log.html",
@@ -3830,16 +3839,7 @@
           "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制 / 调试文件控制（>=v2.2.6）",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6765
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第26章_交互式调试日志_26_2_参数介绍_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 11ZRDDS日志使用 / 第26章 交互式调试日志 / 26.2 参数介绍",
-          "page_print": 285,
-          "page_physical": 291,
-          "score": 0.674
+          "score": 0.6752
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3858,13 +3858,13 @@
           "score": 0.7572
         },
         {
-          "node_id": "html_v1_struct_d_d_s___wait_set_001_详细描述_00000",
+          "node_id": "html_v1_index_008_条件_等待_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___wait_set.html",
-          "section": "DDS_WaitSet结构体 参考 / 详细描述",
+          "source_name": "index.html",
+          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍 / 条件-等待",
           "page_print": null,
           "page_physical": null,
-          "score": 0.706
+          "score": 0.7119
         },
         {
           "node_id": "html_v1_struct_d_d_s___condition_001_详细描述_00000",
@@ -3873,7 +3873,7 @@
           "section": "DDS_Condition结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6909
+          "score": 0.6983
         },
         {
           "node_id": "html_v1_struct_d_d_s___read_condition_001_详细描述_00000",
@@ -3882,7 +3882,7 @@
           "section": "DDS_ReadCondition结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6855
+          "score": 0.6901
         },
         {
           "node_id": "html_v1_struct_d_d_s___read_condition_000_DDS_ReadCondition结构体_参考_00000",
@@ -3891,7 +3891,7 @@
           "section": "DDS_ReadCondition结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6786
+          "score": 0.6732
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -3925,7 +3925,7 @@
           "section": "XML配置实体QoS / XML配置QoS步骤 / 编写QoS配置文件",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7902
+          "score": 0.7984
         },
         {
           "node_id": "html_v1_zrdds_qos_xml_000_XML配置实体QoS_00000",
@@ -3962,40 +3962,40 @@
           "score": 0.719
         },
         {
-          "node_id": "html_v1_group___c_publication_028_FooDataWriter_dispose_00001",
+          "node_id": "html_v1_group___c_subscription_017_DDS_Subscriber_get_default_datareader_qo_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_dispose",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / DDS_Subscriber_get_default_datareader_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7
+          "score": 0.6877
         },
         {
-          "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00001",
+          "node_id": "html_v1_group___c_domain_050_DDS_DomainParticipant_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7
+          "score": 0.6824
         },
         {
-          "node_id": "html_v1_group___c_publication_050_FooDataWriter_unregister_instance_w_time_00001",
+          "node_id": "html_v1_group___c_topic_011_DDS_Topic_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance_w_timestamp",
+          "source_name": "group___c_topic.html",
+          "section": "主题模块 / 函数说明 / DDS_Topic_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7
+          "score": 0.6815
         },
         {
-          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00001",
+          "node_id": "html_v1_releasenotes_007_ZRDDS开发库_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_timestamp",
+          "source_name": "releasenotes.html",
+          "section": "ZRDDS版本记录 / ZRDDSv2.2.3 / ZRDDS开发库",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6916
+          "score": 0.6808
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4005,49 +4005,49 @@
       "question": "如何区分 DDS_RETCODE_BAD_PARAMETER 和 DDS_RETCODE_UNSUPPORTED？两者的返回场景有什么区别？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___c_publication_028_FooDataWriter_dispose_00001",
+          "node_id": "html_v1_group___c_domain_081_DDS_DomainParticipantFactory_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_dispose",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7919
+          "score": 0.7907
         },
         {
-          "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00001",
+          "node_id": "html_v1_group___c_subscription_037_FooDataReader_get_matched_publication_da_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / FooDataReader_get_matched_publication_data",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7919
+          "score": 0.789
         },
         {
-          "node_id": "html_v1_group___c_publication_050_FooDataWriter_unregister_instance_w_time_00001",
+          "node_id": "html_v1_group___c_domain_050_DDS_DomainParticipant_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance_w_timestamp",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7919
+          "score": 0.7864
         },
         {
-          "node_id": "html_v1_group___c_publication_054_FooDataWriter_write_w_dst_00001",
+          "node_id": "html_v1_group___c_domain_043_DDS_DomainParticipant_set_default_publis_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_dst",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_default_publisher_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7727
+          "score": 0.7859
         },
         {
-          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00001",
+          "node_id": "html_v1_group___c_domain_045_DDS_DomainParticipant_set_default_subscr_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_timestamp",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_default_subscriber_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7727
+          "score": 0.7859
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4057,49 +4057,49 @@
       "question": "如何处理 DDS_RETCODE_ALREADY_DELETED 错误？该错误在什么情况下会触发？如何避免？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___c_publication_029_FooDataWriter_dispose_w_timestamp_00001",
+          "node_id": "html_v1_group___c_domain_016_DDS_DomainParticipant_delete_contentfilt_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_dispose_w_timestamp",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_delete_contentfilteredtopic",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7404
+          "score": 0.754
         },
         {
-          "node_id": "html_v1_group___c_publication_028_FooDataWriter_dispose_00001",
+          "node_id": "html_v1_group___c_domain_019_DDS_DomainParticipant_delete_topic_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_dispose",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_delete_topic",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7303
+          "score": 0.7338
         },
         {
-          "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00001",
+          "node_id": "html_v1_group___c_publication_009_DDS_Publisher_delete_datawriter_00001",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance",
+          "section": "发布模块 / 函数说明 / DDS_Publisher_delete_datawriter",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7303
+          "score": 0.711
         },
         {
-          "node_id": "html_v1_group___c_publication_050_FooDataWriter_unregister_instance_w_time_00001",
+          "node_id": "html_v1_group___c_domain_057_DDS_DomainParticipantFactory_delete_part_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance_w_timestamp",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_delete_participant",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7303
+          "score": 0.7093
         },
         {
-          "node_id": "html_v1_group___c_publication_054_FooDataWriter_write_w_dst_00001",
+          "node_id": "html_v1_group___c_subscription_032_FooDataReader_delete_readcondition_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_dst",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / FooDataReader_delete_readcondition",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7098
+          "score": 0.709
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4109,31 +4109,13 @@
       "question": "如何处理 DDS_RETCODE_OUT_OF_RESOURCES 错误？该错误表示什么含义？如何避免资源不足？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___c_publication_054_FooDataWriter_write_w_dst_00001",
+          "node_id": "html_v1_group___c_infrastruct_013_DDS_WaitSet_attach_condition_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_dst",
+          "source_name": "group___c_infrastruct.html",
+          "section": "基础模块 / 函数说明 / DDS_WaitSet_attach_condition",
           "page_print": null,
           "page_physical": null,
-          "score": 0.769
-        },
-        {
-          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_timestamp",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.769
-        },
-        {
-          "node_id": "html_v1_group___c_publication_052_FooDataWriter_write_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7329
+          "score": 0.7301
         },
         {
           "node_id": "html_v1_group___simple_interface_005_DDS_Finalize_00000",
@@ -4142,16 +4124,34 @@
           "section": "简化接口 / 函数说明 / DDS_Finalize",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7233
+          "score": 0.7196
         },
         {
-          "node_id": "html_v1_group___c_infrastruct_013_DDS_WaitSet_attach_condition_00001",
+          "node_id": "html_v1_group___c_publication_036_FooDataWriter_get_matched_subscriptions_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_infrastruct.html",
-          "section": "基础模块 / 函数说明 / DDS_WaitSet_attach_condition",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / FooDataWriter_get_matched_subscriptions",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7082
+          "score": 0.7166
+        },
+        {
+          "node_id": "html_v1_group___c_publication_054_FooDataWriter_write_w_dst_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_dst",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6973
+        },
+        {
+          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_timestamp",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6973
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4161,49 +4161,49 @@
       "question": "如何处理 DDS_RETCODE_NOT_ENABLED 错误？该错误表示什么含义？如何使能实体？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___c_publication_028_FooDataWriter_dispose_00001",
+          "node_id": "html_v1_group___c_domain_029_DDS_DomainParticipant_get_discovered_par_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_dispose",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_discovered_participant_data",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7672
+          "score": 0.7534
         },
         {
-          "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00001",
+          "node_id": "html_v1_group___c_publication_032_FooDataWriter_get_key_value_00001",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance",
+          "section": "发布模块 / 函数说明 / FooDataWriter_get_key_value",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7672
+          "score": 0.7313
         },
         {
-          "node_id": "html_v1_group___c_publication_050_FooDataWriter_unregister_instance_w_time_00001",
+          "node_id": "html_v1_group___c_subscription_037_FooDataReader_get_matched_publication_da_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance_w_timestamp",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / FooDataReader_get_matched_publication_data",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7672
+          "score": 0.7235
         },
         {
-          "node_id": "html_v1_group___c_publication_054_FooDataWriter_write_w_dst_00001",
+          "node_id": "html_v1_group___c_domain_030_DDS_DomainParticipant_get_discovered_par_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_dst",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_discovered_participants",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7129
+          "score": 0.7206
         },
         {
-          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_timestamp",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7129
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_1_实体的相关操作_5_1_2_使能实体_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第5章 实体 / 5.1 实体的相关操作 / 5.1.2 使能实体",
+          "page_print": 26,
+          "page_physical": 32,
+          "score": 0.7033
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4219,16 +4219,7 @@
           "section": "发布模块 / 函数说明 / DDS_Publisher_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7585
-        },
-        {
-          "node_id": "html_v1_group___c_publication_047_FooDataWriter_set_qos_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_set_qos",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7468
+          "score": 0.7362
         },
         {
           "node_id": "html_v1_group___c_topic_011_DDS_Topic_set_qos_00001",
@@ -4237,16 +4228,7 @@
           "section": "主题模块 / 函数说明 / DDS_Topic_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7377
-        },
-        {
-          "node_id": "html_v1_group___c_domain_050_DDS_DomainParticipant_set_qos_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_domain.html",
-          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_qos",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.737
+          "score": 0.7318
         },
         {
           "node_id": "html_v1_group___c_subscription_056_FooDataReader_set_qos_00001",
@@ -4255,7 +4237,25 @@
           "section": "订阅模块 / 函数说明 / FooDataReader_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7358
+          "score": 0.7235
+        },
+        {
+          "node_id": "html_v1_group___c_subscription_026_DDS_Subscriber_set_qos_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / DDS_Subscriber_set_qos",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7214
+        },
+        {
+          "node_id": "html_v1_group___c_domain_050_DDS_DomainParticipant_set_qos_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_qos",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.718
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4265,13 +4265,13 @@
       "question": "如何处理 DDS_RETCODE_INCONSISTENT 错误？该错误表示什么含义？如何确保 QoS 策略相容性？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___c_subscription_056_FooDataReader_set_qos_00001",
+          "node_id": "html_v1_group___c_topic_011_DDS_Topic_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_subscription.html",
-          "section": "订阅模块 / 函数说明 / FooDataReader_set_qos",
+          "source_name": "group___c_topic.html",
+          "section": "主题模块 / 函数说明 / DDS_Topic_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7409
+          "score": 0.7497
         },
         {
           "node_id": "html_v1_group___c_domain_050_DDS_DomainParticipant_set_qos_00001",
@@ -4280,34 +4280,34 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7407
+          "score": 0.7484
         },
         {
-          "node_id": "html_v1_group___c_topic_011_DDS_Topic_set_qos_00001",
+          "node_id": "html_v1_group___c_subscription_026_DDS_Subscriber_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_topic.html",
-          "section": "主题模块 / 函数说明 / DDS_Topic_set_qos",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / DDS_Subscriber_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7398
+          "score": 0.7465
         },
         {
-          "node_id": "html_v1_group___c_publication_047_FooDataWriter_set_qos_00001",
+          "node_id": "html_v1_group___c_subscription_056_FooDataReader_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_set_qos",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / FooDataReader_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.733
+          "score": 0.7412
         },
         {
-          "node_id": "html_v1_group___c_publication_021_DDS_Publisher_set_qos_00001",
+          "node_id": "html_v1_group___c_domain_081_DDS_DomainParticipantFactory_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / DDS_Publisher_set_qos",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7325
+          "score": 0.7381
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4317,49 +4317,49 @@
       "question": "如何处理 DDS_RETCODE_PRECONDITION_NOT_MET 错误？该错误表示什么含义？如何满足前置条件？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___c_publication_028_FooDataWriter_dispose_00001",
+          "node_id": "html_v1_group___c_infrastruct_015_DDS_WaitSet_detach_condition_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_dispose",
+          "source_name": "group___c_infrastruct.html",
+          "section": "基础模块 / 函数说明 / DDS_WaitSet_detach_condition",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7579
+          "score": 0.7723
         },
         {
-          "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00001",
+          "node_id": "html_v1_group___c_subscription_054_FooDataReader_return_loan_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / FooDataReader_return_loan",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7579
+          "score": 0.7513
         },
         {
-          "node_id": "html_v1_group___c_publication_050_FooDataWriter_unregister_instance_w_time_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance_w_timestamp",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7579
-        },
-        {
-          "node_id": "html_v1_group___c_domain_019_DDS_DomainParticipant_delete_topic_00001",
+          "node_id": "html_v1_group___c_domain_029_DDS_DomainParticipant_get_discovered_par_00001",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_domain.html",
-          "section": "域模块 / 函数说明 / DDS_DomainParticipant_delete_topic",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_discovered_participant_data",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7563
+          "score": 0.7382
         },
         {
-          "node_id": "html_v1_group___c_topic_017_FooTypeSupport_register_type_00001",
+          "node_id": "html_v1_group___c_infrastruct_018_DDS_WaitSet_wait_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_topic.html",
-          "section": "主题模块 / 函数说明 / FooTypeSupport_register_type",
+          "source_name": "group___c_infrastruct.html",
+          "section": "基础模块 / 函数说明 / DDS_WaitSet_wait",
           "page_print": null,
           "page_physical": null,
-          "score": 0.741
+          "score": 0.721
+        },
+        {
+          "node_id": "html_v1_group___c_infrastruct_013_DDS_WaitSet_attach_condition_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_infrastruct.html",
+          "section": "基础模块 / 函数说明 / DDS_WaitSet_attach_condition",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7209
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4369,13 +4369,40 @@
       "question": "如何处理 DDS_RETCODE_TIMEOUT 错误？该错误表示什么含义？如何避免超时？",
       "retrieved": [
         {
+          "node_id": "html_v1_group___c_infrastruct_018_DDS_WaitSet_wait_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_infrastruct.html",
+          "section": "基础模块 / 函数说明 / DDS_WaitSet_wait",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6928
+        },
+        {
+          "node_id": "html_v1_group___c_publication_051_FooDataWriter_wait_for_acknowledgments_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / FooDataWriter_wait_for_acknowledgments",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6875
+        },
+        {
+          "node_id": "html_v1_group___c_publication_024_DDS_Publisher_wait_for_acknowledgments_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / DDS_Publisher_wait_for_acknowledgments",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6842
+        },
+        {
           "node_id": "html_v1_group___c_publication_054_FooDataWriter_write_w_dst_00001",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_publication.html",
           "section": "发布模块 / 函数说明 / FooDataWriter_write_w_dst",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7438
+          "score": 0.6836
         },
         {
           "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00001",
@@ -4384,34 +4411,7 @@
           "section": "发布模块 / 函数说明 / FooDataWriter_write_w_timestamp",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7438
-        },
-        {
-          "node_id": "html_v1_group___c_infrastruct_018_DDS_WaitSet_wait_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_infrastruct.html",
-          "section": "基础模块 / 函数说明 / DDS_WaitSet_wait",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7293
-        },
-        {
-          "node_id": "html_v1_group___c_subscription_017_DDS_Subscriber_get_default_datareader_qo_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_subscription.html",
-          "section": "订阅模块 / 函数说明 / DDS_Subscriber_get_default_datareader_qos",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7091
-        },
-        {
-          "node_id": "html_v1_group___c_publication_052_FooDataWriter_write_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7033
+          "score": 0.6836
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4421,31 +4421,13 @@
       "question": "如何处理 DDS_RETCODE_ILLEGAL_OPERATION 错误？该错误表示什么含义？如何避免非法调用？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___c_publication_047_FooDataWriter_set_qos_00001",
+          "node_id": "html_v1_group___c_subscription_026_DDS_Subscriber_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_set_qos",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / DDS_Subscriber_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.691
-        },
-        {
-          "node_id": "html_v1_group___c_publication_021_DDS_Publisher_set_qos_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / DDS_Publisher_set_qos",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6778
-        },
-        {
-          "node_id": "html_v1_group___simple_interface_005_DDS_Finalize_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___simple_interface.html",
-          "section": "简化接口 / 函数说明 / DDS_Finalize",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6765
+          "score": 0.6865
         },
         {
           "node_id": "html_v1_group___c_domain_076_DDS_DomainParticipantFactory_reload_qos__00000",
@@ -4454,16 +4436,34 @@
           "section": "域模块 / 函数说明 / DDS_DomainParticipantFactory_reload_qos_profiles",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6729
+          "score": 0.6854
         },
         {
-          "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00001",
+          "node_id": "html_v1_group___c_domain_050_DDS_DomainParticipant_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6657
+          "score": 0.6752
+        },
+        {
+          "node_id": "html_v1_group___c_topic_011_DDS_Topic_set_qos_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_topic.html",
+          "section": "主题模块 / 函数说明 / DDS_Topic_set_qos",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.675
+        },
+        {
+          "node_id": "html_v1_group___simple_interface_005_DDS_Finalize_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___simple_interface.html",
+          "section": "简化接口 / 函数说明 / DDS_Finalize",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6696
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4473,49 +4473,49 @@
       "question": "如何处理 DDS_RETCODE_NO_DATA 错误？该错误表示什么含义？如何避免没有数据的情况？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___c_publication_028_FooDataWriter_dispose_00001",
+          "node_id": "html_v1_group___c_publication_036_FooDataWriter_get_matched_subscriptions_00001",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_dispose",
+          "section": "发布模块 / 函数说明 / FooDataWriter_get_matched_subscriptions",
           "page_print": null,
           "page_physical": null,
-          "score": 0.751
+          "score": 0.7225
         },
         {
-          "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00001",
+          "node_id": "html_v1_group___c_infrastruct_013_DDS_WaitSet_attach_condition_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance",
+          "source_name": "group___c_infrastruct.html",
+          "section": "基础模块 / 函数说明 / DDS_WaitSet_attach_condition",
           "page_print": null,
           "page_physical": null,
-          "score": 0.751
+          "score": 0.7223
         },
         {
-          "node_id": "html_v1_group___c_publication_050_FooDataWriter_unregister_instance_w_time_00001",
+          "node_id": "html_v1_group___c_domain_040_DDS_DomainParticipant_ignore_subscriptio_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance_w_timestamp",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_ignore_subscription",
           "page_print": null,
           "page_physical": null,
-          "score": 0.751
+          "score": 0.7221
         },
         {
-          "node_id": "html_v1_group___c_publication_054_FooDataWriter_write_w_dst_00001",
+          "node_id": "html_v1_group___c_domain_039_DDS_DomainParticipant_ignore_publication_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_dst",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_ignore_publication",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7245
+          "score": 0.7215
         },
         {
-          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00001",
+          "node_id": "html_v1_group___c_subscription_056_FooDataReader_set_qos_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_timestamp",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / FooDataReader_set_qos",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7245
+          "score": 0.7153
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4586,6 +4586,15 @@
           "score": 0.7858
         },
         {
+          "node_id": "html_v1_group___c_publication_009_DDS_Publisher_delete_datawriter_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / DDS_Publisher_delete_datawriter",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7651
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_2_删除Publisher_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -4593,15 +4602,6 @@
           "page_print": 76,
           "page_physical": 82,
           "score": 0.7437
-        },
-        {
-          "node_id": "html_v1_group___c_publication_009_DDS_Publisher_delete_datawriter_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / DDS_Publisher_delete_datawriter",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7368
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_2_Publisher_8_2_3_删除Publisher的所有子实体_00000",
@@ -4619,7 +4619,7 @@
           "section": "发布模块 / 函数说明 / DDS_Publisher_delete_contained_entities",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6992
+          "score": 0.6858
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4638,15 +4638,6 @@
           "score": 0.691
         },
         {
-          "node_id": "html_v1_group___c_domain_035_DDS_DomainParticipant_get_publishers_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_domain.html",
-          "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_publishers",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6862
-        },
-        {
           "node_id": "html_v1_group___c_publication_040_FooDataWriter_get_publisher_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_publication.html",
@@ -4656,13 +4647,13 @@
           "score": 0.678
         },
         {
-          "node_id": "html_v1_group___c_publication_015_DDS_Publisher_get_qos_00000",
+          "node_id": "html_v1_struct_d_d_s___publisher_seq_000_DDS_PublisherSeq结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / DDS_Publisher_get_qos",
+          "source_name": "struct_d_d_s___publisher_seq.html",
+          "section": "DDS_PublisherSeq结构体 参考",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6656
+          "score": 0.6779
         },
         {
           "node_id": "html_v1_group___c_publication_013_DDS_Publisher_get_listener_00000",
@@ -4671,7 +4662,16 @@
           "section": "发布模块 / 函数说明 / DDS_Publisher_get_listener",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6589
+          "score": 0.6731
+        },
+        {
+          "node_id": "html_v1_group___c_domain_035_DDS_DomainParticipant_get_publishers_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_publishers",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6714
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4688,6 +4688,15 @@
           "page_print": 87,
           "page_physical": 93,
           "score": 0.75
+        },
+        {
+          "node_id": "html_v1_group___c_listener_019_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6855
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_1_创建DataWriter_00000",
@@ -4708,15 +4717,6 @@
           "score": 0.6804
         },
         {
-          "node_id": "html_v1_group___c_listener_019_status_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_listener.html",
-          "section": "监听器模块 / 类型定义说明 / status",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6735
-        },
-        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_2_8_Publisher的其他操作_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -4733,6 +4733,15 @@
       "question": "如何使用 DataWriter 的 write_w_timestamp()函数发布带时间戳的数据？该函数的参数是什么？",
       "retrieved": [
         {
+          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_timestamp",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6773
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_10_发布数据_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -4740,15 +4749,6 @@
           "page_print": 87,
           "page_physical": 93,
           "score": 0.65
-        },
-        {
-          "node_id": "html_v1_group___c_publication_055_FooDataWriter_write_w_timestamp_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_write_w_timestamp",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6391
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_1_创建DataWriter_00000",
@@ -4791,7 +4791,16 @@
           "section": "发布模块 / 函数说明 / FooDataWriter_register_instance",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7058
+          "score": 0.7085
+        },
+        {
+          "node_id": "html_v1_group___c_publication_045_FooDataWriter_register_instance_w_timest_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / FooDataWriter_register_instance_w_timestamp",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6961
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_9_实例管理_00000",
@@ -4803,15 +4812,6 @@
           "score": 0.6708
         },
         {
-          "node_id": "html_v1_group___c_publication_045_FooDataWriter_register_instance_w_timest_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_register_instance_w_timestamp",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6679
-        },
-        {
           "node_id": "html_v1_group___c_publication_049_FooDataWriter_unregister_instance_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_publication.html",
@@ -4821,13 +4821,13 @@
           "score": 0.6598
         },
         {
-          "node_id": "html_v1_group___c_publication_050_FooDataWriter_unregister_instance_w_time_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance_w_timestamp",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6567
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_9_实例管理_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.9 实例管理",
+          "page_print": 107,
+          "page_physical": 113,
+          "score": 0.6492
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -4852,7 +4852,7 @@
           "section": "发布模块 / 函数说明 / FooDataWriter_unregister_instance_w_timestamp",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7187
+          "score": 0.7093
         },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_32_WriterDataLifecycleQosPolicy_00000",
@@ -5002,22 +5002,22 @@
           "score": 0.7512
         },
         {
-          "node_id": "html_v1_group___c_domain_037_DDS_DomainParticipant_get_subscribers_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_domain.html",
-          "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_subscribers",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.704
-        },
-        {
           "node_id": "html_v1_group___c_publication_036_FooDataWriter_get_matched_subscriptions_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_publication.html",
           "section": "发布模块 / 函数说明 / FooDataWriter_get_matched_subscriptions",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7013
+          "score": 0.7038
+        },
+        {
+          "node_id": "html_v1_group___c_domain_037_DDS_DomainParticipant_get_subscribers_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_subscribers",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.693
         },
         {
           "node_id": "html_v1_group___c_publication_035_FooDataWriter_get_matched_subscription_d_00000",
@@ -5026,16 +5026,16 @@
           "section": "发布模块 / 函数说明 / FooDataWriter_get_matched_subscription_data",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6898
+          "score": 0.6926
         },
         {
-          "node_id": "html_v1_index_021_订阅者_00000",
+          "node_id": "html_v1_group___c_subscription_018_DDS_Subscriber_get_listener_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "index.html",
-          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍 / 订阅数据 / 订阅者",
+          "source_name": "group___c_subscription.html",
+          "section": "订阅模块 / 函数说明 / DDS_Subscriber_get_listener",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6691
+          "score": 0.6759
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5081,13 +5081,13 @@
           "score": 0.6934
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_10_访问数据_9_3_10_7_read_w_condition_和take_w_condition_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第9章 订阅数据 / 9.3 DataReader / 9.3.10 访问数据 / 9.3.10.7 read_w_condition()和take_w_condition()",
-          "page_print": 113,
-          "page_physical": 119,
-          "score": 0.6856
+          "node_id": "html_v1_group___c_listener_013_status_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_listener.html",
+          "section": "监听器模块 / 类型定义说明 / status",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.69
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5158,15 +5158,6 @@
           "score": 0.7377
         },
         {
-          "node_id": "html_v1_zrdds_log_002_标准风格_2_2_3_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "zrdds_log.html",
-          "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制 / 日志输出风格 / 标准风格（>=2.2.3）",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7357
-        },
-        {
           "node_id": "html_v1_releasenotes_003_ZRDDS文档_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "releasenotes.html",
@@ -5192,6 +5183,15 @@
           "page_print": null,
           "page_physical": null,
           "score": 0.6563
+        },
+        {
+          "node_id": "html_v1_downloads_006_V2_3_0_release1_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "downloads.html",
+          "section": "ZRDDS下载 / ZRDDS安装包下载 / V2.3.0-release1",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6538
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5210,15 +5210,6 @@
           "score": 0.7025
         },
         {
-          "node_id": "html_v1_zrdds_log_002_标准风格_2_2_3_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "zrdds_log.html",
-          "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制 / 日志输出风格 / 标准风格（>=2.2.3）",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6772
-        },
-        {
           "node_id": "html_v1_releasenotes_008_ZRDDS文档_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "releasenotes.html",
@@ -5228,22 +5219,31 @@
           "score": 0.6669
         },
         {
-          "node_id": "html_v1_releasenotes_003_ZRDDS文档_00000",
+          "node_id": "html_v1_struct_d_d_s___domain_participant_qos_002_domain_destination_addresses_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "releasenotes.html",
-          "section": "ZRDDS版本记录 / ZRDDSv2.2.5 / ZRDDS文档",
+          "source_name": "struct_d_d_s___domain_participant_qos.html",
+          "section": "DDS_DomainParticipantQos结构体 参考 / 结构体成员变量说明 / domain_destination_addresses",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6526
+          "score": 0.6612
         },
         {
-          "node_id": "struct_v1_s_s_s_PART8RapidIO使用_第21章_RapidIO处理规程_21_3_零拷贝内置数据类型_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART8RapidIO使用 / 第21章 RapidIO处理规程 / 21.3 零拷贝内置数据类型",
-          "page_print": 259,
-          "page_physical": 265,
-          "score": 0.6351
+          "node_id": "html_v1_struct_d_d_s___zero_copy_bytes_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___zero_copy_bytes.html",
+          "section": "DDS_ZeroCopyBytes结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6546
+        },
+        {
+          "node_id": "html_v1_zrdds_log_002_标准风格_2_2_3_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "zrdds_log.html",
+          "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制 / 日志输出风格 / 标准风格（>=2.2.3）",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6534
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5341,13 +5341,13 @@
           "score": 0.6128
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_2_Licence授权方式_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.2 Licence授权方式",
-          "page_print": 276,
-          "page_physical": 282,
-          "score": 0.6064
+          "node_id": "html_v1_struct_d_d_s___inconsistent_topic_status_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___inconsistent_topic_status.html",
+          "section": "DDS_InconsistentTopicStatus结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6103
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5418,13 +5418,13 @@
           "score": 0.7401
         },
         {
-          "node_id": "html_v1_zrdds_log_002_标准风格_2_2_3_00000",
+          "node_id": "html_v1_faq_003_2_1_使用ZRDDS一定需要使用IDL文件_并使用编译器生成类型支持文件吗_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "zrdds_log.html",
-          "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制 / 日志输出风格 / 标准风格（>=2.2.3）",
+          "source_name": "faq.html",
+          "section": "ZRDDS常见问题 / 2.IDL问题 / 2.1.使用ZRDDS一定需要使用IDL文件，并使用编译器生成类型支持文件吗？",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6965
+          "score": 0.6791
         },
         {
           "node_id": "html_v1_faq_000_1_1_ZRDDS支持哪些操作系统以及编译器_00000",
@@ -5436,6 +5436,15 @@
           "score": 0.6782
         },
         {
+          "node_id": "html_v1_index_024_ZRDDS编译器_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "index.html",
+          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS编译器",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6773
+        },
+        {
           "node_id": "html_v1_releasenotes_003_ZRDDS文档_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "releasenotes.html",
@@ -5443,15 +5452,6 @@
           "page_print": null,
           "page_physical": null,
           "score": 0.6734
-        },
-        {
-          "node_id": "html_v1_faq_003_2_1_使用ZRDDS一定需要使用IDL文件_并使用编译器生成类型支持文件吗_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "faq.html",
-          "section": "ZRDDS常见问题 / 2.IDL问题 / 2.1.使用ZRDDS一定需要使用IDL文件，并使用编译器生成类型支持文件吗？",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6732
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5470,6 +5470,15 @@
           "score": 0.7338
         },
         {
+          "node_id": "html_v1_index_025_语法支持_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "index.html",
+          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS编译器 / 语法支持",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.724
+        },
+        {
           "node_id": "html_v1_group___c_builtin_types_000_内置数据类型接口_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___c_builtin_types.html",
@@ -5479,13 +5488,13 @@
           "score": 0.711
         },
         {
-          "node_id": "html_v1_index_025_语法支持_00000",
+          "node_id": "html_v1_faq_003_2_1_使用ZRDDS一定需要使用IDL文件_并使用编译器生成类型支持文件吗_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "index.html",
-          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS编译器 / 语法支持",
+          "source_name": "faq.html",
+          "section": "ZRDDS常见问题 / 2.IDL问题 / 2.1.使用ZRDDS一定需要使用IDL文件，并使用编译器生成类型支持文件吗？",
           "page_print": null,
           "page_physical": null,
-          "score": 0.7104
+          "score": 0.7031
         },
         {
           "node_id": "html_v1_struct_d_d_s___octet_seq_001_详细描述_00000",
@@ -5494,16 +5503,7 @@
           "section": "DDS_OctetSeq结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6958
-        },
-        {
-          "node_id": "html_v1_index_014_数据类型_00001",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "index.html",
-          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍 / 数据类型",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6905
+          "score": 0.6907
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5519,7 +5519,7 @@
           "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS编译器 / 语法支持 / sequence",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6657
+          "score": 0.6697
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_1_数据类型介绍_4_1_1_sequence_00000",
@@ -5546,16 +5546,16 @@
           "section": "ZRDDS常见问题 / 3.通信问题 / 3.6.sequence数据结构在使用时，长度有限制吗？",
           "page_print": null,
           "page_physical": null,
-          "score": 0.5964
+          "score": 0.5672
         },
         {
-          "node_id": "html_v1_group___core_seq_function_005_FooSeq_ensure_length_00000",
+          "node_id": "html_v1_group___core_seq_function_020_FooSeq_set_maximum_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "group___core_seq_function.html",
-          "section": "核心接口序列相关的函数 / 函数说明 / FooSeq_ensure_length",
+          "section": "核心接口序列相关的函数 / 函数说明 / FooSeq_set_maximum",
           "page_print": null,
           "page_physical": null,
-          "score": 0.5756
+          "score": 0.5627
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5669,6 +5669,15 @@
       "question": "@key 标注在 IDL 文件中的作用是什么？标注后面能否跟其他注释？为什么？",
       "retrieved": [
         {
+          "node_id": "html_v1_index_032_key_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "index.html",
+          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS编译器 / 扩展标记 / @key",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6999
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_1_key标注_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -5703,15 +5712,6 @@
           "page_print": 23,
           "page_physical": 29,
           "score": 0.6095
-        },
-        {
-          "node_id": "html_v1_index_033_Nested_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "index.html",
-          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS编译器 / 扩展标记 / @Nested",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.5996
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5748,22 +5748,22 @@
           "score": 0.5676
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_2_DDS编译器_4_2_2_Nested标注_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第4章 数据类型 / 4.2 DDS编译器 / 4.2.2 @Nested标注",
-          "page_print": 22,
-          "page_physical": 28,
-          "score": 0.5649
+          "node_id": "html_v1_struct_d_d_s___instance_handle__t_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___instance_handle__t.html",
+          "section": "DDS_InstanceHandle_t结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.5668
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第4章_数据类型_4_1_数据类型介绍_4_1_1_sequence_00001",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第4章 数据类型 / 4.1 数据类型介绍 / 4.1.1 sequence",
-          "page_print": 18,
-          "page_physical": 24,
-          "score": 0.5599
+          "node_id": "html_v1_struct_d_d_s___keyed_bytes_000_DDS_KeyedBytes结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___keyed_bytes.html",
+          "section": "DDS_KeyedBytes结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.5651
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5843,22 +5843,22 @@
           "score": 0.7069
         },
         {
-          "node_id": "html_v1_faq_008_3_3_为何使用带有变长成员的数据结构_调用_DataWriter_write__00000",
+          "node_id": "html_v1_index_014_数据类型_00001",
           "source_id": "zrdds_dev_guide",
-          "source_name": "faq.html",
-          "section": "ZRDDS常见问题 / 3.通信问题 / 3.3.为何使用带有变长成员的数据结构，调用 DataWriter::write 方法发送数据时，程序容易发生崩溃？",
+          "source_name": "index.html",
+          "section": "臻融数据分发服务（ZRDDSv2.4.0）在线文档 / ZRDDS介绍 / 数据类型",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6586
+          "score": 0.6672
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第27章_分布式日志_27_3_日志类型IDL文件_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 11ZRDDS日志使用 / 第27章 分布式日志 / 27.3 日志类型IDL文件",
-          "page_print": 289,
-          "page_physical": 295,
-          "score": 0.6444
+          "node_id": "html_v1_struct_foo_000_Foo结构体_参考_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_foo.html",
+          "section": "Foo结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.667
         },
         {
           "node_id": "html_v1_struct_foo_001_详细描述_00000",
@@ -5867,7 +5867,7 @@
           "section": "Foo结构体 参考 / 详细描述",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6404
+          "score": 0.6605
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -5926,7 +5926,7 @@
     },
     {
       "id": "Q112",
-      "question": "如何在 Linux 平台上配置 ZRDDS 应用？需要执行哪些命令？如何检查 License 授权方式？",
+      "question": "如何在 Linux 平台上配置 ZRDDS 应用？需要执行哪些命令？如何检查 Licence 授权方式？",
       "retrieved": [
         {
           "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_2_Licence授权方式_00000",
@@ -5935,7 +5935,7 @@
           "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.2 Licence授权方式",
           "page_print": 276,
           "page_physical": 282,
-          "score": 0.7119
+          "score": 0.7145
         },
         {
           "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_5_在Linux平台配置ZRDDS应用_00000",
@@ -5944,7 +5944,7 @@
           "section": "PART 3 应用实例 / 第11章 创建应用程序 / 11.5 在Linux平台配置ZRDDS应用",
           "page_print": 177,
           "page_physical": 183,
-          "score": 0.686
+          "score": 0.6949
         },
         {
           "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_3_使用步骤_00000",
@@ -5953,7 +5953,7 @@
           "section": "PART 10 Docker使用 / 第24章 Docker容器部署ZRDDS应用 / 24.3 使用步骤",
           "page_print": 276,
           "page_physical": 282,
-          "score": 0.6618
+          "score": 0.6787
         },
         {
           "node_id": "html_v1_downloads_006_V2_3_0_release1_00000",
@@ -5962,16 +5962,16 @@
           "section": "ZRDDS下载 / ZRDDS安装包下载 / V2.3.0-release1",
           "page_print": null,
           "page_physical": null,
-          "score": 0.654
+          "score": 0.6578
         },
         {
-          "node_id": "html_v1_downloads_005_V2_3_3_release1_00000",
+          "node_id": "html_v1_downloads_003_V2_4_2_release1_00001",
           "source_id": "zrdds_dev_guide",
           "source_name": "downloads.html",
-          "section": "ZRDDS下载 / ZRDDS安装包下载 / V2.3.3-release1",
+          "section": "ZRDDS下载 / ZRDDS安装包下载 / V2.4.2-release1",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6493
+          "score": 0.6549
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -6060,6 +6060,15 @@
           "score": 0.7824
         },
         {
+          "node_id": "html_v1_zrdds_qos_xml_002_编写QoS配置文件_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "zrdds_qos_xml.html",
+          "section": "XML配置实体QoS / XML配置QoS步骤 / 编写QoS配置文件",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7762
+        },
+        {
           "node_id": "html_v1_zrdds_qos_xml_003_管理ZRDDS内部QoS仓库_00000",
           "source_id": "zrdds_dev_guide",
           "source_name": "zrdds_qos_xml.html",
@@ -6067,15 +6076,6 @@
           "page_print": null,
           "page_physical": null,
           "score": 0.7748
-        },
-        {
-          "node_id": "html_v1_zrdds_qos_xml_002_编写QoS配置文件_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "zrdds_qos_xml.html",
-          "section": "XML配置实体QoS / XML配置QoS步骤 / 编写QoS配置文件",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.7744
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -6092,6 +6092,15 @@
           "page_print": 281,
           "page_physical": 287,
           "score": 0.7367
+        },
+        {
+          "node_id": "html_v1_zrdds_log_001_DDS中间件日志控制_00002",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "zrdds_log.html",
+          "section": "ZRDDS日志调试使用说明 / DDS中间件日志控制",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7208
         },
         {
           "node_id": "struct_v1_s_s_s_PART_11ZRDDS日志使用_第25章_日志说明_25_3_日志风格_00000",
@@ -6119,15 +6128,6 @@
           "page_print": null,
           "page_physical": null,
           "score": 0.6953
-        },
-        {
-          "node_id": "html_v1_zrdds_log_006_用户日志输出与控制_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "zrdds_log.html",
-          "section": "ZRDDS日志调试使用说明 / 用户日志输出与控制",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6895
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -6164,6 +6164,15 @@
           "score": 0.6756
         },
         {
+          "node_id": "html_v1_group___c_domain_024_DDS_DomainParticipant_get_builtin_subscr_00001",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_get_builtin_subscriber",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6713
+        },
+        {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第5章_实体_5_3_Listener_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -6171,15 +6180,6 @@
           "page_print": 34,
           "page_physical": 40,
           "score": 0.6682
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_5_设置DomainParticipant的Listener_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.5 设置DomainParticipant的Listener",
-          "page_print": 54,
-          "page_physical": 60,
-          "score": 0.6495
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -6207,6 +6207,15 @@
           "score": 0.7062
         },
         {
+          "node_id": "html_v1_group___c_publication_051_FooDataWriter_wait_for_acknowledgments_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_publication.html",
+          "section": "发布模块 / 函数说明 / FooDataWriter_wait_for_acknowledgments",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7024
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第12章_可靠通信模型_12_3_QoS策略对通信模型的影响_12_3_3_writer_阻塞时间_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
@@ -6216,22 +6225,13 @@
           "score": 0.6969
         },
         {
-          "node_id": "html_v1_group___c_publication_051_FooDataWriter_wait_for_acknowledgments_00000",
+          "node_id": "html_v1_group___c_infrastruct_018_DDS_WaitSet_wait_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / FooDataWriter_wait_for_acknowledgments",
+          "source_name": "group___c_infrastruct.html",
+          "section": "基础模块 / 函数说明 / DDS_WaitSet_wait",
           "page_print": null,
           "page_physical": null,
-          "score": 0.6909
-        },
-        {
-          "node_id": "html_v1_group___c_publication_024_DDS_Publisher_wait_for_acknowledgments_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "group___c_publication.html",
-          "section": "发布模块 / 函数说明 / DDS_Publisher_wait_for_acknowledgments",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6653
+          "score": 0.6935
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -6240,6 +6240,24 @@
       "id": "Q118",
       "question": "如何使用 DomainParticipant 的 assert_liveliness()函数声明自身存活性？该函数在什么场景下调用？",
       "retrieved": [
+        {
+          "node_id": "html_v1_group___c_domain_003_DDS_DomainParticipant_assert_liveliness_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_assert_liveliness",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7042
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___liveliness_qos_policy_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___liveliness_qos_policy.html",
+          "section": "DDS_LivelinessQosPolicy结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.6972
+        },
         {
           "node_id": "html_v1_group___core_qos_struct_006_DDS_LivelinessQosPolicyKind_00000",
           "source_id": "zrdds_dev_guide",
@@ -6266,76 +6284,58 @@
           "page_print": null,
           "page_physical": null,
           "score": 0.68
-        },
-        {
-          "node_id": "html_v1_liveliness_qos_2main_sub_8c_example_000_LivelinessQos_main_sub_c_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "_liveliness_qos_2main_sub_8c-example.html",
-          "section": "LivelinessQos/main_sub.c",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6799
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_12_LivelinessQosPolicy_00000",
-          "source_id": "user_manual",
-          "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.12 LivelinessQosPolicy",
-          "page_print": 133,
-          "page_physical": 139,
-          "score": 0.676
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
     },
     {
       "id": "Q119",
-      "question": "ZRDDS 的 ReaderThreadConfigQosPolicy 如何配置接收线程数量？该配置对系统资源的影响是什么？",
+      "question": "DomainParticipantQos 的 TransportConfigQosPolicy 字段是什么作用？如何配置域内通信的传输参数？",
       "retrieved": [
         {
-          "node_id": "html_v1_group___core_qos_struct_013_DDS_ReceiverThreadKind_00000",
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.3 DomainParticipant / 6.3.4 设置DomainParticipant的QoS策略",
+          "page_print": 52,
+          "page_physical": 58,
+          "score": 0.7775
+        },
+        {
+          "node_id": "html_v1_struct_d_d_s___domain_participant_qos_000_DDS_DomainParticipantQos结构体_参考_00000",
           "source_id": "zrdds_dev_guide",
-          "source_name": "group___core_qos_struct.html",
-          "section": "核心接口QoS相关数据类型 / 枚举类型说明 / DDS_ReceiverThreadKind",
+          "source_name": "struct_d_d_s___domain_participant_qos.html",
+          "section": "DDS_DomainParticipantQos结构体 参考",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7428
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_30_TransportConfigQosPolicy_00000",
+          "source_id": "user_manual",
+          "source_name": "ZRDDS用户手册.pdf",
+          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.30 TransportConfigQosPolicy",
+          "page_print": 157,
+          "page_physical": 163,
+          "score": 0.7357
+        },
+        {
+          "node_id": "html_v1_group___c_domain_050_DDS_DomainParticipant_set_qos_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "group___c_domain.html",
+          "section": "域模块 / 函数说明 / DDS_DomainParticipant_set_qos",
           "page_print": null,
           "page_physical": null,
           "score": 0.7108
         },
         {
-          "node_id": "html_v1_struct_d_d_s___receiver_thread_config_qos_policy_000_DDS_ReceiverThreadConfigQosPolicy结构体_参考_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___receiver_thread_config_qos_policy.html",
-          "section": "DDS_ReceiverThreadConfigQosPolicy结构体 参考",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.694
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___thread_core_affinity_qos_policy_001_详细描述_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___thread_core_affinity_qos_policy.html",
-          "section": "DDS_ThreadCoreAffinityQosPolicy结构体 参考 / 详细描述",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.691
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___destination_order_qos_policy_001_详细描述_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___destination_order_qos_policy.html",
-          "section": "DDS_DestinationOrderQosPolicy结构体 参考 / 详细描述",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6851
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_24_ReceiverThreadConfigQosPolicy_DDS_Extension_00000",
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_2_DomainParticipantFactory_6_2_1_DomainParticipantFactory的QoS策略_00000",
           "source_id": "user_manual",
           "source_name": "ZRDDS用户手册.pdf",
-          "section": "PART 2 基本概念 / 第10章 QoS策略 / 10.24 ReceiverThreadConfigQosPolicy(DDS Extension)",
-          "page_print": 150,
-          "page_physical": 156,
-          "score": 0.6805
+          "section": "PART 2 基本概念 / 第6章 域/域参与者 / 6.2 DomainParticipantFactory / 6.2.1 DomainParticipantFactory的QoS策略",
+          "page_print": 46,
+          "page_physical": 52,
+          "score": 0.7024
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"
@@ -6344,6 +6344,15 @@
       "id": "Q120",
       "question": "ZRDDS 的 UserDataQosPolicy 的最大长度是多少？如何避免设置过大的附加信息导致资源耗尽？",
       "retrieved": [
+        {
+          "node_id": "html_v1_struct_d_d_s___resource_limits_qos_policy_001_详细描述_00000",
+          "source_id": "zrdds_dev_guide",
+          "source_name": "struct_d_d_s___resource_limits_qos_policy.html",
+          "section": "DDS_ResourceLimitsQosPolicy结构体 参考 / 详细描述",
+          "page_print": null,
+          "page_physical": null,
+          "score": 0.7401
+        },
         {
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_26_ResourceLimitsQosPolicy_00000",
           "source_id": "user_manual",
@@ -6379,15 +6388,6 @@
           "page_print": 130,
           "page_physical": 136,
           "score": 0.6854
-        },
-        {
-          "node_id": "html_v1_struct_d_d_s___zero_copy_bytes_001_详细描述_00000",
-          "source_id": "zrdds_dev_guide",
-          "source_name": "struct_d_d_s___zero_copy_bytes.html",
-          "section": "DDS_ZeroCopyBytes结构体 参考 / 详细描述",
-          "page_print": null,
-          "page_physical": null,
-          "score": 0.6813
         }
       ],
       "note": "无期望来源标注（不计入指标分母）"

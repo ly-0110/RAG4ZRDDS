@@ -166,6 +166,26 @@ class TestAuditAnnotation:
         assert "CONTRACT_NO_CONDITION" in codes
         assert "CONTRACT_UNKNOWN_QUESTION_ID" in codes
 
+    def test_mojibake_question_text_is_blocked(self, truth):
+        """PR#36 实测形态：ASCII 保留、非 ASCII 全变字面 `?`。
+
+        这类损坏骗得过 token 检查——题面里的标识符照旧能在产物里命中，
+        故必须由题面转码判定独立拦住（否则已废的题干一路走到闸门开启）。
+        """
+        garbled = ("DataReader ? on_publication_matched() ???????? "
+                   "Listener???????? Status?")
+        codes, probe = aa.audit_annotation(_ann(), truth, None, {"Q001"}, garbled)
+        assert "QUESTION_TEXT_MOJIBAKE" in codes
+        assert "QUESTION_TEXT_MOJIBAKE" in aa.BLOCKING_CODES
+        assert probe["mojibake"]["longest"] >= 3
+
+    def test_single_question_mark_is_not_mojibake(self, truth):
+        codes, probe = aa.audit_annotation(
+            _ann(), truth, None, {"Q001"},
+            "DurabilityQosPolicy 的 kind 默认值是什么?")
+        assert "QUESTION_TEXT_MOJIBAKE" not in codes
+        assert "mojibake" not in probe
+
     def test_circular_fingerprint_is_not_blocking(self, truth):
         codes, _ = aa.audit_annotation(_ann(), truth, 127, {"Q001"},
                                        "DurabilityQosPolicy 的 kind 默认值是什么？")
@@ -198,6 +218,14 @@ class TestAuditVerdict:
         res = aa.audit([_ann(page_print=300, section_keyword=None)], self.QUESTIONS[:1],
                        truth, {"Q001": 300}, 0.9)
         assert res["verdict"] == "blocked"
+
+    def test_mojibake_blocks_gate_despite_clean_annotation(self, truth):
+        """标注本身干净、题面已废 → 仍须 blocked（题面污染检索与计分）。"""
+        questions = [{"id": "Q001",
+                      "question": "DataReader ? x() ???????? Listener?????? Status?"}]
+        res = aa.audit([_ann()], questions, truth, {}, 0.9)
+        assert res["verdict"] == "blocked"
+        assert res["counts"]["QUESTION_TEXT_MOJIBAKE"] == 1
 
 
 # ---------------------------------------------------------------- CLI

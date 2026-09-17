@@ -5,8 +5,8 @@
   "config_hash8": "677d777f",
   "artifacts": {
     "nodes_file_sha12": "adcca4de72d4",
-    "questions_sha12": "4a5ddb1f1b5c",
-    "expected_sources_sha12": "4969e7ab1274"
+    "questions_sha12": "9ea5b614a078",
+    "expected_sources_sha12": "b325848f1a9a"
   },
   "duration_seconds": 0.1,
   "index": {
@@ -26,8 +26,8 @@
     "skipped_no_expected": []
   },
   "metrics": {
-    "hit_rate@5": 0.325,
-    "mrr@5": 0.2206
+    "hit_rate@5": 0.6833,
+    "mrr@5": 0.5393
   },
   "per_question": [
     {
@@ -437,16 +437,16 @@
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
+          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_6_SAMPLE_REJECTED_Status_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_3_Listener_5_3_1_Listener的类型_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_6_SAMPLE_REJECTED_Status_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000"
         }
       ]
     },
@@ -474,19 +474,19 @@
       "id": "Q023",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_3_Listener_5_3_1_Listener的类型_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_3_Listener_5_3_4_Listener的掩码_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_11_DataReader的SampleInfo结构_9_3_11_3_实例状态_Instance_States_00000"
-        },
-        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000"
         },
         {
+          "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_6_SAMPLE_REJECTED_Status_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_3_Listener_5_3_1_Listener的类型_00000"
+        },
+        {
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_4_设置DataReader的Listener_00000"
         }
       ]
     },
@@ -577,13 +577,13 @@
           "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_5_关于DataWriter的Status_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_2_Subscriber_9_2_5_设置Subscriber的Listener_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_3_Listener_5_3_1_Listener的类型_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_6_SAMPLE_REJECTED_Status_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_3_Listener_5_3_1_Listener的类型_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第8章_发布数据_8_3_DataWriter_8_3_4_设置DataWriter的Listener_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_s_s_PART_2_基本概念_第9章_订阅数据_9_3_DataReader_9_3_5_关于DataReader的Status_9_3_5_7_SUBSCRIPTION_MATCHED_Status_00000"
@@ -1197,16 +1197,16 @@
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_17_PartitionQosPolicy_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_2_QoS策略_5_1_5_设置及获取Listener_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_30_TransportConfigQosPolicy_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_PART1_背景介绍_第2章_以数据为中心的发布_订阅通信模型_2_6_服务质量_QoS_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART8RapidIO使用_第21章_RapidIO处理规程_21_4_任务核亲和性配置模块_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第12章_可靠通信模型_12_3_QoS策略对通信模型的影响_12_3_2_发送队列_和_接收队列_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_30_TransportConfigQosPolicy_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_18_PresentationQosPolicy_00000"
         }
       ]
     },
@@ -1217,16 +1217,16 @@
           "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_18_PresentationQosPolicy_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第5章_实体_5_2_QoS策略_5_1_5_设置及获取Listener_00000"
-        },
-        {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_30_TransportConfigQosPolicy_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_18_PresentationQosPolicy_00001"
         },
         {
           "node_id": "struct_v1_s_s_s_PART1_背景介绍_第2章_以数据为中心的发布_订阅通信模型_2_6_服务质量_QoS_00000"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART7_XML使用_第20章_XML配置实体QoS_20_4_QoS设置相关接口_00001"
+        },
+        {
+          "node_id": "struct_v1_s_s_s_PART_6_多种接口风格及开发流程_第16章_标准协议接口_16_1_标准协议接口的使用_00000"
         }
       ]
     },
@@ -2257,10 +2257,10 @@
           "node_id": "struct_v1_s_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_4_在Windows平台上配置ZRDDS应用_11_3_2_使用zrddsgen编译器_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_5_在Linux平台配置ZRDDS应用_00000"
+          "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_2_Licence授权方式_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_2_Licence授权方式_00000"
+          "node_id": "struct_v1_s_s_s_PART_3_应用实例_第11章_创建应用程序_11_5_在Linux平台配置ZRDDS应用_00000"
         },
         {
           "node_id": "struct_v1_s_s_s_PART_10_Docker使用_第24章_Docker容器部署ZRDDS应用_24_3_使用步骤_00000"
@@ -2394,19 +2394,19 @@
       "id": "Q119",
       "retrieved": [
         {
-          "node_id": "struct_v1_s_s_s_PART_4_深入理解_第12章_可靠通信模型_12_3_QoS策略对通信模型的影响_00000"
+          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_30_TransportConfigQosPolicy_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_24_ReceiverThreadConfigQosPolicy_DDS_Extension_00000"
+          "node_id": "struct_v1_s_s_s_PART1_背景介绍_第2章_以数据为中心的发布_订阅通信模型_2_6_服务质量_QoS_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_PART_2_基本概念_第10章_QoS策略_10_33_DataWriterResourceLimitsQosPolicy_DDS_Extension_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_2_基本概念_第6章_域_域参与者_6_3_DomainParticipant_6_3_4_设置DomainParticipant的QoS策略_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_PART_4_深入理解_第13章_TCP并发传输_13_2_配置说明_13_2_2_接收端配置说明_00000"
+          "node_id": "struct_v1_s_s_s_s_PART_9参数配置_第23章_可配置性_23_2_可配置参数_23_2_2_域参与者参数_00000"
         },
         {
-          "node_id": "struct_v1_s_s_s_s_s_PART_9参数配置_第23章_可配置性_23_2_可配置参数_23_2_1_全局配置_23_2_1_1_可配置项_00001"
+          "node_id": "struct_v1_s_s_s_PART8RapidIO使用_第21章_RapidIO处理规程_21_2_RapidIO通信配置模块_00000"
         }
       ]
     },

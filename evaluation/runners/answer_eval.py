@@ -63,7 +63,15 @@ async def _generate(
     from generation.query_engine import AnswerStream, build_answer_stream
 
     if chat_stream is None:
-        stream = build_answer_stream(cfg)  # 真实通路：从 .env 读 LLM 配置
+        # 真实通路：从 .env 读 LLM 配置。脚本/CLI 直调（本模块与
+        # abstention_eval 的入口）不经服务启动路径，没人把 .env 导出进
+        # os.environ——不显式加载则 .env 填好也报"生成侧 LLM 未配置"
+        # （同类缺陷第四次：2026-08-31 服务端、build_pipeline 分支、
+        # run_experiment、两个 runner CLI；见 week4 review §3.13）。
+        from server.core.settings import load_env_file
+
+        load_env_file()
+        stream = build_answer_stream(cfg)
     else:
         stream = AnswerStream(
             chat_stream,

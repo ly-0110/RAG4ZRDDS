@@ -16,9 +16,14 @@ E（标注 Owner）在提交前自查、D 在开指标闸门前验收，都用�
 
 判定与退出码：
   0  无阻断项且未见循环论证指纹 → 可以开 `run_regression --with-metrics`
-  1  存在阻断项（格式违约 / 页码越界 / 页码无承载块 / 术语零命中 / 章节-页码矛盾）
-     或 循环论证指纹 ≥ --circular-threshold
+  1  存在阻断项（格式违约 / 页码越界 / 页码无承载块 / 术语零命中 / 章节-页码矛盾
+     / 题面有损转码）或 循环论证指纹 ≥ --circular-threshold
   2  参数或文件缺失
+
+题面转码检查（QUESTION_TEXT_MOJIBAKE，2026-09-17 补）：PR#36 写入环节把非 ASCII
+字符整体转成字面 `?`（6 题），而这类损坏骗得过 token 检查——题面里的 ASCII 标识符
+（Listener/Status/on_publication_matched…）照旧能在产物里命中，于是坏题面一路走到
+闸门开启。故按"连续 ≥3 个半角问号"判为阻断。
 
 依赖: 仅标准库；产物路径全部可参数化（单测用 tmp_path 喂小样本）。
 """
@@ -27,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any, Iterable
@@ -50,7 +56,26 @@ BLOCKING_CODES = {
     "PAGE_INVALID",               # 页码不是整数或合法闭区间
     "QUESTION_TOKEN_OFF_PAGE",    # 题干的技术 token 不在被标注页附近 → 这页回答不了这题
     "QUESTION_TOKEN_ABSENT",      # 题面技术 token 在该来源全书零命中 → 实体不存在，应转拒答集
+    "QUESTION_TEXT_MOJIBAKE",     # 题干含连续半角问号 → 写入环节有损转码，题面已废
 }
+
+# 题面有损转码指纹（PR#36 实测形态，登记于 week4 review §3.4 P0）：ASCII 保留、
+# 非 ASCII 全部变字面 `?`。中文题面里连续 3 个半角问号不可能是正常书写——若只写
+# 1 个仍放过（可能是技术符号或笔误，交人工）。此前的判定集对这类损坏完全无感：
+# 题面里的 ASCII 标识符（Listener/Status/…）仍能在产物里命中，于是 6 道已废的
+# 题干一路 pass 到闸门打开。
+MOJIBAKE_RE = re.compile(r"\?{3,}")
+
+
+def question_mojibake(text: str) -> dict[str, Any] | None:
+    """返回题面的转码损坏证据（连续问号片段与占比），无损坏则 None。"""
+    runs = MOJIBAKE_RE.findall(text or "")
+    if not runs:
+        return None
+    total = sum(len(r) for r in runs)
+    return {"runs": len(runs), "longest": max(len(r) for r in runs),
+            "ratio": round(total / max(1, len(text)), 3),
+            "sample": (text or "")[:60]}
 
 # 题干 token 抽取：太通用的词不算"问题主体"
 TOKEN_STOP = {
@@ -234,6 +259,11 @@ def audit_annotation(ann: dict, truth: ProductTruth, top1_page: int | None,
                      check_question_tokens: bool = True) -> tuple[list[str], dict]:
     """返回 (判定码列表, token 探查明细)。判据只来自产物，绝不查检索器。"""
     findings: list[str] = []
+    probe: dict[str, Any] = {}
+    moji = question_mojibake(question_text)
+    if moji:
+        findings.append("QUESTION_TEXT_MOJIBAKE")
+        probe["mojibake"] = moji
     qid = ann.get("question_id")
     if not qid or qid not in questions_ids:
         findings.append("CONTRACT_UNKNOWN_QUESTION_ID")
@@ -244,7 +274,7 @@ def audit_annotation(ann: dict, truth: ProductTruth, top1_page: int | None,
 
     if not any(v is not None and v != "" for v in (source, page, keyword)):
         findings.append("CONTRACT_NO_CONDITION")
-        return findings, {}
+        return findings, probe
 
     bounds = truth.page_bounds(source) if source else None
     if source and source not in truth.sources:
@@ -282,7 +312,6 @@ def audit_annotation(ann: dict, truth: ProductTruth, top1_page: int | None,
             findings.append("TERM_PAGE_MISMATCH")           # 术语只出现在远处的页
 
     # 题干 token 必须落在被标注页附近——否则"这页回答不了这题"
-    probe: dict[str, Any] = {}
     tokens = question_tokens(question_text) if check_question_tokens else []
     probe["tokens"] = tokens
     if not check_question_tokens:
@@ -410,7 +439,9 @@ def render_markdown(result: dict, sources: dict[str, str]) -> str:
         kw = (r["section_keyword"] or "")[:28]
         probe = r.get("probe") or {}
         detail = "; ".join(
-            [f"{t}→全书零命中" for t in (probe.get("absent") or [])[:1]]
+            ([f"题面转码损坏：连续问号 ×{probe['mojibake']['longest']}"
+              f"（占比 {probe['mojibake']['ratio']}）"] if probe.get("mojibake") else [])
+            + [f"{t}→全书零命中" for t in (probe.get("absent") or [])[:1]]
             + [f"{u['token']}→实际在 {u['appears_on'][:4]}"
                for u in (probe.get("unmatched") or [])[:1]]) or "—"
         lines.append(f"| {r['question_id']} | {r['page_print']} | {kw} "
