@@ -1,8 +1,8 @@
-"""GET /nodes/{node_id} —— 单节点详情回查（F3，docs/week4-delivery-review.md §4.1）。
+"""GET /nodes/{node_id} —— 单节点详情回查。
 
 正文出网范围说明：SSE wire 仍为 SourceRef 7 字段不变，chunk 原文不进
 sources 事件与 sources.jsonl；本端点按需返回单个 Node 的原文与元数据，
-供前端"节点详情"展示。属既有"正文不下发"立场的定向放宽，待 B/C/E 会签
+供前端"节点详情"展示。属既有"正文不下发"立场的定向放宽
 追认（api.md v0.14）。
 
 2026-09-16（F3 × F4 整合修复）：节点详情不再只认默认实验——经 F4 切到其它

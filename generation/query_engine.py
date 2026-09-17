@@ -1,9 +1,9 @@
-"""最小 query_engine（指南 §4：generation/query_engine）：实现
+"""最小 query_engine：实现
 server/core/pipeline.py 的 AnswerStream 协议。
 
 把「检索片段 → context → prompt → LLM 流式回答」串起来。chunks 为检索器
 返回的富引用（含 text 正文，见 retrieval/retriever.py）。空检索给出确定性
-拒答文案（第一周只含两条硬规则，不做 LLM 判空）；LLM 调用错误上抛，由
+拒答文案（只含硬规则，不做 LLM 判空）；LLM 调用错误上抛，由
 /query 的 SSE error 事件回显。
 """
 

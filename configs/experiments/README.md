@@ -1,6 +1,6 @@
 # 实验配置说明（schema v1）
 
-> 本目录存放所有实验配置。格式由成员 D 维护；其他人**新增实验 = 复制 `example_v1.yaml` → 改名 → 填自己负责区块的参数**。
+> 本目录存放所有实验配置。**新增实验 = 复制 `example_v1.yaml` → 改名 → 按需填写各区块参数**。
 
 ## 一、快速上手：新建一个实验
 
@@ -17,13 +17,13 @@ python scripts/experiment_config.py configs/experiments/semantic_v1.yaml
 三条基本规则：
 
 1. **文件名就是实验的名字。** 之后生成的分块结果、索引、报告都用它命名；`experiment.name` 与文件名不一致会被校验器拦下。
-2. **写错字段当场报错，不会带病运行。** 固定字段的拼写和取值范围都会被检查，拼错了会提示相近的正确拼写（如写了 `topk` 会提示 `top_k`）。各区块里 `params:` 下面的内容不检查，原样传给该负责人写的代码。
+2. **写错字段当场报错，不会带病运行。** 固定字段的拼写和取值范围都会被检查，拼错了会提示相近的正确拼写（如写了 `topk` 会提示 `top_k`）。各区块里 `params:` 下面的内容不检查，原样传给对应模块。
 3. **密钥绝不写进 yaml。** 配置文件会提交到 Git；需要密钥的地方只填环境变量的**名字**（如 `api_key_env: EMBED_API_KEY`），真正的值放在 `.env` 里（不入 Git）。
 
 两条附带约定：
 
 - **不做模板继承。** 想试新实验就复制一份改几行，不要造 include / override 机制。
-- **固定字段的增删只由 D 做**（同时递增 `schema_version`）；各 Owner 在自己区块的 `params:` 里加参数随时可以。
+- **固定字段的增删须同时递增 `schema_version`** 并同步更新本文档与既有配置；试验性参数放在各区块的 `params:` 里，随加随用。
 
 ## 二、example_v1.yaml 参数逐项说明
 
@@ -86,7 +86,7 @@ python scripts/experiment_config.py configs/experiments/semantic_v1.yaml
 
 索引目录名自动生成：`{方案}_{模型}_{hash8}`，例如 `struct_bge-m3_0a7830b7`。hash8 是**索引产物身份**的指纹前 8 位，只由决定索引内容的段派生：`chunking`（Node 集）、`embedding`（向量）、`index`（后端与度量）、`retrieval` 的 `mode`/`params`/`filters`（mode 决定产物类型，bm25 的 k1/b 会落进产物）。这些段不变则目录名不变（重复重建覆盖同一目录，旧目录保留可回退）；改这些段才是新目录，不会污染旧索引。
 
-`generation` / `evaluation` / `report` / `experiment` 与索引产物无关，改它们**不触发重建**。（2026-09-07 修正：此前 hash8 对整份配置取值，C 把三个 yaml 的 `generation` 段置 `enabled: true`/`v1` 就改掉了全部派生目录名，三个真实 bge-m3 索引当场孤儿化、live 服务启动失败——重建代价 CPU 上 12~40 分钟/个。）
+`generation` / `evaluation` / `report` / `experiment` 与索引产物无关，改它们**不触发重建**（例如把 `generation.enabled` 打开、换 `prompt_version`，都不会让已建好的索引失效）。
 
 ### retrieval —— 检索时怎么取片段
 
@@ -96,16 +96,16 @@ python scripts/experiment_config.py configs/experiments/semantic_v1.yaml
 | `top_k` | 最终取几个片段交给生成环节 | 先用 `5`。注意：对比不同实验时各配置此项必须一致，否则结果不可比 |
 | `candidate_top_k` | 粗取候选数 | `hybrid`=两路子检索各取条数 / `hybrid_rerank`=精排前粗取条数（必须 ≥ top_k，典型 30 → 5） |
 | `rerank_model` | 精排用的模型名 | `mode: hybrid_rerank` 时必填 |
-| `filters` | 检索时的过滤条件 | 例如只搜 v2.4 的内容：`{version: "2.4"}`。**注意（2026-09-14 实测 F1）**：`filters` 属索引身份段，改它就连目录名一起变（`struct_v1` 加 `{version:"2.4"}` → hash8 `0a7830b7`→`8961118d`），等于为同一份内容再嵌一遍（单来源约 8min、多来源约 25min）。而成员 B 自 PR#30 起是**查询期**下推过滤，索引内容其实没变。在例会决定"filters 是否移出身份段"之前：不要为版本过滤新建实验配置，改用 B 的运行时换装（`scripts/verify_filters.py` 的做法） |
+| `filters` | 检索时的过滤条件 | 例如只搜 v2.4 的内容：`{version: "2.4"}`。**注意**：`filters` 属索引身份段，改它就连索引目录名一起变，等于为同一份内容重嵌一遍（单来源约 8min、多来源约 25min）；而实际过滤是**查询期**下推执行的，索引内容并无变化。因此不要为版本过滤新建实验配置，改用运行时换装（`scripts/verify_filters.py` 的做法） |
 | `source_priority` | 来源优先顺序 | 按 id 从高到低列，如 `[api_ref, user_manual]`；空 = 不分先后 |
-| `params` | 本域自由参数区 | BM25 的 k1/b、RRF 的 rrf_k、混合权重等，由 B 决定。版本加权（PR#34 设计 §3）：`version_pref`=软偏好的目标版本（如 `"2.4"`；空/缺省 = 不加权，行为与现状逐字节一致），`version_boost`=版本命中加成（归一化分空间，典型 `0.1`）。加权生效时检索结果 `score` 变为池内归一化排序分，跨查询/跨配置不可比（api.md v0.12）；版本的**硬过滤**用 `filters`（注意上面 F1 身份段代价），**软偏好**才用这两个参数 |
-| `components` | 引用制（2026-09-12 会签；hybrid_rerank 必填为 2026-09-15 B 拍板方案①） | `mode: hybrid` 与 `mode: hybrid_rerank` 均**必填**：引用两个子实验名，如 `{vector: struct_v1, bm25: struct_bm25}`（hybrid_rerank 另需 `rerank_model`）；引用制无自有索引，子索引由各自配置分别构建（`make index` 遇引用制自动跳过并提示，`--list` 会标出父子关系），精排在运行时对 RRF 粗排结果重排。是否为引用制的唯一判定处 = `experiment_config.uses_reference_index()`；components 不参与索引目录命名 |
+| `params` | 检索自由参数区 | BM25 的 k1/b、RRF 的 rrf_k、混合权重、版本加权等，按实验需要填写。版本加权：`version_pref`=软偏好的目标版本（如 `"2.4"`；空/缺省 = 不加权，行为与现状逐字节一致），`version_boost`=版本命中加成（归一化分空间，典型 `0.1`）。加权生效时检索结果 `score` 变为池内归一化排序分，跨查询/跨配置不可比；版本的**硬过滤**用 `filters`，**软偏好**才用这两个参数 |
+| `components` | 引用制（`hybrid` 与 `hybrid_rerank` 均必填） | 引用两个子实验名，如 `{vector: struct_v1, bm25: struct_bm25}`（hybrid_rerank 另需 `rerank_model`）；引用制无自有索引，子索引由各自配置分别构建（`make index` 遇引用制自动跳过并提示，`--list` 会标出父子关系），精排在运行时对 RRF 粗排结果重排。是否为引用制的唯一判定处 = `experiment_config.uses_reference_index()`；components 不参与索引目录命名 |
 
 ### generation —— 回答怎么生成
 
 | 参数 | 作用 | 怎么填 |
 |---|---|---|
-| `enabled` | 评测是否包含生成环节 | 第一周 `false`（只测检索准不准）；第二周起 `true` |
+| `enabled` | 评测是否包含生成环节 | 只测检索时置 `false`；需要回答侧指标时置 `true` |
 | `prompt_version` | 使用哪一版提示词 | 对应 `generation/prompts/` 下的版本号 |
 | `llm_env_prefix` | 从 `.env` 读哪组 LLM 配置 | 默认 `LLM_`（即读 LLM_MODEL / LLM_API_KEY 等），一般不动 |
 
@@ -113,10 +113,10 @@ python scripts/experiment_config.py configs/experiments/semantic_v1.yaml
 
 | 参数 | 作用 | 怎么填 |
 |---|---|---|
-| `dataset` | 问题集路径 | E 维护的 jsonl 文件 |
+| `dataset` | 问题集路径 | jsonl 问题集文件，默认 120 题正式问题集 |
 | `expected_sources` | 每题的标准答案出处 | 用来判断"该命中的内容有没有被检索到" |
 | `retrieval_metrics` | 检索质量指标 | 格式为 名称@取几条：`hit_rate@5`=前5条里命中过没有、`mrr@5`=正确结果排得有多靠前；也支持 `precision@K` / `recall@K` |
-| `response_metrics` | 回答质量指标 | 第二周起启用，如 `faithfulness`（答案是否忠于原文） |
+| `response_metrics` | 回答质量指标 | 如 `faithfulness`（答案是否忠于原文） |
 | `sample_size` | 这次跑多少题 | 空=全部；联调调试时填 `10` 省时间 |
 
 ### report —— 结果存在哪
@@ -145,11 +145,4 @@ ingest / build_index / run_experiment 三个脚本加载配置都走同一个入
 | 索引目录 | `indexes/{method}_{embedding.model}_{hash8}` | `semantic_bge-m3_7c1d22aa` |
 | 报告 | `{report.dir}/{experiment.name}.json` | `evaluation/reports/semantic_v1.json` |
 
-## 五、分工边界
-
-| 谁 | 可以做什么 |
-|---|---|
-| A / B / C / E | 复制模板新建实验；修改自己负责区块的参数与 `params:` 内容 |
-| D | 增删固定字段、调整校验规则（须递增 `schema_version` 并同步更新本文档与既有配置） |
-
-发现字段不够用、或对某个参数含义有疑问 → 直接找 D，不要自行新增固定字段。
+新增实验时复制模板改名即可；发现固定字段不够用，不要自行加字段，先确认是否需要递增 `schema_version` 并同步本文档与既有配置。

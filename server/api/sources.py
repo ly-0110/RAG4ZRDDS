@@ -1,7 +1,7 @@
 """GET /sources/{request_id} —— 引用回查（供前端渲染来源卡片 / 排障）。
 
 存储实现为 server/core/request_log.py 的 PersistentSourcesStore
-（第二周日志设施：持久化到 {log_dir}/sources.jsonl，重启后可回查）。
+（持久化到 {log_dir}/sources.jsonl，重启后可回查）。
 """
 
 from __future__ import annotations

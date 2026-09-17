@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""scripts/verify_filters.py — 多来源索引 metadata 过滤全量校验（B 域，PR#27 设计 §3.2-2）
+"""scripts/verify_filters.py — 多来源索引 metadata 过滤全量校验
 
 对指定实验配置，用内置过滤集 × 探针问题执行检索，校验每条结果的 node_id
 属于「按 nodes jsonl 元数据真值过滤后的允许集」——对照真值而非依赖 store

@@ -1,7 +1,7 @@
 """API 契约模型 —— 请求/响应/引用字段的单一事实源。
 
 字段变更规则：新增可选字段随时可以；修改/删除既有字段须同步更新 docs/api.md
-并知会前端（成员 E）。Citation 的双页码约定：page_print = page_physical − 6
+并知会前端。Citation 的双页码约定：page_print = page_physical − 6
 （2026-08-29 以 PDF 页眉印刷页码逐页核对定值；手册前 6 页为封面/罗马数字
 前言不编页码，印刷第 1 页 = 物理第 7 页。旧约定 +7 为方向错误，已作废）。
 """
@@ -31,7 +31,7 @@ class SourceRef(BaseModel):
     """一条引用（对应知识库中的一个 Node）。
 
     mock 模式下即演示数据；live 模式由检索器填充同样字段。
-    ``source_url`` 为 2026-09-17 会签新增的第 8 字段（W1 闭环）：HTML 来源给
+    ``source_url`` 为第 8 字段：HTML 来源给
     本地 ``/documents/…`` 地址（离线可点开原文），PDF 为 null。
     """
 
@@ -86,7 +86,7 @@ class ErrorResponse(BaseModel):
 
 
 class FeedbackRequest(BaseModel):
-    """POST /feedback 请求体（第四周反馈落库，指南 §8 E 任务 1 的 D 侧承接）。
+    """POST /feedback 请求体（回答反馈落库）。
 
     request_id 必填：脱离某次回答的"整体满意度的"无法归因，也不进本接口。
     node_ids 可选：指向本次引用里的具体某几条，服务端校验归属后落库。
@@ -104,7 +104,7 @@ def with_source_urls(sources: list[dict],
                      source_urls: dict[str, str | None]) -> list[dict]:
     """给每条引用附 `source_url`（HTML 来源有、PDF 为 null）。
 
-    2026-09-17 会签：该字段已升为 wire 契约第 8 字段（缺口 W1 闭环），SSE 的
+    该字段为 wire 契约第 8 字段，SSE 的
     `sources` 事件、`/sources/{rid}` 回查与 MCP `get_sources` 三处同形——
     前端可直接渲染"打开原文"外链，不必再等回查。
     刻意构造副本而非原地改，避免 URL 顺着富引用漏回检索层。

@@ -1,4 +1,4 @@
-"""多来源 ingest 注册式接入（指南 §7 任务 1）单元测试。
+"""多来源 ingest 注册式接入单元测试。
 
 覆盖三块纯逻辑，不触碰真实 PDF/HTML 数据与索引：
   1. 派生命名回归——单来源配置的 hash8 / nodes 路径与 Week2 冻结版逐字节一致
@@ -164,7 +164,7 @@ def test_multi_source_identity_order_independent(tmp_path):
 
 
 def test_multi_source_html_source_requires_url():
-    """type=html 的来源缺 url 必须在配置层拒绝（指南 §7.2 引用可跳转）。"""
+    """type=html 的来源缺 url 必须在配置层拒绝（引用需可跳转）。"""
     import yaml
     from pydantic import ValidationError
 
@@ -260,7 +260,7 @@ def test_validate_without_registry_keeps_legacy_behavior():
 def test_html_source_without_loader_gives_readable_error(monkeypatch):
     """html_loader 缺席时（loader 未交付/环境缺失），html 来源分派给出含接口签名的可读错误。"""
     import types
-    # A 的 loader 第三周已交付（PR#28）；本测试模拟其缺席（sys.modules 置 None → ImportError）
+    # html loader 已交付；本测试模拟其缺席（sys.modules 置 None → ImportError）
     monkeypatch.setitem(sys.modules, "data_pipeline.html_loader", None)
     src = _source("zrdds_dev_guide", "html", "2.4")
     cfg = types.SimpleNamespace(chunking=types.SimpleNamespace(params={}))

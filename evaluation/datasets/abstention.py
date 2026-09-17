@@ -1,4 +1,4 @@
-"""20 题「不存在信息」拒答专项数据集加载与校验（成员 C · 第四周 §8）。
+"""20 题「不存在信息」拒答专项数据集加载与校验。
 
 文件 evaluation/datasets/abstention_questions.jsonl，每行一个 JSON 对象：
 {
@@ -10,7 +10,7 @@
 }
 
 用途：`evaluation/runners/abstention_eval.py` 逐题检索→生成→断言拒答，
-验证「20 个不存在信息专项题全部不虚构」（指南 §8 成员 C 第一条）。
+验证「20 个不存在信息专项题全部不虚构」。
 本模块只负责加载与结构校验，不做判分。
 """
 
@@ -28,7 +28,7 @@ CATEGORIES = {
     "cross_version_claim",
     "out_of_scope",
 }
-REQUIRED_COUNT = 20  # 指南 §8 成员 C：20 个「不存在信息」专项题
+REQUIRED_COUNT = 20  # 「不存在信息」专项题数量
 
 
 def load(path: str | Path = DATASET) -> list[dict]:
@@ -60,7 +60,7 @@ def validate(cases: list[dict]) -> list[str]:
         if not (c.get("note") or "").strip():
             problems.append(f"{cid}: note 缺失（需说明为何判定不存在）")
     if len(cases) != REQUIRED_COUNT:
-        problems.append(f"题数 {len(cases)} != {REQUIRED_COUNT}（指南 §8 要求 20 题）")
+        problems.append(f"题数 {len(cases)} != {REQUIRED_COUNT}（专项集定为 20 题）")
     ids = [c.get("id") for c in cases]
     if len(ids) != len(set(ids)):
         problems.append("id 重复")

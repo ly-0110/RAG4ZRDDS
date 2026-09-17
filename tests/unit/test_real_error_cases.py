@@ -1,7 +1,7 @@
-"""error_cases_real.jsonl 的真实性回归（D · 验收项 5 补采，2026-09-07 会签）。
+"""error_cases_real.jsonl 的真实性回归。
 
-锁定补采案例的「真实」承诺——区别于 PR#19 的手写夹具（error_cases.jsonl）：
-  1. 案例数 ≥ 20（指南 §6.5 验收线）
+锁定补采案例的「真实」承诺——区别于手写夹具（error_cases.jsonl）：
+  1. 案例数 ≥ 20
   2. 每条证据的 node_id 必须存在于对应配置索引的真实产物（防手写虚构回流）
   3. 双页码差恒为 6（页码真值契约）
   4. 三类案例非空（no_evidence_signal_missing / verified_wrong_top1 / cross_config_disagreement）
@@ -41,7 +41,7 @@ def _cases() -> list[dict]:
 
 def test_real_error_cases_meet_acceptance_threshold():
     cases = _cases()
-    assert len(cases) >= 20  # 指南 §6.5：「20 个以上真实错误案例」
+    assert len(cases) >= 20  # 要求 20 个以上真实错误案例
 
 
 def test_real_error_case_categories_are_populated():

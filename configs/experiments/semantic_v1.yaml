@@ -1,5 +1,5 @@
 # =====================================================================
-# RAG4ZRDDS 实验配置 · semantic_v1（A 第二周交付：纯语义分块）
+# RAG4ZRDDS 实验配置 · semantic_v1（纯语义分块）
 # 与 struct_v1.yaml 唯一差异在 chunking: 段；其余字段保持可比性
 # （sources/embedding/retrieval/evaluation 全同基线）。
 # Node 集生成：python -m data_pipeline.chunkers.semantic <pages> <tree> <out> bge-m3
@@ -9,7 +9,7 @@ schema_version: 1
 
 experiment:
   name: semantic_v1
-  description: A 第二周方案B：SemanticSplitterNodeParser 语义分块（breakpoint 95 / buffer 1）+ bge-m3 向量检索（Top-K）
+  description: SemanticSplitterNodeParser 语义分块（breakpoint 95 / buffer 1）+ bge-m3 向量检索（Top-K）
   stage: baseline
 
 sources:
@@ -28,10 +28,10 @@ chunking:
   params:
     max_chunk_chars: 2500
     overlap_chars: 200
-    breakpoint_percentile_threshold: 95   # 指南 §6.2 建议起点
+    breakpoint_percentile_threshold: 95   # 分块方案对照实验建议起点
     buffer_size: 1
     embed_model: bge-m3                   # bge-m3 真实语义 | mock 冒烟
-    # min_chunk_chars: 20  # 碎块过滤（docs/week2-delivery-review.md §2.1 遗留修复）：
+    # min_chunk_chars: 20  # 碎块过滤：
     #                      # <20 字符的图号/节号碎片不进索引（默认 20；0=关闭过滤）。
     #                      # 注意：该参数写进 params 会改变索引身份 hash8 → 派生新索引目录；
     #                      # 默认值下无需显式声明（保持既有 semantic 索引目录可原地重建）。

@@ -10,8 +10,8 @@
   "circularity": {
     "compared_with": "报告 top-1 页码（仅作反推指纹，不作真值判据）",
     "matched": 0,
-    "comparable": 0,
-    "ratio": null,
+    "comparable": 8,
+    "ratio": 0.0,
     "threshold": 0.9,
     "suspect": false
   },

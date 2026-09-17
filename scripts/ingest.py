@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-scripts/ingest.py — raw → cleaned → processed 编排（多来源注册式，指南 §7）
+scripts/ingest.py — raw → cleaned → processed 编排（多来源注册式）
 
-职责（成员 D · 集成与实验平台）:
+职责:
   * 按实验配置 sources[] 注册表逐来源分派 loader：
       pdf  → A 的 pdf_loader / cleaner / section_tree / chunkers（既有六步链路）
-      html → A 的 html_loader.build_html_chunks（第三周已交付，docs/html-loader.md §5）
-  * 各来源独立分块落盘中间产物，合并为统一 Node 集（指南 §7.4 Unified Nodes）
+      html → data_pipeline.html_loader.build_html_chunks（接口见 docs/html-loader.md）
+  * 各来源独立分块落盘中间产物，合并为统一 Node 集（Unified Nodes）
   * 各接缝处执行契约校验（pages.jsonl / 合并 Node 集：按来源分型），失败即停
     给出可读错误；校验通过后才落盘，坏产物不会覆盖既有好产物
 
@@ -17,7 +17,7 @@ scripts/ingest.py — raw → cleaned → processed 编排（多来源注册式�
     * 注册声明了 version 时 metadata.version 必须一致（抓 2.0/2.4 错配）
     * 双页码差值按 source_id 分组校验（多 PDF 来源可各有偏移）
 
-html_loader 接线（成员 A 第三周已交付，接口见 docs/html-loader.md §5）:
+html_loader 接线（接口见 docs/html-loader.md）:
   build_html_chunks(doc_dir, *, base_url, source_id, version,
                     max_chunk_chars, min_chunk_chars)
       -> (List[Chunk], stats)
@@ -339,7 +339,7 @@ def _process_html_source(source, cfg) -> List[dict]:
         from data_pipeline.html_loader import build_html_chunks
     except ImportError as e:
         raise RuntimeError(
-            f"来源 {source.id!r}（type=html）需要成员 A 的 html_loader 交付物："
+            f"来源 {source.id!r}（type=html）需要 data_pipeline.html_loader："
             "data_pipeline/html_loader.py 尚未就绪。接线接口 "
             "build_html_chunks(doc_dir, *, base_url, source_id, version, "
             "max_chunk_chars, min_chunk_chars) -> (List[Chunk], stats)，"
@@ -483,7 +483,7 @@ def main() -> int:
     lens = [len(rec["text"]) for rec in all_node_records]
     print(f"  -> 长度: min={min(lens)}, max={max(lens)}, avg={sum(lens) // len(lens)}")
 
-    # 质检（指南 §16 清单；配置 ingest.quality_check 开关）
+    # 质检（配置 ingest.quality_check 开关）
     # 仅覆盖 Chunk 对象来源（PDF）；HTML 节点由 loader 自检 + 上方契约校验覆盖。
     if cfg.ingest.quality_check and all_chunks:
         try:

@@ -2,7 +2,7 @@
 """
 scripts/inspect_nodes.py — Node 集抽查视图（周五验收与日常调试用）
 
-职责（成员 D）:
+职责:
   * 质检口径：无空 Node、无重复 ID/文本、长度分布正常、双页码齐全
   * 抽样浏览：随机/区间/grep 三种定位方式，打印章节、页码、长度与正文开头
   * 只读工具：不修改任何产物
@@ -38,7 +38,7 @@ def percentile(sorted_vals: list[int], p: float) -> int:
 
 
 def stats_report(nodes) -> int:
-    """质检口径（指南 §7 多来源）：全局查空/重复，双页码规则仅对 PDF 来源，
+    """质检口径：全局查空/重复，双页码规则仅对 PDF 来源，
     HTML 来源以 source_url 为锚（页码可空，按 §7.2 Schema）。"""
     lengths_all = sorted(len(nd.text) for nd in nodes)
     n = len(nodes)

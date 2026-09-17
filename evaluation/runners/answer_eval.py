@@ -1,4 +1,4 @@
-"""回答侧评测 runner（成员 C · 第四周，X2 交付）。
+"""回答侧评测 runner。
 
 把「逐题生成答案 → 调用 judges」串起来，回答侧指标（faithfulness /
 answer_relevance / correctness / citation_accuracy）由此进评测矩阵。

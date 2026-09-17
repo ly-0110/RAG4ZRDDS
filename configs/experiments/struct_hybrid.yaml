@@ -1,17 +1,16 @@
 # =====================================================================
-# RAG4ZRDDS 实验配置 · 第三周 Hybrid RRF 初版（struct_hybrid）
-# 引用制（PR#27 设计 §2）：无自有索引，components 引用 struct_v1(vector)
+# RAG4ZRDDS 实验配置 · Hybrid RRF（struct_hybrid）
+# 引用制：无自有索引，components 引用 struct_v1(vector)
 # 与 struct_bm25(bm25) 两个既有索引，RRF 运行时融合——零重建。
 #   * build_index 对 hybrid 自动跳过（子索引由各自配置构建）
-#   * rrf_k 放 retrieval.params（B 自由区）：score = Σ 1/(rrf_k + rank)
-#   * 本实验为第四周正式对比热身；指标待 E 真值标注定稿后补
-#     （宁缺毋滥：标注 P0 整改前 expected_sources 置 null）
+#   * rrf_k 放 retrieval.params：score = Σ 1/(rrf_k + rank)
+#   * 指标依赖真值标注；标注未就绪时置 expected_sources: null，只记检索明细
 # =====================================================================
 schema_version: 1
 
 experiment:
   name: struct_hybrid
-  description: 第三周 Hybrid RRF 初版：struct_v1(向量) + struct_bm25(词袋) 引用融合
+  description: Hybrid RRF：struct_v1(向量) + struct_bm25(词袋) 引用融合
   stage: ablation
 
 sources:

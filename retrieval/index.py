@@ -17,9 +17,9 @@ from retrieval.vector_store import VectorStore, sanitize_collection_name
 
 def build_index(cfg, embed_fn=None) -> Path:
     if cfg.retrieval.mode in ("hybrid", "hybrid_rerank"):
-        # 引用制无自有索引（PR#27 设计 §2.2）：子索引由各自配置管；
+        # 引用制无自有索引：子索引由各自配置管；
         # scripts/build_index.py 已提前短路，此处拦程序化误用。
-        # hybrid_rerank 一律引用制为 2026-09-15 B 拍板（设计 §6.1 方案①），
+        # hybrid_rerank 一律引用制（与 hybrid 同形态），
         # components 必填由 D 收紧 schema 落地。
         raise ValueError(
             "hybrid/hybrid_rerank 为引用制、无自有索引：请分别构建 components 引用的子配置"
@@ -41,7 +41,7 @@ def build_index(cfg, embed_fn=None) -> Path:
         return experiment_config.index_dir(cfg)
     if cfg.index.backend != "chroma":
         raise NotImplementedError(
-            f"第一周仅支持 chroma 向量库，收到 backend={cfg.index.backend!r}"
+            f"当前仅支持 chroma 向量库，收到 backend={cfg.index.backend!r}"
             "（faiss 等后端待后续接入）"
         )
     nodes = load_nodes(nodes_file)

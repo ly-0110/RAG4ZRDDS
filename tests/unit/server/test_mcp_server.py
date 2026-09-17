@@ -1,4 +1,4 @@
-"""server/mcp_server.py 单元测试（指南 §7 任务 2 · MCP Server 打底）。
+"""server/mcp_server.py 单元测试。
 
 只测工具实现层（与 MCP 协议解耦的 *_impl）与工具注册，不起 stdio 子进程；
 端到端 stdio 冒烟由 `python -m server.mcp_server`（mock 模式）人工验收。

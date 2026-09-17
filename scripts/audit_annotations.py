@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """
-scripts/audit_annotations.py — 标注真值核对（成员 D · 第四周，指南 §6.1 / §9.3 / §10）
+scripts/audit_annotations.py — 标注真值核对
 
 为什么存在：评测指标的有效性完全取决于 expected_sources 是不是**逐题对 PDF 核对过**的
-真值。第二、三周两次事故（E 的 PR#13 / PR#22）都是"标注 = 检索 top-1 回显"，用检索结果
+真值。标注曾被写成"检索 top-1 回显"，用检索结果
 给检索打分，hit_rate=1.0 属构造产物，评测因此丧失发现缺陷的能力。
-本工具的判定一律来自 **A 的产物与章节树**（分块正文、printed_page_start/end、章节标题），
+本工具的判定一律来自 **Node 产物与章节树**（分块正文、printed_page_start/end、章节标题），
 不调用任何检索器——因此它无法被"从检索结果反推"的标注蒙过去。
 
 E（标注 Owner）在提交前自查、D 在开指标闸门前验收，都用同一份证据。
@@ -20,7 +20,7 @@ E（标注 Owner）在提交前自查、D 在开指标闸门前验收，都用�
      / 题面有损转码）或 循环论证指纹 ≥ --circular-threshold
   2  参数或文件缺失
 
-题面转码检查（QUESTION_TEXT_MOJIBAKE，2026-09-17 补）：PR#36 写入环节把非 ASCII
+题面转码检查（QUESTION_TEXT_MOJIBAKE）：写入环节若把非 ASCII
 字符整体转成字面 `?`（6 题），而这类损坏骗得过 token 检查——题面里的 ASCII 标识符
 （Listener/Status/on_publication_matched…）照旧能在产物里命中，于是坏题面一路走到
 闸门开启。故按"连续 ≥3 个半角问号"判为阻断。
@@ -64,7 +64,7 @@ BLOCKING_CODES = {
     "QUESTION_TEXT_MOJIBAKE",     # 题干含连续半角问号 → 写入环节有损转码，题面已废
 }
 
-# 题面有损转码指纹（PR#36 实测形态，登记于 week4 review §3.4 P0）：ASCII 保留、
+# 题面有损转码指纹：ASCII 保留、
 # 非 ASCII 全部变字面 `?`。中文题面里连续 3 个半角问号不可能是正常书写——若只写
 # 1 个仍放过（可能是技术符号或笔误，交人工）。此前的判定集对这类损坏完全无感：
 # 题面里的 ASCII 标识符（Listener/Status/…）仍能在产物里命中，于是 6 道已废的
@@ -94,7 +94,7 @@ TOKEN_RE = None      # 延迟编译（见 question_tokens）
 def question_tokens(text: str, limit: int = 3) -> list[str]:
     """从题干取技术 token（ASCII 标识符，长度 ≥5，按长度优先，最多 limit 个）。
 
-    开发者问题必然带精确 token（指南 §8.1：DomainParticipant / create_datawriter() /
+    开发者问题必然带精确 token（如 DomainParticipant / create_datawriter() /
     v2.4），这类 token 出现在哪一页是产物里可查的硬事实——因此"标注页答不对题"
     能在不依赖检索、也不依赖 LLM 的情况下被发现。中文题干的实体现也含在标识符里
     （如 `DurabilityQosPolicy`），无标识符的纯中文题记 NO_TOKEN_PROBE 交人工。
@@ -145,7 +145,7 @@ def annotation_pages(page: Any) -> tuple[int, int] | None:
 
 
 class ProductTruth:
-    """A 的产物 = 页码与章节的唯一真值来源（不经过检索器）。"""
+    """Node 产物 = 页码与章节的唯一真值来源（不经过检索器）。"""
 
     def __init__(self, nodes: Iterable[dict], tree: Iterable[dict] | None = None) -> None:
         self.pages: dict[str, list[tuple[int, int]]] = {}      # source_id → 块页区间
@@ -439,7 +439,7 @@ def render_markdown(result: dict, sources: dict[str, str]) -> str:
         f"（比例 {result['circularity']['ratio']}，阈值 {result['circularity']['threshold']}）"
         f" → {'疑似反推' if result['circularity']['suspect'] else '未见异常'}",
         "",
-        "> 判据全部来自 A 的产物与章节树（分块正文、printed_page_start/end、章节标题），"
+        "> 判据全部来自 Node 产物与章节树（分块正文、printed_page_start/end、章节标题），"
         "**不调用检索器**——所以从检索结果反推的标注骗不过它。top-1 比对只用来抓"
         "\"标注=检索回显\"的指纹，不当真值用。",
         "",
@@ -473,8 +473,8 @@ def render_markdown(result: dict, sources: dict[str, str]) -> str:
     lines += ["", "## 闸门含义",
               "",
               "- `blocked` / `suspect_circular` → **不得**开 `make regression "
-              "REG_ARGS=--with-metrics`，指标只记不判（宁缺毋滥）。",
-              "- `pass` → 指标通道方可启用，六份 void 报告才能刷新为可引用数字。"]
+              "REG_ARGS=--with-metrics`，指标只记不判（无有效标注不算指标）。",
+              "- `pass` → 指标通道方可启用，报告里的指标数字才可作为结论引用。"]
     return "\n".join(lines) + "\n"
 
 
@@ -517,7 +517,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--out-prefix", default=None,
                    help="同时写 <prefix>.json 与 <prefix>.md")
     p.add_argument("--emit-abstention", default=None,
-                   help="把\"题面实体零命中\"的题导出为拒答案例候选 jsonl（供成员 C 专项集）")
+                   help="把\"题面实体零命中\"的题导出为拒答案例候选 jsonl（供拒答专项集）")
     args = p.parse_args(argv)
 
     paths = {k: REPO_ROOT / getattr(args, k) for k in
@@ -579,7 +579,7 @@ def main(argv: list[str] | None = None) -> int:
     if result["verdict"] == "pass":
         print("[audit] ✓ 标注达到开指标闸门的条件（run_regression --with-metrics）")
         return 0
-    print("[audit] ✗ 标注未达标准：指标通道保持静默（宁缺毋滥）")
+    print("[audit] ✗ 标注未达标准：指标通道保持静默（无有效标注不算指标）")
     return 1
 
 

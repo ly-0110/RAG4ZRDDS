@@ -299,14 +299,14 @@ class TestIndexIdentity:
 
 
 def test_evaluation_cfg_allows_null_expected_sources():
-    """宁缺毋滥：标注未定版时可显式置空 expected_sources，走"只记明细不算指标"模式。"""
+    """标注未就绪时可显式置空 expected_sources，走"只记明细不算指标"模式。"""
     cfg = ec.EvaluationCfg(expected_sources=None)
     assert cfg.expected_sources is None
     assert ec.EvaluationCfg().expected_sources == "evaluation/datasets/expected_sources.jsonl"
 
 
 def test_hybrid_components_validation():
-    """PR#27 会签①：mode=hybrid 必填 components 且引用的实验 yaml 必须存在。"""
+    """mode=hybrid 必填 components 且引用的实验 yaml 必须存在。"""
     with pytest.raises(Exception):
         ec.RetrievalCfg(mode="hybrid")
     with pytest.raises(Exception):
@@ -317,7 +317,7 @@ def test_hybrid_components_validation():
 
 
 def test_components_excluded_from_index_identity():
-    """PR#27 会签④：components 不入索引身份段——改引用不改变 hash8/目录名。"""
+    """components 不入索引身份段——改引用不改变 hash8/目录名。"""
     base = ec.load(REPO_ROOT / "configs" / "experiments" / "struct_v1.yaml")
     hybrid = base.model_copy(update={
         "retrieval": base.retrieval.model_copy(update={
@@ -334,7 +334,7 @@ def test_components_excluded_from_index_identity():
 
 
 def test_ensure_index_hybrid_checks_subindexes(capsys):
-    """PR#27 会签③：run_experiment 对 hybrid 只检查子索引存在，不构建本配置索引。"""
+    """run_experiment 对 hybrid 只检查子索引存在，不构建本配置索引。"""
     base = ec.load(REPO_ROOT / "configs" / "experiments" / "struct_v1.yaml")
     hybrid = base.model_copy(update={
         "retrieval": base.retrieval.model_copy(update={
@@ -354,7 +354,7 @@ def test_ensure_index_hybrid_checks_subindexes(capsys):
 
 
 def test_build_index_skips_hybrid(tmp_path, capsys):
-    """PR#27 会签②：make index 遇 mode=hybrid 跳过构建、不写 manifest。"""
+    """make index 遇 mode=hybrid 跳过构建、不写 manifest。"""
     import build_index as bi
     text = (REPO_ROOT / "configs" / "experiments" / "struct_v1.yaml").read_text(encoding="utf-8")
     text = text.replace("name: struct_v1", "name: struct_hybrid_t").replace(
@@ -368,7 +368,7 @@ def test_build_index_skips_hybrid(tmp_path, capsys):
     assert rc == 0 and "无自有索引" in out and "struct_v1" in out
 
 
-# ---------------------------------------------------------------- reranker 配套（第四周）
+# ---------------------------------------------------------------- reranker 配套
 
 
 class TestRerankerReferenceMode:
@@ -385,7 +385,7 @@ class TestRerankerReferenceMode:
 
         assert ec.uses_reference_index(variant("hybrid", comps)) is True
         assert ec.uses_reference_index(variant("hybrid_rerank", comps)) is True
-        # hybrid_rerank 一律引用制（2026-09-15 B 拍板方案①）：按 mode 判定。
+        # hybrid_rerank 一律引用制：按 mode 判定。
         # model_copy 绕过校验，此处验证的正是"异常形状仍按引用制处理"的防线语义；
         # 正常加载路径下无 components 的 hybrid_rerank 在校验层即被拒绝（见下）。
         assert ec.uses_reference_index(variant("hybrid_rerank", None)) is True
@@ -393,7 +393,7 @@ class TestRerankerReferenceMode:
         assert ec.uses_reference_index(variant("bm25", None)) is False
 
     def test_hybrid_rerank_requires_components(self):
-        """B 拍板方案①（PR#38 评论）：hybrid_rerank 的 components 由可选改必填。"""
+        """hybrid_rerank 的 components 由可选改必填。"""
         with pytest.raises(Exception, match="mode=hybrid_rerank 必须提供 components"):
             ec.RetrievalCfg(mode="hybrid_rerank", rerank_model="bge-reranker-v2-m3")
 

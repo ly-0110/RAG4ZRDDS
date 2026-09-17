@@ -1,10 +1,10 @@
-"""Prompt v1（指南 §6.4 Grounding / Unknown 控制；保留 v0 的 Citation 约定）。
+"""Prompt v1（Grounding / Unknown 控制；保留 v0 的 Citation 约定）。
 
 相对 v0 的增量（§6.4 四要素）：
   * v0 已含「仅依据检索内容 + 不虚构 + 给出来源」；
   * v1 追加：证据不足明确拒答（「当前知识库无法确认」）、版本差异披露。
 
-引用约定与 v0 一致（docs/citation-contract-draft.md §3：[n] 下标，1 基）。
+引用约定与 v0 一致（[n] 下标，1 基，对应 sources 数组下标）。
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ def build_messages(
 ) -> list[dict[str, str]]:
     """组装一轮对话消息：system=四条硬规则，user=问题 + 检索上下文。
 
-    source_priority 仅第三周 v2 使用；v1 忽略（统一签名便于 AnswerStream 调用）。
+    source_priority 仅 v2 使用；v1 忽略（统一签名便于 AnswerStream 调用）。
     """
     return [
         {"role": "system", "content": SYSTEM_PROMPT},

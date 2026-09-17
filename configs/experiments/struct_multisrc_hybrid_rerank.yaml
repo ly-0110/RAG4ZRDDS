@@ -1,5 +1,5 @@
 # =====================================================================
-# RAG4ZRDDS 实验配置 · 第四周四组对比之四（Hybrid+Reranker，指南 §8.2）
+# RAG4ZRDDS 实验配置 · Hybrid + Reranker 精排
 # 引用制：components 引用 struct_multisrc_v1(vector) 与 struct_multisrc_bm25(bm25)，
 # RRF 粗排 candidate_top_k=30 → bge-reranker-v2-m3 精排 top_k=5。
 # =====================================================================
@@ -7,7 +7,7 @@ schema_version: 1
 
 experiment:
   name: struct_multisrc_hybrid_rerank
-  description: 第四周四组对比之四：多来源 Hybrid RRF 粗排 + bge-reranker-v2-m3 交叉编码器精排
+  description: 多来源 Hybrid RRF 粗排 + bge-reranker-v2-m3 交叉编码器精排
   stage: ablation
 
 sources:
@@ -63,8 +63,7 @@ generation:
 evaluation:
   dataset: evaluation/datasets/questions_multisource.jsonl
   expected_sources: evaluation/datasets/expected_sources_multisource.jsonl
-                                   # 多来源标注集（12 题/25 条，make audit = pass，
-                                   # 2026-09-17 会签定版）
+                                   # 多来源标注集（12 题/25 条，make audit = pass）
   
   retrieval_metrics: [hit_rate@5, mrr@5, precision@5, recall@5]
   response_metrics: []

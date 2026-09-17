@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """collect_real_error_cases.py —— 从真实实验报告提取错误案例（D · 验收项 5 补采）。
 
-背景（2026-09-07 会签决议）：验收项 5 要求「≥20 个真实错误案例」。C 在 PR#19 交付的
+背景：真实错误案例集要求「≥20 个真实案例」。手写夹具（EC-*）
 error_cases.jsonl（20 例）经真值核对全部为手写虚构场景（引用未接入的 dev_guide 源、
-印刷页 300 超界、正文在产物中零命中），按「宁缺毋滥」先例不计入验收，保留为第三周
+印刷页 300 超界、正文在产物中零命中），不计入真实案例，保留为多来源通路
 多来源通路的测试夹具。本脚本补采「真实」案例：
 
 数据来源（全部为已落盘的真实产物，无任何手写证据）：
@@ -46,7 +46,7 @@ REPORTS = {
 }
 
 # 人工审计真值（唯一事实源：evaluation/datasets/audit-2026-08-30.md，2026-08-30 定稿）。
-# "absent" = 审计判定知识库中不存在该题的答案（API/错误码/章节系虚构或指向第三周 HTML 源）。
+# "absent" = 审计判定知识库中不存在该题的答案（API/错误码/章节系虚构或指向 HTML 源）。
 TRUTHS: dict[str, dict] = {
     "Q001": {"absent": True, "note": "全库无 connect()（审计：API 系虚构）"},
     "Q002": {"ranges": [(168, 171), (276, 277)], "note": "11.2 软件安装指南 p168-171；Docker 另见 p276-277"},
@@ -62,7 +62,7 @@ TRUTHS: dict[str, dict] = {
     "Q012": {"ranges": [(57, 57), (219, 225)], "note": "6.3.10 通信管理 p57；C 接口映射 p219-225"},
     "Q013": {"ranges": [(168, 168)], "note": "11.1 运行环境要求 p168"},
     "Q014": {"ranges": [(242, 246)], "note": "第 18 章 简化接口 p242-246"},
-    "Q015": {"absent": True, "note": "指向的「开发指南」为 HTML 源（第三周才接入）"},
+    "Q015": {"absent": True, "note": "指向的「开发指南」为 HTML 源"},
 }
 
 
@@ -225,7 +225,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"[real-error-cases] 共 {len(cases)} 例：{dict(by_cat)}")
     if UNAUDITED:
         print(f"[real-error-cases] 注：{len(UNAUDITED)} 题因无人工审计真值未参与采集"
-              f"（TRUTHS 仅覆盖 {len(TRUTHS)} 题，§6.5 人工审计只做了 Q001~Q015）。"
+              f"（TRUTHS 仅覆盖 {len(TRUTHS)} 题，人工审计只做了 Q001~Q015）。"
               f"案例数随审计覆盖扩大而增长，勿把本数误读为『错误变少』")
     if problems:
         print("[real-error-cases] 校验失败：", file=sys.stderr)

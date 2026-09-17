@@ -1,8 +1,6 @@
 # 检索日志字段定义（retrieval log schema）
 
-> 版本 v0.2（2026-09-10 会签完成）　状态：**已会签（D 落地接线 + B 回签）**
-> C 侧「result_count=0 → 拒答」信号口径待 C 确认（不阻塞本会签）。
-> 成员 B 交付（指南 §6「检索日志字段定义，与 D 会签存储格式」）；接线实现由 D 的三级日志设施完成。
+> 定义 `logs/retrievals.jsonl` 的字段与语义，作为离线分析与日志关联的契约。
 
 ## 1. 目的与范围
 
@@ -28,9 +26,9 @@
 |---|---|---|
 | `request_id` | str \| null | 关联 `requests.jsonl` 的请求级记录；非 HTTP 触发的检索调用为 `null` |
 | `experiment` | str | 实验名（`cfg.experiment.name`），如 `struct_v1` |
-| `config_hash8` | str | 配置身份 hash（R5 后仅由索引身份段派生），与 `manifest.json` 对齐 |
+| `config_hash8` | str | 配置身份 hash（仅由索引身份段派生），与 `manifest.json` 对齐 |
 | `index_dirname` | str | 实际服务的索引目录名（`{method}_{embed}_{hash8}`） |
-| `mode` | str | 检索模式：`vector` \| `bm25`（hybrid 落地后扩展） |
+| `mode` | str | 检索模式：`vector` \| `bm25` \| `hybrid` \| `hybrid_rerank` |
 | `top_k` | int | 本次请求的 Top-K |
 | `question` | str | 查询文本（原样记录，不截断） |
 | `latency_ms` | float | 检索耗时（从进入 `retrieve` 到结果就绪；不含日志写盘） |
@@ -51,7 +49,7 @@
 | `score` | float | 相关性分数，**量纲随 mode 变**（见 §5） |
 
 `filters` 非空时（`cfg.retrieval.filters` 配置了元数据过滤）追加可选字段
-`filters`（object）——由 D 实现时补记，便于复现「为什么某些块被排除」。
+`filters`（object），便于复现「为什么某些块被排除」。
 
 ## 4. 示例记录
 
@@ -81,26 +79,4 @@ bm25 无证据一例（`struct_bm25`）：
  "result_count": 0, "results": []}
 ```
 
-## 5. 注意事项
 
-1. **text 仅落本地 logs**：评估报告（SourceRef 7 字段）与 API 下发仍保持零正文泄漏，
-   本日志是唯一的正文落盘点，且不入 Git。
-2. **score 量纲不可跨模式比较**：vector 为 cosine 相似度（实测 0.46~0.78）；
-   bm25 为原始 Okapi BM25 分数（实测 7.7~56.4，无上界）。任何基于 score 的阈值
-   必须按 mode 分别定标（api.md v0.7 X1 决议）；日志分析脚本不得混用单一阈值。
-3. **result_count=0 是信号不是异常**：bm25 空结果即「无词面证据」，日志分析时
-   应单独统计该信号的出现率（与 C 的拒答行为对照）。
-4. 检索可能在 HTTP 上下文之外被调用（预热、脚本直调），此时 `request_id=null`，
-   分析脚本需容忍。
-
-## 6. 会签记录
-
-- 2026-09-08　B 出初稿（本版本）。
-- 2026-09-08　**D 会签落地**（接线提交见 `server/core/request_log.py` / `pipeline.py` / `api/query.py` + `tests/unit/server/test_retrieval_log.py` 6 例），确认事项与补充约定如下，**待 B 回签追认**：
-  - **结论**：存储格式与字段照单全收；`JsonlLog` 复用（`ts` 自动前置、追加不截断）；记录点定在 **pipeline 层**——live 组装时以 `LoggedRetriever` 包装 B 的检索器（`build_pipeline`），非 HTTP 检索（预热、脚本直调）同样入日志且 `request_id=null`，与 §5.4 预期一致；HTTP 路径由 `server/api/query.py` 经 ContextVar（`request_log_scope`）注入关联 id，与 `requests.jsonl` 可按 rid 关联。字段值来源：`experiment`/`config_hash8`/`index_dirname`/`mode`/`filters` 取自实验配置（单一事实源 `scripts/experiment_config.py`，R5 语义：hash8 仅索引身份段）；`top_k`/`question`/`results` 为调用实参与返回值；`latency_ms` 为包装器计时（内层 `retrieve` 前后，不含写盘）。
-  - **修改点**（补充约定，B 回签确认）：
-    1. **检索异常不落检索日志**：`retrieve` 抛错属服务故障而非检索行为，由 `requests.jsonl`（HTTP 侧）与 SSE `error` 事件覆盖；`result_count=0`（无证据信号）不受影响，照常落盘。
-    2. **mock 模式不落盘**：按 §1 范围"仅覆盖 server live 路径"，mock 假检索无分析价值。
-    3. **`filters` 记录配置值**：过滤在检索器内部执行，包装器只持有 `cfg.retrieval.filters`，故原样记录该配置 dict。
-  - **C 侧待办**（不阻塞本会签）：「result_count=0 → 拒答」信号口径与生成侧日志衔接，待 C 确认（见 §6 待办原文）。
-  - 签名：D 已按本表落地 ✅　B ✅ 回签追认修改点 1~3，无异议（2026-09-10）

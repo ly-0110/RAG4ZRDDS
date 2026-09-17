@@ -304,7 +304,7 @@ const experimentModes = computed(() => health.value?.experiment_modes || {})
 // （待后端接线），缺失时按默认 5 显示——mock 与 live 走的都是这条回退路径。
 const topK = computed(() => kbStats.value?.top_k ?? 5)
 // 当前生效的检索模式：决定"相关度"这类指标怎么显示——vector/hybrid_rerank 的
-// 分数量纲可跨查询比较；bm25（原始词面分）与 hybrid（RRF）不可比（api.md v0.16）。
+// 分数量纲可跨查询比较；bm25（原始词面分）与 hybrid（RRF）不可比（见 docs/api.md 的 score 量纲约定）。
 const activeMode = computed(() => {
   const modes = experimentModes.value
   const name = activeExperiment.value

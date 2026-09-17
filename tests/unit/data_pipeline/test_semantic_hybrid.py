@@ -1,7 +1,7 @@
-"""A 第二周交付（semantic/hybrid chunker）集成冒烟测试。
+"""semantic / hybrid chunker 集成冒烟测试。
 
-背景：PR #11 合入时未携带任何测试；本文件补最小管道验收——
-mock 嵌入下三链路可跑、冻结 Schema 完整（含会签字段 source_id）、
+本文件覆盖最小管道验收：
+mock 嵌入下三链路可跑、Schema 完整（含 source_id）、
 块页码为块级口径、超长兜底不破 2500 上限、metadata 无 Schema 外字段。
 """
 import sys
@@ -155,7 +155,7 @@ def test_hybrid_mock_smoke_and_cap():
 
 
 def test_hybrid_nested_levels_no_duplicate_ids():
-    """5 级节点只由 4 级递归产出，不因同时出现在两级候选中而重复（PR #11 缺陷）。"""
+    """5 级节点只由 4 级递归产出，不因同时出现在两级候选中而重复。"""
     pages = [{
         "physical_page": 7, "printed_page": 1,
         "text": "臻融数据分发服务DDS 系统软件\n5.1.4.1 QoS策略的缺省值\n"
@@ -195,8 +195,8 @@ def test_factory_supports_all_three_strategies():
 
 
 # ============================================================================
-# A 域遗留修复（docs/week2-delivery-review.md §2.1）：
-#   1) 碎块过滤：默认 ≥20 字符；166/1059 块 <50 字符的图号/节号碎片不再入索引
+# 碎块过滤与超长再切分：
+#   1) 碎块过滤：默认 ≥20 字符，图号/节号类碎片不再入索引
 #   2) 生成性能：全文档一次 embedding batch 调用（原逐页方案 ~300 次）
 # ============================================================================
 

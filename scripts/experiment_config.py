@@ -1,6 +1,6 @@
 """实验配置加载与校验 —— configs/experiments/*.yaml 的唯一合法入口。
 
-职责（成员 D · 集成与实验平台）：
+职责：
   * 结构层严格校验：未知 key 报错并给拼写建议；各 params 袋为 Owner 自由区不校验
   * 跨区规则：api 密钥引用、rerank 参数、source id 唯一、name=文件名
   * 派生命名（单一事实源 = 配置文件名）：
@@ -32,7 +32,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 METRIC_RE = re.compile(r"^(hit_rate|mrr|precision|recall)@\d+$")
 
-# 回答质量指标（成员 C 口径，第二周起）：与检索指标不同，无 @K 后缀。
+# 回答质量指标：与检索指标不同，无 @K 后缀。
 # judges 落地见 evaluation/judges/（faithfulness / answer_relevance）。
 RESPONSE_METRICS = {"faithfulness", "answer_relevance", "correctness", "citation_accuracy"}
 
@@ -63,7 +63,7 @@ class SourceCfg(_Strict):
     @model_validator(mode="after")
     def _url_rule(self) -> "SourceCfg":
         if self.type == "html" and not self.url:
-            raise ValueError("type=html 的来源必须提供 url（HTML 引用需可跳转，指南 §7.2）")
+            raise ValueError("type=html 的来源必须提供 url（HTML 引用需可跳转）")
         return self
 
 
@@ -113,7 +113,7 @@ class RetrievalCfg(_Strict):
     filters: dict[str, Any] = {}
     source_priority: list[str] = []
     params: dict[str, Any] = {}
-    components: dict[str, str] | None = None  # hybrid/hybrid_rerank 引用制（PR#27 会签①；hybrid_rerank 必填见 _reference_rules）：{vector: 实验名, bm25: 实验名}
+    components: dict[str, str] | None = None  # hybrid/hybrid_rerank 引用制（必填规则见 _reference_rules）：{vector: 实验名, bm25: 实验名}
 
     @model_validator(mode="after")
     def _rerank_rules(self) -> "RetrievalCfg":
@@ -129,9 +129,9 @@ class RetrievalCfg(_Strict):
 
     @model_validator(mode="after")
     def _reference_rules(self) -> "RetrievalCfg":
-        """引用制（PR#27 会签①）：hybrid 与 hybrid_rerank 均必填 components。
+        """引用制：hybrid 与 hybrid_rerank 均必填 components。
 
-        hybrid_rerank 必填为 2026-09-15 B 拍板（PR#38 评论，设计 §6.1 方案①）：
+        hybrid_rerank 亦要求必填：
         一律引用制，"自有索引 + 精排"形态无消费方（YAGNI）。若将来确需该形态，
         按方案②给 retrieval/index.py 补 uses_reference_index() 分派并放宽本处。
         """
@@ -309,7 +309,7 @@ def canonical_json(cfg: ExperimentConfig) -> str:
 # 三个真实 bge-m3 索引全部孤儿化、live 服务启动失败）。
 _INDEX_IDENTITY_SECTIONS = ("chunking", "embedding", "index")
 _INDEX_IDENTITY_RETRIEVAL_KEYS = ("mode", "params", "filters")
-# components（hybrid 引用制）刻意不入身份（PR#27 会签④）：hybrid 无自有索引，
+# components（引用制）刻意不入身份：hybrid 无自有索引，
 # 改引用只影响运行时加载，不触发任何子索引重建。
 
 
@@ -319,7 +319,7 @@ def index_identity_json(cfg: ExperimentConfig) -> str:
     identity = {k: data[k] for k in _INDEX_IDENTITY_SECTIONS if k in data}
     retrieval = data.get("retrieval") or {}
     identity["retrieval"] = {k: retrieval.get(k) for k in _INDEX_IDENTITY_RETRIEVAL_KEYS}
-    # 多来源注册集参与索引身份（指南 §7：来源集变了索引内容必变）；
+    # 多来源注册集参与索引身份（来源集变了索引内容必变）；
     # 单来源不进身份——保持既有 hash8 不变，避免真实索引孤儿化（R5 教训）。
     if len(cfg.sources) > 1:
         identity["sources"] = sorted(
@@ -367,7 +367,7 @@ def uses_reference_index(cfg: ExperimentConfig) -> bool:
     """该实验是否走引用制（无自有索引，运行时融合 components 指向的子索引）。
 
     build_index 据此跳过建索引、run_experiment 据此只做子索引存在性检查。
-    hybrid 与 hybrid_rerank 一律引用制（2026-09-15 B 拍板方案①，设计 §6.1）；
+    hybrid 与 hybrid_rerank 一律引用制；
     components 必填由 _reference_rules 校验，此处按 mode 判定即可。
     """
     return cfg.retrieval.mode in ("hybrid", "hybrid_rerank")

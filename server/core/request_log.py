@@ -1,17 +1,16 @@
-"""三级日志设施（第二周，指南 §6 成员 D）。
+"""三级日志设施。
 
 日志统一为 JSONL，落在配置的 log_dir（默认 logs/，不入 Git）：
   * 请求级  requests.jsonl —— 每 HTTP 请求一条：request_id / method / path /
     status / 耗时（已接线，见 server.main 中间件）
   * 检索级  retrievals.jsonl —— 每次 retrieve() 一条，字段见
-    docs/retrieval-log-schema.md（B v0.1，D 会签落地）：记录点在 pipeline 层
+    docs/retrieval-log-schema.md：记录点在 pipeline 层
     （LoggedRetriever 包装），预热/脚本直调也入日志（request_id=null）
-  * 回答级  answers.jsonl —— 每次生成一条，字段见
-    docs/answer-log-schema.md（D 拟稿，2026-09-17 会签定版）：记录点在
+  * 回答级  answers.jsonl —— 每次生成一条：记录点在
     pipeline 层（LoggedAnswerStream 包装），终态 done / error / cancelled 各写一条
 
 PersistentSourcesStore —— /sources 引用回查的持久化存储：
-  替换第一周的内存环形缓存（当时约定"第二周日志设施落地后替换"）。
+  替换早期版本的内存环形缓存。
   记录持久化到 logs/sources.jsonl，服务重启后仍可回查；
   内存中仅保留最近 capacity 条（sources_cache_size）作为读取窗口。
 """
@@ -120,7 +119,7 @@ def request_log_scope(request_id: str):
 
 
 class LoggedRetriever:
-    """检索日志接线（docs/retrieval-log-schema.md v0.1，B/D 会签）。
+    """检索日志接线（docs/retrieval-log-schema.md）。
 
     包装真实检索器，每次 retrieve() 成功返回后写一条记录到
     {LOG_DIR}/retrievals.jsonl。记录点定在 pipeline 层而非 api 层：
@@ -170,7 +169,7 @@ class LoggedRetriever:
 
 
 class LoggedAnswerStream:
-    """回答级日志接线（docs/answer-log-schema.md，2026-09-17 会签定版）。
+    """回答级日志接线。
 
     包装生成侧 `answer_stream`，**每次生成只写一条**：正常结束（done）、上游报错
     （error）、客户端中止（cancelled）三种终态都落盘，便于回答质量回查与失败归因。

@@ -2,8 +2,8 @@
 
 骨架阶段职责：组装管线（mock/live）、挂路由、CORS、每请求 request_id。
 真实检索（B）与生成（C）经 server/core/pipeline.py 的协议接入。
-第二周日志设施：请求级 JSONL 日志 + /sources 引用回查持久化（见
-server/core/request_log.py；检索/回答级字段待 B/C 会签后接线）。
+日志设施：请求级 JSONL 日志 + /sources 引用回查持久化（见
+server/core/request_log.py；三级日志字段见该模块文档）。
 """
 
 from __future__ import annotations

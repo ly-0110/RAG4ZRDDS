@@ -1,4 +1,4 @@
-// 回答反馈落库链路（指南 §8 成员 E 任务 1「"有帮助/无帮助"反馈按钮与数据落库」）：
+// 回答反馈落库链路（「有帮助/无帮助」按钮 → POST /feedback）：
 // 这条交互此前只有实现、没有任何用例。本 spec 钉住 App.vue 侧的三段契约——
 //   1) 反馈面板只在拿到 request_id 且回答落地后出现（否则后端按 404 拒收孤儿反馈）；
 //   2) 提交体是 { request_id, rating }，与 server/api/feedback.py 的 FeedbackRequest 对齐；

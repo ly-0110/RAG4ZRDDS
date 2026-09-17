@@ -1,6 +1,6 @@
-"""Context 组装：检索片段 → 注入 Prompt 的上下文文本（指南 §5 成员 C：定义 context 格式）。
+"""Context 组装：检索片段 → 注入 Prompt 的上下文文本。
 
-格式约定（与 docs/citation-contract-draft.md §3 对齐）：
+格式约定（与 docs/api.md 的引用字段契约对齐）：
   * 每个片段编号 [n]（1 基，对应 sources 数组下标），LLM 据此输出 [n] 引用标记；
   * 每段首行给出来源（文件名 · 印刷页码 · 章节），正文紧跟其后；
   * 片段按检索器返回顺序传入（已按 score 降序），本模块不排序。
@@ -23,9 +23,9 @@ _SEPARATOR = "\n\n"
 def _format_source(chunk: dict) -> str:
     """把一条富引用格式化为可读来源行；缺页/缺节时优雅降级。
 
-    第三周多来源：文件名后追加文档类别标签（source_id → SOURCE_CATEGORY），
+    多来源：文件名后追加文档类别标签（source_id → SOURCE_CATEGORY），
     供 LLM 做冲突披露与来源优先级判断；缺 source_id 时回退到 source_type
-    （PDF/HTML），都缺则不追加，保持第一周单源格式不变。
+    （PDF/HTML），都缺则不追加，单来源格式不变。
     """
     name = chunk.get("source_name") or "未知来源"
     tag = SOURCE_CATEGORY.get(chunk.get("source_id")) or _type_label(chunk.get("source_type"))

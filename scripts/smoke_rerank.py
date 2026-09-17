@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""scripts/smoke_rerank.py — 精排通路真模型冒烟（成员 B · 第四周 §8.2）
+"""scripts/smoke_rerank.py — 精排通路真模型冒烟
 
 真实 bge-m3 向量 + bge-reranker-v2-m3 精排，跑少量探针题打印 top-5。
-用于人工核验精排行为、score 量纲与来源漂移；产物记入 docs/evaluation.md。
+用于人工核验精排行为、score 量纲与来源漂移；结果口径见 docs/experiment-results.md。
 不进 CI（模型加载占内存、耗时长）。
 
 用法:

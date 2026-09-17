@@ -1,14 +1,14 @@
 # G:\DSH workspace\data_pipeline\chunkers\semantic.py
 """
-语义分块 Chunking（方案 B · 成员 A 第二周交付）：
+语义分块 Chunking：
 - 使用 LlamaIndex SemanticSplitterNodeParser：按嵌入相似度自动寻找语义断点
 - 产出 Node 集落盘 data/processed/semantic_v1.jsonl（Metadata Schema 与 struct 一致）
 - 嵌入模型双模式：
     embed_model: "mock"    → MockEmbedding（无 torch/模型依赖，冒烟/CI 用，无语义）
     embed_model: "bge-m3"  → HuggingFaceEmbedding(BAAI/bge-m3)（真实，需装依赖）
-- 指南 §6.2：breakpoint_percentile_threshold=95、buffer_size=1 为建议起点
+- 默认 breakpoint_percentile_threshold=95、buffer_size=1
 
-性能与碎块过滤修复（A 域遗留，docs/week2-delivery-review.md §2.1）：
+性能与碎块过滤：
 - 全文档一次调用：原实现逐页构造 Document → splitter 内部为每页独立调一次
   get_text_embedding_batch（bge-m3 CPU 跑 ~300 页 ≈ 25 min）。现合并为单个
   Document，跨页用「页锚点」分隔（嵌入相似度天然容忍），splitter 一次 batch
@@ -67,10 +67,10 @@ class SemanticChunker(BaseChunker):
         super().__init__(config)
         self.max_chars = config.get("max_chunk_chars", 2500)
         self.overlap = config.get("overlap_chars", 200)
-        # 碎块过滤：默认 ≥20 字符（week2-delivery-review.md §2.1 建议起点）；
+        # 碎块过滤：默认 ≥20 字符；
         # 0 关闭过滤以保持向后兼容（如对比实验需要原始分布）。
         self.min_chunk_chars = config.get("min_chunk_chars", 20)
-        # 语义分块参数（指南 §6.2）
+        # 语义分块参数
         self.breakpoint_percentile_threshold = config.get(
             "breakpoint_percentile_threshold", 95)
         self.buffer_size = config.get("buffer_size", 1)
@@ -328,7 +328,7 @@ class SemanticChunker(BaseChunker):
         if not text:
             return None
 
-        # 碎块过滤：A 域遗留（docs/week2-delivery-review.md §2.1）：
+        # 碎块过滤：
         # 实测 166/1059 块 <50 字符，62 块 <10 字符（多见图号/节号碎片），
         # 索引后形成噪声证据。建议 ≥20 字符；对剥离锚点后的正文判长。
         if len(text) < self.min_chunk_chars:

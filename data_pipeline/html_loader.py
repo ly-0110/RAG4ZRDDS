@@ -1,16 +1,16 @@
 # G:\知识库克隆\RAG4ZRDDS\data_pipeline\html_loader.py
-"""Doxygen HTML 加载器（成员 A · 第三周 §7.1 / §7.3）——HTML 源 → 统一知识节点。
+"""Doxygen HTML 加载器——HTML 源 → 统一知识节点。
 
-职责（指南 §7.1 成员 A 任务 1、2）：
+职责：
   * 解析 `data/raw/developer-guides/cdoc_html/` 的 Doxygen HTML（本机实测 436 个顶层页），
-    去除导航栏/脚本污染，保留 h1~h5 层级、代码块、表格、成员函数签名（原则见指南 §7.3）；
+    去除导航栏/脚本污染，保留 h1~h5 层级、代码块、表格、成员函数签名；
   * 产出按 `data_pipeline/metadata.py` v1.0（冻结）Schema 的统一 Node 集，
     落盘 `data/processed/html_v1.jsonl`，URL 进 metadata.source_url；
   * 顶层字段与 PDF 三方案产物完全一致（chunk_id / text / metadata / token_count /
     char_start / char_end），因此 `scripts/ingest.py::validate_nodes_jsonl`、
     `retrieval/nodes.py::load_nodes`、B 的索引与 C 的 Citation 通路无需改动即可消费。
 
-**HTML 的「页等价物」（第三周抽象决策，2026-09-10 定）**：
+**HTML 的「页等价物」**：
   * 一个 HTML 文件 = 一个文档单元，`source_file` = 文件名（= §7.2 的 document_id）；
   * 页码四字段一律 None（HTML 无页概念；metadata.py 的 html 分支已允许）；
   * `source_url` 必填（validate_metadata 的 html 分支强制），由 `base_url` + 文件名拼出。
@@ -20,7 +20,7 @@
   * 每个 `div.memitem`（成员函数/类型/变量）= 独立节点，带 `api_name`，
     `content_type="api"`——直接支撑 §7.5 B 组题（如「create_datawriter() 的参数是什么？」）；
   * 整页结构如：`发布模块 / 函数说明 / DDS_Publisher_create_datawriter`
-    （文档标题 → 章节 → 成员），与指南 §7.3 的实体树一致。
+    （文档标题 → 章节 → 成员），与实体树一致。
 
 **噪声过滤（全部有全量实测依据，289 个候选正文页）**：
   * 目录级：`search/`（88 个空壳 html，正文仅“载入中/搜索中”JS）、`static/`（3 个）；
@@ -163,7 +163,7 @@ def discover_html_files(
     """列出参与解析的 HTML 文件（确定性排序，供 ingest 注册式接入复用）。
 
     排除规则见模块 docstring；`include_source_listings` / `drop_index_pages`
-    让两个待会签决策可逆（默认值与 docs 一致）。
+    让可选处置可逆（默认值与文档一致）。
     """
     root = Path(doc_dir)
     if not root.exists():
@@ -271,7 +271,7 @@ def _split_table_blocks(rows: List[List[str]], budget: int = TABLE_PART_CHARS) -
     """表格 → 一个或多个 table block；超大表按行分段（段内重复表头）。
 
     743 行的 zrdds_log_info 调试表若整表原子化会产生 6 万字符单体 chunk（无法检索），
-    故按行分段——这是第三周对「表格线性化」的处置（第四周质检报告续跟）。
+    故按行分段——这是对「表格线性化」的处置。
     """
     if not rows:
         return []
@@ -954,7 +954,7 @@ def _print_report(r: dict) -> None:
 # ========== CLI ==========
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Doxygen HTML → 统一 Node 集（成员 A · 第三周 §7.1）",
+        description="Doxygen HTML → 统一 Node 集",
     )
     parser.add_argument("--doc-dir", default=DOC_DIR_DEFAULT,
                         help=f"HTML 源目录（默认 {DOC_DIR_DEFAULT}）")

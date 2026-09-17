@@ -1,6 +1,6 @@
-"""Prompt v2（第三周 §7 成员 C：多来源 Context + 冲突披露 + 来源优先级）。
+"""Prompt v2（多来源 Context + 冲突披露 + 来源优先级）。
 
-相对 v1 的增量（§8.4 可靠性策略提前至本周）：
+相对 v1 的增量：
   * 规则 5（Conflict disclosure）：不同来源对同一内容说法不一致时，明确
     指出各来源分别说了什么并标注冲突，不得只取其一或掩盖分歧；
   * 来源优先级（Source priority）：按 retrieval.source_priority 注入，

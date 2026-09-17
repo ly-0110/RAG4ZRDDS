@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""人工抽检 30 题（指南 §9.3）——确定性抽题 + 六问检查清单。
+"""人工抽检 30 题——确定性抽题 + 六问检查清单。
 
 LLM-based evaluation 不能替代人工检查：本脚本从正式问题集确定性抽 30 题，
-产出 §9.3 六问检查清单 markdown（是否回答 / 技术事实正确 / 有文档依据 /
-Citation 准确 / 虚构 API / 混用版本），供成员 C 逐题人工签署。
+产出六问检查清单 markdown（是否回答 / 技术事实正确 / 有文档依据 /
+Citation 准确 / 虚构 API / 混用版本），供评审人逐题签署。
 
 抽题口径：random.Random(0) 固定种子 → 排序输出，两次运行结果逐字节一致（可复现）。
 
@@ -55,10 +55,10 @@ def render(questions: list[dict]) -> str:
         cells = [q["id"], q["question"]] + ["" for _ in SIX_CHECKS]
         rows.append("| " + " | ".join(cells) + " |")
     lines = [
-        "# 人工抽检 30 题（指南 §9.3）",
+        "# 人工抽检 30 题",
         "",
         f"- 抽样：{len(questions)} 题，固定种子 0，确定性可复现",
-        f"- 检查人：成员 C　·　日期：待填",
+        f"- 检查人：＿＿＿＿＿　·　日期：＿＿＿＿＿",
         f"- 六问逐题勾选；任一问题答「否」需在备注说明原因与处置。",
         "",
         header,

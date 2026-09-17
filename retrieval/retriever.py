@@ -60,7 +60,7 @@ class VectorRetriever:
         self._boost_active = bool(version_pref) and version_boost > 0
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
-        # 第一周为同步实现（CPU 推理），直接放在 async 方法内；
+        # 同步实现（CPU 推理）直接放在 async 方法内；
         # D 服务端接线时若发现阻塞事件循环，用 anyio.to_thread 包裹。
         pool_k = max(top_k, self._candidate_top_k) if self._boost_active else top_k
         results = self._store.query(question, pool_k, filters=self._filters)
@@ -87,7 +87,7 @@ class BM25Retriever:
 
 
 class HybridRetriever:
-    """vector + bm25 两路候选 → RRF 融合（引用制：无自有索引，PR#27 设计 §2）。"""
+    """vector + bm25 两路候选 → RRF 融合（引用制：无自有索引）。"""
 
     def __init__(
         self,
@@ -118,7 +118,7 @@ class HybridRetriever:
 
 
 class HybridRerankRetriever:
-    """多来源 Hybrid 粗排（RRF）+ 交叉编码器精排（指南 §8.2 Top30→Top5）。
+    """多来源 Hybrid 粗排（RRF）+ 交叉编码器精排（候选 Top30 → 精排 Top5）。
 
     走原始 hit 通路：版本加权需要 metadata，而富引用经 _to_source_ref 投影后
     不再携带 metadata——加权必须在投影前、精排后完成，故本类直接持有两个

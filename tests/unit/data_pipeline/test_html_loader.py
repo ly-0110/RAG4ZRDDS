@@ -1,7 +1,7 @@
-"""Doxygen HTML 加载器单测（成员 A · 第三周 §7.1/§7.3）。
+"""Doxygen HTML 加载器单测。
 
 覆盖四类契约：
-  1. 文件发现与噪声排除（search/static/*_source.html，两个待会签开关）；
+  1. 文件发现与噪声排除（search/static/*_source.html，两个可选开关）；
   2. 解析正确性（标题、层级、成员签名与参数表、代码块、表格线性化）；
   3. 统一 Metadata Schema（html 分支：页码全 None、source_url/title 必填、
      字段集 == metadata.ALL_FIELDS）；
@@ -197,7 +197,7 @@ def test_discover_is_deterministic_and_switches_reversible(fixture_dir: Path):
     a = [p.name for p in discover_html_files(fixture_dir)]
     b = [p.name for p in discover_html_files(fixture_dir)]
     assert a == b == sorted(a)
-    # 两个待会签决策必须可逆（收录源码清单 / 剔除索引页）
+    # 两个可选处置必须可逆（收录源码清单 / 剔除索引页）
     with_listings = [p.name for p in discover_html_files(fixture_dir, include_source_listings=True)]
     assert "_z_r_duration__t_8h_source.html" in with_listings
     no_index = [p.name for p in discover_html_files(fixture_dir, drop_index_pages=True)]

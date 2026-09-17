@@ -172,7 +172,7 @@ const props = defineProps({
   },
   // 当前检索模式（/healthz 的 experiment_modes）：决定分数怎么显示。
   // vector/hybrid_rerank 的分数量纲可跨查询比较；bm25 是原始词面分（7~56）、
-  // hybrid 是 RRF（~0.03）——把它们当"相关度百分比"渲染会系统性误导（api.md v0.16）。
+  // hybrid 是 RRF（~0.03）——把它们当"相关度百分比"渲染会系统性误导（见 docs/api.md）。
   scoreMode: {
     type: String,
     default: 'vector',
@@ -307,7 +307,7 @@ const fetchAndShowDetails = async (source, index) => {
   expandedDetails.value = new Set([...expandedDetails.value, key])
 
   try {
-    // F3（api.md v0.14）：单节点原文走 GET /nodes/{node_id}。mock 模式后端无
+    // 单节点原文走 GET /nodes/{node_id}。mock 模式后端无
     // Node 产物（/healthz 的 kb 为 null），给出可读说明而非请求注定 404。
     const isMock = props.health == null || props.health.kb == null
     if (isMock) {

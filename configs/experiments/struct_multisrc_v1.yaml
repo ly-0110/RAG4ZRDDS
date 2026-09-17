@@ -1,7 +1,7 @@
 # =====================================================================
-# RAG4ZRDDS 实验配置 · 第三周多来源统一知识库基线（struct_multisrc_v1）
-# 在 struct_v1 基线上接入第三周 HTML 开发指南源（成员 A html_loader，PR#28），
-# 形成「用户手册 PDF + Doxygen HTML 开发指南」统一 Node 集（指南 §7.4）。
+# RAG4ZRDDS 实验配置 · 多来源统一知识库基线（struct_multisrc_v1）
+# 在 struct_v1 基线上接入 Doxygen HTML 开发指南源（html_loader），
+# 形成「用户手册 PDF + Doxygen HTML 开发指南」统一 Node 集。
 # 逐参数说明见同目录 README.md；单来源基线 struct_v1.yaml 保持不动以便对照。
 #   * 一次实验一个 yaml；文件名 = 实验 ID，下游产物命名全部由此派生
 #   * 多来源合并 Node 集 = data/processed/{method}_{version}__{src8}.jsonl
@@ -11,7 +11,7 @@ schema_version: 1
 
 experiment:                        # ── 实验身份
   name: struct_multisrc_v1        # 必须与文件名一致（脚本强制校验）
-  description: 第三周多来源基线：struct 分块 × (用户手册 PDF 2.0 + Doxygen HTML 2.4) × bge-m3 向量检索
+  description: 多来源基线：struct 分块 × (用户手册 PDF 2.0 + Doxygen HTML 2.4) × bge-m3 向量检索
   stage: baseline                  # baseline | ablation | regression | product
 
 sources:                           # ── 知识源注册表（多来源）
@@ -28,7 +28,7 @@ sources:                           # ── 知识源注册表（多来源）
 
 ingest:                            # ── raw → cleaned 编排（D）
   cleaned_output: data/cleaned/pages.jsonl
-  quality_check: true              # 流水线内执行 A 的质量检查（指南 §16 清单）
+  quality_check: true              # 流水线内执行数据质量检查
 
 chunking:                          # ── 分块方案（格式 D 定 / 参数 A 填）
   method: struct                   # struct | semantic | hybrid | fixed
@@ -57,25 +57,23 @@ retrieval:                         # ── 检索（B）
   candidate_top_k: 30              # 仅 mode=hybrid_rerank 生效（§8.2 Top30→Top5）
   # rerank_model: bge-reranker-v2-m3   # mode=hybrid_rerank 时必填
   filters: {}                      # metadata 过滤条件，如 {version: "2.4"}
-  source_priority: []              # 优先级草案 docs/source-priority-draft.md（C 草案待会签；
-                                   # 草案建议值 [zrdds_dev_guide, user_manual]，会签后填入）
-  params: {}                       # ◆ 参数袋：B 自由区（bm25 k1/b、融合权重…）
+  source_priority: []              # 来源优先级：按 id 从高到低列，如 [zrdds_dev_guide, user_manual]；空 = 不分先后
+  params: {}                       # ◆ 参数袋：bm25 k1/b、融合权重、版本加权等
 
-generation:                        # ── 生成（C）
-  enabled: true                    # 第二周：接入生成与评测
-  prompt_version: v2               # 对应 generation/prompts/v2（§7 多来源 + §8.4 冲突披露/优先级）
+generation:                        # ── 生成
+  enabled: true                    # 接入生成与评测
+  prompt_version: v2               # 对应 generation/prompts/v2（多来源 + 冲突披露/来源优先级）
   llm_env_prefix: LLM_             # 读 .env 中 LLM_PROVIDER/BASE_URL/API_KEY/MODEL
 
-evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）
+evaluation:                        # ── 评测
   dataset: evaluation/datasets/questions_multisource.jsonl
   expected_sources: evaluation/datasets/expected_sources_multisource.jsonl
-                                   # 多来源标注集（12 题/25 条，make audit = pass，
-                                   # 2026-09-17 会签定版）
+                                   # 多来源标注集（12 题/25 条，make audit = pass）
   
   retrieval_metrics: [hit_rate@5, mrr@5, precision@5, recall@5]   # 另支持 precision@K / recall@K
-  response_metrics: []             # 第二周起：faithfulness / answer_relevance 等
+  response_metrics: []             # 如 faithfulness / answer_relevance 等
   sample_size: null                # null=全集；联调冒烟可设 10
 
-report:                            # ── 回归落盘（D，§10 机制的载体）
+report:                            # ── 回归落盘
   dir: evaluation/reports          # 报告 = {dir}/{experiment.name}.json
-  compare_baseline: struct_v1      # 与单来源基线对照（标注到位前 metrics 仍以宁缺毋滥为准）
+  compare_baseline: struct_v1      # 与单来源基线对照

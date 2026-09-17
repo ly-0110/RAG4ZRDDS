@@ -1,8 +1,8 @@
-"""Baseline Prompt v0（指南 §5 成员 C 第二条：只含两条硬规则）。
+"""Baseline Prompt v0（只含两条硬规则）。
 
 版本说明：
-  * v0 只含两条硬规则，不做 Grounding/Abstention/版本冲突披露（第二周 §6.4 再扩）；
-  * 引用约定与 docs/citation-contract-draft.md §3 对齐：答案内用 [n] 引用检索
+  * v0 只含两条硬规则，不做 Grounding/Abstention/版本冲突披露（由 v1/v2 扩展）；
+  * 引用约定与 docs/api.md 的引用字段契约对齐：答案内用 [n] 引用检索
     片段编号（1 基，对应 sources 数组下标），前端据此渲染可点击锚点。
 """
 
@@ -23,7 +23,7 @@ def build_messages(
 ) -> list[dict[str, str]]:
     """组装一轮对话消息：system=硬规则，user=问题 + 检索上下文。
 
-    source_priority 仅第三周 v2 使用；v0 忽略（统一签名便于 AnswerStream 调用）。
+    source_priority 仅 v2 使用；v0 忽略（统一签名便于 AnswerStream 调用）。
     """
     return [
         {"role": "system", "content": SYSTEM_PROMPT},

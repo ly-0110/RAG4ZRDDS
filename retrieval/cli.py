@@ -21,7 +21,7 @@ from retrieval._bootstrap import experiment_config
 def main(argv: list[str] | None = None, *, embed_fn=None) -> int:
     if hasattr(sys.stdout, "reconfigure"):  # Windows 控制台默认 GBK，统一按 UTF-8 输出
         sys.stdout.reconfigure(encoding="utf-8")
-    parser = argparse.ArgumentParser(prog="retrieval.cli", description="检索自测工具（成员 B）")
+    parser = argparse.ArgumentParser(prog="retrieval.cli", description="检索自测工具")
     sub = parser.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build", help="按配置建索引")
     b.add_argument("--config", required=True, help="configs/experiments/*.yaml")

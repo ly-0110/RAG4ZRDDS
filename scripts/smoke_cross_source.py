@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""scripts/smoke_cross_source.py — §7.5 A/B/C/D 四场景跨来源冒烟（B 域，PR#27 设计 §4.3）
+"""scripts/smoke_cross_source.py — 四场景跨来源冒烟
 
-对指定实验配置跑指南 §7.5 的 4 个样例问题，打印 top-k 的来源/版本/章节分布，
+对指定实验配置跑 4 个样例问题，打印 top-k 的来源/版本/章节分布，
 供人工对照「理想结果」表。结果只作开发参考、不进正式报告（正式评测等 E 题集
-重新标注 + C 判对口径会签）。
+重新标注并定对判定口径）。
 
 用法:
   python scripts/smoke_cross_source.py --config configs/experiments/struct_multisrc_bm25.yaml

@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-scripts/run_regression.py — 回归自动化（成员 D · 第四周核心交付，指南 §8 D 任务 1 / §10）
+scripts/run_regression.py — 回归自动化
 
 把 §10 的机制从"约定"变成"一条命令"：
   变更 → 一键跑相关实验 → 与历史报告比对 → 给出 pass / warn / regression / incomparable
   判定，并以退出码告知（非 0 = 回归或失败，可直接挂 CI 或 pre-merge）。
 
-两条通道（宁缺毋滥，2026-09-11 结论：现库标注为循环论证版，指标视同 void）：
+两条通道（指标只在标注通过闸门时判定，否则只记录不复判）：
   * 明细通道（默认，随时可用）：不依赖标注，比对 top-K 命中集合重合率、rank-1 一致率、
     返回条数与耗时。检索实现/产物若发生退化，这里就会亮红。
   * 指标通道（--with-metrics 显式启用）：真值标注定版后才有意义；启用后指标下跌超容差
     即判 regression。
 
 可比性闸门（本次交付的关键点）：
-  报告只看 config_hash8 会伪装可比——R1（PR#11）/R4（PR#13）两次事故都是配置未变、
+  报告只看 config_hash8 会伪装可比——配置未变、
   磁盘产物被旧基线 PR 换掉。故比对前先核 config_hash8 + 三份输入产物指纹
   （nodes/questions/expected_sources）+ 索引目录与检索参数，任一不符判 incomparable，
   绝不把"换了输入"造成的差异记成"性能回归"。
@@ -25,7 +25,7 @@ scripts/run_regression.py — 回归自动化（成员 D · 第四周核心交�
   python scripts/run_regression.py --no-run        # 只比对已入库报告（不跑实验）
   python scripts/run_regression.py --promote       # 当前报告提为基准锚点（人工动作）
 
-依赖: scripts/run_experiment.py · scripts/experiment_config.py（均为 D 域）
+依赖: scripts/run_experiment.py · scripts/experiment_config.py
 """
 
 from __future__ import annotations
@@ -365,7 +365,7 @@ def render_markdown(summary: dict) -> str:
             f"| {d.get('rank1_agreement', 'n/a')} | {met_s} "
             f"| {r.get('duration_seconds', 'n/a')} | {reasons} |"
         )
-    lines += ["", "> 由 `scripts/run_regression.py` 生成（指南 §10）。"
+    lines += ["", "> 由 `scripts/run_regression.py` 生成。"
               "incomparable=输入已变，差异不作回归判定；regression/failed 使退出码非 0。"]
     return "\n".join(lines) + "\n"
 

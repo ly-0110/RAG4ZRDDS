@@ -366,7 +366,7 @@ def test_store_query_filters_by_metadata():
 
 def test_store_query_filters_by_multiple_metadata_keys():
     # 组合过滤必须以 $and 下发——chroma 1.5.9 对多键平铺 dict 直接报错
-    # （2026-09-11 多来源过滤验证发现，PR#27 设计 §3.2-2 要求组合过滤可用）
+    # （多来源过滤验证要求组合过滤可用）
     store, _ = make_store()
     store.add_nodes([
         make_node("n_pdf_20", "旧版本正文", source_type="pdf", version="2.0"),

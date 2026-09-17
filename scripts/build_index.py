@@ -2,9 +2,9 @@
 """
 scripts/build_index.py — processed + config → indexes/ 索引构建门面
 
-职责（成员 D · 集成与实验平台）:
+职责:
   * 按实验配置派生索引目录 indexes/{method}_{embed}_{hash8}（同名可回切）
-  * 实际建库委托成员 B 交付物 retrieval.index.build_index（幂等覆盖重建）
+  * 实际建库委托 retrieval.index.build_index（幂等覆盖重建）
   * 构建成功后写 manifest.json：实验身份、配置 hash、节点数、模型、耗时
   * --list 盘点既有索引与各自对应的实验配置（回切/审计入口）
   * --fake-embed 用确定性假向量只验结构（CI/无模型环境冒烟，产物不可用于服务）
@@ -160,7 +160,7 @@ def cmd_build(config_path: str, fake: bool) -> int:
 
     if ec.uses_reference_index(cfg):
         comps = cfg.retrieval.components or {}
-        print(f"[index] mode={cfg.retrieval.mode} 走引用制（PR#27 会签②）：无自有索引，"
+        print(f"[index] mode={cfg.retrieval.mode} 走引用制：无自有索引，"
               "子索引由 components 引用的实验分别构建")
         for role, name in sorted(comps.items()):
             ref = ec.experiment_yaml_path(name)

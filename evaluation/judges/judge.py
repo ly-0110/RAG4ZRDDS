@@ -1,7 +1,7 @@
-"""LLM-as-judge 判分（成员 C · 第二周起）：Faithfulness / Answer Relevance /
+"""LLM-as-judge 判分：Faithfulness / Answer Relevance /
 Correctness / Citation Accuracy。
 
-设计（指南 §6 / §9.2）：
+设计：
   * 复用 generation/llm.py 的 LLMConfig + complete_chat（非流式）——judge 需要
     一次性拿到完整回答再解析，流式增量不适合；
   * 让模型输出 JSON {"score": 0~5 整数, "rationale": "..."}，本模块负责稳健

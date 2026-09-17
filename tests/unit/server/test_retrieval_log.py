@@ -1,4 +1,4 @@
-"""检索日志接线单测（docs/retrieval-log-schema.md v0.1，B/D 会签）。
+"""检索日志接线单测（docs/retrieval-log-schema.md）。
 
 覆盖：记录字段与 B 文档 §3 对齐、request_id 经 ContextVar 关联（HTTP 路径）
 与缺省 null（预热/直调语义）、filters 可选字段、检索异常不落日志、
@@ -129,7 +129,7 @@ def test_retriever_failure_writes_no_log_and_propagates(tmp_path):
         raised = True
 
     assert raised  # 异常原样传播，不吞
-    assert not log_path.exists()  # 异常不落检索日志（会签修改点①：故障归请求级日志）
+    assert not log_path.exists()  # 异常不落检索日志（故障归请求级日志）
 
 
 def test_http_request_id_flows_into_retrieval_log(tmp_path):

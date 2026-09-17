@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-scripts/run_experiment.py — 实验流水线门面（成员 D · 第二周核心交付，指南 §6）
+scripts/run_experiment.py — 实验流水线门面
 
 职责：读实验配置 → 保障索引就绪 → 跑统一评测集 → 指标计算 → 报告落盘
     evaluation/reports/{experiment.name}.json（§10 回归机制的载体）。
 
-铁律（指南 §6.2 / configs/experiments/README.md）：
+铁律（configs/experiments/README.md）：
   * 实验变量只经由 configs/experiments/*.yaml 切换，禁止改代码换实验
   * 报告落点、索引目录、Node 集路径全部由 experiment_config 派生命名
 
@@ -14,12 +14,12 @@ scripts/run_experiment.py — 实验流水线门面（成员 D · 第二周核�
   * 已存在 → 直接复用（hash8 = 配置内容哈希，同目录必然同配置，复用语义安全）
   * --rebuild 强制重建（先删后建，语义同 build_index）
 
-评测口径（占位，待成员 C 会签定版）：
+评测口径：
   * 判对 = expected_sources.jsonl 中该题的任一期望记录与检索结果匹配
     （来源 id / 印刷页区间 / 章节关键词，非空条件需同时满足）
   * hit_rate@K / mrr@K / precision@K / recall@K 为经典 IR 定义
   * response_metrics 非空时，检索后调用 evaluation/runners/answer_eval.py 逐题
-    生成答案并判分，结果并入报告 response 段（第四周 C 接入）
+    生成答案并判分，结果并入报告 response 段
 
 用法:
   make experiment                                # 默认配置（struct_v1 基线）
@@ -55,7 +55,7 @@ def load_questions(path: Path, sample_size: int | None) -> list[dict]:
     if not path.exists():
         raise FileNotFoundError(
             f"评测问题集不存在: {path}\n"
-            "  正式问题集由成员 E 编写（80~120 题，指南 §6.1）；"
+            "  正式问题集（80~120 题）；"
             "占位集见 evaluation/datasets/README.md。"
         )
     questions: list[dict] = []
@@ -246,7 +246,7 @@ def build_report(cfg, retrievals: dict[str, list[dict]], questions: list[dict],
         "compare_baseline": _compare_baseline(cfg, agg),
         "notes": [
             "评测口径为占位：页码按印刷页匹配（印刷页 = 物理页 − 6），"
-            "最终判对口径待成员 C 定版（指南 §6 任务分解）。",
+            "判对口径见 evaluation/datasets/README.md。",
         ],
     }
     if fake_embed:
@@ -254,7 +254,7 @@ def build_report(cfg, retrievals: dict[str, list[dict]], questions: list[dict],
     if not expected:
         report["notes"].append(
             "本次无期望来源标注（expected_sources 缺失）：仅记录检索结果，指标为空；"
-            "正式标注由成员 E 随问题集交付、成员 C 定口径（见 evaluation/datasets/README.md）。"
+            "正式标注与问题集同目录交付，口径见 evaluation/datasets/README.md。"
         )
     if response is not None:
         report["response"] = response
@@ -322,7 +322,7 @@ def _nodes_file_sha12(cfg) -> str | None:
 def _artifact_fingerprints(cfg) -> dict:
     """报告需记录三份输入产物指纹，供回归比对判定"是否可比"（§10）。
 
-    只看 config_hash8 不够：R1（PR#11）与 R4（PR#13）两次事故都是配置未变、
+    只看 config_hash8 不够：配置未变、
     磁盘产物已被旧基线 PR 换掉——配置哈希相同而语义内容不同。
     """
     import build_index as bi
@@ -360,9 +360,9 @@ def _check_fingerprint(target: Path, cfg) -> str | None:
 
 
 def _ensure_subindexes(cfg) -> int:
-    """引用制实验（hybrid / 引用制 hybrid_rerank，PR#27 会签③）：只检查 components 引用的子索引。
+    """引用制实验（hybrid / hybrid_rerank）：只检查 components 引用的子索引。
 
-    不构建、不校验指纹——子索引归各自配置管；节点集一致性由检索器加载时校验（B 域）。
+    不构建、不校验指纹——子索引归各自配置管；节点集一致性由检索器加载时校验。
     """
     missing: list[str] = []
     for role, name in sorted((cfg.retrieval.components or {}).items()):
@@ -386,7 +386,7 @@ def _ensure_index(config_path: str, cfg, rebuild: bool, fake_embed: bool) -> int
     """索引不存在 → 自动构建；已存在 → 复用（hash8 保证同目录同配置）。
 
     防误毁：fake-embed 冒烟与真实索引共用同一派生目录，
-    目标已是真实索引时拒绝 fake 重建（反之：真实构建可覆盖遗留 fake 索引）。
+    目标已是真实索引时拒绝 fake 重建（反之：真实构建可覆盖旧的 fake 索引）。
     """
     import build_index as bi
 

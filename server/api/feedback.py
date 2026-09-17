@@ -1,9 +1,9 @@
-"""POST /feedback —— 回答反馈落库（第四周，指南 §8 成员 E 任务 1 的 D 侧承接）。
+"""POST /feedback —— 回答反馈落库。
 
 前端只负责"点一下"，落库归 D 的日志设施：记录追加到 {log_dir}/feedback.jsonl，
 与 requests.jsonl / retrievals.jsonl / sources.jsonl 同目录同格式，可离线聚合。
 
-约定（提案，待成员 E/C 会签）：
+约定：
   * 反馈必须绑定一个 request_id —— 脱离具体回答的"整体满意度"无法归因，
     因此本接口拒绝未知 request_id（404），而不是照单收下产生孤儿记录。
   * rating 只有两档 up/down；细化原因走 comment 自由文本，不扩枚举。

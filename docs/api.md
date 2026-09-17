@@ -1,7 +1,7 @@
-# RAG4ZRDDS API 契约（v0.17 · source_url 进 wire + 回答级日志）
+# RAG4ZRDDS API 契约
 
-> 维护人：成员 D。前端（成员 E）以此文档对接；字段变更会同步更新本页。
-> 模式现状（2026-09-14）：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索与生成均已真实**（B 检索 + C 生成，需先 `make index` 并在 `.env` 填好 `LLM_BASE_URL`/`LLM_API_KEY`/`LLM_MODEL`，三者缺一即启动期报错）。生成后端已实测两种：云端 OpenAI 兼容 API，与本地 Ollama（经 `models/llm_gateway.py` 网关，见 `docs/demo-runbook.md`）。`sources` 事件为真实引用（SourceRef **8 字段**，v0.17 起含 `source_url`；正文 text 仅生成侧使用，下发前由服务端投影剥离），随后 `token` 流式回答。接口形状两模式不变。
+> 本文是前后端对接的契约基准；字段变更会同步更新本页。
+> 模式：`mock`=确定性假数据（前端联调随时可用）；`live`=**检索与生成均已真实**（需先 `make index` 并在 `.env` 填好 `LLM_BASE_URL`/`LLM_API_KEY`/`LLM_MODEL`，三者缺一即启动期报错）。生成后端支持任意 OpenAI 兼容服务：云端 API 或本地 Ollama（经 `models/llm_gateway.py` 网关）。`sources` 事件为真实引用（SourceRef **8 字段**，含 `source_url`；正文 text 仅生成侧使用，下发前由服务端投影剥离），随后 `token` 流式回答。接口形状两模式不变。
 
 ## 启动
 
@@ -29,7 +29,7 @@ curl http://127.0.0.1:8000/healthz
 { "status": "ok", "mode": "mock" }
 ```
 
-v0.14 起附带知识库统计与可用实验（F1/F4，review §4.1）：
+附带知识库统计与可用实验：
 
 ```json
 {
@@ -51,7 +51,7 @@ v0.14 起附带知识库统计与可用实验（F1/F4，review §4.1）：
 
 - `kb`：**当前启动配置**的知识库统计（`experiments[].id`/`version` 来自实验配置 `sources[]`，`chunks` 按启动时 Node 产物逐来源实数）；`mock` 模式为 `null`。
 - `experiments`：可用实验 ID 白名单（= `configs/experiments/*.yaml` 文件名 stem），与 `/query` 的 `experiment` 参数同源；前端可据此渲染检索通路选择器（F4）。
-- `experiment_modes`（**v0.16 新增**）：实验 ID → 检索模式（读不到的配置跳过，如模板文件）。**用途是让前端按模式决定"分数怎么显示"**：
+- `experiment_modes`：实验 ID → 检索模式（读不到的配置跳过，如模板文件）。**用途是让前端按模式决定"分数怎么显示"**：
   `vector`（cosine 0~1）与 `hybrid_rerank`（sigmoid 0~1）的分数量纲可跨查询比较；`bm25`（原始词面分，无上界）与 `hybrid`（RRF，~0.03）
   不可比——前端对后两者改用"池内相对进度 + 位次 + 不可比说明"，不渲染成相关度百分比。
 
@@ -67,7 +67,7 @@ v0.14 起附带知识库统计与可用实验（F1/F4，review §4.1）：
 |---|---|---|---|
 | question | string | 是 | 1~2000 字符；纯空白会被拒绝 |
 | top_k | int | 否 | 1~20；缺省取服务端 `QUERY_TOP_K`（默认 5） |
-| experiment | string | 否 | **v0.14 新增**：实验 ID（`configs/experiments/*.yaml` 文件名 stem），live 模式下本次请求改用该实验的检索管线（服务端懒组装并缓存，首次切换需加载模型/索引，数秒~数十秒）；白名单见 `/healthz` 的 `experiments`，未知 ID 返回 422 并列出可用值。**mock 模式忽略该参数**；缺省用服务端启动配置（零破坏） |
+| experiment | string | 否 | 可选：实验 ID（`configs/experiments/*.yaml` 文件名 stem），live 模式下本次请求改用该实验的检索管线（服务端懒组装并缓存，首次切换需加载模型/索引，数秒~数十秒）；白名单见 `/healthz` 的 `experiments`，未知 ID 返回 422 并列出可用值。**mock 模式忽略该参数**；缺省用服务端启动配置（零破坏） |
 
 ### 响应事件流（`Content-Type: text/event-stream`）
 
@@ -102,13 +102,13 @@ data: {"request_id":"a1b2c3d4e5f6","answer":"…完整答案…","sources":[…]
 | source_name | 来源显示名，如 `ZRDDS用户手册.pdf` |
 | section | 章节号，如 `3.4.2` |
 | page_print | 印刷页码（手册纸面上印的数字；前言罗马数字页无印刷页码时为空） |
-| page_physical | PDF 物理页码（1 基，与阅读器页码一致）；**约定 page_print = page_physical − 6**（2026-08-29 以 PDF 页眉印刷数字逐页核对定值；旧 +7 约定为方向错误，已作废） |
-| source_url | **原始文档地址（v0.17 新增第 8 字段，缺口 W1 闭环）**：HTML 来源为本地 `/documents/{source_id}/{filename}` 地址（离线可直接打开原文，产物里的占位外部域名 `docs.zrtechnology.com` 在启动装载时统一改写为本地地址）；PDF 来源为 `null`。`sources`、`done` 事件与 `/sources/{rid}` 回查三处同形 |
-| score | 相关性得分，越高越相关。**量纲依实验配置的 `retrieval.mode` 而变，跨模式不可比**：`vector` 为 cosine 相似度（实测 301 块语料落在 0.46~0.78）；`bm25` 为未归一化原始 BM25 分数（同一语料实测 7.70~56.43）；`hybrid` 为 RRF 融合分（k=60 时理论 0~2/61≈0.033，双路一致命中取最高）；`hybrid_rerank` 为交叉编码器精排分（bge-reranker-v2-m3，**sigmoid 后 0~1**——B 实测 120 题 0.084~0.991，2026-09-14 定死；输入按 512 token 截断，`retrieval/rerank.py::build_reranker`）。另注意：实验配置 `retrieval.params.version_pref` 生效时，score 改为**候选池内 min-max 归一化排序分 + 版本加成**（PR#34 设计 §3.2）——此时任何模式下 score 都不再具有跨查询、跨配置可比性，只能在同一次响应内部比较排序。只能在同一模式、同一配置内比较与排序 |
+| page_physical | PDF 物理页码（1 基，与阅读器页码一致）；**约定 page_print = page_physical − 6**（以 PDF 页眉印刷数字为地面真值逐页核对） |
+| source_url | **原始文档地址（第 8 字段）**：HTML 来源为本地 `/documents/{source_id}/{filename}` 地址（离线可直接打开原文，产物里的占位外部域名 `docs.zrtechnology.com` 在启动装载时统一改写为本地地址）；PDF 来源为 `null`。`sources`、`done` 事件与 `/sources/{rid}` 回查三处同形 |
+| score | 相关性得分，越高越相关。**量纲依实验配置的 `retrieval.mode` 而变，跨模式不可比**：`vector` 为 cosine 相似度（实测 301 块语料落在 0.46~0.78）；`bm25` 为未归一化原始 BM25 分数（同一语料实测 7.70~56.43）；`hybrid` 为 RRF 融合分（k=60 时理论 0~2/61≈0.033，双路一致命中取最高）；`hybrid_rerank` 为交叉编码器精排分（bge-reranker-v2-m3，**sigmoid 后 0~1**——实测 120 题落在 0.084~0.991；输入按 512 token 截断，`retrieval/rerank.py::build_reranker`）。另注意：实验配置 `retrieval.params.version_pref` 生效时，score 改为**候选池内 min-max 归一化排序分 + 版本加成**——此时任何模式下 score 都不再具有跨查询、跨配置可比性，只能在同一次响应内部比较排序。只能在同一模式、同一配置内比较与排序 |
 
-> **score 阈值（2026-09-07 会签决议：按 mode 分别定标，待 C/E/B 例会追认；2026-09-13 补 hybrid；2026-09-14 补 hybrid_rerank 与 version_boost 配置，PR#34 会签）**：`vector` 模式弱证据阈值 **0.35** 起试（实测正常命中 0.46~0.78、无证据题 top1 约 0.52；0.35 只拦真正的低分尾，待真实标注产出后校准）；`bm25` 原始分量纲随语料漂移，**不设绝对阈值**——弱证据判定改用「返回条数少于 `top_k` / 空 `sources`」信号（bm25 侧零词面重叠候选已在检索层过滤，空结果即无词面证据）；`hybrid` 融合分为 RRF 分（`Σ 1/(rrf_k+rank)`，k=60 时单路命中 1/61~1/90、双路一致最高 2/61≈0.0328），与 cosine/bm25 均不可比，**不设绝对阈值**——弱证据判定沿用「返回条数少于 `top_k` / 空 `sources`」信号；`hybrid_rerank` 精排分为 sigmoid 0~1（B 实测 0.084~0.991），与 `vector` 的 cosine 数值区间形似但语义不同，**不设绝对阈值**——弱证据判定沿用「返回条数少于 `top_k` / 空 `sources`」信号。**凡 `version_pref`/`version_boost` 生效的配置，score 为池内归一化排序分，任何模式下都不适用绝对阈值**（弱证据信号同上）。**前端「弱证据」弱化展示仅在 `vector` 模式启用**。字段形状未变，前端解析无需改动。
+> **score 阈值**：`vector` 模式弱证据阈值 **0.35** 起试（实测正常命中 0.46~0.78、无证据题 top1 约 0.52；0.35 只拦真正的低分尾，待真实标注产出后校准）；`bm25` 原始分量纲随语料漂移，**不设绝对阈值**——弱证据判定改用「返回条数少于 `top_k` / 空 `sources`」信号（bm25 侧零词面重叠候选已在检索层过滤，空结果即无词面证据）；`hybrid` 融合分为 RRF 分（`Σ 1/(rrf_k+rank)`，k=60 时单路命中 1/61~1/90、双路一致最高 2/61≈0.0328），与 cosine/bm25 均不可比，**不设绝对阈值**——弱证据判定沿用「返回条数少于 `top_k` / 空 `sources`」信号；`hybrid_rerank` 精排分为 sigmoid 0~1（B 实测 0.084~0.991），与 `vector` 的 cosine 数值区间形似但语义不同，**不设绝对阈值**——弱证据判定沿用「返回条数少于 `top_k` / 空 `sources`」信号。**凡 `version_pref`/`version_boost` 生效的配置，score 为池内归一化排序分，任何模式下都不适用绝对阈值**（弱证据信号同上）。**前端「弱证据」弱化展示仅在 `vector` 模式启用**。
 
-> 展示建议（指南 §20）：来源卡片形如"《ZRDDS用户手册》，第 54 页，9.3.1 节"，优先展示 `page_print` 与 `section`。
+> 展示建议：来源卡片形如"《ZRDDS用户手册》，第 54 页，9.3.1 节"，优先展示 `page_print` 与 `section`。
 
 ### 调用示例
 
@@ -123,7 +123,7 @@ curl -N -X POST http://127.0.0.1:8000/query \
 > 解法任选：① 改用 Git Bash / Swagger UI；② cmd 下先 `chcp 65001` 再 curl；
 > ③ 把请求体存成 UTF-8 文件后 `curl --data-binary @q.json`；④ 先用纯英文问题冒烟。
 
-### 客户端中止（v0.16 明确语义）
+### 客户端中止
 
 客户端直接断开连接（前端"停止生成"＝`AbortController.abort()`）即可中止生成：
 
@@ -149,32 +149,32 @@ curl -N -X POST http://127.0.0.1:8000/query \
 
 ## GET /sources/{request_id} —— 引用回查
 
-回看某次问答的完整记录（问题 + 答案 + 引用），供来源卡片渲染与排障。v0.4 起记录持久化到 `{LOG_DIR}/sources.jsonl`（默认 `logs/`，不入 Git），**服务重启后仍可回查**；内存仅保留最近 `SOURCES_CACHE_SIZE` 条作为读取窗口——路径与响应形状不变。
+回看某次问答的完整记录（问题 + 答案 + 引用），供来源卡片渲染与排障。记录持久化到 `{LOG_DIR}/sources.jsonl`（默认 `logs/`，不入 Git），**服务重启后仍可回查**；内存仅保留最近 `SOURCES_CACHE_SIZE` 条作为读取窗口——路径与响应形状不变。
 
 ```json
 {
   "request_id": "a1b2c3d4e5f6",
   "question": "如何创建 DataWriter？",
   "answer": "…",
-  "sources": [ …SourceRef 7 字段 + source_url… ]
+  "sources": [ …SourceRef 8 字段（含 source_url）… ]
 }
 ```
 
 未命中：HTTP 404，`error` 说明可能不存在或已超出缓存范围。
 
-### v0.11：回查记录里的 `source_url`（缺口 W1 的过渡方案）
+### 回查记录里的 `source_url`
 
 | 字段 | 出现位置 | 取值 |
 |---|---|---|
 | `source_url` | **仅 `/sources/{rid}`（及 MCP `get_sources`）的 `sources[]`** | HTML 来源 = 该 Node 的原文页 URL；PDF 来源 = `null` |
 
-- 为什么只加在回查侧：`SourceRef` 七字段是与前端会签过的 **wire 契约**，扩第 8 字段需 B（投影）/C（citation 组装）/E（渲染）会签；在会签完成前，SSE 事件**不带**该字段，接口形状不变。
+- 该字段现已进入 wire 契约（见「引用字段」表），`sources`/`done` 事件、本回查接口与 MCP `get_sources` 三处同形。
 - 数据来源：服务端启动时从本实验的 Node 产物建 `node_id → source_url` 表（`node_id ← chunk_id` 映射已锁定），查不到即为 `null`。启动日志会打印装载规模。
-- 前端可**无条件读该键**（恒存在，值可为 null）；MCP 侧 `get_sources` 同语义。URL 的正式值仍待例会确认（现为文档站占位 base_url）。
+- 前端可**无条件读该键**（恒存在，值可为 null）；MCP 侧 `get_sources` 同语义。
 
-## GET /nodes/{node_id} —— 单节点详情回查（v0.14 新增 · v0.15 扩跨实验查找）
+## GET /nodes/{node_id} —— 单节点详情回查
 
-按 node_id 返回单个 Node 的**原文正文与元数据**，供前端"节点详情"展示该条引用的原文（F3，review §4.1）。数据来自服务端 Node 产物表（默认实验启动时装载，其余实验首次回查时按需装载并缓存）。
+按 node_id 返回单个 Node 的**原文正文与元数据**，供前端"节点详情"展示该条引用的原文。数据来自服务端 Node 产物表（默认实验启动时装载，其余实验首次回查时按需装载并缓存）。
 
 ```json
 {
@@ -195,19 +195,19 @@ curl -N -X POST http://127.0.0.1:8000/query \
 }
 ```
 
-**v0.16 字段修正（重要）**：页码字段此前误用 SourceRef 的命名（`page_print`/`page_physical`），而 Node 产物的 metadata 契约是
+**页码字段口径（重要）**：页码字段使用产物 metadata 的命名（`page_print`/`page_physical`），而 Node 产物的 metadata 契约是
 `printed_page_start|end`、`physical_page_start|end`——导致"节点详情"里 PDF 的页码恒为 `—`。现按产物契约取值，并额外给出 `*_end`
 （**一个节点可以跨页**，前端显示区间如 `印刷页 127–128`）。HTML 来源的页字段在产物里是字面量字符串 `"None"`，服务端归一为 `null`；
 **前端按 `source_type` 分格式渲染**：PDF 显示印刷页/物理页 + 正文；HTML 不显示页码，改显示 `source_file`/`title` + 章节路径 + 原文外链。
 
-- **`experiment`（v0.15 新增）**：该 node_id 实际命中的实验 ID。**切换检索模式后的 node_id 不再 404**（v0.15 修复）——此前只查默认实验的产物表，配合 `/query` 的 `experiment` 参数会 404，即"能切模式"与"能看原文"两个功能无法并存（本机实测复现）。现按实验白名单顺序查找，命中即返回；同一 Node 集被多个实验共享时（如同 hash8 的 `final_v1` 与 `struct_multisrc_v1`）返回先命中的实验名，**该字段仅作标识，不影响 text 内容**。
-- **正文出网范围（待 B/C/E 会签追认）**：SSE wire 仍为 SourceRef 7 字段不变，chunk 原文不进 `sources` 事件与 `sources.jsonl`；本端点是既有"正文不下发"立场的**定向放宽**——按需、单节点、仅回查方向。
+- **`experiment`**：该 node_id 实际命中的实验 ID（按实验白名单顺序查找，命中即返回；同一 Node 集被多个实验共享时返回先命中的实验名，**该字段仅作标识，不影响 text 内容**）。
+- **正文出网范围**：chunk 原文不进 `sources` 事件与 `sources.jsonl`；本端点是"正文不下发"立场的**定向放宽**——按需、单节点、仅回查方向。
 - **404**：`mock` 模式（无 Node 产物）或 node_id 不在任何已索引实验的产物中，`error` 均给出可读说明。node_id 以 `/query` 的 `sources` 事件为准。
 - `text` 长度上限即分块上限（默认 2500 字符）；页码/`section_path`/`source_url` 可为 null。
 - **`source_url` 现在是本服务的可打开地址**（见下节 `/documents`）：产物里存的是配置中的占位外部域名（`https://docs.zrtechnology.com/…`，实测不可达），
   服务端启动时改写为 `/documents/{source_id}/{file}`；文件不存在时保留原值（不把"打不开"换成"404"）。
 
-## GET /documents/{source_id}/{filename} —— 本地文档原文（v0.16 新增）
+## GET /documents/{source_id}/{filename} —— 本地文档原文
 
 打开引用对应的**原始文档快照**（如 Doxygen HTML 页），供前端"打开原文"外链使用。文件从实验配置 `sources[].path` 声明的本地目录读取
 （即 A 的 ingest 用的同一份快照，离线可用）。
@@ -215,15 +215,15 @@ curl -N -X POST http://127.0.0.1:8000/query \
 - **白名单**：来源目录在服务启动时从**全部实验配置**合并登记（跨实验可用——默认实验只有 PDF 时，多来源实验产生的 HTML 链接依然能打开）；
   未登记的 `source_id` → 404；只接受单层文件名，含路径分隔符或 `..` 的请求一律拒绝（400/404），解析后必须仍在来源目录内。
 - **媒体类型**：按扩展名推断（`.html` → `text/html`），其余回退 `application/octet-stream`。
-- 这是"引用可溯源到原文页"的落地形态；**Node 产物里的分块正文仍只经 `/nodes/{node_id}` 出网**，SSE wire 仍为 SourceRef 7 字段。
+- 这是"引用可溯源到原文页"的落地形态；**Node 产物里的分块正文仍只经 `/nodes/{node_id}` 出网**，SSE wire 只下发引用字段。
 
 ```bash
 curl -I "http://127.0.0.1:8000/documents/zrdds_dev_guide/group___c_publication.html"   # 200 + text/html
 ```
 
-## POST /feedback —— 回答反馈落库（v0.10 新增 · 2026-09-17 形状定版）
+## POST /feedback —— 回答反馈落库
 
-指南 §8 成员 E 任务「有帮助/无帮助反馈按钮与数据落库」的落库侧。前端只需按本契约发一次 POST，存储与聚合归 D 的日志设施。
+「有帮助/无帮助」反馈的落库侧：前端按本契约发一次 POST，存储与聚合由服务端日志设施负责。
 
 ### 请求
 
@@ -261,32 +261,3 @@ cited_nodes, comment?, node_ids?
 
 刻意**不落答案正文**（已在 `sources.jsonl`），避免同一长答案被反复复制。
 
-## 变更记录
-
-| 版本 | 变更 |
-|---|---|
-| v0.17 | 2026-09-17：**`source_url` 升为 wire 第 8 字段（缺口 W1 闭环）+ 回答级日志落地**（D，用户代行会签）——①`sources`/`done` 事件与 `/sources/{rid}` 回查**三处同形**，每条引用都带 `source_url`（HTML 为本地 `/documents/…`，PDF 为 `null`）；前端可直接渲染"打开原文"外链，无需再等回查（既有 7 字段一个不变、只增一列，旧前端不改也能跑）；②三级日志的第三级落地：每次生成写一条 `{LOG_DIR}/answers.jsonl`（实验/Prompt 版本/模型/拒答判定/引用条数/首 token 延迟/终止原因；正文只落本地），字段定义见 `docs/answer-log-schema.md`。**API 路径与既有字段形状零变化** |
-| v0.16 | 2026-09-16：**演示可用性三项 + 语义澄清**（D）——①新增 **`GET /documents/{source_id}/{filename}`**本地文档原文端点；产物里的占位外部域名统一改写为该本地地址（`/nodes`、`/sources/{rid}`、MCP 一并生效）；②`GET /nodes/{node_id}` **字段修正**：页码改按产物契约（`printed/physical_page_start|end`，此前恒空）+ 新增 `source_type`/`source_file`/`title`（前端按来源格式渲染）；③`/healthz` 新增 **`experiment_modes`**（前端按模式决定分数显示口径：bm25/hybrid 不可比，改用池内相对 + 位次）；④明确**客户端中止语义**（生成器取消、上游流关闭、部分答案留档）。既有字段零增删，前端不改也能跑 |
-| v0.15 | 2026-09-16：**`GET /nodes/{node_id}` 扩为跨实验查找**（D，演示可用性修复）——切换检索模式后拿到的 node_id 不再 404（此前只查默认实验的产物表，与 F4 的 experiment 参数互斥）；响应新增 **`experiment`** 字段标识实际命中的实验。既有字段零增删，前端不改也能跑 |
-| v0.14 | 2026-09-15：**F1/F3/F4 后端三件**（D，2026-09-15 前端实测四项问题 review §4.1；E 域前端接线待 E）——①`GET /healthz` 新增 `kb`（启动实验的知识库统计：experiment/retrieval_mode/index_dirname/node_total/sources[{id,version,chunks}]；mock 为 null）与 `experiments`（可用实验 ID 白名单）②新增 **`GET /nodes/{node_id}`**：单节点原文+元数据按需回查（F3）；**chunk 原文经此端点出网属"正文不下发"立场的定向放宽，待 B/C/E 会签追认**；SSE wire 7 字段不变 ③`POST /query` 请求体新增可选 **`experiment`**（F4，live 按请求切换检索实验，白名单外 422，registry 懒组装缓存 LRU≤3；mock 忽略）。既有端点既有字段零变化，前端不改也能继续跑 |
-| v0.13 | 2026-09-14：**B 回写 `hybrid_rerank` 精排分量纲实测**（PR#34 会签事项 2 闭环）——交叉编码器分 sigmoid 0~1（120 题实测 0.084~0.991），输入按 512 token 截断（不截断时按模型上限 8192 处理、单题 30 候选慢 3 倍）。仍不设绝对阈值，弱证据判定沿用「返回条数少于 top_k / 空 sources」信号。字段无增删，前端无需改解析 |
-| v0.12 | 2026-09-14：`hybrid_rerank` 精排分量纲条目 + `version_boost` 生效时的 score 语义（D，PR#34 会签事项 2）——`hybrid_rerank` 为交叉编码器精排分（bge-reranker-v2-m3，具体量纲 sigmoid 0~1 或原始 logits 待 B 冒烟实测定死后回写）；凡 `retrieval.params.version_pref` 生效的配置，score 改为**候选池内 min-max 归一化排序分 + 版本加成**，不再具跨查询/跨配置可比性；`hybrid_rerank` 不设绝对阈值，弱证据判定沿用「返回条数少于 top_k / 空 sources」信号。字段无增删，前端无需改解析 |
-| v0.11 | 2026-09-14：缺口 W1 的过渡处置（用户拍板方案 B，D 单方落地）——`GET /sources/{rid}` 与 MCP `get_sources` 的每条引用新增 **`source_url`**（HTML 非空 / PDF 为 `null`），取自本实验 Node 产物（启动时建 `node_id → source_url` 表；多来源实测 1606 条映射 / 1305 条带 URL）。**SSE 的 `sources`/`done` 事件仍是 7 字段、不含该键**（实测确认），因此前端解析零破坏；E 要用 HTML 跳转就从回查接口取。正式扩进 wire 仍需 B/C/E 会签 |
-| v0.10 | 2026-09-14：新增 `POST /feedback`（D 侧实现 + 契约提案，**待 E/C 会签后才动前端**）——两档 `rating` 绑定 `request_id` 落 `{LOG_DIR}/feedback.jsonl`，未知 rid 一律 404 拒绝（不产孤儿反馈），`node_ids` 越界 400。**既有 `/query`、`/sources`、`/healthz` 的路径与响应形状零变化，前端不改也能继续跑**；前端接入时只需在答案卡片上加两个按钮 + 一次 POST |
-| v0.9 | 2026-09-13：`hybrid` 融合分量纲条目（D，PR#30 落地后补）——RRF 分 `Σ 1/(rrf_k+rank)`（k=60 时单路 1/61~1/90、双路一致最高 2/61≈0.0328），与 cosine/bm25 互不可比；不设绝对阈值，弱证据判定沿用「返回条数少于 top_k / 空 sources」信号；前端「弱证据」弱化展示仍仅 vector 模式启用。字段无增删，前端无需改解析 |
-| v0.8 | 2026-09-08：检索级日志落地（B 字段定义 `docs/retrieval-log-schema.md` v0.1 + D 接线）——live 模式每次检索追加一条记录到 `{LOG_DIR}/retrievals.jsonl`（含富引用正文，仅落本地不入 Git；`request_id` 可与 `requests.jsonl` 关联）。**API 响应形状与路径无任何变化，前端无需改动**；warmup/脚本直调的检索也会入日志（`request_id` 为 null） |
-| v0.7 | 2026-09-07：弱证据阈值定标（D 会签决议，待 C/E/B 例会追认）——按 `retrieval.mode` 分别定标：`vector` 阈值 **0.35** 起试（实测正常命中 0.46~0.78、无证据题 top1 约 0.52；待真实标注产出后校准）；`bm25` 不设绝对阈值，弱证据判定改用「返回条数少于 top_k / 空 sources」信号；前端「弱证据」弱化展示仅 `vector` 模式启用。C 会签第 5 题建议的单一阈值 0.5 作废（在 bm25 下永不触发、在 vector 下误伤约一半正常命中）。字段无增删，前端解析无需改动 |
-| v0.6 | 2026-09-07：`score` 量纲澄清（D）。B 于 PR#17 接入 `bm25` 检索模式后，`score` 出现两种互不可比量纲——`vector` 为 cosine 相似度（实测 0.46~0.78）、`bm25` 为未归一化原始分（同一语料实测 7.70~56.43）。本版在字段说明中写明量纲依 `retrieval.mode` 而变、只可同模式内比较，并把 Citation 会签第 5 题的「弱证据阈值」标为待按 mode 分别定标（单一阈值 0.5 在 bm25 下永不触发）。`bm25` 侧零词面重叠候选已在检索层过滤，故**返回空 `sources` 是该模式唯一的无证据硬信号**。字段无增删，前端无需改解析；「弱证据」弱化展示请等阈值定标后再接 |
-| v0.5 | 2026-08-31：live 接线 C 生成（`generation/` 包，OpenAI 兼容流式）。live 模式需 `.env` 填 `LLM_*`；检索器改返富引用（含 text 正文供生成组装 context），`/query` 下发前投影回 SourceRef 7 字段——**接口形状不变，前端无需改动**。Prompt v0 落地两条硬规则（仅依据检索作答 / 给出来源） |
-| v0.4 | 2026-08-30：第二周日志设施（骨架）——请求级 JSONL 日志 `{LOG_DIR}/requests.jsonl`（request_id/method/path/status/耗时）；`/sources` 由内存环形缓存改为持久化 `{LOG_DIR}/sources.jsonl`（重启可回查）；新增 `LOG_DIR`、`SOURCES_CACHE_SIZE` 环境变量。响应形状与路径均不变，前端无需改动；检索/回答级日志字段待 B/C 会签 |
-| v0.3 | 2026-08-29：双页码真值修正——`page_print = page_physical − 6`（页眉印刷数字逐页核对；手册前 6 页为封面/罗马数字前言），物理页码统一 1 基；v0.2 的 +7 约定作废。字段无增删，前端无需改解析，仅展示数值变化 |
-| v0.2 | 2026-08-28：live 接线 B 检索（真实 sources）；双页码约定定为 +7；新增 `RAG_EXPERIMENT_CONFIG`；生成待 C（PendingAnswerStream 可读缺口） |
-| v0.1 | 骨架：/healthz、/query(SSE)、/sources 回查；mock/live 双模式 |
-
-## 已知边界（现状与后续）
-
-- **OpenAI 兼容门面 `/v1/chat/completions`：经决策不做**（前端 E 走自研轻量页，指南 §7 的触发条件未成立）。原预留的空目录 `server/openai_compat/` 已于 2026-09-14 删除。
-- **MCP 工具已交付**：`server/mcp_server.py`（stdio，两工具 `query_knowledge_base` / `get_sources`），契约见 `docs/mcp.md`；与本文的引用语义一致（含 v0.11 的回查附带 `source_url`）。
-- ~~**缺口 W1**~~ **已闭环（v0.17，2026-09-17 会签）**：`source_url` 已进 SSE wire 第 8 字段，与 `/sources/{rid}`、MCP `get_sources` 三处同形。
-- **回答级日志与回答质量指标**：均已落地（v0.17）——`answers.jsonl` 为第三级日志；`response_metrics` 由 `evaluation/runners/answer_eval.py` 提供，`final_v1` 120 题终跑实测四指标（见 `docs/week4-delivery-review.md` §3.13）。`POST /feedback`（v0.10）形状照现状定版。
-- **Citation 字段定版**：仍按 `docs/citation-contract-draft.md` 与 C/E 会签推进（section 截断落点、弱证据阈值按 mode 定标已落在 v0.7/v0.9）。

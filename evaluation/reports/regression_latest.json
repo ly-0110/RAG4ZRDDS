@@ -1,6 +1,6 @@
 {
   "schema": "rag4zrdds.regression/v1",
-  "started_at": "2026-09-17T12:54:46+0800",
+  "started_at": "2026-09-17T13:20:09+0800",
   "scope_note": "全量",
   "with_metrics": true,
   "thresholds": {

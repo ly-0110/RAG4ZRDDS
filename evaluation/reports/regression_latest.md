@@ -1,4 +1,4 @@
-# 回归矩阵 2026-09-17T12:54:46+0800
+# 回归矩阵 2026-09-17T13:20:09+0800
 
 - 范围: 全量
 - 通道: 明细（top-K 重合率阈值 0.8）；指标 启用
@@ -19,4 +19,4 @@
 | struct_multisrc_v1 | pass | 1.0 | 1.0 | hit_rate@5=+0.0000 mrr@5=+0.0000 precision@5=+0.0000 recall@5=+0.0000 | 9.5 | — |
 | struct_v1 | pass | 1.0 | 1.0 | hit_rate@5=+0.0000 mrr@5=+0.0000 precision@5=+0.0000 recall@5=+0.0000 | 17.9 | — |
 
-> 由 `scripts/run_regression.py` 生成（指南 §10）。incomparable=输入已变，差异不作回归判定；regression/failed 使退出码非 0。
+> 由 `scripts/run_regression.py` 生成。incomparable=输入已变，差异不作回归判定；regression/failed 使退出码非 0。

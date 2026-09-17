@@ -1,6 +1,6 @@
 """Embedding 工厂：实验配置 → 文本嵌入函数。
 
-第一周仅实现本地模型（bge-m3，经 LlamaIndex HuggingFaceEmbedding，底层
+当前实现本地模型（bge-m3，经 LlamaIndex HuggingFaceEmbedding，底层
 sentence-transformers）；provider=api 留待后续周次。
 模型采用懒加载：build_embedding 只返回闭包，首次调用才加载模型。
 模型已下载到 models/{model} 时优先用本地目录（免联网）；
@@ -31,7 +31,7 @@ def resolve_model(name: str) -> str:
 def build_embedding(cfg) -> Callable[[list[str]], list[list[float]]]:
     if cfg.embedding.provider == "api":
         raise NotImplementedError(
-            "第一周仅支持本地 embedding（provider: local）；api 方案待后续接入"
+            "当前仅支持本地 embedding（provider: local）；api 方案待后续接入"
         )
     _model = None
     # 注：懒加载闭包非线程安全，并发首次调用可能重复加载模型；

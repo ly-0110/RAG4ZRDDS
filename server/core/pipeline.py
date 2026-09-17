@@ -1,8 +1,8 @@
 """检索/生成的接入缝隙（seam）—— D 只定义协议并接线，不实现算法。
 
-两个协议即两份会签草案：
-  * Retriever   → 成员 B 落地（retrieval/ 包），输入问题返回引用片段
-  * AnswerStream → 成员 C 落地（generation/ 包），基于引用片段产出答案增量
+两个协议：
+  * Retriever   → retrieval/ 包，输入问题返回引用片段
+  * AnswerStream → generation/ 包，基于引用片段产出答案增量
 
 RAG_MODE=mock（默认）时使用本文件的确定性假实现：
   * 无需 A/B/C 的任何产物即可启动服务，供 E 的前端联调与周五冒烟
@@ -39,7 +39,7 @@ DDS_DataWriter writer = DDS_Publisher_create_datawriter(pub, topic, dw_qos, NULL
 
 
 class Retriever(Protocol):
-    """成员 B 实现此协议（retrieval/ 包）。"""
+    """由 retrieval/ 包实现。"""
 
     async def retrieve(self, question: str, top_k: int) -> list[dict]:
         """返回至多 top_k 条引用 dict，字段同 schema.SourceRef。node_id 全局唯一。"""
@@ -47,7 +47,7 @@ class Retriever(Protocol):
 
 
 class AnswerStream(Protocol):
-    """成员 C 实现此协议（generation/ 包）。"""
+    """由 generation/ 包实现。"""
 
     def stream(self, question: str, chunks: list[dict]) -> AsyncIterator[str]:
         """基于检索结果异步产出答案文本增量。
@@ -99,8 +99,7 @@ class Pipeline:
     """一条问答管线 = 一个检索器 + 一个生成流。D 负责组装，算法归 B/C。
 
     `source_urls` 是 node_id → 原文 URL 的映射（HTML 来源有、PDF 来源为 None），
-    只用于 `/sources/{rid}` 回查记录补 `source_url` 字段——`SourceRef` 七字段是
-    与前端会签过的 wire 契约，扩字段须走会签（缺口 W1，docs/week4-delivery-review.md §2.3）。
+    只用于回查记录补 `source_url` 字段——SSE wire 的引用字段契约见 `docs/api.md`。
     """
 
     def __init__(self, retriever: Retriever, answer_stream: AnswerStream,
@@ -111,9 +110,9 @@ class Pipeline:
         self.retriever = retriever
         self.answer_stream = answer_stream
         self.source_urls = source_urls or {}
-        # F1/F3（docs/week4-delivery-review.md §4.1）：kb_stats 供 /healthz 下发
-        # 知识库统计（mock 为 None）；node_details 供 GET /nodes/{node_id} 按需
-        # 回查单节点原文。chunk 原文只经 /nodes 端点出网，SSE wire 仍 7 字段。
+        # kb_stats 供 /healthz 下发知识库统计（mock 为 None）；node_details 供
+        # GET /nodes/{node_id} 按需回查单节点原文。chunk 原文只经 /nodes 端点出网，
+        # SSE wire 只下发 docs/api.md 定义的引用字段。
         self.node_details = node_details or {}
         self.kb_stats = kb_stats
         # 本地文档根（source_id → 目录）：GET /documents/{source_id}/{file} 的
@@ -145,7 +144,7 @@ def load_nodes_artifacts(nodes_file) -> tuple[dict[str, str | None], dict[str, d
     """一次遍历实验 Node 产物，产出（回查 URL 表，节点详情表，来源统计）。
 
     文件缺失返回全空（mock 兼容、产物缺失不拒启动）；坏行与无 chunk_id 的
-    记录跳过不中断（node_id ← chunk_id 映射已会签锁定）。
+    记录跳过不中断（node_id ← chunk_id 映射已锁定）。
     """
     import json
 
@@ -230,7 +229,7 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
             retriever = build_retriever(cfg)
         except (FileNotFoundError, NotImplementedError) as e:
             raise RuntimeError(f"RAG_MODE=live 启动失败：{e}") from e
-        # 检索日志接线（docs/retrieval-log-schema.md，B/D 会签）：包装在 pipeline
+        # 检索日志接线（docs/retrieval-log-schema.md）：包装在 pipeline
         # 层，预热/脚本直调也入日志（request_id=null）；HTTP 路径由 query 层经
         # request_log_scope 注入关联 id。mock 模式不落盘（B 文档 §1 仅 live）。
         from server.core.request_log import JsonlLog, LoggedRetriever
@@ -247,7 +246,7 @@ def build_pipeline(mode: str, experiment_config: str | None = None) -> Pipeline:
         )
         # 生成侧：读 .env 的 LLM 配置；缺失时在此拒绝启动（可读错误），
         # 而非等首个请求才报错（与 D 的"接线问题在启动期暴露"一致）。
-        # 回答级日志接线（docs/answer-log-schema.md，2026-09-17 会签定版）：
+        # 回答级日志接线（字段说明见 docs/architecture.md §6）：
         # 与检索日志同层（HTTP 与 MCP 两条入口都覆盖），mock 模式不落盘。
         from server.core.request_log import JsonlLog, LoggedAnswerStream
 

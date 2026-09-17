@@ -1,6 +1,6 @@
 # G:\DSH workspace\data_pipeline\chunkers\hybrid.py
 """
-混合分块 Chunking（方案 C · 成员 A 第二周交付）：
+混合分块 Chunking（结构 + 语义）：
 - 主体沿用结构感知策略（三级节为知识单元，同 structure.py）
 - 差异化：超大节（超阈值）沿四/五级子节下切后，若仍超出单块上限，
   用语义分块（SemanticSplitterNodeParser）对子节内容做语义二次切分

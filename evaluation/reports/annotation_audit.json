@@ -1,11 +1,11 @@
 {
   "schema": "rag4zrdds.annotation_audit/v1",
-  "verdict": "blocked",
+  "verdict": "pass",
   "counts": {
-    "QUESTION_TOKEN_OFF_PAGE": 4,
+    "TOKEN_PARTIAL_OFF_PAGE": 4,
     "NO_TOKEN_PROBE": 13
   },
-  "blocking_total": 4,
+  "blocking_total": 0,
   "questions_total": 120,
   "annotations_total": 120,
   "missing_annotations": [],
@@ -335,11 +335,9 @@
       ],
       "section_keyword": "5.3 Listener",
       "findings": [
-        "QUESTION_TOKEN_OFF_PAGE"
+        "TOKEN_PARTIAL_OFF_PAGE"
       ],
-      "blocking": [
-        "QUESTION_TOKEN_OFF_PAGE"
-      ],
+      "blocking": [],
       "probe": {
         "tokens": [
           "datareaderlistener",
@@ -500,11 +498,9 @@
       ],
       "section_keyword": "9.3.5.5 SAMPLE_LOST Status",
       "findings": [
-        "QUESTION_TOKEN_OFF_PAGE"
+        "TOKEN_PARTIAL_OFF_PAGE"
       ],
-      "blocking": [
-        "QUESTION_TOKEN_OFF_PAGE"
-      ],
+      "blocking": [],
       "probe": {
         "tokens": [
           "samplestatemask",
@@ -1227,11 +1223,9 @@
       ],
       "section_keyword": "10.32 WriterDataLifecycleQosPolicy",
       "findings": [
-        "QUESTION_TOKEN_OFF_PAGE"
+        "TOKEN_PARTIAL_OFF_PAGE"
       ],
-      "blocking": [
-        "QUESTION_TOKEN_OFF_PAGE"
-      ],
+      "blocking": [],
       "probe": {
         "tokens": [
           "writerdatalifecycleqospolicy",
@@ -1260,11 +1254,9 @@
       ],
       "section_keyword": "10.23 ReaderDataLifecycleQosPolicy",
       "findings": [
-        "QUESTION_TOKEN_OFF_PAGE"
+        "TOKEN_PARTIAL_OFF_PAGE"
       ],
-      "blocking": [
-        "QUESTION_TOKEN_OFF_PAGE"
-      ],
+      "blocking": [],
       "probe": {
         "tokens": [
           "readerdatalifecycleqospolicy",

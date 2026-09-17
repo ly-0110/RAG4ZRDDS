@@ -151,7 +151,7 @@ def test_error_becomes_sse_error_event_not_silent_drop():
 
 
 def test_error_path_sources_still_queryable_after_generation_failure():
-    """X3（2026-09-07 会签）：引用一经下发即持久化——生成侧失败时已下发的引用仍可回查。"""
+    """引用一经下发即持久化——生成侧失败时已下发的引用仍可回查。"""
 
     class BoomAnswerStream:
         async def stream(self, question: str, chunks: list[dict]):
@@ -180,7 +180,7 @@ def test_error_path_sources_still_queryable_after_generation_failure():
     assert body["request_id"] == events[0][1]["request_id"]
     assert body["answer"] is None  # 失败路径无答案
     recorded = body["sources"]
-    # W1 闭环（2026-09-17 会签）：source_url 已是 wire 第 8 字段，回查与下发逐字段一致
+    # source_url 已是 wire 第 8 字段，回查与下发逐字段一致
     assert recorded == events[0][1]["sources"]
     assert all("source_url" in s for s in recorded)
 

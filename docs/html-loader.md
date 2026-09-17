@@ -1,8 +1,7 @@
-# HTML 开发指南接入（成员 A · 第三周 §7.1 / §7.3）
+# HTML 开发指南接入
 
 > 交付物：`data_pipeline/html_loader.py` · `data/processed/html_v1.jsonl` · 质检报告 `logs/html_loader_report.json`
-> 对应指南 §7 成员 A 任务 1、2；第三周验收口径见 §19「Week 3」。
-> 本稿只记录**实测结论**，所有数字均来自 2026-09-10 全量跑（288 文档 / 1305 chunk）。
+> 本稿只记录**实测结论**，数字取自全量跑产物（288 正文页 / 1337 chunk）。
 
 ---
 
@@ -12,9 +11,9 @@
 |---|---|
 | 源目录 | `data/raw/developer-guides/cdoc_html/`（自 `G:\zrdds\ZRDDS-2.5.0\doc\cdoc\html` 迁入，832 文件逐字节校验一致） |
 | 参与解析的正文页 | **288**（递归 527 个 html − 88 个 search 空壳 − 3 个 static − 147 个源码清单 = 289 个候选，再跳过 1 个无 `div.contents` 的独立工具页） |
-| 产物 | `data/processed/html_v1.jsonl` —— 1007 个节点 → **1305 chunk**，Metadata 100% 合规（282 个文档产出至少 1 个 chunk，其余 6 个为 `dir_*` 参考页与 `functions_vars_x/y` 索引存根） |
-| Schema | `data_pipeline/metadata.py` v1.0（冻结版）**未改动**，字段集与 `ALL_FIELDS` 完全一致 |
-| 下游 | `scripts/ingest.validate_nodes_jsonl` 通过；`retrieval.nodes.load_nodes` 载入 1305 条、零空 ID；B 的 SourceRef 7 字段投影正常（页码为 `None`） |
+| 产物 | `data/processed/html_v1.jsonl` —— **1337 chunk**，Metadata 100% 合规（282 个文档产出至少 1 个 chunk，其余 6 个为 `dir_*` 参考页与 `functions_vars_x/y` 索引存根） |
+| Schema | `data_pipeline/metadata.py`，字段集与 `ALL_FIELDS` 完全一致 |
+| 下游 | `scripts/ingest.validate_nodes_jsonl` 通过；`retrieval.nodes.load_nodes` 载入 1337 条、零空 ID；SourceRef 投影正常（页码为 `None`） |
 
 ---
 
@@ -30,12 +29,12 @@
 
 ---
 
-## 3. HTML 的「页等价物」（第三周抽象决策）
+## 3. HTML 的「页等价物」
 
 | PDF 侧 | HTML 侧 |
 |---|---|
-| `source_file` = PDF 文件名 | `source_file` = HTML 文件名（= §7.2 的 document_id） |
-| 双页码四字段 = int 真值 | **一律 `None`**（metadata v1.0 的 html 分支已允许；`validate_metadata` 不再要求） |
+| `source_file` = PDF 文件名 | `source_file` = HTML 文件名 |
+| 双页码四字段 = int 真值 | **一律 `None`**（metadata 的 html 分支允许） |
 | 页码用于引用定位 | `source_url` 必填（html 分支强制），引用可跳转 |
 
 `source_url = {base_url}/{文件名}`；`base_url` 由实验配置 `sources[].url` 提供（schema 对 `type: html` 强制要求该字段）。留空时退化为文件名定位符，保证契约非空。
@@ -82,14 +81,14 @@ python -m data_pipeline.html_loader --limit 20 --report-json .tmp/html_report.js
 |---|---|---|
 | `--doc-dir` | `data/raw/developer-guides/cdoc_html` | HTML 源目录 |
 | `--out` | `data/processed/html_v1.jsonl` | Node 集输出 |
-| `--base-url` | 空 | 引用基址；**建议由 D 传 `sources[].url`** |
-| `--source-id` | `zrdds_dev_guide` | C 的 `generation/source_labels.py` 已按此名注册，勿改 |
+| `--base-url` | 空 | 引用基址；**由实验配置 `sources[].url` 传入** |
+| `--source-id` | `zrdds_dev_guide` | 与本仓库配置一致，勿改（`generation/source_labels.py` 已按此名注册） |
 | `--version` | `2.4` | index.html 自称「ZRDDSv2.4.0 在线文档」（实测） |
 | `--max-chars` / `--min-chars` | `2500` / `20` | 与 struct / semantic 方案同口径 |
 | `--include-source-listings` | 关 | 收录 147 个源码清单页（决策可逆） |
 | `--drop-index-pages` | 关 | 剔除纯索引页（annotated/classes/functions/pages/modules/dir_*） |
 
-**给 D 的接线接口**（`scripts/ingest.py` 多来源注册式接入，D 域任务）：
+**接线接口**（`scripts/ingest.py` 多来源注册式接入）：
 
 ```python
 from data_pipeline.html_loader import build_html_chunks, write_nodes_jsonl
@@ -107,8 +106,8 @@ write_nodes_jsonl(chunks, "data/processed/html_v1.jsonl")
 |---|---|---|
 | Metadata 不合规 / 缺 source_url / 页码非空 | 0 / 0 / 0 | html 分支契约全绿 |
 | 噪声残留 / 代码块切断 / 表格异常 | 0 / 0 / 0 | 过滤与原子保护生效 |
-| chunk_id 重复 | 0 | 1305 条全局唯一 |
-| 长度分布 | min 15 / p50 279 / p95 2040 / max 4135 | 平均 561 字符 |
+| chunk_id 重复 | 0 | 1337 条全局唯一 |
+| 长度分布 | min 15 / p50 305 / p95 2042 / max 4135 | 平均 584 字符 |
 | 超 1200 token | 8 | 均为被原子保护的代码块（与 PDF 侧同策略） |
 | 重复文本 94 条 | 已核 | **源 HTML 自身冗余**，非解析重访：如 `downloads.html` 同一安装包表在 3 个版本节各出现一次（源码实测出现 5 次）、`group___c_publication.html` 多个函数共用同一段返回码清单（源码 19 次） |
 
@@ -116,25 +115,15 @@ write_nodes_jsonl(chunks, "data/processed/html_v1.jsonl")
 
 ---
 
-## 7. 已知边界与待会签
-
-1. **三项决策已按默认值落地，均可一键回退**：① `source_id` 用 `zrdds_dev_guide`（沿用 C 的标签表）；② 页等价物 = 一文件一文档单元；③ 默认排除 147 个 `*_source.html`。若会签改口径，前两项是参数、第三项是开关。
-2. **`source_id` 粒度仍待定**：`faq.html`（22 chunk，content_type=faq）与 `releasenotes.html`（13 chunk，版本记录，如「ZRDDS版本记录 / ZRDDSv2.2.5」）具备单开 `api_reference` / `faq` 子源的条件——C 的 `source_labels.py` 为此留了空位。拆分需 C/B/E 同步改优先级与过滤条件。
-3. **`base_url` 尚未定值**：当前用文档站占位基址试跑；正式值应由 D 写入实验配置 `sources[].url`。
-4. **可选第二 PDF 未接**：`ZRDDS故障排查指南.pdf`（70 页 / 95 书签，印刷页偏移实测也是 −6，但末两页附录重新从 1 编号 → 偏移 −68）。接它前必须把 `pdf_loader.PAGE_OFFSET` 从模块级常量改为按文档参数化——它被 `section_tree.py` 与 `quality_check.py` 直接 import。
-5. **`min_chars=20` 会丢弃 15 个节点**（1022 → 1007）：均为 `dir_*` 参考页、`functions_x/y` 索引存根与 4 条 <20 字符的模块一句话摘要。`--min-chars 0` 可全量保留。
-6. **~~混合内容容器丢正文~~（2026-09-17 已修复，D 代修）**：`_walk_blocks` 的容器分支在「直系正文 + 标签子元素」混排时只递归子元素，容器自身的直系 `NavigableString` 被整体丢弃；而 `sub/sup/code/em/a` 等行内标签（同在 `CONTAINER_TAGS`）递归后各自成为独立 text 块。实测症状（用户报障）：`md_resources_docs_online_c_required_tcp_concurrent.html` 的并包公式段「默认值为0…8388608（8M）」整段丢失，`n` 的下标 `i/1/2/k/1/k-1` 变成六个孤儿碎片块。修复：新增 `INLINE_TAGS`——混合内容且子元素全为行内时整段一次取文（下标内联进正文），含块级子元素时改为按文档序把直系文本落块（用精确类型判定排除 `Comment`/`Doctype` 等 `NavigableString` 子类）。全语料实测：正文 **733,172 → 781,442 字符（+48,270，+6.6%）**，节点 1305 → 1337，重复节点 94 → 63，空节点/噪声/chunk_id 重复保持 0；回归测试 5 条见 `test_html_loader.py`「混合内容容器回归」一节（含真实语料守卫）。**影响面**：`html_v1.jsonl` 与统一 Node 集 `struct_v1__b95d1061.jsonl` 内容变更 → 多来源索引必须重建（R2 指纹闸门会拒绝复用旧索引）。遗留（上游文档缺陷，非本加载器）：该源文件表格本身含转义 `&lt;td&gt;` 残片（`max_flush_delay<td>…`），加载器忠实保留。
-
----
-
-## 8. 复现与验证
+## 7. 复现与验证
 
 ```bash
 # 单测（合成 Doxygen 夹具 + 真实语料守卫）
 python -m pytest tests/unit/data_pipeline/test_html_loader.py -q
 
-# 契约双向核对（产物 → B 的 load_nodes / D 的 ingest 校验器）
-python .tmp/verify2.py
+# 全量重建（产物 → 后续由 ingest/检索层消费）
+python -m data_pipeline.html_loader --doc-dir data/raw/developer-guides/cdoc_html \
+    --out data/processed/html_v1.jsonl --source-id zrdds_dev_guide --version 2.4
 ```
 
 单测 29 条覆盖：文件发现与开关可逆、标题层级与 `section_path`、成员签名/`api_name`/参数表、代码 fence 与行号剥离、表格线性化与超大表分段（表头重复）、Schema html 分支、URL 拼接、chunk_id 唯一、碎片归并、`load_nodes` 可消费、混合内容容器（行内下标/代码不丢正文、直系文本按文档序、注释不入正文），以及 289 内容页与真实成员页的守卫断言。

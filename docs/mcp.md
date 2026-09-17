@@ -1,4 +1,4 @@
-# MCP Server（指南 §7 任务 2 · 成员 D · v0.1）
+# MCP Server
 
 把知识库问答以 MCP（Model Context Protocol）工具暴露给 IDE/Agent 客户端——
 "前端三路线"中的 MCP 封装路线打底，与自研页（E）和 REST/SSE（`POST /query`）并行。
@@ -7,7 +7,7 @@
 
 | 工具 | 入参 | 返回 | 说明 |
 |---|---|---|---|
-| `query_knowledge_base` | `question`（必填）、`top_k`（0=服务默认） | `{request_id, answer, sources[], error?}` | `sources` 为 SourceRef 7 字段（node_id/source_id/source_name/section/page_print/page_physical/score），无正文泄漏；生成失败时 `answer=null` + 可读 `error`，已取得的引用不丢 |
+| `query_knowledge_base` | `question`（必填）、`top_k`（0=服务默认） | `{request_id, answer, sources[], error?}` | `sources` 为 SourceRef 8 字段（node_id/source_id/source_name/section/page_print/page_physical/score/source_url），无正文泄漏；生成失败时 `answer=null` + 可读 `error`，已取得的引用不丢 |
 | `get_sources` | `request_id` | `{question, answer, sources[]}` | 引用回查，与 HTTP `GET /sources/{rid}` 同源（`{LOG_DIR}/sources.jsonl` 持久化） |
 
 ## 启动与接入
@@ -36,7 +36,7 @@ RAG_MODE=live make mcp          # 真实检索+生成（需先 make index；启�
 ## 与 HTTP 通路的共享约定
 
 - **同一套装配**：`build_pipeline`（mock/live 一处切换）+ `PersistentSourcesStore`；
-  mock 不落盘检索日志，live 落 `retrievals.jsonl`（B/D 会签文档）。
+  mock 不落盘检索日志，live 落 `retrievals.jsonl`（字段定义见 `docs/retrieval-log-schema.md`）。
 - **request_id 空间**：MCP 侧前缀 `mcp-`（12 hex），HTTP 侧为纯 12 hex——
   日志关联与 `/sources` 回查互不混淆。
 - **X3 语义一致**：引用一经取得即持久化（answer 暂 null），生成完成后二次覆盖。
@@ -51,7 +51,3 @@ RAG_MODE=live make mcp          # 真实检索+生成（需先 make index；启�
 - 端到端 stdio 冒烟：`python scripts/smoke_mcp.py`（正式验证入口，退出码 0 = 通过；
   起子进程走完整协议：initialize → list_tools → 两工具调用 → 引用回查）。
 
-## 开放项
-
-- live 生成侧依赖 C 的 `generation/`（已合入）；`generation.enabled` 配置语义待与 C 定（议题同 week2）。
-- E 若确认切 MCP 封装路线，再评估资源类封装（如把 section_tree 暴露为资源）——当前仅两个工具打底。

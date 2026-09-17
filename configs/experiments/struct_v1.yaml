@@ -1,28 +1,28 @@
 # =====================================================================
-# RAG4ZRDDS 实验配置 · 第一周正式基线（struct_v1）
+# RAG4ZRDDS 实验配置 · 正式基线（struct_v1）
 # 由 example_v1.yaml 复制而来：结构感知分块(struct/v1) + bge-m3 向量检索 Top-5。
 # 逐参数说明见同目录 README.md。
 #   * 一次实验一个 yaml；文件名 = 实验 ID，下游产物命名全部由此派生
-#   * 固定字段写错会被校验拦截；各 params: 下为对应 Owner 的自由区
+#   * 固定字段写错会被校验拦截；各 params: 下为对应模块的自由区
 #   * 本文件入 Git：不要上传你的apikey，只允许引用 .env 的环境变量名
 # =====================================================================
 schema_version: 1
 
 experiment:                        # ── 实验身份
   name: struct_v1                 # 必须与文件名一致（脚本强制校验）；复制本模板后改成新实验名
-  description: 第一周基线：结构感知分块 + bge-m3 向量检索（Top-K）
+  description: 结构感知分块 + bge-m3 向量检索（Top-K）
   stage: baseline                  # baseline | ablation | regression | product
 
 sources:                           # ── 知识源注册表
   - id: user_manual                # metadata.source_name 引用名，全配置唯一
     type: pdf                      # pdf | html
     path: data/raw/manuals/ZRDDS用户手册.pdf
-    version: "2.0"                 # 文档版本＝A 的 metadata.version 真值（手册标 2.0；2.4 留给第三周 HTML 源）
+    version: "2.0"                 # 文档版本（进 metadata.version；手册封面标 2.0）
     # url: https://...             # type: html 时必填；PDF 留空
 
 ingest:                            # ── raw → cleaned 编排（D）
   cleaned_output: data/cleaned/pages.jsonl
-  quality_check: true              # 流水线内执行 A 的质量检查（指南 §16 清单）
+  quality_check: true              # 流水线内执行数据质量检查
 
 chunking:                          # ── 分块方案（格式 D 定 / 参数 A 填）
   method: struct                   # struct | semantic | hybrid | fixed
@@ -56,20 +56,20 @@ retrieval:                         # ── 检索（B）
   # rerank_model: bge-reranker-v2-m3   # mode=hybrid_rerank 时必填
   filters: {}                      # metadata 过滤条件，如 {version: "2.4"}
   source_priority: []              # 优先级草案见 docs/source-priority-draft.md（A 接入 HTML 后填 [zrdds_dev_guide, user_manual]）
-  params: {}                       # ◆ 参数袋：B 自由区（bm25 k1/b、融合权重…）
+  params: {}                       # ◆ 参数袋：bm25 k1/b、融合权重、版本加权等
 
-generation:                        # ── 生成（C）
-  enabled: true                    # 第二周：接入生成与评测
-  prompt_version: v2               # 对应 generation/prompts/v2（§7 多来源 + §8.4 冲突披露/优先级）
+generation:                        # ── 生成
+  enabled: true                    # 接入生成与评测
+  prompt_version: v2               # 对应 generation/prompts/v2（多来源 + 冲突披露/来源优先级）
   llm_env_prefix: LLM_             # 读 .env 中 LLM_PROVIDER/BASE_URL/API_KEY/MODEL
 
-evaluation:                        # ── 评测（数据集 E / 口径 C / 执行 D）
+evaluation:                        # ── 评测
   dataset: evaluation/datasets/questions.jsonl
   expected_sources: evaluation/datasets/expected_sources.jsonl
   retrieval_metrics: [hit_rate@5, mrr@5, precision@5, recall@5]   # 另支持 precision@K / recall@K
-  response_metrics: []             # 第二周起：faithfulness / answer_relevance 等
+  response_metrics: []             # 如 faithfulness / answer_relevance 等
   sample_size: null                # null=全集；联调冒烟可设 10
 
-report:                            # ── 回归落盘（D，§10 机制的载体）
+report:                            # ── 回归落盘
   dir: evaluation/reports          # 报告 = {dir}/{experiment.name}.json
   compare_baseline: null           # 回归对比基准报告名，如 baseline.json

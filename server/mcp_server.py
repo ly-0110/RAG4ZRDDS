@@ -1,4 +1,4 @@
-"""MCP Server 打底（指南 §7 任务 2 无条件部分）—— stdio 传输，两个工具。
+"""MCP Server —— stdio 传输，两个工具。
 
 工具（面向 IDE/Agent 客户端的开发调试问答入口）：
   query_knowledge_base(question, top_k=0)

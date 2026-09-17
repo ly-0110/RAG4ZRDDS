@@ -1,4 +1,4 @@
-"""LLM 客户端：读 .env 的 OpenAI 兼容配置，产出流式回答（指南 §5 成员 C 第一条）。
+"""LLM 客户端：读 .env 的 OpenAI 兼容配置，产出流式回答。
 
 约定：
   * 密钥进 .env（不入 Git），经环境变量读取；前缀由实验配置
@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class LLMConfig:
-    """一次生成所需的 LLM 配置；provider 为前瞻字段，第一周统一走 OpenAI 兼容。"""
+    """一次生成所需的 LLM 配置；provider 为前瞻字段，当前统一走 OpenAI 兼容。"""
 
     provider: str
     base_url: str

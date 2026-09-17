@@ -1,8 +1,8 @@
 # G:\DSH workspace\data_pipeline\metadata.py
 """
-统一 Metadata Schema（单一事实源）—— v1.0 已冻结（Week 2），Week 3 HTML 直接复用。
+统一 Metadata Schema（单一事实源）——PDF 与 HTML 来源共用同一字段集。
 
-冻结声明（2026-08-31，Week 2 验收）：
+字段取舍原则：
   * 本文件是 Metadata 的唯一事实源；任何新增/删除/改名必填字段都必须
     走「升级 v2.0 + 迁移映射」流程，禁止就地修改 REQUIRED_FIELDS。
   * 消费方（Chunker / Retriever / Citation / API / HTML Loader）只允许
@@ -10,7 +10,7 @@
   * PDF 与 HTML 双来源统一落盘此 Schema；来源差异只体现在字段取值
     （html 必填 source_url，pdf 必填双页码），字段名完全一致。
 
-与指南 §7.2 建议 Schema 的对应关系（HTML 复用对照表）：
+PDF / HTML 两来源的字段对照：
   §7.2 字段   → 本 Schema 字段
   document_id → source_file（文档级唯一标识；HTML 可为规范 URL 的文件名）
   source_name → source_file
@@ -34,10 +34,10 @@ SCHEMA_VERSION = "v1.0"
 FROZEN_SINCE = "2026-W2"   # 冻结周次；v2.0 升级时必须提供迁移映射
 
 # ========== 字段白名单 ==========
-# 必填字段（缺一不可）—— Week 2 冻结，Week 3 复用
+# 必填字段（缺一不可）
 REQUIRED_FIELDS = [
     "source_id",            # 知识源注册名（=实验配置 sources[].id，如 "user_manual"；
-                            # 2026-08-28 会签必填，B 检索日志/Citation 依赖，勿删）
+                            # 检索日志与 Citation 依赖，勿删）
     "source_file",          # 来源文件标识（PDF 文件名 / HTML 文档名）＝§7.2 document_id
     "source_type",          # "pdf" | "html"
     "part",                 # PART 级标题（HTML 可为 ""，section_path 仍完整）
@@ -73,7 +73,7 @@ SOURCE_TYPES = ("pdf", "html")
 LANGUAGES = ("c", "cpp", "java", "python", "csharp", "go")
 PLATFORMS = ("linux", "windows", "macos")
 
-# 字段说明（Week 3 HTML Loader / 检索过滤 / 前端渲染共用）
+# 字段说明（HTML Loader / 检索过滤 / 前端渲染共用）
 FIELD_DOCS: Dict[str, str] = {
     "source_id": "知识源注册名（=实验配置 sources[].id，如 user_manual）；跨 chunk 相同",
     "source_file": "来源文件标识（PDF 文件名 / HTML 文档名）；文档级唯一，跨 chunk 相同",
@@ -222,7 +222,7 @@ def get_field_docs() -> Dict[str, str]:
 if __name__ == "__main__":
     import sys as _sys
     _sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[union-attr]  # GBK 控制台防崩（D5 同款）
-    # PDF 示例（Week 2 产物同款；页码真值：印刷页 = 物理页 − 6，物理页 1 基）
+    # PDF 示例（页码真值：印刷页 = 物理页 − 6，物理页 1 基）
     m = build_chunk_metadata(
         source_id="user_manual",
         source_file="ZRDDS用户手册.pdf",
@@ -242,7 +242,7 @@ if __name__ == "__main__":
     print("PDF 示例校验:", validate_metadata(m) or "通过")
     print()
 
-    # HTML 示例（Week 3 复用同一 Schema）
+    # HTML 示例（复用同一 Schema）
     h = build_chunk_metadata(
         source_id="zrdds_dev_guide",
         source_file="zrdds-dev-guide.html",

@@ -1,13 +1,13 @@
-# RAG4ZRDDS Ingest 编排管线（v1.4 · 多来源注册式）
+# RAG4ZRDDS Ingest 编排管线（多来源注册式）
 
-> 维护人：成员 D。调用 A 交付物（data_pipeline/）完成 raw → cleaned → processed 的自动化编排。
-> 当前 stage：多来源注册式接入（Week 3，指南 §7）——按配置 `sources[]` 注册表逐来源分派 loader，
-> 合并为统一 Node 集；单来源配置行为与 v1.2 逐字节兼容（四个真实配置 hash8 回归钉死）。
+> 调用 `data_pipeline/` 的解析与分块模块，完成 raw → cleaned → processed 的自动化编排。
+> 按配置 `sources[]` 注册表逐来源分派 loader，合并为统一 Node 集；
+> 单来源配置行为保持向后兼容（四个单来源配置的 hash8 由回归测试钉死）。
 
 ## 概览
 
 `scripts/ingest.py` 是 **raw → cleaned → processed** 三阶段编排的唯一入口。
-由 `make ingest` 触发，读实验配置 → 调各 Owner 模块 → 逐一校验产物 → 落盘。
+由 `make ingest` 触发，读实验配置 → 调各处理模块 → 逐一校验产物 → 落盘。
 
 ```
   data/raw/manuals/ZRDDS用户手册.pdf
@@ -81,8 +81,8 @@ cfg = load(config_path)
 
 | 产物 | 说明 |
 |---|---|
-| `PageRecord.physical_page` | PDF 物理页码，**1 基**（与阅读器页码一致；2026-08-29 前曾为 0 基，已修正） |
-| `PageRecord.printed_page` | 印刷页码：优先解析页眉印刷数字（地面真值），解析不到按 `physical_page + PAGE_OFFSET` 兜底（`PAGE_OFFSET = −6`，2026-08-29 页眉逐页核对定值；前 6 页封面/罗马数字前言为 `None`）。旧 `+7` 为方向错误，已作废 |
+| `PageRecord.physical_page` | PDF 物理页码，**1 基**（与阅读器页码一致） |
+| `PageRecord.printed_page` | 印刷页码：优先解析页眉印刷数字（地面真值），解析不到按 `physical_page + PAGE_OFFSET` 兜底（`PAGE_OFFSET = −6`；前 6 页封面/罗马数字前言为 `None`） |
 | `PageRecord.text` | 页全文（含页眉页码，步骤 2 清洗） |
 | `PageRecord.blocks` | PyMuPDF `get_text("dict")` 原始块结构：bbox、字体、字号、加粗——章节树正文标题候选所需 |
 | `PageRecord.toc_entries` | 本页涉及的书签条目（`[{level, title, physical_page}]`） |
@@ -97,7 +97,7 @@ cfg = load(config_path)
 - 正则匹配页码行：纯数字、`第 X 页`、`X/Y` 等
 - 压缩连续空行至最多 1 个，首尾去空行
 - 不修改双页码、toc_entries、blocks
-- 实测（2026-08-27）：295 页总字符 323,708，非空页 294/295；无整行页眉残留（正文中的产品名提及属合法内容）
+- 实测：295 页总字符 323,708，非空页 294/295；无整行页眉残留（正文中的产品名提及属合法内容）
 
 ### 步骤 3：落盘 pages.jsonl
 
@@ -134,7 +134,7 @@ cfg = load(config_path)
 
 ### 步骤 6：分块构建 + Node 集校验 + 质检
 
-**调用（A 交付的真实接口，2026-08-27 会签实测）**：
+**调用（真实接口）**：
 
 ```python
 from data_pipeline.chunkers.base import get_chunker
@@ -149,10 +149,10 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 | 输入 | `pages_compact`（内存）+ 磁盘 `section_tree_v1.jsonl` 扁平列表 |
 | 输出 | `nodes_path(cfg)` = `data/processed/{method}_{version}.jsonl`，逐行 `Chunk.to_dict()` |
 | 契约校验 | `validate_nodes_jsonl`：6 个顶层字段齐全、chunk_id 唯一、text 非空、metadata 必填字段完整（以 `data_pipeline/metadata.py` 白名单为准）、双页码差值全局一致 |
-| 质检 | `cfg.ingest.quality_check=true` 时运行 `data_pipeline.quality_check.check_nodes`（指南 §16 清单），打印报告；质检异常仅告警 |
+| 质检 | `cfg.ingest.quality_check=true` 时运行 `data_pipeline.quality_check.check_nodes`，打印报告；质检异常仅告警 |
 | 失败即停 | 分块器异常、产出 0 chunk、契约校验不通过 → 退出码 1 |
 
-**实测基线（2026-08-27，example_v1 配置）**：105 chunk，长度 min 409 / p50 1,411 / avg 2,870 / p95 8,809 / max 28,180；无空 Node、无重复、无代码块/表格切断、页码映射全一致（差值 7）。
+**实测基线（`struct_v1` 配置，120 题正式问题集所用产物）**：301 chunk，长度 min 24 / p50 777 / avg 990 / max 2,499；无空 Node、无重复、无代码块/表格切断，页码映射校验 0 错（印刷页 = 物理页 − 6）。对照方案：`semantic_v1` 622 块、`hybrid_v1` 906 块。
 
 ## 产出文件
 
@@ -201,10 +201,10 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 | `token_count` | int | cl100k_base token 数，供 Embedding 截断判断 |
 | `char_start` / `char_end` | int | 在本节拼接文本中的字符偏移（溯源高亮用） |
 
-`metadata` 必填字段：`source_id`（对齐实验配置 `sources[].id`，2026-08-28 新增） `source_file` `source_type` `part` `chapter` `section_path` `section_level` `printed_page_start/end` `physical_page_start/end` `node_ids[]` `chunk_id` `version` `product`；
-可选字段（第三周 HTML 回填）：`language` `platform` `content_type` `api_name` `error_code` `source_url`（PDF 阶段均为 None）。
+`metadata` 必填字段：`source_id`（对齐实验配置 `sources[].id`） `source_file` `source_type` `part` `chapter` `section_path` `section_level` `printed_page_start/end` `physical_page_start/end` `node_ids[]` `chunk_id` `version` `product`；
+可选字段（HTML 来源回填，PDF 阶段为 None）：`language` `platform` `content_type` `api_name` `error_code` `source_url`（PDF 阶段均为 None）。
 
-## 多来源注册式接入（Week 3，指南 §7）
+## 多来源注册式接入
 
 **目标**：新来源放入 raw + 在配置注册即可重建索引；PDF 与 HTML 独立解析、统一 Node、统一检索（§7.4）。
 
@@ -216,20 +216,20 @@ node_records = [c.to_dict() for c in chunks]           # 落盘由编排层负�
 - `metadata.source_id` 必须等于注册 `id`（抓 loader 错挂来源）
 - 注册声明了 `version` 时 `metadata.version` 必须一致（抓 2.0/2.4 错配）
 - 双页码差值按 `source_id` **分组**校验——多 PDF 来源可各有偏移；HTML 无页码自然跳过
-- `chunk_id` 全局唯一（跨来源重复在建库前暴露，抓 A 侧 ID 前缀撞车）
+- `chunk_id` 全局唯一（跨来源重复在建库前暴露，避免不同来源的 ID 前缀撞车）
 
 ### 分派与产物命名
 
 | | 单来源配置（现状，兼容冻结） | 多来源配置 |
 |---|---|---|
 | PDF 链路 | 六步全链路（既有产物名 pages.jsonl / section_tree_v1.jsonl） | 同链路，产物按来源拆分 `pages_{sid}.jsonl` / `section_tree_{sid}.jsonl` |
-| HTML 链路 | —（不注册 html 即可） | 经 A 的 `html_loader.build_html_chunks`（PR#28 已交付，见下接线） |
+| HTML 链路 | —（不注册 html 即可） | 经 `html_loader.build_html_chunks`（见下接线） |
 | Node 集 | `{method}_{version}.jsonl`（既有命名不变） | `{method}_{version}__{src8}.jsonl`（src8=来源集指纹，见 `experiment_config.sources_digest8`） |
 | 索引身份 | hash8 不含 sources（**既有 4 个真实索引不受影响**，R5 回归钉死） | 来源集参与 `index_identity_json`——来源集变了索引名必变，与 R2 产物指纹双保险 |
 
 **落盘顺序**：先合并校验、后写盘——坏合并不得覆盖既有好产物（Node 集同名覆盖即索引指纹翻转）。
 
-### html_loader 接线（成员 A 第三周已交付，PR#28 合入 2026-09-12）
+### html_loader 接线
 
 ```python
 # data_pipeline/html_loader.py 实际接口（docs/html-loader.md §5；Chunk.to_dict 同款顶层结构）
@@ -241,61 +241,22 @@ build_html_chunks(doc_dir, *, base_url="", source_id="zrdds_dev_guide", version=
 
 metadata 经 `data_pipeline.metadata.build_chunk_metadata` 构建
 （`source_type="html"`：双页码 None、`source_url`/`title` 必填、version=2.4）。
-D 侧 `_process_html_source` 从配置透传 `max_chunk_chars`/`min_chunk_chars`（params 袋缺省 2500/20）。
+`_process_html_source` 从配置透传 `max_chunk_chars`/`min_chunk_chars`（params 袋缺省 2500/20）。
 
-**接线实测（2026-09-12，D）**：多来源配置 `struct_multisrc_v1.yaml` 端到端通过——
-PDF 301 + HTML 1305 = **1606 条统一 Node 集**（`struct_v1__b95d1061.jsonl`），跨来源契约校验全过；
-A 入库产物 `html_v1.jsonl` 与接线实时产出**逐字节一致**（可复现性验证）；
+**接线实测**：多来源配置 `struct_multisrc_v1.yaml` 端到端通过——
+PDF 301 + HTML 1337 = **1638 条统一 Node 集**（`struct_v1__b95d1061.jsonl`），跨来源契约校验全过；
+独立入库的 `html_v1.jsonl` 与接线实时产出**逐字节一致**（可复现性验证）；
 `inspect_nodes` 分来源统计：html 缺 source_url 0 / pdf 缺双页码 0 / 重复 ID 0。
-
-## 已知边界
-
-> 分块交付物的缺陷根因、实测证据与修复方向统一见 **`docs/chunking-defect-report.md`**（D1~D5，2026-08-27 诊断，修复责任人 A）。下表仅登记对管线的影响与状态。
-
-| 边界 | 影响 | 状态 |
-|---|---|---|
-| `finalize_page_ranges` 中的 `PAGE_OFFSET` 硬编码 | 曾与指南旧约定 +6 冲突 | **已销项**（2026-08-29 页眉真值核对：`printed = physical − 6`，常量统一走 `pdf_loader.PAGE_OFFSET`；**旧 +7 为方向错误**——2026-08-28 会签值使全部 Citation 页码偏移 +12/物理页差 1，用户前端验收时发现，已修复并新增：页眉解析地面真值、1 基物理页、ingest 偏离公式告警、`tests/unit/data_pipeline/test_page_numbering.py` 真值回归） |
-| **D1 整页抓取、页内章节边界不切分**：76/105 三级节 chunk（72%）头部串色，文本与标题不符 | 检索命中率与 Citation 可信度的根本风险 | **已修复**（6c0e6e3 标题页内偏移切分；实测 127/127 零串色，回归测试锁定） |
-| **D2 同页兄弟节点区间颠倒**：22/127 三级节零产出（1.3、2.1、10.6 等），内容被相邻节吞并 | 覆盖率仅 93%（301,449 / 323,708 字符）；缺节且归属错 | **已修复**（6c0e6e3 与 D1 同根；实测 127/127 零缺失，覆盖率 92%→缺口为目录/引言类文本，见下行） |
-| **D3 四/五级 `section_path` 未嵌套父级标题**：`_is_descendant` 恒 False，超大节下切完全失效（37/105 超 2500 字符，最大 28,180 字符/12,606 token） | 超 embedding 截断上限，检索质量风险 | **已修复**（6c0e6e3 路径嵌套+子节点迭代+超长段兜底；实测非原子块全 ≤2500） |
-| PART 引言、章引言等非三级节文本不参与分块 | 覆盖率缺口的另一来源 | 重测后仍成立：缺口=目录页+前言+PART/章引言，是否纳入待会签 |
-| **D4 `quality_check.HEADER_RE` 未按行锚定** | 3 处正文合法产品名提及被误判"页眉残留 2.9%" | **已修复**（6c0e6e3 行锚定+精确判重；实测页眉残留 0） |
-| **D5 `metadata.py`/`structure.py` 的 `__main__` 自测含 emoji** | Windows GBK 控制台 UnicodeEncodeError；不影响管线 | **已修复**（6c0e6e3 `__main__` stdout reconfigure UTF-8） |
-| 提交说明"1,342 个 chunk"与实测 105 条不符 | 产物本身完整可复现（重新生成与提交版逐字节一致），仅说明文字有误 | 已与产物核对，待 A 更正说明 |
-| `extract_text_titles` 仅从已命名的 blocks 里提取 | PDF 中图片截断的文本行不会进入候选 | 属预期行为 |
-| pages.jsonl 不含 blocks | 后续消费若需 blocks 需重走 extract_pdf | 按需实现 |
-| chunkers 依赖 `tiktoken`，首次运行需联网下载 cl100k_base 词表 | 干净环境 `make setup` 后首次 `make ingest` 略慢 | 已列入 requirements |
-| **R1 PR #11 合入导致管线回退（2026-09-01）**：A 的 feature/pdf-parser 基于未含 D1~D5/source_id/页码真值修复的旧基线开发，合入后 `pdf_loader`（0 基物理页+`printed=physical+7`）、`section_tree`（D1/D2/D3/D5 丢失）、`quality_check`（页眉正则与判重回退、页码校验按 +7 假绿）、`structure`（超长段兜底丢失，产物 max 28180）、`metadata`（会签字段 `source_id` 被移除）整体回退；三方案产物页码全错（printed 13–301） | 全部 Citation 页码错误；B 的 `SourceRef.source_id` 退化为 unknown；struct 覆盖率退回 105 块 | **已修复**（D 代修：四文件恢复修复版；metadata 超集保留 A 的冻结声明/HTML 对照表并恢复 `source_id` 必填；semantic 块页码改块起始页口径；hybrid 清除 Schema 外 `chunk_prefix` 泄漏；`metadata.__main__` 补 D5 同款 UTF-8；三方案产物全量重跑：struct 301 / semantic 1059 / hybrid 906（bge-m3 真实跑），质检页码映射 0 错，live 检索 DurabilityQosPolicy 复测 印刷127/物理133 正确） |
-| **R2 索引复用不含产物指纹（run_experiment/build_index）**：hash8 仅由配置派生，产物重跑而配置未变时旧索引被静默复用 → 索引向量与磁盘产物脱节 | 脏索引上出的实验指标全部失真且不可察觉 | **已修复**（manifest 新增 `nodes_file_sha12` 指纹；`_ensure_index` 复用前硬校验，不符拒绝并提示 --rebuild；旧 manifest 无指纹时警告放行） |
-| **R3 hybrid 子节下切重复产出（2026-09-01）**：A 复制 structure 的 `_split_by_subsections` 时丢失 `_has_intermediary` 中间祖先过滤，5 级节点同时被父级候选与递归候选产出 → 真实产物 223 个 chunk_id 碰撞（446 行涉及），建索引必炸 DuplicateIDError | 索引构建失败 | **已修复**（b595f09 补过滤；mock 复跑 452 块零重复；真实复跑 906 块零重复；嵌套树回归测试锁定） |
-| **R5 hash8 覆盖整份配置，无关段改动孤儿化真实索引（2026-09-07）**：`config_hash8` 对 `canonical_json(整份配置)` 取值，C 在 PR#18 把三个 yaml 的 `generation` 段改为 `enabled: true`/`prompt_version: v1`（合法且必要的改动）即改掉全部派生目录名 | 三个真实 bge-m3 索引（struct 301 / semantic 1059 / hybrid 906 节点）全部孤儿化；`make serve` live 启动直接失败（实测报「索引不存在 struct_bge-m3_47950b94」）；重建代价 CPU 上 12~40 分钟/个 | **已修复**（hash8 改为只对索引身份段取值：`chunking`/`embedding`/`index`/`retrieval(mode,params,filters)`；`generation`/`evaluation`/`report`/`experiment` 不再参与。实测改生成与评测段 hash8 不变、改 embedding 或 retrieval.mode 仍变；README 与两个 yaml 注释同步更正） |
-| **R6 产物指纹对换行符敏感（2026-09-07）**：`nodes_file_sha12` 对原始字节取哈希，而 `.gitattributes` 的 `*.jsonl text eol=lf` 会把产物规范成 LF——建索引时工作树是 CRLF | 内容语义完全相同却指纹不符，三个索引全部被 R2 的硬校验误判为「产物已变」而拒绝复用；且写入侧（build_index）与校验侧（run_experiment）各有一份算法副本，任一侧单独修都会造成指纹恒不匹配 | **已修复**（哈希前 `CRLF→LF` 归一化；删除 run_experiment 的第二份副本，改为委托 build_index 的唯一实现） |
-| **H1 HTML 加载器混合内容容器丢正文（2026-09-17，用户前端报障发现）**：`_walk_blocks` 容器分支在「直系正文 + 标签子元素」混排时只递归子元素，容器直系 `NavigableString` 被丢弃，而 `sub/sup/code/em/a` 等行内标签各自变成独立 text 块 | HTML 源正文静默丢失（全语料实测约 48K 字符）+ 下标碎片污染 embedding；表现：13.2.1 并包公式整段丢失、`i/1/2/k/1/k-1` 成孤儿块（前端详情面板逐行碎片）。同内容 PDF 源仍在，故问答未露馅 | **已修复（D 代修）**：`INLINE_TAGS` 行内混合整段取文 + 含块级子元素时按文档序落直系文本（精确类型判定排除注释）；正文 +48,270 字符（+6.6%）、重复节点 94 → 63、其余质检项保持 0；5 条回归测试含真实语料守卫。**产物变更 → 多来源索引必须重建**（bm25 0.1s / vector ≈25min；R2 指纹闸门会拦截旧索引）。详见 `docs/html-loader.md` §7.6 |
-| **A 入库的 semantic/hybrid 产物疑似 mock 嵌入生成**（288/220 条，bge-m3 真实重跑为 1059/906 条） | mock 向量无语义区分度 → 断点稀少块数差 3-4 倍，A 提交版不可用于真实对比 | 已用真实 bge-m3 重跑替换（本仓库产物为真值） |
-| semantic 方案碎块：bge-m3 真实切分下 166/1059 块 <50 字符（62 块 <10 字符，图号/节号/省略号碎片） | 噪声块进索引，可能干扰检索 | **已修复**（A，2026-09-07 晚）：`_node_to_chunk` 加 `min_chunk_chars`（默认 20，可配可关），对剥离锚点后的正文判长；按旧真实产物静态核对将剔除 93 块（62 块 <10 全在内）；真实重跑块数待 bge-m3 环境复测（本机模型缺失） |
-| semantic 方案生成耗时：逐页 Document 调 splitter（约 300 次独立调用），bge-m3 CPU 全文档 ~25 分钟 | 实验迭代效率 | **已修复**（A，2026-09-07 晚）：全文档拼单 Document + 页锚点一次 embedding batch 前向；patch 单测锁定「5 页输入只传 1 Document」。同批修复锚点控制字符泄漏与跨页 node 错页（句流标签 + 游标定位起始句） |
-| semantic 方案双页码为"块起始页"单页口径（LlamaIndex node 元数据仅含起始页，跨页块止页未知） | 跨页语义块 Citation 止页可能差 1~2 页 | 已知近似，C/E 展示时以"起页"为准；如需精确止页待 A 在 Node 元数据补止页信息 |
-| semantic/hybrid 方案 section_path 按页粒度回填（页内跨节时归入最深层节点） | 页内含多小节时路径近似 | 已知近似，与三方案公平对比口径一致（A 原设计） |
-
-## 变更记录
-
-| 版本 | 日期 | 变更 |
-|---|---|---|
-| v1 | 第一周 | 骨架定稿：配置加载 → PDF 提取 → 清洗 → pages.jsonl + 契约校验 → 章节树 → 分块预留点 |
-| v1.1 | 2026-08-27 | 分块步骤接入 A 的 StructureChunker（`get_chunker` 工厂）；新增 `validate_nodes_jsonl` Node 集契约校验与 `quality_check` 质检挂接；A 交付物经实测登记上表 9 条边界 |
-| v1.2 | 2026-09-01 | A 第二周三方案交付（PR #11）检验与回退修复（R1/R2）：struct 301 条复现、semantic 288 / hybrid 220 重跑（bge-m3）；metadata 升至 15 必填 + 7 可选（恢复 source_id）；实验配置 `semantic_v1.yaml` / `hybrid_v1.yaml` 入库 |
-| v1.3 | 2026-09-08 | **多来源注册式接入（Week 3）**：sources 注册表逐来源分派（pdf 全链路 / html 接缝预留）、合并 Node 集 + 来源注册一致性校验（source_id/version/分组页码差值/跨来源 ID 唯一）、多来源派生命名（nodes 文件名 src8 后缀 + 索引身份含来源集，单来源逐字节兼容并有 4 配置 hash8 回归钉）；先校验后落盘；`inspect_nodes.py` 分来源分型统计（双页码仅对 PDF，HTML 以 source_url 为锚）；回归 `tests/unit/test_multi_source_ingest.py` 17 例，全套 195/195 |
-| v1.4 | 2026-09-12 | **A 第三周交付合入（PR#28）+ D 接线**：①`semantic.py` 遗留闭环合入（全文档单 Document 拼接 + 页锚点句流定位，碎块 `min_chunk_chars` 过滤默认 20；同批修锚点泄漏与跨页错页，上表两条已修复行随之更新）②`html_loader.py` 交付（288 正文页 → 1305 chunk，契约 `docs/html-loader.md`）③D 接缝适配 `build_html_chunks` + 多来源配置 `struct_multisrc_v1.yaml` 端到端实测 1606 条（见上方接线实测）；全套 pytest 238/238 |
 
 ## 依赖模块清单
 
-| 模块 | Owner | 状态 | 备注 |
-|---|---|---|---|
-| `scripts/experiment_config.py` | D | ✅ | 配置加载与校验 |
-| `data_pipeline/pdf_loader.py` | A | ✅ | PDF 逐页提取 |
-| `data_pipeline/cleaner.py` | A | ✅ | 页眉/页码行清洗 |
-| `data_pipeline/section_tree.py` | A | ✅ | 双通道章节树（2026-08-29 页码真值修复版；PR #11 回退后已恢复） |
-| `data_pipeline/chunkers/` | A | ✅ | structure/semantic/hybrid 三策略已交付并接入（PR #11 + D 修复） |
-| `data_pipeline/metadata.py` | A | ✅ | 15 必填 + 7 可选 Schema 单一事实源（含会签字段 source_id） |
-| `data_pipeline/quality_check.py` | A | ✅ | §16 清单自动化（页眉正则/精确判重/页码真值校验已恢复） |
-| `data_pipeline/html_loader.py` | A | ✅ | Week 3 HTML 来源 loader（Doxygen 436 页→288 正文页）；PR#28 已交付并接线（接口 `build_html_chunks`，契约 `docs/html-loader.md`）；D 侧多来源配置 `struct_multisrc_v1.yaml` 端到端实测通过 |
+| 模块 | 状态 | 备注 |
+|---|---|---|
+| `scripts/experiment_config.py` | ✅ | 配置加载与校验 |
+| `data_pipeline/pdf_loader.py` | ✅ | PDF 逐页提取与页眉页码真值解析 |
+| `data_pipeline/cleaner.py` | ✅ | 页眉/页码行清洗 |
+| `data_pipeline/section_tree.py` | ✅ | 双通道章节树（书签 × 正文标题） |
+| `data_pipeline/chunkers/` | ✅ | structure / semantic / hybrid 三策略 |
+| `data_pipeline/metadata.py` | ✅ | 15 必填 + 7 可选 Schema 单一事实源（含 `source_id`） |
+| `data_pipeline/quality_check.py` | ✅ | 数据质量清单自动化（页眉正则/精确判重/页码真值校验） |
+| `data_pipeline/html_loader.py` | ✅ | HTML 来源 loader（Doxygen 436 页 → 288 正文页，接口 `build_html_chunks`，契约 `docs/html-loader.md`） |

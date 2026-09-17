@@ -6395,8 +6395,8 @@
   ],
   "compare_baseline": null,
   "notes": [
-    "评测口径为占位：页码按印刷页匹配（印刷页 = 物理页 − 6），最终判对口径待成员 C 定版（指南 §6 任务分解）。",
-    "本次无期望来源标注（expected_sources 缺失）：仅记录检索结果，指标为空；正式标注由成员 E 随问题集交付、成员 C 定口径（见 evaluation/datasets/README.md）。"
+    "评测口径为占位：页码按印刷页匹配（印刷页 = 物理页 − 6），最终判对口径待判对口径见 evaluation/datasets/README.md。",
+    "本次无期望来源标注（expected_sources 缺失）：仅记录检索结果，指标为空；正式标注与问题集同目录交付，口径见 evaluation/datasets/README.md。"
   ],
   "response": {
     "metrics": {

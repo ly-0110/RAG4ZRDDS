@@ -1,4 +1,4 @@
-"""scripts/audit_annotations.py 单测（标注真值核对，指南 §6.1 / §10 / §9.3）。
+"""scripts/audit_annotations.py 单测（标注真值核对）。
 
 真值来源是"假产物"（本文件内构造的小样本），因此这里锁的是判定逻辑本身：
 哪些标注必须回炉、哪些能开指标闸门——与本机 data/processed 的实际内容无关。
@@ -167,7 +167,7 @@ class TestAuditAnnotation:
         assert "CONTRACT_UNKNOWN_QUESTION_ID" in codes
 
     def test_mojibake_question_text_is_blocked(self, truth):
-        """PR#36 实测形态：ASCII 保留、非 ASCII 全变字面 `?`。
+        """实测形态：ASCII 保留、非 ASCII 全变字面 `?`。
 
         这类损坏骗得过 token 检查——题面里的标识符照旧能在产物里命中，
         故必须由题面转码判定独立拦住（否则已废的题干一路走到闸门开启）。

@@ -21,7 +21,7 @@ endif
 PY := $(if $(wildcard $(VENV_PY)),$(VENV_PY),python)
 
 help:
-	@echo "targets: setup | ingest/index/experiment CFG=... | answer-eval/abstention/manual-review (C 第四周) | regression REG_ARGS='--only a,b' | test | serve | inspect | mcp | smoke-mcp"
+	@echo "targets: setup | ingest/index/experiment CFG=... | answer-eval/abstention/manual-review | regression REG_ARGS='--only a,b' | test | serve | inspect | mcp | smoke-mcp"
 	@echo "interpreter: $(PY)   (uses $(VENV_PY) when present, else system python)"
 	@echo "first real index build: ~8 min for 301 nodes, ~25 min for 1606 nodes (bge-m3 on CPU)"
 	@echo "if HF weights are cached, export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 to avoid network stalls"
@@ -42,20 +42,20 @@ index:
 experiment:
 	$(PY) scripts/run_experiment.py --config $(CFG)
 
-# 第四周 C：回答侧评测（逐题生成 + judges 判分）。SAMPLE=30 只评前 30 题冒烟；
+# 回答侧评测（逐题生成 + judges 判分）。SAMPLE=30 只评前 30 题冒烟；
 # 全量终跑 = make experiment CFG=$(ANSWER_CFG)（见 docs/reliability-report.md）
 answer-eval:
 	$(PY) scripts/run_experiment.py --config $(ANSWER_CFG) $(if $(SAMPLE),--sample $(SAMPLE))
 
-# 第四周 C：20 题「不存在信息」拒答专项（20/20 拒答则退出码 0）
+# 20 题「不存在信息」拒答专项（全部合格则退出码 0）
 abstention:
 	$(PY) evaluation/runners/abstention_eval.py --config $(ANSWER_CFG)
 
-# 第四周 C：人工抽检 30 题（§9.3）——生成六问检查清单 markdown 供人工签署
+# 人工抽检 30 题——生成六问检查清单 markdown 供评审人签署
 manual-review:
 	$(PY) scripts/sample_manual_review.py
 
-# 指南 §10 回归机制：变更 → 一键跑相关实验 → 与历史/基准报告比对 → 退出码判定
+# 回归机制：变更 → 一键跑相关实验 → 与历史/基准报告比对 → 退出码判定
 regression:
 	$(PY) scripts/run_regression.py $(REG_ARGS)
 

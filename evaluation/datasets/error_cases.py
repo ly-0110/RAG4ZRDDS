@@ -1,4 +1,4 @@
-"""错误案例集加载与校验（成员 C · 第三周 §7：混版本 + 错来源）。
+"""错误案例集加载与校验（混版本 + 错来源）。
 
 文件 evaluation/datasets/error_cases.jsonl，每行一个 JSON 对象：
 {
@@ -23,7 +23,7 @@ DATASET = Path(__file__).resolve().parent / "error_cases.jsonl"
 
 CATEGORIES = {"mixed_version", "wrong_source"}
 GOLD_BEHAVIORS = {"conflict_disclosure", "abstention", "source_priority"}
-MIN_PER_CATEGORY = 10  # 指南 §7：混版本、错来源各 ≥10 例
+MIN_PER_CATEGORY = 10  # 混版本、错来源各 ≥10 例
 
 
 def load(path: str | Path = DATASET) -> list[dict]:

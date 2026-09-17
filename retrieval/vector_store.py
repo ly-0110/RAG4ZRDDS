@@ -3,7 +3,7 @@
 embed_fn 依赖注入（文本列表 → 向量列表）：单元测试注入确定性假向量，
 生产环境由 retrieval.embeddings.build_embedding 提供 bge-m3。
 
-第一周仅支持 cosine 度量；score 约定「越高越相关」（cosine 相似度）。
+当前支持 cosine 度量；score 约定「越高越相关」（cosine 相似度）。
 """
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ def _to_chroma_where(filters: dict) -> dict:
 
     chroma 每个 where 节点只接受恰好一个操作符（实测 1.5.9：
     多键平铺 dict 报 "Expected where to have exactly one operator"），
-    组合过滤（如 {source_type: html, version: "2.4"}，PR#27 设计 §3.2-2）
+    组合过滤（如 {source_type: html, version: "2.4"}）
     必须以 {"$and": [{k: v}, ...]} 形式下发；单键保持平铺简写。
     """
     if len(filters) <= 1:
@@ -66,7 +66,7 @@ class VectorStore:
         reset: bool = False,
     ) -> None:
         if metric != "cosine":
-            raise ValueError(f"第一周仅支持 cosine 度量，收到 {metric!r}")
+            raise ValueError(f"当前仅支持 cosine 度量，收到 {metric!r}")
         import chromadb
 
         self._persist_path = Path(persist_path) if persist_path else None

@@ -1,4 +1,4 @@
-"""scripts/run_regression.py 单元测试（指南 §10 回归机制）。
+"""scripts/run_regression.py 单元测试。
 
 只测判定逻辑（可比性闸门 / 明细通道 / 指标闸门 / 变更→范围映射 / 实验发现），
 不跑真实索引与 embedding；端到端由 `make regression` 实测覆盖。
@@ -146,7 +146,7 @@ class TestDetailChannel:
 
 class TestMetricGate:
     def test_metric_drop_is_muted_by_default(self):
-        """标注未定版：指标只记录不判定（宁缺毋滥）。"""
+        """标注未通过闸门：指标只记录不判定。"""
         cur = _report(metrics={"hit_rate@5": 0.1, "mrr@5": 0.05})
         out = rr.compare_reports(_report(), cur)
         assert out["metric_channel"] == "muted"
