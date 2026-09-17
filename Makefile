@@ -1,4 +1,4 @@
-.PHONY: setup ingest index experiment answer-eval abstention manual-review regression audit test serve inspect mcp smoke-mcp help
+.PHONY: setup ingest index experiment answer-eval abstention manual-review regression audit test serve inspect mcp smoke-mcp help docker-build docker-serve docker-stop docker-logs docker-ps docker-smoke docker-clean
 
 CFG ?= configs/experiments/struct_v1.yaml
 ANSWER_CFG ?= configs/experiments/final_v1.yaml
@@ -21,7 +21,7 @@ endif
 PY := $(if $(wildcard $(VENV_PY)),$(VENV_PY),python)
 
 help:
-	@echo "targets: setup | ingest/index/experiment CFG=... | answer-eval/abstention/manual-review | regression REG_ARGS='--only a,b' | test | serve | inspect | mcp | smoke-mcp"
+	@echo "targets: setup | ingest/index/experiment CFG=... | answer-eval/abstention/manual-review | regression REG_ARGS='--only a,b' | test | serve | inspect | mcp | smoke-mcp | docker-build/docker-serve/docker-smoke/docker-stop"
 	@echo "interpreter: $(PY)   (uses $(VENV_PY) when present, else system python)"
 	@echo "first real index build: ~8 min for 301 nodes, ~25 min for 1606 nodes (bge-m3 on CPU)"
 	@echo "if HF weights are cached, export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 to avoid network stalls"
@@ -77,3 +77,40 @@ mcp:
 
 smoke-mcp:
 	$(PY) scripts/smoke_mcp.py
+
+# ===== Docker 打包（交付形态）=====
+# 镜像只装"代码 + 依赖"；模型权重（bge-m3 在 LlamaIndex 缓存、精排在 HF 缓存）、六套索引、
+# HTML 原始快照全部经 docker-compose.yml 挂载复用宿主，因此重建镜像不需要重新下载模型或重建索引。
+# 与 compose 同名变量在此 ?= 并 export：既让 compose 取到值，也让 `make docker-serve WEB_PORT=…`
+# 这类命令行覆盖生效（冒烟脚本据此自动对齐端口，不必手填 --base）。
+WEB_PORT ?= 5173
+BACKEND_PORT ?= 8000
+export WEB_PORT BACKEND_PORT
+# 权重缓存位置覆盖（默认由 compose 按 Windows 用户目录推导；非 Windows 或缓存在他处时设这两个）
+export HF_CACHE_HOST LLAMA_INDEX_CACHE_HOST
+# mock 形态开关（默认 live，见 compose）；HF_OFFLINE=0 允许联网补权重
+export CONTAINER_RAG_MODE HF_OFFLINE
+
+docker-build:
+	docker compose build
+
+docker-serve:
+	docker compose up -d --build
+	@echo "frontend: http://127.0.0.1:$(WEB_PORT)    backend: http://127.0.0.1:$(BACKEND_PORT)/healthz"
+
+docker-stop:
+	docker compose down
+
+docker-logs:
+	docker compose logs -f backend
+
+docker-ps:
+	docker compose ps
+
+# 容器形态冒烟：健康检查 + 前端反代 + 真实问答（SSE，经 nginx）。需先 make docker-serve
+docker-smoke:
+	$(PY) scripts/smoke_docker.py --base http://127.0.0.1:$(WEB_PORT)
+
+# 停栈并删除本机构建的镜像（不动挂载的宿主目录与权重缓存）
+docker-clean:
+	docker compose down --rmi local

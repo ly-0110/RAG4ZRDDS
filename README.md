@@ -66,8 +66,73 @@ live 模式用哪套索引由 `RAG_EXPERIMENT_CONFIG`（默认 `configs/experime
 | `serve` | FastAPI（REST + SSE） | `APP_HOST=` `APP_PORT=` |
 | `inspect` | Node 产物质检与抽查（分来源统计） | — |
 | `mcp` / `smoke-mcp` | MCP Server（stdio）与其端到端冒烟 | — |
+| `docker-build` / `docker-serve` | **Docker 打包**：构建镜像、一键起后端 + 前端容器栈 | `BACKEND_PORT=` `WEB_PORT=` `CONTAINER_RAG_MODE=mock` |
+| `docker-smoke` / `docker-ps` / `docker-logs` / `docker-stop` / `docker-clean` | 容器形态冒烟与运维 | — |
 
 解释器规则：存在 `.venv` 时全部目标自动使用 `.venv` 内的 python，否则回退系统 python；`make help` 会打印当前选中的解释器。
+
+## Docker 打包与部署
+
+容器形态与 make 链路等价，差别在**镜像只装代码与依赖**：模型权重、六套索引、HTML 原始快照全部经 `docker-compose.yml` 挂载复用宿主。因此重建镜像不需要重新下载模型，也不需要重建索引（单套 8~25 分钟）。Dockerfile 也据此分层——`requirements.txt` 与代码各占一层，改代码不触发重装依赖。
+
+```bash
+cp .env.example .env          # 填 LLM_BASE_URL / LLM_API_KEY / LLM_MODEL
+make docker-serve             # = docker compose up -d --build
+make docker-smoke             # 容器形态冒烟（15 项，全过退出码 0）
+```
+
+起好后：问答界面 <http://127.0.0.1:5173>，后端健康检查 <http://127.0.0.1:8000/healthz>。
+
+两个容器：`backend`（FastAPI REST + SSE，容器内 8000）、`frontend`（nginx 托管 Vite 产物 + 反代后端 6 条 API 路径，容器内 80）。前端 API 调用全走相对路径，开发态由 Vite proxy 转发、容器态由 nginx 转发，两态行为一致。
+
+`make docker-smoke` 专测容器栈特有的三类风险并核对真值：
+
+- **静态托管与反代**：前端首页、`/healthz`、`/sources/{rid}` 经 nginx 全通；
+- **SSE 经反代增量下发**：按 token 到达时间戳判定（实测首 token 5.09s → 结束 9.66s）。若 `proxy_buffering` 没关，token 会攒到末尾同一瞬间到达，前端的打字机效果与"停止生成"都会失效；
+- **真值核对**：`10.7 DurabilityQosPolicy` 引用印刷页 127 / 物理页 133、双页码差恒 6、wire 8 字段且无正文泄漏。
+
+### 容器侧配置（都已在 compose 内处理）
+
+- **默认 live**：宿主 `.env` 的 `RAG_MODE=mock` 会被覆盖为 live（mock 是给前端脱离后端联调用的）；要起 mock：`CONTAINER_RAG_MODE=mock make docker-serve`。
+- **启动默认实验**由 `.env` 的 `RAG_EXPERIMENT_CONFIG` 决定；起服务后界面还能逐请求切实验（F4 选择器），前提是对应索引已在 `indexes/` 里。
+- **本地 Ollama 后端**：容器里的 `127.0.0.1` 指容器自身，用 `.env.docker` 覆盖（该文件同样不入 Git）：
+
+  ```bash
+  # .env.docker —— 只放"宿主与容器配置不同"的项，避免来回改 .env
+  LLM_BASE_URL=http://host.docker.internal:11500/v1
+  ```
+
+  compose 的 `env_file` 顺序是 `.env` → `.env.docker`（后者优先），`host.docker.internal` 已映射到宿主。用云端 API 时不需要这个文件。
+- **日志**：请求 / 检索 / 引用回查 / 反馈四级日志落在宿主 `logs/`（挂载），容器重建不丢。
+
+```bash
+make docker-ps        # 容器状态
+make docker-logs      # 跟后端日志（含启动期 bge-m3 预热）
+make docker-stop      # 停栈（不动挂载的宿主目录）
+make docker-clean     # 停栈并删除本机构建的镜像
+```
+
+### 挂载来源
+
+| 挂载 | 宿主来源 | 说明 |
+|---|---|---|
+| `indexes/` | 仓库（`make index` 产出） | 读写挂载：chroma 打开持久化集合要写 sqlite 日志，只读挂载会失败。索引缺失时服务端按配置在容器内重建（单套 8~25 分钟） |
+| `data/raw/` | 仓库 | 只读。`/documents/{source_id}/{file}` 的"打开原文"靠它（实测返回 200 / 176KB 真实 Doxygen 页）；未挂载时引用链接退回配置里的占位地址，不报错也不静默改语义 |
+| `logs/` | 仓库 | 四级日志落宿主 |
+| embedding 权重 | `%LOCALAPPDATA%\llama_index\llama_index\Cache` | **bge-m3 在 LlamaIndex 缓存，不在 HF 缓存**——LlamaIndex 的 `HuggingFaceEmbedding` 会显式传自己的 `cache_dir`（实测把 HF_HOME 指向空目录后模型照常加载，权重根本不在 HF 缓存里） |
+| 精排权重 | `%USERPROFILE%\.cache\huggingface` | `bge-reranker-v2-m3` 走 sentence-transformers `CrossEncoder`，用 HF 默认缓存 |
+
+两个权重缓存均只读挂载（实测可正常加载）。非 Windows 或缓存在他处：`LLAMA_INDEX_CACHE_HOST=<路径> HF_CACHE_HOST=<路径> docker compose up -d`。容器内默认离线（`HF_HUB_OFFLINE=1`）：缓存未命中即以可读错误拒绝启动，不会静默联网卡住。
+
+| 项 | 说明 |
+|---|---|
+| 前置 | Docker Desktop（实测 Docker 29.8 / Compose v5.5.1）+ `.env` 填好 LLM 配置 |
+| 镜像体积 | 后端 2.74GB（torch 走 CPU 专用轮子，避免 CUDA 依赖再涨 2~3GB——实测镜像内 `torch 2.13.0+cpu`）；前端 102MB |
+| 构建耗时 | 后端首建约 3 分钟（pip 装依赖 115s + 导出镜像 43s）；前端首建约 1 分钟。依赖层命中缓存后，改代码重建只需秒级 |
+| 启动耗时 | live 启动期预热实测 7.8s（bge-m3 冷加载，容器内），在端口监听前完成 |
+| 端口 | 与宿主 `make serve`(8000) / `vite`(5173) 是同一批端口，二选一；要并跑：`BACKEND_PORT=8001 WEB_PORT=18080 make docker-serve` |
+| ⚠ 端口被别的进程占用时 | Docker Desktop **不报错**，容器照常 Up 但端口不转发，表现为"容器健康、浏览器 404/连不上"。实测踩过（8080 被宿主某 http 服务占用）——换端口即可 |
+| 构建网络 | 首次拉基础镜像若遇 `auth.docker.io` 超时（IPv6 抖动）重试即可；`npm ci` 默认走 npmmirror（`NPM_REGISTRY` 可换），pip 走清华源（`PIP_INDEX` 可换） |
 
 ## 配置驱动：一次实验一个 yaml
 

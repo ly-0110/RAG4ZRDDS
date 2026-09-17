@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import os
 import threading
 from collections import OrderedDict
 from pathlib import Path

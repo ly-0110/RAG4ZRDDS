@@ -1,0 +1,36 @@
+# 构建上下文排除项：镜像只装"代码 + 依赖"，以下全部经 compose 挂载或不需要。
+#
+# 大资产（宿主挂载，见 docker-compose.yml）
+indexes/
+data/raw/
+data/cleaned/
+logs/
+.hf-cache/
+models/
+
+# 密钥：绝不进镜像层
+.env
+.env.*
+
+# 版本控制与缓存
+.git/
+.gitignore
+.github/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.tmp/
+.mypy_cache/
+.ruff_cache/
+
+# 前端（独立构建上下文 web/RAG4ZRDDS，200MB node_modules 不进后端上下文）
+web/
+
+# 交付与过程物（非运行时依赖）
+report/
+projects/
+evaluation/runs/
+evaluation/reports/runs/

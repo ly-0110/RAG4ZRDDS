@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 from pathlib import Path
-import json, tiktoken
+import json, re, tiktoken
 
 # -------- 统一 Chunk 结构 --------
 @dataclass
