@@ -141,6 +141,9 @@
               :loading="isLoading"
               :has-answer="hasContent"
               :available-experiments="experiments"
+              :active-mode="activeMode"
+              :experiment-modes="experimentModes"
+              :top-k="topK"
               @submit="handleQuery"
               @stop="stopGeneration"
             />
@@ -293,10 +296,17 @@ const knowledgeMode = ref('')
 const kbStats = ref(null)
 const health = ref(null)
 const experiments = computed(() => health.value?.experiments || [])
+// 实验 → 检索模式（/healthz 的 experiment_modes）：既用于工具栏 chip 反映所选通路，
+// 也用于"相关度"口径的判定（见 activeMode）。
+const experimentModes = computed(() => health.value?.experiment_modes || {})
+// 单次回答最多带几条引用：读 /healthz 的 kb.top_k（可选字段）。请求不带 top_k 时后端
+// 实际用 QUERY_TOP_K（默认 5），故 chip 不写死；当前 server 的 kb_stats 尚未下发该字段
+// （待后端接线），缺失时按默认 5 显示——mock 与 live 走的都是这条回退路径。
+const topK = computed(() => kbStats.value?.top_k ?? 5)
 // 当前生效的检索模式：决定"相关度"这类指标怎么显示——vector/hybrid_rerank 的
 // 分数量纲可跨查询比较；bm25（原始词面分）与 hybrid（RRF）不可比（api.md v0.16）。
 const activeMode = computed(() => {
-  const modes = health.value?.experiment_modes || {}
+  const modes = experimentModes.value
   const name = activeExperiment.value
   if (name && modes[name]) return modes[name]
   return kbStats.value?.retrieval_mode || modes[defaultExperiment.value] || 'vector'
@@ -419,7 +429,8 @@ const handleQuery = async (payload) => {
 
     if (!response.ok) {
       const body = await response.json().catch(() => null)
-      throw new Error(body?.error || `请求失败：${response.status} ${response.statusText}`)
+      // 同上：/query 的 4xx 也是 `detail`（空白问题、未知实验），后者才是可读原因。
+      throw new Error(body?.detail ?? body?.error ?? `请求失败：${response.status} ${response.statusText}`)
     }
 
     const reader = response.body.getReader()
@@ -490,7 +501,9 @@ async function submitFeedback(rating) {
     })
     const payload = await response.json().catch(() => null)
     if (!response.ok) {
-      throw new Error(payload?.error || `反馈提交失败：${response.status}`)
+      // FastAPI 的 HTTPException 走 `detail`（如 404 未找到 request_id、400 node_ids 越界），
+      // 只读 `error` 会把后端的可操作说明吞掉、退化成"反馈提交失败：404"。
+      throw new Error(payload?.detail ?? payload?.error ?? `反馈提交失败：${response.status}`)
     }
     feedbackStatus.value = 'success'
   } catch (error) {

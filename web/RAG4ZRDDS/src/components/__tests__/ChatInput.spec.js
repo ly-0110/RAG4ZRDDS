@@ -4,8 +4,9 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect } from 'vitest'
 import ChatInput from '../ChatInput.vue'
+import chatInputSource from '../ChatInput.vue?raw'
 
-const EXPERIMENTS = ['struct_v1', 'struct_multisrc_v1', 'struct_bm25']
+const EXPERIMENTS = ['struct_v1', 'struct_multisrc_v1', 'struct_bm25', 'struct_hybrid']
 
 const mountInput = (props = {}) => mount(ChatInput, { props })
 
@@ -43,6 +44,63 @@ describe('ChatInput 检索模式选择器（F4）', () => {
     const wrapper = mountInput({ availableExperiments: EXPERIMENTS, loading: true })
     expect(wrapper.find('.experiment-selector').attributes('disabled')).toBeDefined()
     expect(wrapper.find('.submit-btn').attributes('disabled')).toBeDefined()
+  })
+})
+
+describe('工具栏检索通路 chip（F4）', () => {
+  const MODES = { struct_v1: 'vector', struct_bm25: 'bm25', struct_hybrid: 'hybrid' }
+
+  it('未选实验时 chip 跟随服务端当前模式（不再写死"语义检索"）', () => {
+    const wrapper = mountInput({ availableExperiments: EXPERIMENTS, activeMode: 'bm25' })
+    expect(wrapper.findAll('.control-chip')[0].text()).toBe('BM25 词面')
+  })
+
+  it('选中实验后 chip 立即按该实验的模式切换（无需先提交）', async () => {
+    const wrapper = mountInput({
+      availableExperiments: EXPERIMENTS,
+      activeMode: 'vector',
+      experimentModes: MODES,
+    })
+    expect(wrapper.findAll('.control-chip')[0].text()).toBe('语义检索')
+
+    await wrapper.find('.experiment-selector').setValue('struct_hybrid')
+    expect(wrapper.findAll('.control-chip')[0].text()).toBe('Hybrid RRF')
+
+    // 换回"默认（服务端配置）"后回落服务端模式
+    await wrapper.find('.experiment-selector').setValue('')
+    expect(wrapper.findAll('.control-chip')[0].text()).toBe('语义检索')
+  })
+
+  it('未知模式 / 缺 health 数据时回落到"语义检索"且不渲染原始模式名', () => {
+    const unknown = mountInput({ availableExperiments: EXPERIMENTS, activeMode: 'mystery' })
+    expect(unknown.findAll('.control-chip')[0].text()).toBe('语义检索')
+
+    const bare = mountInput()
+    expect(bare.findAll('.control-chip')[0].text()).toBe('语义检索')
+    expect(bare.findAll('.control-chip')[1].text()).toBe('Top-K 5')
+  })
+
+  it('Top-K chip 显示后端下发的实际条数（不再写死 5）', () => {
+    const wide = mountInput({ availableExperiments: EXPERIMENTS, topK: 8 })
+    expect(wide.findAll('.control-chip')[1].text()).toBe('Top-K 8')
+  })
+})
+
+describe('F4 窄视口可用性（CSS 契约）', () => {
+  // @media (max-width: 560px) 曾整块 `display: none` 隐藏 .toolbar-options，把
+  // 检索模式选择器一起藏掉——窄窗口/分屏/未合成标签页（媒体查询按窄视口命中）
+  // 下 F4 直接不可用。jsdom 不做真实布局，故退化为对 SFC 源码的契约断言。
+  const source = chatInputSource
+  const narrowBlock = /@media \(max-width: 560px\) \{([\s\S]*?)\n\}/.exec(source)?.[1] || ''
+
+  it('窄视口媒体查询存在且不隐藏 .toolbar-options', () => {
+    expect(narrowBlock).not.toBe('')
+    expect(narrowBlock).not.toMatch(/\.toolbar-options\s*\{[^}]*display:\s*none/)
+  })
+
+  it('窄视口只收起装饰 chip，选择器样式仍生效', () => {
+    expect(narrowBlock).toMatch(/\.toolbar-options \.control-chip\s*\{[^}]*display:\s*none/)
+    expect(narrowBlock).toMatch(/\.experiment-selector\s*\{/)
   })
 })
 

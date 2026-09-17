@@ -81,18 +81,18 @@
    - ✅ "有帮助/无帮助"反馈按钮
 
 2. **修复标注问题**
-   - [ ] 重做 audit_questions.py 审计脚本
+   - [x] 重做审计脚本——`audit_questions.py` 已作废，由 `scripts/audit_annotations.py` 取代（证据：`evaluation/reports/annotation_audit*.md`）
    - [ ] 修正 QoS 策略题的页码标注（入口页→操作页）
    - [ ] 对齐 section 截断落点口径（与 C 会签）
 
 3. **完善详情展示**
-   - [ ] 接回 `/sources/{rid}` API
-   - [ ] 修复查看详情功能退化问题
+   - [x] 接回 `/sources/{rid}` API（`server/api/sources.py` 提供 `GET /sources/{request_id}`，`src/App.vue` 的 `enrichSources()` 回填 `source_url`）
+   - [x] 修复查看详情功能退化问题（`CitationsCard.vue` 走 `GET /nodes/{node_id}`，PDF 显示印刷/物理页区间、HTML 显示文件与跳转 URL）
 
 ### 中优先级
 
 4. **问题集扩展**（等待 HTML 源文件）
-   - [ ] 编写跨来源题目（两来源联合类、版本差异类）
+   - [x] 编写跨来源题目（两来源联合类、版本差异类）：`evaluation/datasets/questions_multisource.jsonl`（12 题：cross_source 10 / debug 1 / faq 1）
    - [ ] 需要 HTML 开发指南源文件（应在 `data/raw/developer-guides/cdoc_html/`）
 
 5. **质量保障**
@@ -103,7 +103,7 @@
 
 6. **文档工作**
    - [ ] Demo README
-   - [ ] 整理测试报告
+   - [x] 整理测试报告：前端全量回归 + 兼容性检查 + 标注审计 → `evaluation/reports/week4_regression_compat.md`（检索矩阵待 D 依新输入重建基准，答案侧指标待 live 管线）
    - [ ] 准备汇报材料
 
 ---

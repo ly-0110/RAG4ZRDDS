@@ -6,7 +6,9 @@
 |---|---|---|
 | `questions.jsonl` | **占位集（15 题）** | 由成员 E 第一周冒烟集 `smoke.json` 转写；正式 80~120 题问题集由 E 按指南 §6.1 类型配比编写并交 C 审核口径后**整体替换**本文件 |
 | `questions_multisource.jsonl` | **跨来源样例集（12 题）** | 基于用户手册 PDF 与 `zrdds_dev_guide` HTML 处理产物编写，覆盖 PDF+HTML 联合、HTML 示例核对和证据边界题 |
-| `expected_sources.jsonl` | **尚无（占位版已于 2026-08-30 移除）** | 期望来源标注。占位版按 `smoke.json` 页码派生，经 Node 产物实证不可用（见下）；缺失时 `run_experiment.py` 只记录检索结果、不计算指标 |
+| `expected_sources.jsonl` | **80 题人工复核标注（2026-09-16 收窄页码区间）** | 期望来源标注。占位版按 `smoke.json` 页码派生、经 Node 产物实证不可用（2026-08-30 移除）；现行版本由 E 逐题对 PDF 核对后收窄页码区间（平均跨度 206.8 → 1.0 页）并复核 `section_keyword`，口径、明细与审计复跑见 `narrow_interval_report.md` |
+| `expected_sources_pre_narrow.jsonl` | **收窄前快照（对照组，勿接入）** | `expected_sources.jsonl` 收窄前的逐字副本（源自 develop），供审计复跑「宽区间」对照：`python evaluation/narrow_interval.py --input evaluation/datasets/expected_sources_pre_narrow.jsonl` 可复现收窄结果 |
+| `narrow_interval_report.md` | **P1 页码区间收窄报告** | 收窄口径、逐题前后明细、`section_keyword` 关键词异常/重定向清单与三态审计校验（生成脚本 `evaluation/narrow_interval.py`）|
 | `expected_sources_multisource.jsonl` | **跨来源样例集标注** | 与 `questions_multisource.jsonl` 配套；HTML 标注使用 `page_print: null`、真实 `section_keyword` 和 `source_url` |
 | `expected_sources.draft.jsonl` | **草稿（E 初版重标，数据未核实，勿接入）** | 格式符合本 README 草案、`run_experiment.py` 可直接消费，保留作格式样例；但页码经 Node 产物抽查不合格——S001 称 9.7.1 在印刷 68（实为 7.3 SQL 过滤）、S003~S006 区间与第 11 章标注自相矛盾，仅 S002 与审计真值一致（2026-09-02，详见 AGENTS 当日记录）；且 id 为 S001~S015，与 `questions.jsonl` 的 Q001~Q015 不对应。**接入条件**：E 逐题对 PDF 核对（页码地面真值=页眉印刷数字）、id 与问题集对齐、C 定口径后，方可改名 `expected_sources.jsonl` 接入 |
 | `smoke.json` | 第一周原始冒烟集（E 于 PR #13 重写，S001~S015 带自由文本页码） | 保留为来源依据，不直接参与评测（无任何脚本/配置引用）；页码主张同样未经核实 |

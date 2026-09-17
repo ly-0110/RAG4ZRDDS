@@ -213,6 +213,8 @@ python scripts/run_experiment.py --config configs/experiments/struct_v1.yaml --r
 - [ ] 重新执行回归测试
 - [ ] 分析测试结果并对比 Week 2 基线
 
+> **后续进展（2026-09-17）**：前端侧全量回归与兼容性检查已可离线执行并出报告 → `evaluation/reports/week4_regression_compat.md`（vitest 25/25、cypress 4/4、ESLint、build、Chromium+Edge 与三档视口、三份标注审计）。上表 5 项涉及 live 管线与 `.env` 的条目仍未闭环，属成员 B/C 依赖。
+
 ---
 
 ## 📊 项目状态总览
