@@ -88,7 +88,7 @@ make regression REG_ARGS=--changed-only                         # 按 git 变更
 make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准锚点
 ```
 
-- **标注闸门**：`make audit` 的判据**只来自 A 的产物与章节树**（不调检索器），因此能抓出"标注 = 检索 top-1 回显"的自证循环，也能抓出题面本身的损坏（如写入环节的有损转码）；退出码非 0 时不得启用 `--with-metrics`。2026-09-17 现状：循环论证指纹 **0/120**、题面乱码 0 处、早先 48 题阻断已清零；**仍判 blocked 的是 4 题口径问题**（"策略章节页 vs 字段说明页"，待 C 定口径），故正式检索指标继续保持静默（见 `docs/week4-delivery-review.md` §3.11）。
+- **标注闸门**：`make audit` 的判据**只来自 A 的产物与章节树**（不调检索器），因此能抓出"标注 = 检索 top-1 回显"的自证循环，也能抓出题面本身的损坏（如写入环节的有损转码）；退出码非 0 时不得启用 `--with-metrics`。2026-09-17 现状：判定 **pass**——循环论证指纹 **0/120**、题面乱码 0 处、阻断项 0（历史 44/120 → 48 题 → 4 题 → 0）；指标通道已随 `--with-metrics` 启用。
 
 - **双通道**：默认只比"检索明细"（top-K 重合率 / rank-1 一致率 / 空结果数 / 耗时），与标注无关即可发现退化；指标通道需 `--with-metrics` 显式启用（当前标注未定版，见下）。
 - **可比性闸门**：比对前核 `config_hash8` 与 Node 集 / 问题集 / 标注集三份指纹；输入变了判 `incomparable` 而非"回归"。
@@ -107,7 +107,7 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 | [`evaluation.md`](./docs/evaluation.md) | 检索实验方法学与四组对比证据链（B 域） |
 | [`reliability-report.md`](./docs/reliability-report.md) | 可靠性与拒答专项报告（C 域） |
 | [`retrieval-log-schema.md`](./docs/retrieval-log-schema.md) | 检索日志字段定义与会签结论（B/D） |
-| [`answer-log-schema-draft.md`](./docs/answer-log-schema-draft.md) | 回答级日志字段草案（D 拟稿，待 C 回签） |
+| [`answer-log-schema-draft.md`](./docs/answer-log-schema-draft.md) | 回答级日志字段定义（v1.0 定版并已落地） |
 | [`citation-contract-draft.md`](./docs/citation-contract-draft.md) | Citation 契约与待决问题（C/E 会签中） |
 | [`source-priority-draft.md`](./docs/source-priority-draft.md) | 多来源优先级草案（C 域） |
 | [`index-rebuild-drill.md`](./docs/index-rebuild-drill.md) | 索引重建/回切演练与实测计时表 |
@@ -136,7 +136,7 @@ make regression REG_ARGS="--only struct_v1,struct_bm25 --promote"   # 提基准�
 以下限制如实登记，请勿在汇报中当作已完成：
 
 - **检索正式指标已解冻（2026-09-17）**：`make audit` 判 **pass**（循环论证指纹 0/120、题面乱码 0、阻断项 0），`make regression --with-metrics` 已启用，**12 个实验 12/12 pass**；正式检索指标与逐题分析见 [`docs/experiment-results.md`](./docs/experiment-results.md)。
-- **回答侧评测（2026-09-17 已实测）**：`final_v1`（Prompt v2 + source_priority）120 题终跑——faithfulness **0.8950** / answer_relevance **0.9883** / correctness **0.9633** / citation_accuracy **0.9583**（均 n=120、判分失败 0），拒答 29/120；**20 题拒答专项 = 0 虚构**（16/20 显式拒答，另 4 题以"事实性否定 + 语料引用"作答，机器闸门因此退码 1，口径待 C 会签）；30 题人工抽检清单待签署。明细见 `docs/week4-delivery-review.md` §3.13。注意报告 `response.answer_seconds` 才是回答侧墙钟（120 题约 84 分钟，本地 9B），`duration_seconds` 仍是检索阶段耗时。
-- **SSE wire 第 8 字段**：HTML 引用的 `source_url` 已可经 `GET /sources/{rid}`（及 MCP `get_sources`）回查获得（api.md v0.11），前端已消费该通道并渲染外链；SSE 的 `sources` 事件仍是 7 字段，正式扩进 wire 需 B/C/E 会签。
-- **回答级日志未接线**：三级日志的请求级与检索级已落地（`logs/requests.jsonl` / `logs/retrievals.jsonl`），回答级字段定义属 C 的职责、目前缺位——D 已拟草案 [`docs/answer-log-schema-draft.md`](./docs/answer-log-schema-draft.md) 待 C 回签后接线。
+- **回答侧评测（2026-09-17 已实测）**：`final_v1`（Prompt v2 + source_priority）120 题终跑——faithfulness **0.8950** / answer_relevance **0.9883** / correctness **0.9633** / citation_accuracy **0.9583**（均 n=120、判分失败 0），拒答 29/120；**20 题拒答专项 = 20/20 全部不虚构**（16 题显式拒答 + 4 题"事实性否定 + 引用"，后者经会签计入合格）。注意报告 `response.answer_seconds` 才是回答侧墙钟（120 题约 84 分钟，本地 9B），`duration_seconds` 仍是检索阶段耗时。30 题人工抽检清单已生成、待签署。全部数字见 [`docs/experiment-results.md`](./docs/experiment-results.md)。
+- **SSE wire 8 字段（已定版）**：`source_url` 已升为 wire 第 8 字段（api.md **v0.17**），`sources`/`done` 事件与 `/sources/{rid}`、MCP `get_sources` 三处同形——HTML 引用给本地 `/documents/…` 地址，PDF 为 `null`；既有 7 字段零变化。
+- **三级日志全部落地**：请求级 `logs/requests.jsonl`、检索级 `logs/retrievals.jsonl`、**回答级 `logs/answers.jsonl`**（字段定义 [`docs/answer-log-schema-draft.md`](./docs/answer-log-schema-draft.md) v1.0，终态 stop/error/cancelled 各写一条）。
 - **容器化未验证**：交付环境本机无 Docker，快速开始以 `make` 链路为准；Docker 方案的验证状态见 `docs/week4-delivery-review.md`。

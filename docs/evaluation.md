@@ -17,7 +17,7 @@
 
 - **题集**：`evaluation/datasets/questions.jsonl` 120 题（api_use 36 / config 30 / version 13 / operation 12 / error_code 11 / faq 11 / debug 7）。
 - **执行**：`scripts/run_experiment.py`（D 的评测平台），报告落 `evaluation/reports/*.json`（schema v1.1，含三份输入产物指纹）。
-- **指标状态**：E 重标（PR#36）后 `make audit` 门禁现为 **pass**（阻断 0、循环论证指纹 4/120；09-14 快照的 blocked「48 题 token 与标注页错位」已解除）。但 PR#36 遗留 P0（六题题干编码损坏，待 E 重做）与 P1（宽区间 keyword 复核）未清、多来源标注接线待定版（D 域，见 `docs/week4-delivery-review.md` §3.4/§4），按「宁缺毋滥」协议本轮仍为**证据链模式**（`expected_sources: null`）——不产出 hit_rate/mrr 数字，用不依赖真值的结构性证据（来源分布、top-1 漂移、模式间一致率）对比四组。定版后翻配置重跑即可补全正式指标。
+- **指标状态（2026-09-17 更新）**：`make audit` 门禁 **pass**（阻断 0、循环论证指纹 0/120、题面乱码 0），标注整改完成（区间收窄 120/120、Q056 已对齐真值）；多来源标注集已接线。**正式检索指标已产出**——本文此前的"证据链模式"（`expected_sources: null`）已结束，四组对比的 hit_rate@5 / mrr@5 / precision@5 / recall@5 实测值见 [`docs/experiment-results.md`](experiment-results.md) §3；结构性证据（来源分布、top-1 漂移）仍保留在对应实验报告中。
 
 ## 2. 四组对比结果
 
@@ -92,7 +92,7 @@
 
 ## 4. 局限与后续
 
-- **正式指标待多来源标注接线**：`make audit` 门禁已 pass（2026-09-15）；待 E 的多来源标注（`questions_multisource.jsonl` / `expected_sources_multisource.jsonl`）定版、D 完成配置接线后重跑，即可补 hit_rate@5 / mrr@5 与基线差值。
+- **正式指标已补齐（2026-09-17）**：多来源标注集（`questions_multisource.jsonl` / `expected_sources_multisource.jsonl`，12 题/25 标注）已接线到六个 `struct_multisrc_*` 配置；hit_rate@5 / mrr@5 / precision@5 / recall@5 实测值与基线差值见 `docs/experiment-results.md` §3.3。
 - **A 终版 Node 集未冻结**：若 A 交付终版后产物变更，索引需重建、四组需重跑（增量成本：向量重建约 25 分钟（D 实测，Ryzen 7 9700X）/本机冷启首建实测 87 分钟 + 检索约 2 分钟 + 精排约 2.1 小时（本机））。
 - **精排 CPU 成本**：512 截断后单组约 2.1 小时（本机）；全量回归矩阵含精排组时建议 `--only` 选择性运行（D 的 `run_regression.py` 支持）。
 - **双版本同源场景当前不存在**：版本加权/过滤的机制是通用的，但「同一文档多版本并存」的真实场景要等语料扩充后才能实测。
